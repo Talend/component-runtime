@@ -68,6 +68,10 @@ final String buildTimestamp = String.format('-%tY%<tm%<td%<tH%<tM%<tS', LocalDat
 final String artifactoryAddr = "https://artifactory.datapwn.com"
 final String artifactoryPath = "tlnd-docker-dev/talend/common/tacokit"
 
+final String BUILD_LOG_FILE = "build.log"
+final String DEPLOY_LOG_FILE = "deploy.log"
+final String MAVEN_GREP_FILTER = "WARN|ERROR|-----------[| :: |-------<|\\[[0-9]+/[0-9]+\\]|\\[INFO\\] Reactor|\\[INFO\\] BUILD"
+
 // Job variables declaration
 String branch_user
 String branch_ticket
@@ -80,8 +84,9 @@ Boolean devBranch_mavenDeploy = false
 Boolean devBranch_dockerPush = false
 
 
-String skipOptions = "-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
-String deployOptions = "$skipOptions -Possrh -Prelease -Pgpg2 -Denforcer.skip=true"
+final String BUILD_ARGS = "-Dgpg.skip=true -Denforcer.skip=true"
+final String skipOptions = "-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
+final String deployOptions = "$skipOptions -Possrh -Prelease -Pgpg2 -Denforcer.skip=true"
 
 
 pipeline {
@@ -98,7 +103,6 @@ pipeline {
 
   environment {
     MAVEN_OPTS = "-Dformatter.skip=true -Dmaven.artifact.threads=256"
-    BUILD_ARGS = "-Dgpg.skip=true -Denforcer.skip=true"
     ARTIFACTORY_REGISTRY = "artifactory.datapwn.com"
     VERACODE_APP_NAME = 'Talend Component Kit'
     VERACODE_SANDBOX = 'component-runtime'
@@ -106,7 +110,9 @@ pipeline {
   }
 
   options {
-    buildDiscarder(logRotator(artifactNumToKeepStr: '10', numToKeepStr: branch_name == 'master' ? '15' : '10'))
+    buildDiscarder(logRotator(artifactNumToKeepStr: '5',
+                              numToKeepStr: '5',
+                              daysToKeepStr: '10'))
     timeout(time: 180, unit: 'MINUTES')
     skipStagesAfterUnstable()
   }
@@ -321,16 +327,14 @@ pipeline {
               - We do not want to deploy on dev branch
               """.stripIndent()
             finalVersion = pomVersion
-          }
-          else {
+          } else {
             branch_user = ""
             branch_ticket = ""
             branch_description = ""
             if (params.VERSION_QUALIFIER != ("DEFAULT")) {
               // If the qualifier is given, use it
               println """No need to add qualifier, use the given one: "$params.VERSION_QUALIFIER" """
-            }
-            else {
+            } else {
               println "Validate the branch name"
 
               (branch_user,
@@ -405,6 +409,7 @@ pipeline {
         }
       }
     }
+
     stage('Post login') {
       steps {
         withCredentials([gitCredentials,
@@ -429,22 +434,29 @@ pipeline {
         }
       }
     }
+
     stage('Maven validate to install') {
       when { expression { params.ACTION != 'RELEASE' } }
       steps {
         withCredentials([ossrhCredentials,
                          nexusCredentials]) {
           sh """\
-            #!/usr/bin/env bash
-            set -xe
-            mvn clean install $BUILD_ARGS \
-                              $extraBuildParams \
-                              --settings .jenkins/settings.xml
-            """.stripIndent()
+          #!/usr/bin/env bash
+          set -xe
+          # Run the Maven command, save full output to the log file, and filter live output
+          mvn clean install $BUILD_ARGS \
+                            $extraBuildParams \
+                            --settings .jenkins/settings.xml \
+                            2>&1 | tee $BUILD_LOG_FILE | grep -E '$MAVEN_GREP_FILTER'
+          """.stripIndent()
         }
       }
       post {
         always {
+          script {
+            jenkinsJobTools.job_description_append("You will find full build logs in artefacts as $BUILD_LOG_FILE")
+            archiveArtifacts artifacts: "${"**/$BUILD_LOG_FILE"}", allowEmptyArchive: false, onlyIfSuccessful: false
+          }
           recordIssues(
               enabledForFailure: false,
               tools: [
@@ -458,6 +470,7 @@ pipeline {
         }
       }
     }
+
     stage('Maven deploy') {
       when {
         anyOf {
@@ -475,7 +488,8 @@ pipeline {
               set -xe
               bash mvn deploy $deployOptions \
                               $extraBuildParams \
-                              --settings .jenkins/settings.xml
+                              --settings .jenkins/settings.xml \
+                              2>&1 | tee $DEPLOY_LOG_FILE | grep -E '$MAVEN_GREP_FILTER'
               """.stripIndent()
           }
         }
@@ -485,8 +499,7 @@ pipeline {
           if (devBranch_mavenDeploy) {
             repo = ['artifacts-zl.talend.com',
                     'https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/org/talend/sdk/component']
-          }
-          else {
+          } else {
             repo = ['oss.sonatype.org',
                     'https://central.sonatype.com/repository/maven-snapshots/org/talend/sdk/component/']
           }
@@ -494,7 +507,16 @@ pipeline {
           jenkinsJobTools.job_description_append("Maven artefact deployed as ${finalVersion} on [${repo[0]}](${repo[1]})  ")
         }
       }
+      post {
+        always {
+          script {
+            jenkinsJobTools.job_description_append("You will find full deploy logs in artefacts as $DEPLOY_LOG_FILE")
+            archiveArtifacts artifacts: "${"**/$DEPLOY_LOG_FILE"}", allowEmptyArchive: false, onlyIfSuccessful: false
+          }
+        }
+      }
     }
+
     stage('Docker build/push') {
       when {
         anyOf {
@@ -510,13 +532,11 @@ pipeline {
             if (isStdBranch) {
               // Build and push all images
               jenkinsJobTools.job_description_append("Docker images deployed: component-server, component-starter-server and remote-engine-customizer  ")
-            }
-            else {
+            } else {
               String image_list
               if (params.DOCKER_CHOICE == 'All') {
                 images_options = 'false'
-              }
-              else {
+              } else {
                 images_options = 'false ' + params.DOCKER_CHOICE
               }
 
@@ -524,25 +544,22 @@ pipeline {
                 jenkinsJobTools.job_description_append("All docker images deployed  ")
 
                 jenkinsJobTools.job_description_append("As ${finalVersion}${buildTimestamp} on " +
-                                                       "[artifactory.datapwn.com]" +
-                                                       "($artifactoryAddr/$artifactoryPath)  ")
+                                                           "[artifactory.datapwn.com]" +
+                                                           "($artifactoryAddr/$artifactoryPath)  ")
                 jenkinsJobTools.job_description_append("docker pull $artifactoryAddr/$artifactoryPath" +
-                                                       "/component-server:${finalVersion}${buildTimestamp}  ")
+                                                           "/component-server:${finalVersion}${buildTimestamp}  ")
                 jenkinsJobTools.job_description_append("docker pull $artifactoryAddr/$artifactoryPath" +
-                                                       "/component-starter-server:${finalVersion}${buildTimestamp}  ")
+                                                           "/component-starter-server:${finalVersion}${buildTimestamp}  ")
                 jenkinsJobTools.job_description_append("docker pull $artifactoryAddr/$artifactoryPath" +
-                                                       "/remote-engine-customize:${finalVersion}${buildTimestamp}  ")
+                                                           "/remote-engine-customize:${finalVersion}${buildTimestamp}  ")
 
-              }
-              else {
+              } else {
                 jenkinsJobTools.job_description_append("Docker images deployed: $params.DOCKER_CHOICE  ")
                 jenkinsJobTools.job_description_append("As ${finalVersion}${buildTimestamp} on " +
-                                                       "[artifactory.datapwn.com]($artifactoryAddr/$artifactoryPath)  ")
+                                                           "[artifactory.datapwn.com]($artifactoryAddr/$artifactoryPath)  ")
                 jenkinsJobTools.job_description_append("docker pull $artifactoryAddr/$artifactoryPath/$params.DOCKER_CHOICE:" +
-                                                       "${finalVersion}${buildTimestamp}  ")
-
+                                                           "${finalVersion}${buildTimestamp}  ")
               }
-
             }
 
             // Build and push specific image
@@ -552,10 +569,10 @@ pipeline {
                   ${images_options}
               """
           }
-
         }
       }
     }
+
     stage('Documentation') {
       when {
         expression {
@@ -577,6 +594,7 @@ pipeline {
         }
       }
     }
+
     stage('OSS security analysis') {
       when {
         anyOf {
@@ -607,6 +625,7 @@ pipeline {
         }
       }
     }
+
     stage('Deps report') {
       when {
         anyOf {
@@ -647,6 +666,7 @@ pipeline {
         }
       }
     }
+
     stage('Sonar') {
       when {
         expression { (params.ACTION != 'RELEASE') && !params.DISABLE_SONAR }
@@ -667,8 +687,7 @@ pipeline {
                                 '${pull_request_id}' \
                                 ${extraBuildParams}
                             """
-            }
-            else {
+            } else {
               echo 'Run analysis for branch'
               sh """
                             bash .jenkins/scripts/mvn_sonar_branch.sh \
@@ -680,6 +699,7 @@ pipeline {
         }
       }
     }
+
     stage('Release') {
       when {
         allOf {
@@ -857,12 +877,10 @@ private static String add_qualifier_to_version(String version, String ticket, St
   if (user_qualifier.contains("DEFAULT")) {
     if (version.contains("-SNAPSHOT")) {
       new_version = version.replace("-SNAPSHOT", "-$ticket-SNAPSHOT" as String)
-    }
-    else {
+    } else {
       new_version = "$version-$ticket".toString()
     }
-  }
-  else {
+  } else {
     new_version = version.replace("-SNAPSHOT", "-$user_qualifier-SNAPSHOT" as String)
   }
   return new_version
