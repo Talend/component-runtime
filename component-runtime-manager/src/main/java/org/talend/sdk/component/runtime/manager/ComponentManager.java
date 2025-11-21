@@ -899,16 +899,31 @@ public class ComponentManager implements AutoCloseable {
         // common for studio until job generation is updated to build a tcomp friendly bundle
         if (classpath && !Boolean.getBoolean("component.manager.classpath.skip")) {
             try {
+                final String markerValue = "TALEND-INF/dependencies.txt";
                 final Enumeration<URL> componentMarkers =
-                        Thread.currentThread().getContextClassLoader().getResources("TALEND-INF/dependencies.txt");
+                        Thread.currentThread().getContextClassLoader().getResources(markerValue);
                 while (componentMarkers.hasMoreElements()) {
-                    File file = Files.toFile(componentMarkers.nextElement());
-                    if (file.getName().equals("dependencies.txt") && file.getParentFile() != null
-                            && file.getParentFile().getName().equals("TALEND-INF")) {
-                        file = file.getParentFile().getParentFile();
-                    }
-                    if (!hasPlugin(container.buildAutoIdFromName(file.getName()))) {
-                        addPlugin(file.getAbsolutePath());
+                    final URL marker = componentMarkers.nextElement();
+                    File file = Files.toFile(marker);
+                    if (file != null) {
+                        if (file.getName().equals("dependencies.txt") && file.getParentFile() != null
+                                && file.getParentFile().getName().equals("TALEND-INF")) {
+                            file = file.getParentFile().getParentFile();
+                        }
+                        if (!hasPlugin(container.buildAutoIdFromName(file.getName()))) {
+                            addPlugin(file.getAbsolutePath());
+                        }
+                    } else {
+                        // lookup nested jar
+                        if (marker != null && "jar".equals(marker.getProtocol())) {
+                            final String urlFile = marker.getFile();
+                            final String jarPath = urlFile.substring(0, urlFile.lastIndexOf("!"));
+                            final String relativePath = jarPath.substring(jarPath.indexOf("!"));
+                            final String jarFilePath = jarPath.substring(jarPath.lastIndexOf("/") + 1);
+                            if (!hasPlugin(container.buildAutoIdFromName(jarFilePath))) {
+                                addPlugin(jarPath);
+                            }
+                        }
                     }
                 }
             } catch (final IOException e) {
@@ -1299,11 +1314,14 @@ public class ComponentManager implements AutoCloseable {
 
             final AnnotationFinder finder;
             Archive archive = null;
+            final String rootModule = container.getRootModule();
+            final boolean nested = rootModule != null && rootModule.startsWith("nested:");
             try {
                 String alreadyScannedClasses = null;
                 Filter filter = KnownClassesFilter.INSTANCE;
-                try (final InputStream containerFilterConfig =
-                        container.getLoader().getResourceAsStream("TALEND-INF/scanning.properties")) {
+                try (final InputStream containerFilterConfig = nested
+                        ? loader.getNestedResource(rootModule + "!/TALEND-INF/scanning.properties")
+                        : loader.getResourceAsStream("TALEND-INF/scanning.properties")) {
                     if (containerFilterConfig != null) {
                         final Properties config = new Properties();
                         config.load(containerFilterConfig);
@@ -1778,8 +1796,10 @@ public class ComponentManager implements AutoCloseable {
                 }
             }
             info(module + " (" + moduleId + ") is not a file, will try to look it up from a nested maven repository");
-            final URL nestedJar =
-                    loader.getParent().getResource(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + module);
+            URL nestedJar = loader.getParent().getResource(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + module);
+            if (nestedJar == null) {
+                nestedJar = loader.getParent().getResource(module);
+            }
             if (nestedJar != null) {
                 InputStream nestedStream = null;
                 final JarInputStream jarStream;

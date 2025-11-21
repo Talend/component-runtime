@@ -99,7 +99,7 @@ class ResolverImplTest {
 
     private void addDepToJar(final String dep, final JarOutputStream out) {
         final String[] segments = dep.split(":");
-        final String path = "MAVEN-INF/repository/" + segments[0].replace(".", "/") + "/" + segments[1] + "/"
+        final String path = segments[0].replace(".", "/") + "/" + segments[1] + "/"
                 + segments[3] + "/" + segments[1] + "-" + segments[3] + "." + segments[2];
 
         // create folders for this m2 embedded deps
@@ -114,7 +114,7 @@ class ResolverImplTest {
             }
         }
         // add the dep
-        final File jar = new File("target/test-dependencies", path.substring("MAVEN-INF/repository/".length()));
+        final File jar = new File("target/test-dependencies", path);
         try {
             out.putNextEntry(new ZipEntry(path));
             Files.copy(jar.toPath(), out);

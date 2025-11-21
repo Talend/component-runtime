@@ -101,7 +101,7 @@ public class Container implements Lifecycle {
         this.dependencies = dependencies;
         this.localDependencyRelativeResolver = localDependencyRelativeResolver;
         this.lastModifiedTimestamp.set(new Date(0));
-        this.hasNestedRepository = hasNestedRepository;
+        this.hasNestedRepository = rootModule.startsWith("nested:") || hasNestedRepository;
         ofNullable(initializer).ifPresent(i -> i.accept(this));
 
         this.classloaderProvider = () -> {
@@ -143,9 +143,11 @@ public class Container implements Lifecycle {
                                     .distinct()
                                     .toArray(String[]::new)
                             : null;
-            final ConfigurableClassLoader loader = new ConfigurableClassLoader(id, urls,
-                    overrideClassLoaderConfig.getParent(), overrideClassLoaderConfig.getParentClassesFilter(),
-                    overrideClassLoaderConfig.getClassesFilter(), rawNestedDependencies, jvmMarkers);
+            final Predicate<String> parentFilter =
+                    this.hasNestedRepository ? (name) -> true : overrideClassLoaderConfig.getClassesFilter();
+            final ConfigurableClassLoader loader =
+                    new ConfigurableClassLoader(id, urls, overrideClassLoaderConfig.getParent(), parentFilter,
+                            overrideClassLoaderConfig.getClassesFilter(), rawNestedDependencies, jvmMarkers);
             transformers.forEach(loader::registerTransformer);
             activeSpecificTransformers(loader);
             return loader;
@@ -171,7 +173,7 @@ public class Container implements Lifecycle {
         }
         final URL url = overrideClassLoaderConfig
                 .getParent()
-                .getResource(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + depPath);
+                .getResource(depPath);
         return url != null;
     }
 
@@ -305,6 +307,10 @@ public class Container implements Lifecycle {
 
     public Date getCreated() {
         return created.get();
+    }
+
+    public boolean hasNestedRepository() {
+        return hasNestedRepository;
     }
 
     public void registerTransformer(final ClassFileTransformer transformer) {

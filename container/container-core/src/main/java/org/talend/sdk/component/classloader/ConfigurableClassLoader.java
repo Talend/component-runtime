@@ -28,6 +28,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.ClassFileTransformer;
@@ -38,7 +40,10 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.security.CodeSource;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
@@ -55,6 +60,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Predicate;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
@@ -150,7 +156,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
     private void loadNestedDependencies(final ClassLoader parent, final String[] nestedDependencies) {
         final byte[] buffer = new byte[8192]; // should be good for most cases
         final ByteArrayOutputStream out = new ByteArrayOutputStream(buffer.length);
-        Stream.of(nestedDependencies).map(d -> NESTED_MAVEN_REPOSITORY + d).forEach(resource -> {
+        Stream.of(nestedDependencies).forEach(resource -> {
             final URL url = ofNullable(super.findResource(resource)).orElseGet(() -> parent.getResource(resource));
             if (url == null) {
                 throw new IllegalArgumentException("Didn't find " + resource + " in " + asList(nestedDependencies));
@@ -459,7 +465,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
     }
 
     private boolean isNestedDependencyResource(final String name) {
-        return name != null && name.startsWith(NESTED_MAVEN_REPOSITORY);
+        return name.startsWith(NESTED_MAVEN_REPOSITORY) || name.endsWith(".jar");
     }
 
     private boolean isInJvm(final URL resource) {
@@ -499,6 +505,60 @@ public class ConfigurableClassLoader extends URLClassLoader {
                     .collect(toList());
         } catch (final IOException e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+    /**
+     * Opens a stream to a resource located in a nested JAR.
+     *
+     * @param nestedUrl The full "nested:" URL, e.g.
+     * nested:/path/to/outer.jar/!path/inner.jar!/file.txt
+     * @return InputStream to the resource (must be closed by caller)
+     */
+    public InputStream getNestedResource(final String nestedUrl) throws IOException {
+        if (nestedUrl == null || !nestedUrl.startsWith("nested:")) {
+            throw new IllegalArgumentException("Invalid nested URL: " + nestedUrl);
+        }
+        final String path = nestedUrl.substring("nested:".length());
+        // Find the "/!" and "!/" separators
+        final int firstBang = path.indexOf("/!");
+        final int secondBang = path.indexOf("!/", firstBang + 2);
+        if (firstBang < 0 || secondBang < 0) {
+            throw new IllegalArgumentException("Malformed nested URL: " + nestedUrl);
+        }
+        final Path outerJarPath = Paths.get(path.substring(0, firstBang)); // before /!
+        final String innerJarPath = path.substring(firstBang + 2, secondBang); // between /! and !/
+        final String resourcePath = path.substring(secondBang + 2); // after the last !/
+        // Open the outer JAR file
+        try (JarFile outerJar = new JarFile(outerJarPath.toFile())) {
+            JarEntry innerEntry = outerJar.getJarEntry(innerJarPath);
+            if (innerEntry == null) {
+                throw new FileNotFoundException("Inner JAR not found: " + innerJarPath);
+            }
+            // Copy the inner JAR to a temporary file
+            try (InputStream innerStream = outerJar.getInputStream(innerEntry)) {
+                final Path tempInnerJar = Files.createTempFile("nested-inner-", ".jar");
+                Files.copy(innerStream, tempInnerJar, StandardCopyOption.REPLACE_EXISTING);
+
+                final JarFile innerJar = new JarFile(tempInnerJar.toFile());
+                final JarEntry resourceEntry = innerJar.getJarEntry(resourcePath);
+                if (resourceEntry == null) {
+                    innerJar.close();
+                    Files.deleteIfExists(tempInnerJar);
+                    throw new FileNotFoundException("Resource not found: " + resourcePath);
+                }
+
+                // Return a stream that cleans up automatically when closed
+                return new FilterInputStream(innerJar.getInputStream(resourceEntry)) {
+
+                    @Override
+                    public void close() throws IOException {
+                        super.close();
+                        innerJar.close();
+                        Files.deleteIfExists(tempInnerJar);
+                    }
+                };
+            }
         }
     }
 
