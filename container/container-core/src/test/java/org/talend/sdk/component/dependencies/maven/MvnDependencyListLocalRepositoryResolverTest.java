@@ -33,6 +33,7 @@ import java.util.zip.ZipEntry;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.test.dependencies.DependenciesTxtBuilder;
 
 class MvnDependencyListLocalRepositoryResolverTest {
@@ -58,7 +59,7 @@ class MvnDependencyListLocalRepositoryResolverTest {
                 new URLClassLoader(new URL[] { file.toURI().toURL() }, getSystemClassLoader())) {
             final List<String> toResolve =
                     new MvnDependencyListLocalRepositoryResolver("TALEND-INF/dependencies.txt", d -> null)
-                            .resolve(tempLoader, "foo/bar/dummy/1.0.0/dummy-1.0.0.jar")
+                            .resolve(tempLoader, "MAVEN-INF/repository/foo/bar/dummy/1.0.0/dummy-1.0.0.jar")
                             .map(Artifact::toPath)
                             .collect(toList());
             assertEquals(asList("org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar",
@@ -71,8 +72,7 @@ class MvnDependencyListLocalRepositoryResolverTest {
         final File file = new File(temporaryFolder, UUID.randomUUID().toString() + ".jar");
         file.getParentFile().mkdirs();
         try (final JarOutputStream enclosing = new JarOutputStream(new FileOutputStream(file))) {
-            enclosing.putNextEntry(
-                    new ZipEntry("MAVEN-INF/repository/foo/bar/dummy/1.0.0-TCOMP-2285/dummy-1.0.0-TCOMP-2285.jar"));
+            enclosing.putNextEntry(new ZipEntry("BOOT-INF/lib/dummy-1.0.0-TCOMP-2285.jar"));
             try (final JarOutputStream nested = new JarOutputStream(enclosing)) {
                 nested.putNextEntry(new ZipEntry("TALEND-INF/dependencies.txt"));
                 nested
@@ -85,10 +85,13 @@ class MvnDependencyListLocalRepositoryResolverTest {
         }
 
         try (final URLClassLoader tempLoader =
-                new URLClassLoader(new URL[] { file.toURI().toURL() }, getSystemClassLoader())) {
+                new URLClassLoader(new URL[] { file.toURI().toURL() }, getSystemClassLoader());
+                final ConfigurableClassLoader ccl = new ConfigurableClassLoader("test",
+                        new URL[] {}, getSystemClassLoader(), name -> true, name -> true,
+                        new String[] {}, new String[0])) {
             final List<String> toResolve =
                     new MvnDependencyListLocalRepositoryResolver("TALEND-INF/dependencies.txt", d -> null)
-                            .resolve(tempLoader, "foo/bar/dummy/1.0.0-TCOMP-2285/dummy-1.0.0-TCOMP-2285.jar")
+                            .resolve(tempLoader, "BOOT-INF/lib/dummy-1.0.0-TCOMP-2285.jar")
                             .map(Artifact::toPath)
                             .collect(toList());
             assertEquals(asList("org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar",
