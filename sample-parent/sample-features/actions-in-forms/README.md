@@ -22,7 +22,7 @@ mvn clean install
 
 How to deploy in a studio:
 ```
-java -jar .\target\tckValidation-1.0-SNAPSHOT.car studio-deploy  --location "<path to your studio>\" -f
+java -jar .\target\actionsInForms-x.y.z.car studio-deploy  --location "<path to your studio>" -f
 ```
 
 ## How to use
