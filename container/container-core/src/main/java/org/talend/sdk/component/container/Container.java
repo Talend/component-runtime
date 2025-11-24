@@ -144,7 +144,7 @@ public class Container implements Lifecycle {
                                     .toArray(String[]::new)
                             : null;
             final Predicate<String> parentFilter =
-                    this.hasNestedRepository ? (name) -> true : overrideClassLoaderConfig.getClassesFilter();
+                    this.hasNestedRepository ? (name) -> true : overrideClassLoaderConfig.getParentClassesFilter();
             final ConfigurableClassLoader loader =
                     new ConfigurableClassLoader(id, urls, overrideClassLoaderConfig.getParent(), parentFilter,
                             overrideClassLoaderConfig.getClassesFilter(), rawNestedDependencies, jvmMarkers);
