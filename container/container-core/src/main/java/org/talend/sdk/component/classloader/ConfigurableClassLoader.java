@@ -548,6 +548,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
                     // Return a stream that cleans up automatically when closed
                     return new FilterInputStream(innerJar.getInputStream(resourceEntry)) {
+
                         @Override
                         public void close() throws IOException {
                             super.close();
