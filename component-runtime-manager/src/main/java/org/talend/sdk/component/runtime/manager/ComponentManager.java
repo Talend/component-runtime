@@ -918,7 +918,6 @@ public class ComponentManager implements AutoCloseable {
                         if (marker != null && "jar".equals(marker.getProtocol())) {
                             final String urlFile = marker.getFile();
                             final String jarPath = urlFile.substring(0, urlFile.lastIndexOf("!"));
-                            final String relativePath = jarPath.substring(jarPath.indexOf("!"));
                             final String jarFilePath = jarPath.substring(jarPath.lastIndexOf("/") + 1);
                             if (!hasPlugin(container.buildAutoIdFromName(jarFilePath))) {
                                 addPlugin(jarPath);

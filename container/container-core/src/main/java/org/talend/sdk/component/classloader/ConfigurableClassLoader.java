@@ -536,28 +536,28 @@ public class ConfigurableClassLoader extends URLClassLoader {
                 throw new FileNotFoundException("Inner JAR not found: " + innerJarPath);
             }
             // Copy the inner JAR to a temporary file
+            final Path tempInnerJar = Files.createTempFile("nested-inner-", ".jar");
             try (InputStream innerStream = outerJar.getInputStream(innerEntry)) {
-                final Path tempInnerJar = Files.createTempFile("nested-inner-", ".jar");
                 Files.copy(innerStream, tempInnerJar, StandardCopyOption.REPLACE_EXISTING);
 
-                final JarFile innerJar = new JarFile(tempInnerJar.toFile());
-                final JarEntry resourceEntry = innerJar.getJarEntry(resourcePath);
-                if (resourceEntry == null) {
-                    innerJar.close();
-                    Files.deleteIfExists(tempInnerJar);
-                    throw new FileNotFoundException("Resource not found: " + resourcePath);
-                }
-
-                // Return a stream that cleans up automatically when closed
-                return new FilterInputStream(innerJar.getInputStream(resourceEntry)) {
-
-                    @Override
-                    public void close() throws IOException {
-                        super.close();
-                        innerJar.close();
-                        Files.deleteIfExists(tempInnerJar);
+                try (JarFile innerJar = new JarFile(tempInnerJar.toFile())) {
+                    final JarEntry resourceEntry = innerJar.getJarEntry(resourcePath);
+                    if (resourceEntry == null) {
+                        throw new FileNotFoundException("Resource not found: " + resourcePath);
                     }
-                };
+
+                    // Return a stream that cleans up automatically when closed
+                    return new FilterInputStream(innerJar.getInputStream(resourceEntry)) {
+                        @Override
+                        public void close() throws IOException {
+                            super.close();
+                            Files.deleteIfExists(tempInnerJar);
+                        }
+                    };
+                }
+            } catch (IOException e) {
+                Files.deleteIfExists(tempInnerJar);
+                throw e;
             }
         }
     }
