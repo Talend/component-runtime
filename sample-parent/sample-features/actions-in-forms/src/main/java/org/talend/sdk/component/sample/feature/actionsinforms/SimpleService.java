@@ -102,6 +102,7 @@ public class SimpleService {
         newDataset.setInput2(dataset.getInput1());
         newDataset.setDatastore(dataset.getDatastore());
         newDataset.setSuggestable(dataset.getSuggestable());
+        newDataset.setGenerateExceptions(dataset.isGenerateExceptions());
 
         return newDataset;
     }
