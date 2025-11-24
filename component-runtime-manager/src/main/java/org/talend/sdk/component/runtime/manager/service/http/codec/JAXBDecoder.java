@@ -15,15 +15,15 @@
  */
 package org.talend.sdk.component.runtime.manager.service.http.codec;
 
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.Type;
 import java.util.Map;
 
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.sax.SAXSource;
+
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 
 import org.talend.sdk.component.api.service.http.Decoder;
 import org.xml.sax.InputSource;

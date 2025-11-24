@@ -1621,7 +1621,7 @@
                 </module>
                 <module name="UpperEll" />
                 <module name="ImportOrder">
-                  <property name="groups" value="*,java,javafx,javax,jdk,com,crawlercommons,org,orgomg,brave,com.jcraft,freemarker,io,zipkin2,routines,lombok" />
+                  <property name="groups" value="*,java,javafx,javax,jakarta,jdk,com,crawlercommons,org,orgomg,brave,com.jcraft,freemarker,io,zipkin2,routines,lombok" />
                   <property name="ordered" value="true" />
                   <property name="separated" value="true" />
                   <property name="option" value="top" />
