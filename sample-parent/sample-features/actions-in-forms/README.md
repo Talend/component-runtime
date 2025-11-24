@@ -10,7 +10,7 @@ The identified services are:
 
 It contains two connectors:
 - An `@Emitter` named `Input`
-- A `@Processor` name `Processor`
+- A `@Processor` named `Processor`
 
 They work exactly the same, except, that the input calls `@DiscoverSchema` service whereas the processor calls `@DiscoverSchemaExtended` one
 when `Guess schema` button is clicked.
@@ -41,7 +41,7 @@ The  connector has few fields:
 - The guess schema button
   - It calls a `@DiscoverSchema` service
 
-All those services work as expected. When the user check the `All services throw exception`, then all the services will throw an exception (_except `@AsyncValidation` that throws an exception when it contain `exception`_).
+All those services work as expected. When the user checks the `All services throw exception`, then all the services will throw an exception (_except `@AsyncValidation` that throws an exception when it contains `exception`_).
 So we are able to check how the error message is displayed to the users.
 
 ### Expected error messages:
