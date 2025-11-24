@@ -113,6 +113,11 @@
       <artifactId>rhino</artifactId>
       <version>${rhino.version}</version>
     </dependency>
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <version>${jakarta.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
