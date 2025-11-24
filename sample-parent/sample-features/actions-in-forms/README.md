@@ -8,7 +8,7 @@ The identified services are:
 - @Suggestions
 - @Update
 
-It contains two connector:
+It contains two connectors:
 - An `@Emitter` named `Input`
 - A `@Processor` name `Processor`
 
@@ -44,7 +44,7 @@ The  connector has few fields:
 All those services work as expected. When the user check the `All services throw exception`, then all the services will throw an exception (_except `@AsyncValidation` that throws an exception when it contain `exception`_).
 So we are able to check how the error message is displayed to the users.
 
-### Excepted error messages:
+### Expected error messages:
 Here are error messages that are thrown by services when `All services throw exception` is checked:
 - `@DiscoverSchema`: "Exception thrown in @DiscoverSchema service."
 - `@DiscoverSchemaExtended`: "Exception thrown in @DiscoverSchemaExtended service."

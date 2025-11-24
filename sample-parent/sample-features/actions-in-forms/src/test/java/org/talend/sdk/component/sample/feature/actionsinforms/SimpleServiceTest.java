@@ -90,7 +90,7 @@ public class SimpleServiceTest {
         Assertions.assertEquals("suggestion1", dataset.getSuggestable());
         Assertions.assertEquals("Hello", dataset.getInput1());
         Assertions.assertEquals("Hello", dataset.getInput2());
-        Assertions.assertEquals(false, dataset.isGenerateExceptions());
+        Assertions.assertFalse(dataset.isGenerateExceptions());
 
         configuration.getDataset().setGenerateExceptions(true);
         Assertions.assertThrowsExactly(ComponentException.class,

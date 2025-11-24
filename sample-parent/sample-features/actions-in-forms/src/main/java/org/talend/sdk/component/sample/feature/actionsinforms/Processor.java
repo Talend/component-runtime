@@ -24,6 +24,7 @@ import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
+import org.talend.sdk.component.api.record.Record;
 
 @Version
 @org.talend.sdk.component.api.processor.Processor(name = "Processor")
