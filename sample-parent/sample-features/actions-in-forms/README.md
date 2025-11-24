@@ -26,7 +26,7 @@ java -jar .\target\actionsInForms-x.y.z.car studio-deploy  --location "<path to 
 ```
 
 ## How to use
-The  connector has few fields:
+The connector has few fields:
 - Suggestable:
   - Calls a @suggestions service 
   - The user can select one value among the three suggestions
