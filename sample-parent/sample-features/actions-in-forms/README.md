@@ -48,6 +48,6 @@ So we are able to check how the error message is displayed to the users.
 Here are error messages that are thrown by services when `All services throw exception` is checked:
 - `@DiscoverSchema`: "Exception thrown in @DiscoverSchema service."
 - `@DiscoverSchemaExtended`: "Exception thrown in @DiscoverSchemaExtended service."
-- `@Suggestions`: "Exception thrown in @Suggestion service."
+- `@Suggestions`: "Exception thrown in @Suggestions service."
 - `@Update`: "Exception thrown in @Update service."
 - `@AsyncValidation`: "Exception thrown in @AsyncValidation service."

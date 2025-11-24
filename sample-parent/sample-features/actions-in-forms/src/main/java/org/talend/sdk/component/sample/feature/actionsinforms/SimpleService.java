@@ -83,7 +83,7 @@ public class SimpleService {
     @Suggestions(SUGGESTABLE)
     public SuggestionValues getSuggestions(final InputConfiguration config) {
         if (config.getDataset().isGenerateExceptions()) {
-            throw new ComponentException("Exception thrown in @Suggestion service.");
+            throw new ComponentException("Exception thrown in @Suggestions service.");
         }
         return new SuggestionValues(false, Stream.of("element1", "element2", "element3")
                 .map(e -> new SuggestionValues.Item(e + "_id", e))
