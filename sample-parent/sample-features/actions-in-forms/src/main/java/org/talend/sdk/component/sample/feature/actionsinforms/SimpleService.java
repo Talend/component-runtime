@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -50,8 +50,8 @@ public class SimpleService {
     private RecordBuilderFactory recordBuilderFactory;
 
     @DiscoverSchema("dataset")
-    public Schema discoverShema(@Option final Dataset dse) {
-        return getSchema(dse, "DiscoverSchema");
+    public Schema discoverSchema(@Option final Dataset dataset) {
+        return getSchema(dataset, "DiscoverSchema");
     }
 
     @DiscoverSchemaExtended
@@ -59,8 +59,8 @@ public class SimpleService {
         return getSchema(config.getDataset(), "DiscoverSchemaExtended");
     }
 
-    private Schema getSchema(final Dataset dse, final String name) {
-        if (dse.isGenerateExceptions()) {
+    private Schema getSchema(final Dataset dataset, final String name) {
+        if (dataset.isGenerateExceptions()) {
             throw new ComponentException("Exception thrown in @" + name + " service.");
         }
 
@@ -95,19 +95,19 @@ public class SimpleService {
         if (config.getDataset().isGenerateExceptions()) {
             throw new ComponentException("Exception thrown in @Update service.");
         }
-        Dataset dse = config.getDataset();
-        Dataset newDse = new Dataset();
+        Dataset dataset = config.getDataset();
+        Dataset newDataset = new Dataset();
 
-        newDse.setInput1(dse.getInput1());
-        newDse.setInput2(dse.getInput1());
-        newDse.setDatastore(dse.getDatastore());
-        newDse.setSuggestable(dse.getSuggestable());
+        newDataset.setInput1(dataset.getInput1());
+        newDataset.setInput2(dataset.getInput1());
+        newDataset.setDatastore(dataset.getDatastore());
+        newDataset.setSuggestable(dataset.getSuggestable());
 
-        return newDse;
+        return newDataset;
     }
 
     /**
-     * Return an iterator that contains exactly one element.
+     * Return an empty iterator.
      */
     public Iterator<Record> getDataIterator(final InputConfiguration configuration) {
         return Collections.emptyIterator();

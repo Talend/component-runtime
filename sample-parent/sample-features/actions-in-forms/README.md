@@ -2,9 +2,9 @@ This is a simple TCK bundle that helps to validate how users receive error messa
 by a service called during the configuration of a connector.
 
 The identified services are:
-- @AsynValidation
-- @DiscoveSchema
-- @DiscoveSchemaExtended
+- @AsyncValidation
+- @DiscoverSchema
+- @DiscoverSchemaExtended
 - @Suggestions
 - @Update
 
@@ -34,7 +34,7 @@ The  connector has few fields:
   - Calls an `@AsyncValidation` service
   - An async validation service check its value:
     - if it starts by `ok` it is valid
-    - If it contains `exception`, an exception is thrown at validatoin time
+    - If it contains `exception`, an exception is thrown at validation time
 - `Copy 'Input 1' to 'Input 2'` button:
   - Calls an `@Update` service 
   - Copy the value set in `Input 1` in the following field `Input 2`
@@ -46,7 +46,8 @@ So we are able to check how the error message is displayed to the users.
 
 ### Excepted error messages:
 Here are error messages that are thrown by services when `All services throw exception` is checked:
-- `@DiscoverShema`: "Exception thrown in @DiscoverSchema service."
+- `@DiscoverSchema`: "Exception thrown in @DiscoverSchema service."
+- `@DiscoverSchemaExtended`: "Exception thrown in @DiscoverSchemaExtended service."
 - `@Suggestions`: "Exception thrown in @Suggestion service."
 - `@Update`: "Exception thrown in @Update service."
 - `@AsyncValidation`: "Exception thrown in @AsyncValidation service."

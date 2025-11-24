@@ -94,7 +94,7 @@ public class InputConfiguration implements Serializable {
         private String input2;
 
         @Option
-        @Documentation("When checked, all action throw an exception.")
+        @Documentation("When checked, all actions throw an exception.")
         private boolean generateExceptions;
     }
 }

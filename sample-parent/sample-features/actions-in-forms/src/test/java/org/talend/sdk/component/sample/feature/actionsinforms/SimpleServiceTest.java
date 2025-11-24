@@ -45,12 +45,12 @@ public class SimpleServiceTest {
 
     @Test
     void discoverShema() {
-        Schema schema = service.discoverShema(configuration.getDataset());
+        Schema schema = service.discoverSchema(configuration.getDataset());
         Assertions.assertNotNull(schema);
 
         configuration.getDataset().setGenerateExceptions(true);
         Assertions.assertThrowsExactly(ComponentException.class,
-                () -> service.discoverShema(configuration.getDataset()));
+                () -> service.discoverSchema(configuration.getDataset()));
     }
 
     @Test
