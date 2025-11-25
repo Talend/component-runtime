@@ -29,39 +29,6 @@
     <packaging>jar</packaging>
     <name>Component Runtime :: Sample Feature @DynamicDependency Common</name>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.talend.sdk.samplefeature.dynamicdependencies</groupId>
-            <artifactId>classloader-test-library</artifactId>
-            <version>1.86.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>1.21.3</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.junit.jupiter</groupId>
-                    <artifactId>junit-jupiter</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.junit.jupiter</groupId>
-                    <artifactId>junit-jupiter-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.junit.platform</groupId>
-                    <artifactId>junit-platform-commons</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>junit</groupId>
-                    <artifactId>junit</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-    </dependencies>
-
     <build>
         <plugins>
             <plugin>
