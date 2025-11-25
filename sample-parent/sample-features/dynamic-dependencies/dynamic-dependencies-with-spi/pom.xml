@@ -22,9 +22,9 @@
     </parent>
 
     <groupId>org.talend.sdk.samplefeature.dynamicdependencies</groupId>
-    <artifactId>dynamic-dependencies-with-dataset</artifactId>
+    <artifactId>dynamic-dependencies-with-spi</artifactId>
     <packaging>jar</packaging>
-    <name>Component Runtime :: Sample Feature @DynamicDependency with Dataset</name>
+    <name>Component Runtime :: Sample Feature @DynamicDependency with spi</name>
 
     <dependencies>
         <dependency>
@@ -40,16 +40,15 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <!-- The dependency that simulate a dynamic one. -->
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-numbers-primes</artifactId>
-            <version>1.2</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -57,7 +56,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>org.talend.sdk.component.dynamic.dependencies.withdataset</Automatic-Module-Name>
+                            <Automatic-Module-Name>org.talend.sdk.component.dynamic.dependencies.withspi</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
