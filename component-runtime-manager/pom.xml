@@ -99,8 +99,15 @@
     </dependency>
     <!-- for java >= 9 support -->
     <dependency>
-      <groupId>org.glassfish.jaxb</groupId>
-      <artifactId>jaxb-runtime</artifactId>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <version>${jakarta.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.xml.bind</groupId>
+      <artifactId>jaxb-impl</artifactId>
+      <version>${jakarta.version}</version>
+      <scope>runtime</scope>
     </dependency>
     <!-- for java >= 9 support -->
     <dependency>
@@ -112,11 +119,6 @@
       <groupId>org.mozilla</groupId>
       <artifactId>rhino</artifactId>
       <version>${rhino.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.xml.bind</groupId>
-      <artifactId>jakarta.xml.bind-api</artifactId>
-      <version>${jakarta.version}</version>
     </dependency>
   </dependencies>
 
