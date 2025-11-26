@@ -116,7 +116,7 @@ public class ContainerManager implements Lifecycle {
         final String pluginsLocation = System.getProperty("talend.component.manager.plugins.location",
                 "TALEND-INF/plugins.properties");
         final String nestedPluginMappingResource = ofNullable(classLoaderConfiguration.getNestedPluginMappingResource())
-                .orElse(pluginsLocation);
+                .orElse("TALEND-INF/plugins.properties");
         this.classLoaderConfiguration = new ClassLoaderConfiguration(
                 ofNullable(classLoaderConfiguration.getParent()).orElseGet(ContainerManager.class::getClassLoader),
                 ofNullable(classLoaderConfiguration.getClassesFilter()).orElseGet(() -> name -> true),
@@ -474,8 +474,8 @@ public class ContainerManager implements Lifecycle {
                     ? nestedContainerMapping.getOrDefault(module, module)
                     : module;
             final Path resolved = resolve(moduleLocation);
-            info(String.format("Creating module %s (from %s, location=%s)", moduleLocation, module,
-                    resolved.toAbsolutePath()));
+            info("Creating module " + moduleLocation + " (from " + module
+                    + (Files.exists(resolved) ? ", location=" + resolved.toAbsolutePath().toString() : "") + ")");
             final Stream<Artifact> classpath = Stream
                     .concat(getBuiltInClasspath(moduleLocation),
                             additionalClasspath == null ? Stream.empty() : additionalClasspath.stream());

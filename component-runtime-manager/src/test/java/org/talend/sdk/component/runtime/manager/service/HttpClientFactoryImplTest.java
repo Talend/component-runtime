@@ -244,7 +244,7 @@ class HttpClientFactoryImplTest {
             final byte[] bytes;
             String xmlContent = "<!DOCTYPE foo [ <!ENTITY xxe SYSTEM \"file:///etc/passwd\"> ]><foo>&xxe;</foo>";
             try (final BufferedReader in =
-                         new BufferedReader(new StringReader(xmlContent))) {
+                    new BufferedReader(new StringReader(xmlContent))) {
                 bytes = in.lines().collect(joining("\n")).getBytes(StandardCharsets.UTF_8);
             }
             httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, bytes.length);
@@ -273,7 +273,7 @@ class HttpClientFactoryImplTest {
             final byte[] bytes;
             String xmlContent = "<!ENTITY xxe SYSTEM \"file:///etc/passwd\"><foo>invalid;";
             try (final BufferedReader in =
-                         new BufferedReader(new StringReader(xmlContent))) {
+                    new BufferedReader(new StringReader(xmlContent))) {
                 bytes = in.lines().collect(joining("\n")).getBytes(StandardCharsets.UTF_8);
             }
             httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, bytes.length);

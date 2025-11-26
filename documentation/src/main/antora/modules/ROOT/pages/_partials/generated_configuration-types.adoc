@@ -47,6 +47,22 @@ Mark a model (complex object) as being a dataset discovery configuration.
 ----
 
 
+= DynamicDependenciesServiceConfiguration
+
+Mark a model (complex object) as being the configuration used in services annotated with @DynamicDependencies.
+
+- API: @org.talend.sdk.component.api.configuration.type.DynamicDependenciesServiceConfiguration
+- Sample:
+
+[source,js]
+----
+{
+  "tcomp::configurationtype::name":"test",
+  "tcomp::configurationtype::type":"dynamicDependenciesServiceConfiguration"
+}
+----
+
+
 = Checkpoint
 
 Mark a model (complex object) as being a checkpoint configuration and state.
