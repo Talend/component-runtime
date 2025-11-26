@@ -33,8 +33,8 @@ final def jiraCredentials = usernamePassword(
     passwordVariable: 'JIRA_PASS')
 final def gitCredentials = usernamePassword(
     credentialsId: 'github-credentials',
-    usernameVariable: 'GITHUB_USER',
-    passwordVariable: 'GITHUB_PASS')
+    usernameVariable: 'GITHUB_LOGIN',
+    passwordVariable: 'GITHUB_TOKEN')
 final def dockerCredentials = usernamePassword(
     credentialsId: 'artifactory-datapwn-credentials',
     usernameVariable: 'DOCKER_USER',
