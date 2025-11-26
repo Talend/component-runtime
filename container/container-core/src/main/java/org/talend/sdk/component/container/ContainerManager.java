@@ -110,14 +110,11 @@ public class ContainerManager implements Lifecycle {
         this.logInfoLevelMapping = logInfoLevelMapping;
         this.containerInitializer = containerInitializer;
         this.resolver = dependenciesResolutionConfiguration.getResolver();
-        this.rootRepositoryLocation = ofNullable(dependenciesResolutionConfiguration.getRootRepositoryLocation())
-                .filter(Files::exists)
-                .orElseGet(() -> PathFactory.get(System.getProperty("user.home", "")).resolve(".m2/repository"));
+        this.rootRepositoryLocation = dependenciesResolutionConfiguration.getRootRepositoryLocation();
 
-        if (log.isDebugEnabled()) {
-            log.debug("Using root repository: " + this.rootRepositoryLocation.toAbsolutePath());
-        }
-
+        info("Using root repository: " + this.rootRepositoryLocation.toAbsolutePath());
+        final String pluginsLocation = System.getProperty("talend.component.manager.plugins.location",
+                "TALEND-INF/plugins.properties");
         final String nestedPluginMappingResource = ofNullable(classLoaderConfiguration.getNestedPluginMappingResource())
                 .orElse("TALEND-INF/plugins.properties");
         this.classLoaderConfiguration = new ClassLoaderConfiguration(
