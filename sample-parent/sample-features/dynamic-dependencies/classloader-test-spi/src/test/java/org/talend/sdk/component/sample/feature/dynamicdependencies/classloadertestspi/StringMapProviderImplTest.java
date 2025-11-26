@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -29,11 +30,11 @@ class StringMapProviderImplTest {
     @Test
     void testSPI() {
         StringMapTransformer<String> stringMapTransformer = new StringMapTransformer<>(true);
-        List<String> transform = stringMapTransformer.transform((s1, s2) -> s1 + ":" + s2);
+        List<String> transform = stringMapTransformer.transform(Function.identity());
         List<String> sorted = new ArrayList<>(transform);
         sorted.sort(String::compareTo);
         String collect = String.join("/", sorted);
-        Assertions.assertEquals("key1:value1/key2:value2/key3:value3/key4:value4/key5:value5",
+        Assertions.assertEquals("value1/value2/value3",
                 collect);
     }
 

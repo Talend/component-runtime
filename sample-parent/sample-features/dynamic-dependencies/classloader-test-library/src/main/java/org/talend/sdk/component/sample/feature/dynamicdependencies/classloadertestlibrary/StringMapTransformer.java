@@ -22,9 +22,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.ServiceLoader;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,16 +31,16 @@ import org.talend.sdk.component.api.exception.ComponentException;
 
 public class StringMapTransformer<T> {
 
-    private final StringMapProvider stringMapProvider;
+    private final StringProvider stringMapProvider;
 
     public StringMapTransformer(final boolean failIfSeveralServicesFound) {
-        ServiceLoader<StringMapProvider> serviceLoader = ServiceLoader.load(StringMapProvider.class);
+        ServiceLoader<StringProvider> serviceLoader = ServiceLoader.load(StringProvider.class);
 
-        List<StringMapProvider> stringMapProviderList = new ArrayList<>();
+        List<StringProvider> stringMapProviderList = new ArrayList<>();
         serviceLoader.iterator().forEachRemaining(stringMapProviderList::add);
 
         if (stringMapProviderList.size() <= 0) {
-            throw new ComponentException("No %s service found.".formatted(StringMapProvider.class));
+            throw new ComponentException("No SPI service found for %s.".formatted(StringProvider.class));
         }
 
         if (stringMapProviderList.size() > 1 && failIfSeveralServicesFound) {
@@ -49,17 +48,17 @@ public class StringMapTransformer<T> {
                     .map(m -> m.getClass().getName())
                     .collect(Collectors.joining("\n"));
             throw new ComponentException("More than one %s service has been found: %s"
-                    .formatted(StringMapProvider.class, join));
+                    .formatted(StringProvider.class, join));
         }
 
         this.stringMapProvider = stringMapProviderList.get(0);
     }
 
-    public List<T> transform(final BiFunction<String, String, T> function) {
-        Map<String, String> map = stringMapProvider.getMap();
-        return map.entrySet()
+    public List<T> transform(final Function<String, T> function) {
+        List<String> strings = stringMapProvider.getStrings();
+        return strings
                 .stream()
-                .map(e -> function.apply(e.getKey(), e.getValue()))
+                .map(function::apply)
                 .toList();
     }
 

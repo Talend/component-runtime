@@ -13,12 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary;
+package org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestspi;
 
-import java.util.Map;
+import java.util.Arrays;
+import java.util.List;
 
-public interface StringMapProvider {
+import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.StringProvider;
 
-    Map<String, String> getMap();
+public class StringProviderImpl implements StringProvider {
 
+    @Override
+    public List<String> getStrings() {
+        return Arrays.asList("value1", "value2", "value3");
+    }
 }

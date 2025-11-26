@@ -67,7 +67,7 @@ public class DynamicDependenciesWithSPIService implements Serializable {
     public Iterator<Record> getRecordIterator() {
         StringMapTransformer<Record> stringMapTransformer = new StringMapTransformer<>(true);
         List<Record> records = stringMapTransformer
-                .transform((s1, s2) -> recordBuilderFactory.newRecordBuilder().withString(s1, s2).build());
+                .transform(s -> recordBuilderFactory.newRecordBuilder().withString("value", s).build());
         return records.iterator();
     }
 
