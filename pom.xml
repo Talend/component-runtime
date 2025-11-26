@@ -287,7 +287,7 @@
     <ivy.version>2.5.2</ivy.version>
     <aws-java-sdk-s3.version>1.12.285</aws-java-sdk-s3.version>
     <testng.version>7.7.1</testng.version>
-    <jakarta.version>4.0.4</jakarta.version>
+    <jakarta.version>4.0.2</jakarta.version>
 
     <!-- for manual testing only, not required -->
     <talend.component.server.component.coordinates.samples>org.talend.components:servicenow:0.0.1-SNAPSHOT</talend.component.server.component.coordinates.samples>
