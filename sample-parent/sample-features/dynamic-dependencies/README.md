@@ -30,9 +30,8 @@ Alternatively build the feature module using `mvn install -am -pl :dynamicdepend
 
 ### How to use
 - Deploy the connector into Studio:
-java -jar dynamic-dependencies-with-dataset-1.86.0-SNAPSHOT.car studio-deploy --location c:\Talend-Studio-20251010_0827-V8.0.2SNAPSHOT 
+java -jar dynamic-dependencies-with-dataset-x.y.z-SNAPSHOT.car studio-deploy --location c:\Talend-Studio-20251010_0827-V8.0.2SNAPSHOT 
 
 - Use the connector in the job. 
 - Click "Guess schema" of the connector. 
 - Add others you want to use in the job, then run the job. 
-

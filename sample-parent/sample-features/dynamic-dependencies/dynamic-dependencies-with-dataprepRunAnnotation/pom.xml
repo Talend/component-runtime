@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.talend.sdk.samplefeature.dynamicdependencies</groupId>
         <artifactId>dynamic-dependencies</artifactId>
-        <version>1.86.0-SNAPSHOT</version>
+        <version>1.88.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.talend.sdk.samplefeature.dynamicdependencies</groupId>
