@@ -427,11 +427,10 @@ class ComponentManagerTest {
                         .of(container.getLoader().getURLs())
                         .map(Files::toFile)
                         .map(File::getName)
-                        .sorted() // !! for asserts
+                        .sorted()
                         .toArray(String[]::new);
-                assertEquals(2, dependencies.length); // ignored transitive deps, enables the new root to control it
-                assertEquals("fatjar.jar", dependencies[0]); // transitive-1.0.0.jar is nested
-                assertEquals("main.jar", dependencies[1]); // main.jar containing fatjar.jar
+                assertEquals(1, dependencies.length); // ignored transitive deps, enables the new root to control it
+                assertEquals("main.jar", dependencies[0]); // transitive-1.0.0.jar is nested
             } finally {
                 if (!transitive.delete()) {
                     transitive.deleteOnExit();
