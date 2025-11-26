@@ -286,7 +286,7 @@ pipeline {
             deployOptions = "$skipOptions --activate-profiles private_repository -Denforcer.skip=true"
           }
 
-          // hack to ovewrite the skip of studio modules that we can't deploy in release mode into Sonatype repo
+          // hack to overwrite the skip of studio modules that we can't deploy in release mode into Sonatype repo
           // assume that we don't use this Jenkinsfile for release anymore
           deployOptions = deployOptions.replace("-Prelease", "-Psnapshot")
 
