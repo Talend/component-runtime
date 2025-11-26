@@ -5,10 +5,67 @@
       "entity": {
         "type": "Project",
         "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-        "id": "bea8220c-3b57-4c73-b744-ab91b562b0c3",
+        "id": "c3a1bbfb-e890-442c-ba47-05da1dcc0d92",
         "name": "tck-component-details-api-test"
       },
       "children": [
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "name": "language",
+                    "value": "en"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "identifiers",
+                    "value": "${\"mapper_id\"}"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/component/details"
+            },
+            "description": "Check the properties inside the components details  \nRelated to bugs: TCOMP-2171",
+            "id": "a6aa10bf-aea2-471b-b57a-c13343c3d92b",
+            "name": "component/details - check dynamic dependencies config",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.details[0].properties[?(@.name == \"dynamicDependenciesConf\")].metadata.configurationtype::type",
+                "value": "dynamicDependenciesServiceConfiguration"
+              }
+            ]
+          }
+        },
         {
           "entity": {
             "type": "Request",
@@ -47,7 +104,7 @@
               "path": "/api/v1/component/details"
             },
             "description": "Check the properties inside the components details  \nRelated to bugs: TCOMP-2171",
-            "id": "d7f2dfc4-5d26-4fea-a884-fbfb2aa10564",
+            "id": "7e3c9c26-8448-4758-ad17-74d29ecb2ded",
             "name": "component/details - content",
             "headers": [],
             "assertions": [
@@ -164,7 +221,7 @@
               "path": "/api/v1/component/details"
             },
             "description": "The correct call, with one correct \"identifiers\" parameter, should be in English with one component.",
-            "id": "9378d327-8622-4b91-a903-183c8b321d81",
+            "id": "cfd29e2b-d1f3-409c-bb8a-c2fbf453d460",
             "name": "component/details - identifiers (one)",
             "headers": [],
             "assertions": [
@@ -238,7 +295,7 @@
               "path": "/api/v1/component/details"
             },
             "description": "The correct call, with two correct \"identifiers\" parameter, should be in English with two component.",
-            "id": "c75cb1f3-67c8-417c-9fdb-012a7ee15bc4",
+            "id": "e5fd6ece-856a-402d-84b6-f4eba1389c12",
             "name": "component/details - identifiers (two)",
             "headers": [],
             "assertions": [
@@ -308,7 +365,7 @@
               "path": "/api/v1/component/details"
             },
             "description": "Call of the endpoint with \"language\" parameter set to \"fr\", the response should contain French words.",
-            "id": "4441dcf0-e679-4860-817d-7f44445b972c",
+            "id": "ace81659-4f29-4ac0-bac6-22bb4e72c92e",
             "name": "component/details - language",
             "headers": [],
             "assertions": [
@@ -376,7 +433,7 @@
               "path": "/api/v1/component/details"
             },
             "description": "Expected:empty answer  \nThe error call, with a no \"identifier\" parameter, should return a 200 status with a empty content",
-            "id": "27384b28-d235-41f0-8b64-4907d4df7dd4",
+            "id": "df6e280f-a9f3-4fe9-87a1-65f595f9c941",
             "name": "component/details - missing identifier",
             "headers": [],
             "assertions": [
@@ -439,7 +496,7 @@
               "path": "/api/v1/component/details"
             },
             "description": "Expected: 400  \nThe error call, with a wrong \"identifier\" parameter, should return a 400 status with a json content",
-            "id": "9737ca94-5083-408c-94b5-90a924a4ec79",
+            "id": "fcdd8ad2-e352-4f3a-bf01-d0a4d5952c9d",
             "name": "component/details - wrong identifier",
             "headers": [],
             "assertions": [
@@ -481,63 +538,63 @@
   ],
   "environments": [
     {
-      "id": "7cc306c5-b3f9-4f07-8476-7fa2db669034",
+      "id": "91e0371f-98c1-4c53-ad6b-82159f70bdea",
       "name": "component_runtime_ci",
       "variables": {
-        "ed8bbd5f-ff31-40c3-963c-fc18dbb6f72a": {
-          "name": "server-ip",
-          "value": "localhost",
-          "enabled": true,
-          "createdAt": "2023-07-13T13:32:37.182Z",
-          "private": false
-        },
-        "28ea0f59-b89b-474a-9f77-6f3d73dd9046": {
-          "name": "datastore_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzdG9yZSNUaGVDb25uZWN0aW9u",
-          "enabled": true,
-          "createdAt": "2023-07-13T13:32:37.182Z",
-          "private": false
-        },
-        "d2298e59-d08d-48af-bb6e-c52e7810c209": {
+        "9f81d8ef-f4cd-4d98-a6fe-ac1799901dae": {
           "name": "server-port",
           "value": "8081",
           "enabled": true,
-          "createdAt": "2023-07-13T13:32:37.182Z",
+          "createdAt": "2025-11-03T17:09:51.791Z",
           "private": false
         },
-        "4fde58c1-0bef-461c-b576-a21289ccdbe1": {
-          "name": "mapper_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
-          "enabled": true,
-          "createdAt": "2023-07-13T13:32:37.182Z",
-          "private": false
-        },
-        "52dc8012-b6f2-41d3-8e87-549e41251792": {
-          "name": "httpbin_addr",
-          "value": "tal-rd22.talend.lan:8084",
-          "enabled": true,
-          "createdAt": "2023-07-13T13:32:37.182Z",
-          "private": false
-        },
-        "6205aaff-1547-4dcc-bcb5-188fb9d26b51": {
-          "name": "dataset_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
-          "enabled": true,
-          "createdAt": "2023-07-13T13:32:37.182Z",
-          "private": false
-        },
-        "851c35ce-8117-4f11-adaa-9fe7823cb869": {
+        "e1ce7f51-c74c-49e4-8d16-e15059c5f087": {
           "name": "family_id",
           "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
           "enabled": true,
-          "createdAt": "2023-07-13T13:32:37.182Z",
+          "createdAt": "2025-11-03T17:09:51.791Z",
           "private": false
         },
-        "442413a8-bd29-40db-8f74-5f2d6ebb6509": {
+        "d58a03e0-7f47-4b81-a577-0e47da2f21d1": {
+          "name": "dataset_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
+          "enabled": true,
+          "createdAt": "2025-11-03T17:09:51.791Z",
+          "private": false
+        },
+        "dbfa3a85-c2f8-4d53-9cf1-98c485686e49": {
           "name": "output_id",
           "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
           "enabled": true,
-          "createdAt": "2023-07-13T13:32:37.182Z",
+          "createdAt": "2025-11-03T17:09:51.791Z",
+          "private": false
+        },
+        "10c0b617-20e8-4b32-8bc5-c33ff390f8d7": {
+          "name": "mapper_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
+          "enabled": true,
+          "createdAt": "2025-11-03T17:09:51.791Z",
+          "private": false
+        },
+        "fb97725c-0775-4d33-9e79-619dc77e4ade": {
+          "name": "httpbin_addr",
+          "value": "tal-rd22.talend.lan:8084",
+          "enabled": true,
+          "createdAt": "2025-11-03T17:09:51.791Z",
+          "private": false
+        },
+        "1a597575-fdb5-4973-bebd-892999ee0a93": {
+          "name": "datastore_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzdG9yZSNUaGVDb25uZWN0aW9u",
+          "enabled": true,
+          "createdAt": "2025-11-03T17:09:51.791Z",
+          "private": false
+        },
+        "054b1ac1-13c0-4b87-a18c-abbe4caacd24": {
+          "name": "server-ip",
+          "value": "localhost",
+          "enabled": true,
+          "createdAt": "2025-11-03T17:09:51.791Z",
           "private": false
         }
       }

@@ -32,7 +32,9 @@ import lombok.Data;
         @GridLayout.Row({ "date" }),
         @GridLayout.Row({ "dataset" }),
         @GridLayout.Row({ "generateException" }),
-        @GridLayout.Row({ "dbType" }) })
+        @GridLayout.Row({ "dbType" }),
+        @GridLayout.Row({ "dynamicDependenciesConf" })
+})
 @GridLayout(
         names = GridLayout.FormType.ADVANCED,
         value = {
@@ -65,4 +67,9 @@ public class InputConfig implements Serializable {
     @DefaultValue("Mysql")
     @Hidden
     private String dbType;
+
+    @Option
+    @Documentation("The dynamic dependencies configuration.")
+    private DynamicDependenciesConf dynamicDependenciesConf;
+
 }
