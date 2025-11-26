@@ -540,22 +540,24 @@ public class ConfigurableClassLoader extends URLClassLoader {
             try (InputStream innerStream = outerJar.getInputStream(innerEntry)) {
                 Files.copy(innerStream, tempInnerJar, StandardCopyOption.REPLACE_EXISTING);
 
-                try (JarFile innerJar = new JarFile(tempInnerJar.toFile())) {
-                    final JarEntry resourceEntry = innerJar.getJarEntry(resourcePath);
-                    if (resourceEntry == null) {
-                        throw new FileNotFoundException("Resource not found: " + resourcePath);
-                    }
+                JarFile innerJar = new JarFile(tempInnerJar.toFile());
+                final JarEntry resourceEntry = innerJar.getJarEntry(resourcePath);
+                if (resourceEntry == null) {
+                    throw new FileNotFoundException("Resource not found: " + resourcePath);
+                }
 
-                    // Return a stream that cleans up automatically when closed
-                    return new FilterInputStream(innerJar.getInputStream(resourceEntry)) {
+                // Return a stream that cleans up automatically when closed
+                return new FilterInputStream(innerJar.getInputStream(resourceEntry)) {
 
-                        @Override
-                        public void close() throws IOException {
+                    @Override
+                    public void close() throws IOException {
+                        try {
                             super.close();
+                        } finally {
                             Files.deleteIfExists(tempInnerJar);
                         }
-                    };
-                }
+                    }
+                };
             } catch (IOException e) {
                 Files.deleteIfExists(tempInnerJar);
                 throw e;
