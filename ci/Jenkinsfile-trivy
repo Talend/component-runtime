@@ -24,7 +24,7 @@ final String repository = 'component-runtime'
 
 pipeline {
   libraries {
-    lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
+    lib("tqa-e2e-tests-tool@v2.4.2-ttp2")  // https://github.com/Talend/tqa-e2e-testing-tool
   }
 
   agent {
@@ -83,11 +83,10 @@ pipeline {
   }
 
   stages {
-    stage('Preliminary steps') {
+    stage('Prepare') {
       steps {
         script {
-          println "Installing tools using asdf"
-          sh 'bash .jenkins/scripts/asdf_install.sh'
+          JenkinsPodConfig.asdfInstall()
         }
       }
     }
@@ -149,7 +148,7 @@ pipeline {
     always {
       script {
         if (params.JENKINS_DEBUG) {
-          jenkinsJobTools.jenkinsBreakpoint()
+          JenkinsController.jenkinsBreakpoint()
         }
       }
     }

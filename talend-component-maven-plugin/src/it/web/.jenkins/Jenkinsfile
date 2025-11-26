@@ -132,27 +132,18 @@ pipeline {
    * stages
    */
   stages {
-    stage('Validate parameters') {
+    stage('Prepare') {
       steps {
-        ///////////////////////////////////////////
-        // asdf install
-        ///////////////////////////////////////////
         script {
-          println "asdf install the content of repository .tool-versions'\n"
-          sh 'bash .jenkins/scripts/asdf_install.sh'
-        }
-        ///////////////////////////////////////////
-        // Validate parameters
-        ///////////////////////////////////////////
-        script {
+          JenkinsPodConfig.asdfInstall()
 
           println "Get actual tck version from ${_ROOT_PATH}/pom.xml: \n"
-          TCOMP_VERSION = sh (
+          String tcompVersion = sh (
             script: "bash ${_SCRIPTS_PATH}/pom-get-version.sh ${_ROOT_PATH}/pom.xml",
             returnStdout: true
           ).trim()
 
-          println "TCOMP_VERSION on the pom file is ${TCOMP_VERSION}\n"
+          println "tcompVersion on the pom file is ${tcompVersion}\n"
 
           // RUNTIME_VERSION
           try {
@@ -162,10 +153,10 @@ pipeline {
             runtimeVersion = "default"
           }
 
-          println "Requested TCOMP_VERSION is ${runtimeVersion}\n"
+          println "Requested tcompVersion is ${runtimeVersion}\n"
 
           if (runtimeVersion == "default") {
-            runtimeVersion = "${TCOMP_VERSION}"
+            runtimeVersion = "${tcompVersion}"
             println "RUNTIME_VERSION not supplied, local value will be used (${runtimeVersion})\n"
           }
         }

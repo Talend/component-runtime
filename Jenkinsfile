@@ -86,8 +86,7 @@ String deployOptions = "$skipOptions -Possrh -Prelease -Pgpg2 -Denforcer.skip=tr
 
 pipeline {
   libraries {
-    lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
-    lib("tqa-e2e-tests-tool@main_ttp2024")  // https://github.com/Talend/tqa-e2e-testing-tool
+    lib("tqa-e2e-tests-tool@v2.4.2-ttp2")  // https://github.com/Talend/tqa-e2e-testing-tool
   }
   agent {
     kubernetes {
@@ -217,14 +216,14 @@ pipeline {
     booleanParam(
         name: 'TRIVY_SCAN',
         defaultValue: !isStdBranch,
-         description: '''
+        description: '''
             This is for trivy scan, by default this checkbox is false on master or maintenance branch.
             It will generate the trivy report on Jenkins, the report name is `CVE Trivy Vulnerability Report`
             ''')
     string(
-         name: 'PACKAGE_FILTER_NAME',
-         defaultValue: "",
-         description: '''
+        name: 'PACKAGE_FILTER_NAME',
+        defaultValue: "",
+        description: '''
             This input box is used to filter the results of the `mvn dependency:tree` command.
             This input box only works when TRIVY_SCAN checkbox is true.
             By entering the package name, you can find out which components are affected and thus the scope of the test.
@@ -251,7 +250,7 @@ pipeline {
         ///////////////////////////////////////////
         script {
           withCredentials([gitCredentials]) {
-            sh """ bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}" """
+            GitController.gitLogin()
           }
           withCredentials([dockerCredentials]) {
             sh """ bash .jenkins/scripts/docker_login.sh "${ARTIFACTORY_REGISTRY}" "\${DOCKER_USER}" "\${DOCKER_PASS}" """
@@ -265,20 +264,10 @@ pipeline {
         // edit mvn and java version
         ///////////////////////////////////////////
         script {
-          echo "edit asdf tool version with version from jenkins param"
-
-          if (params.JAVA_VERSION != 'from .tool-versions') {
-            asdfTools.edit_version_in_file("$env.WORKSPACE/.tool-versions", 'java', params.JAVA_VERSION)
-          }
-          jenkinsJobTools.job_description_append("Use java version:  $params.JAVA_VERSION  ")
-
-          if (params.MAVEN_VERSION != 'from .tool-versions') {
-            asdfTools.edit_version_in_file("$env.WORKSPACE/.tool-versions", 'maven', params.MAVEN_VERSION)
-          }
-          jenkinsJobTools.job_description_append("Use maven version:  $params.MAVEN_VERSION  ")
-
-          println "asdf install the content of repository .tool-versions'\n"
-          sh 'bash .jenkins/scripts/asdf_install.sh'
+          String javaVersion = JenkinsPodConfig.asdfSetVersion("$env.WORKSPACE/.tool-versions", 'java', params.JAVA_VERSION)
+          String mavenVersion = JenkinsPodConfig.asdfSetVersion("$env.WORKSPACE/.tool-versions", 'maven', params.MAVEN_VERSION)
+          JenkinsStatusController.jobDescriptionAppend("Use java $javaVersion with maven  $mavenVersion  ")
+          JenkinsPodConfig.asdfInstall()
         }
 
         ///////////////////////////////////////////
@@ -321,16 +310,14 @@ pipeline {
               - We do not want to deploy on dev branch
               """.stripIndent()
             finalVersion = pomVersion
-          }
-          else {
+          } else {
             branch_user = ""
             branch_ticket = ""
             branch_description = ""
             if (params.VERSION_QUALIFIER != ("DEFAULT")) {
               // If the qualifier is given, use it
               println """No need to add qualifier, use the given one: "$params.VERSION_QUALIFIER" """
-            }
-            else {
+            } else {
               println "Validate the branch name"
 
               (branch_user,
@@ -387,7 +374,7 @@ pipeline {
             deploy_info = deploy_info + '+DOCKER'
           }
 
-          jenkinsJobTools.job_name_creation("$params.ACTION" + deploy_info)
+          JenkinsStatusController.jobNameCreation("$params.ACTION" + deploy_info)
 
           // updating build description
           String description = """
@@ -395,7 +382,7 @@ pipeline {
                       Disable Sonar: $params.DISABLE_SONAR  
                       Debug: $params.JENKINS_DEBUG  
                       Extra build args: $extraBuildParams  """.stripIndent()
-          jenkinsJobTools.job_description_append(description)
+          JenkinsStatusController.jobDescriptionAppend(description)
         }
       }
       post {
@@ -485,13 +472,12 @@ pipeline {
           if (devBranch_mavenDeploy) {
             repo = ['artifacts-zl.talend.com',
                     'https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/org/talend/sdk/component']
-          }
-          else {
+          } else {
             repo = ['oss.sonatype.org',
                     'https://central.sonatype.com/repository/maven-snapshots/org/talend/sdk/component/']
           }
 
-          jenkinsJobTools.job_description_append("Maven artefact deployed as ${finalVersion} on [${repo[0]}](${repo[1]})  ")
+          JenkinsStatusController.jobDescriptionAppend("Maven artefact deployed as ${finalVersion} on [${repo[0]}](${repo[1]})  ")
         }
       }
     }
@@ -509,37 +495,34 @@ pipeline {
             String images_options = ''
             if (isStdBranch) {
               // Build and push all images
-              jenkinsJobTools.job_description_append("Docker images deployed: component-server, component-starter-server and remote-engine-customizer  ")
-            }
-            else {
+              JenkinsStatusController.jobDescriptionAppend("Docker images deployed: component-server, component-starter-server and remote-engine-customizer  ")
+            } else {
               String image_list
               if (params.DOCKER_CHOICE == 'All') {
                 images_options = 'false'
-              }
-              else {
+              } else {
                 images_options = 'false ' + params.DOCKER_CHOICE
               }
 
               if (params.DOCKER_CHOICE == 'All') {
-                jenkinsJobTools.job_description_append("All docker images deployed  ")
+                JenkinsStatusController.jobDescriptionAppend("All docker images deployed  ")
 
-                jenkinsJobTools.job_description_append("As ${finalVersion}${buildTimestamp} on " +
-                                                       "[artifactory.datapwn.com]" +
-                                                       "($artifactoryAddr/$artifactoryPath)  ")
-                jenkinsJobTools.job_description_append("docker pull $artifactoryAddr/$artifactoryPath" +
-                                                       "/component-server:${finalVersion}${buildTimestamp}  ")
-                jenkinsJobTools.job_description_append("docker pull $artifactoryAddr/$artifactoryPath" +
-                                                       "/component-starter-server:${finalVersion}${buildTimestamp}  ")
-                jenkinsJobTools.job_description_append("docker pull $artifactoryAddr/$artifactoryPath" +
-                                                       "/remote-engine-customize:${finalVersion}${buildTimestamp}  ")
+                JenkinsStatusController.jobDescriptionAppend("As ${finalVersion}${buildTimestamp} on " +
+                                                                 "[artifactory.datapwn.com]" +
+                                                                 "($artifactoryAddr/$artifactoryPath)  ")
+                JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath" +
+                                                                 "/component-server:${finalVersion}${buildTimestamp}  ")
+                JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath" +
+                                                                 "/component-starter-server:${finalVersion}${buildTimestamp}  ")
+                JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath" +
+                                                                 "/remote-engine-customize:${finalVersion}${buildTimestamp}  ")
 
-              }
-              else {
-                jenkinsJobTools.job_description_append("Docker images deployed: $params.DOCKER_CHOICE  ")
-                jenkinsJobTools.job_description_append("As ${finalVersion}${buildTimestamp} on " +
-                                                       "[artifactory.datapwn.com]($artifactoryAddr/$artifactoryPath)  ")
-                jenkinsJobTools.job_description_append("docker pull $artifactoryAddr/$artifactoryPath/$params.DOCKER_CHOICE:" +
-                                                       "${finalVersion}${buildTimestamp}  ")
+              } else {
+                JenkinsStatusController.jobDescriptionAppend("Docker images deployed: $params.DOCKER_CHOICE  ")
+                JenkinsStatusController.jobDescriptionAppend("As ${finalVersion}${buildTimestamp} on " +
+                                                                 "[artifactory.datapwn.com]($artifactoryAddr/$artifactoryPath)  ")
+                JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath/$params.DOCKER_CHOICE:" +
+                                                                 "${finalVersion}${buildTimestamp}  ")
 
               }
 
@@ -657,25 +640,12 @@ pipeline {
                            sonarCredentials,
                            gitCredentials]) {
 
-            if (pull_request_id != null) {
-
-              println 'Run analysis for PR'
-              sh """
-                            bash .jenkins/scripts/mvn_sonar_pr.sh \
-                                '${branch_name}' \
-                                '${env.CHANGE_TARGET}' \
-                                '${pull_request_id}' \
-                                ${extraBuildParams}
-                            """
-            }
-            else {
-              echo 'Run analysis for branch'
-              sh """
-                            bash .jenkins/scripts/mvn_sonar_branch.sh \
-                                '${branch_name}' \
-                                ${extraBuildParams}
-                            """
-            }
+            SonarController.runSonar(branch_name,
+                                     env.CHANGE_TARGET,
+                                     pull_request_id,
+                                     extraBuildParams,
+                                     'jacoco.xml', // jacocoGlob
+                                     false) // useCache false https://qlik-dev.atlassian.net/browse/QTDI-234
           }
         }
       }
@@ -800,7 +770,7 @@ pipeline {
 
       script {
         if (params.JENKINS_DEBUG) {
-          jenkinsJobTools.jenkinsBreakpoint()
+          JenkinsController.jenkinsBreakpoint()
         }
       }
     }
@@ -857,12 +827,10 @@ private static String add_qualifier_to_version(String version, String ticket, St
   if (user_qualifier.contains("DEFAULT")) {
     if (version.contains("-SNAPSHOT")) {
       new_version = version.replace("-SNAPSHOT", "-$ticket-SNAPSHOT" as String)
-    }
-    else {
+    } else {
       new_version = "$version-$ticket".toString()
     }
-  }
-  else {
+  } else {
     new_version = version.replace("-SNAPSHOT", "-$user_qualifier-SNAPSHOT" as String)
   }
   return new_version
