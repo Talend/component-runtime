@@ -15,8 +15,10 @@
  */
 package org.talend.sdk.component.sample.feature.dynamicdependencies.withspi.service;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -86,7 +88,7 @@ public class DynamicDependenciesWithSPIService implements Serializable {
             throw new ComponentException("Can't retrieve resource from a dependency.", e);
         }
 
-        String contentFromMultipleResrouces;
+        String contentFromMultipleResources;
         try {
             boolean isFirst = true;
             Enumeration<URL> resources = DynamicDependenciesWithSPIService.class.getClassLoader()
@@ -97,14 +99,17 @@ public class DynamicDependenciesWithSPIService implements Serializable {
                 URL url = resources.nextElement();
 
                 try (InputStream is = url.openStream()) {
-                    String content = new String(is.readAllBytes(), StandardCharsets.UTF_8);
                     stringBuilder.append(isFirst ? "" : System.lineSeparator());
-                    stringBuilder.append(content);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+                    reader.lines()
+                            .filter(line -> !line.trim().startsWith("#"))
+                            .filter(line -> !line.trim().isEmpty())
+                            .forEach(stringBuilder::append);
+                    reader.close();
                     isFirst = false;
                 }
             }
-            contentFromMultipleResrouces = stringBuilder.toString();
-
+            contentFromMultipleResources = stringBuilder.toString();
         } catch (IOException e) {
             throw new ComponentException("Can't retrieve multiple resources at once.", e);
         }
@@ -115,7 +120,7 @@ public class DynamicDependenciesWithSPIService implements Serializable {
                         .withString("value", s)
                         .withString("contentFromResourceDependency", contentFromResourceDependency)
                         .withString("contentFromResourceDynamicDependency", contentFromResourceDynamicDependency)
-                        .withString("contentFromMultipleResrouces", contentFromMultipleResrouces)
+                        .withString("contentFromMultipleResources", contentFromMultipleResources)
                         .build());
         return records.iterator();
     }
