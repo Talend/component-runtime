@@ -32,12 +32,15 @@
             <artifactId>dynamic-dependencies-common</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- Test -->
         <dependency>
             <groupId>org.talend.sdk.samplefeature.dynamicdependencies</groupId>
-            <artifactId>dynamic-dependencies-common</artifactId>
+            <artifactId>classloader-test-library</artifactId>
             <version>${project.version}</version>
-            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.sdk.samplefeature.dynamicdependencies</groupId>
+            <artifactId>classloader-test-spi</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
