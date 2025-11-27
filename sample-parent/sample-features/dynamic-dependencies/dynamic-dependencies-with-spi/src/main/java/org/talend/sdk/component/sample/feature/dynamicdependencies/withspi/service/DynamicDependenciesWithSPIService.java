@@ -18,7 +18,10 @@ package org.talend.sdk.component.sample.feature.dynamicdependencies.withspi.serv
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -65,9 +68,55 @@ public class DynamicDependenciesWithSPIService implements Serializable {
     }
 
     public Iterator<Record> getRecordIterator() {
+        String contentFromResourceDependency;
+        try (InputStream resourceStreamFromDependency = DynamicDependenciesWithSPIService.class.getClassLoader()
+                .getResourceAsStream("CLASSLOADER-TEST-LIBRARY/resource.properties")) {
+            contentFromResourceDependency =
+                    new String(resourceStreamFromDependency.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new ComponentException("Can't retrieve resource from a dependency.", e);
+        }
+
+        String contentFromResourceDynamicDependency;
+        try (InputStream resourceStreamFromDynamicDependency = DynamicDependenciesWithSPIService.class.getClassLoader()
+                .getResourceAsStream("CLASSLOADER-TEST-SPI/resource.properties")) {
+            contentFromResourceDynamicDependency =
+                    new String(resourceStreamFromDynamicDependency.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new ComponentException("Can't retrieve resource from a dependency.", e);
+        }
+
+        String contentFromMultipleResrouces;
+        try {
+            boolean isFirst = true;
+            Enumeration<URL> resources = DynamicDependenciesWithSPIService.class.getClassLoader()
+                    .getResources("MULTIPLE_RESOURCE/common.properties");
+
+            StringBuilder stringBuilder = new StringBuilder();
+            while (resources.hasMoreElements()) {
+                URL url = resources.nextElement();
+
+                try (InputStream is = url.openStream()) {
+                    String content = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                    stringBuilder.append(isFirst ? "" : System.lineSeparator());
+                    stringBuilder.append(content);
+                    isFirst = false;
+                }
+            }
+            contentFromMultipleResrouces = stringBuilder.toString();
+
+        } catch (IOException e) {
+            throw new ComponentException("Can't retrieve multiple resources at once.", e);
+        }
+
         StringMapTransformer<Record> stringMapTransformer = new StringMapTransformer<>(true);
         List<Record> records = stringMapTransformer
-                .transform(s -> recordBuilderFactory.newRecordBuilder().withString("value", s).build());
+                .transform(s -> recordBuilderFactory.newRecordBuilder()
+                        .withString("value", s)
+                        .withString("contentFromResourceDependency", contentFromResourceDependency)
+                        .withString("contentFromResourceDynamicDependency", contentFromResourceDynamicDependency)
+                        .withString("contentFromMultipleResrouces", contentFromMultipleResrouces)
+                        .build());
         return records.iterator();
     }
 
