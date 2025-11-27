@@ -163,12 +163,11 @@ public class ConfigurableClassLoader extends URLClassLoader {
             cacheableClasses = Collections.emptyList();
         }
         // initialize allowed parent resources for this classloader
-        final String[] globalAllowedParentResources = Stream
-                .concat(Arrays.stream(new String[] { "META-INF/services/" }),
-                        Arrays.stream(System.getProperty("talend.tccl.allowed.parent.resources", "").split(",")))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .toArray(String[]::new);
+        final String[] globalAllowedParentResources =
+                Arrays.stream(System.getProperty("talend.tccl.allowed.parent.resources", "").split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .toArray(String[]::new);
         allowedParentResources =
                 Stream.concat(Arrays.stream(globalAllowedParentResources), Arrays.stream(localParentResources))
                         .map(String::trim)
