@@ -29,11 +29,11 @@ import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.exception.ComponentException;
 
-public class StringMapTransformer<T> {
+public class StringListTransformer<T> {
 
     private final StringProvider stringMapProvider;
 
-    public StringMapTransformer(final boolean failIfSeveralServicesFound) {
+    public StringListTransformer(final boolean failIfSeveralServicesFound) {
         ServiceLoader<StringProvider> serviceLoader = ServiceLoader.load(StringProvider.class);
 
         List<StringProvider> stringMapProviderList = new ArrayList<>();

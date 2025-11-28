@@ -15,22 +15,20 @@
  */
 package org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestspi;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.StringMapTransformer;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.StringListTransformer;
 
 class StringMapProviderImplTest {
 
     @Test
     void testSPI() {
-        StringMapTransformer<String> stringMapTransformer = new StringMapTransformer<>(true);
-        List<String> transform = stringMapTransformer.transform(Function.identity());
+        StringListTransformer<String> stringListTransformer = new StringListTransformer<>(true);
+        List<String> transform = stringListTransformer.transform(Function.identity());
         List<String> sorted = new ArrayList<>(transform);
         sorted.sort(String::compareTo);
         String collect = String.join("/", sorted);

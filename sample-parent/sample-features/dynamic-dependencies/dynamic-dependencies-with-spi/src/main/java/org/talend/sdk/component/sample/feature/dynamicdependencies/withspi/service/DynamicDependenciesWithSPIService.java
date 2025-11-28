@@ -36,7 +36,7 @@ import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.dependency.DynamicDependencies;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
-import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.StringMapTransformer;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.StringListTransformer;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.withspi.config.Dataset;
 
 import lombok.extern.slf4j.Slf4j;
@@ -114,8 +114,8 @@ public class DynamicDependenciesWithSPIService implements Serializable {
             throw new ComponentException("Can't retrieve multiple resources at once.", e);
         }
 
-        StringMapTransformer<Record> stringMapTransformer = new StringMapTransformer<>(true);
-        List<Record> records = stringMapTransformer
+        StringListTransformer<Record> stringListTransformer = new StringListTransformer<>(true);
+        List<Record> records = stringListTransformer
                 .transform(s -> recordBuilderFactory.newRecordBuilder()
                         .withString("value", s)
                         .withString("contentFromResourceDependency", contentFromResourceDependency)
