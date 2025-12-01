@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>extensions</artifactId>
-    <version>1.64.8</version>
+    <version>1.64.9-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-server-extension-api</artifactId>
