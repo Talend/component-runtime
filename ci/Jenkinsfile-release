@@ -1,0 +1,580 @@
+/**
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Credentials
+final def ossrhCredentials = usernamePassword(
+    credentialsId: 'ossrh-credentials',
+    usernameVariable: 'OSSRH_USER',
+    passwordVariable: 'OSSRH_PASS')
+final def nexusCredentials = usernamePassword(
+    credentialsId: 'nexus-artifact-zl-credentials',
+    usernameVariable: 'NEXUS_USER',
+    passwordVariable: 'NEXUS_PASS')
+final def jetbrainsCredentials = usernamePassword(
+    credentialsId: 'jetbrains-credentials',
+    usernameVariable: 'JETBRAINS_USER',
+    passwordVariable: 'JETBRAINS_PASS')
+final def jiraCredentials = usernamePassword(
+    credentialsId: 'jira-credentials',
+    usernameVariable: 'JIRA_USER',
+    passwordVariable: 'JIRA_PASS')
+final def gitCredentials = usernamePassword(
+    credentialsId: 'github-credentials',
+    usernameVariable: 'GITHUB_LOGIN',
+    passwordVariable: 'GITHUB_TOKEN')
+final def dockerCredentials = usernamePassword(
+    credentialsId: 'artifactory-datapwn-credentials',
+    usernameVariable: 'DOCKER_USER',
+    passwordVariable: 'DOCKER_PASS')
+final def keyImportCredentials = usernamePassword(
+    credentialsId: 'component-runtime-import-key-credentials',
+    usernameVariable: 'KEY_USER',
+    passwordVariable: 'KEY_PASS')
+final def gpgCredentials = usernamePassword(
+    credentialsId: 'component-runtime-gpg-credentials',
+    usernameVariable: 'GPG_KEYNAME',
+    passwordVariable: 'GPG_PASSPHRASE')
+
+// In some cases the branch name is not valid, we define it here
+final String branchName = env.BRANCH_NAME
+
+// Job config
+final Boolean isMasterBranch = branchName == 'master'
+final Boolean isMaintenanceBranch = branchName.startsWith('maintenance/')
+final Boolean isMaintenanceRelease = false
+final String extraBuildParams = ""
+
+// Job variables declaration
+String pomVersion          // Declared version in the pom file
+String releaseVersion      // Released version for the release
+String nextVersion         // Final version after the release
+String tagName             // created git tag name
+String maintenanceVersion  // Final version after the release for created maintenance branch
+String maintenanceBranch   // created maintenance branch name
+
+pipeline {
+  libraries {
+    lib("connectors-lib@1.2.0") // https://github.com/Talend/tdi-jenkins-shared-libraries
+    lib("tqa-e2e-tests-tool@v2.4.2-ttp2")  // https://github.com/Talend/tqa-e2e-testing-tool
+  }
+
+  agent {
+    kubernetes {
+      yamlFile '.jenkins/jenkins_pod.yml'
+      defaultContainer 'main'
+    }
+  }
+
+  environment {
+    MAVEN_OPTS = [
+        "-Dmaven.artifact.threads=256",
+        "-Dformatter.skip=true",
+    ].join(' ')
+  }
+
+  options {
+    buildDiscarder(logRotator(artifactNumToKeepStr: '5', numToKeepStr: '5'))
+    timeout(time: 180, unit: 'MINUTES')
+    skipStagesAfterUnstable()
+  }
+
+  parameters {
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "BASIC_CONFIG", sectionHeader: "Basic configuration",
+              sectionHeaderStyle: """ background-color: #ABEBC6;
+                text-align: center; font-size: 35px !important; font-weight : bold;""")
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    choice(
+        name: 'ACTION',
+        choices: ['TYPE_OF_RELEASE', 'GA', 'MAINTENANCE'],
+        description: '''
+          Type of release:
+            GA: release for General Available
+              ex: 1.63.0-SNAPSHOT is released as 1.63.0 and master branch is bumped as 1.64.0-SNAPSHOT
+            MAINTENANCE: release for General Available of MAINTENANCE
+              ex: 1.63.1-SNAPSHOT is released as 1.63.1 and branch is bumped as 1.63.2-SNAPSHOT''')
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "VERSION_CONFIG", sectionHeader: "Version configuration",
+              sectionHeaderStyle: """ background-color: #F9E79F;
+                text-align: center; font-size: 35px !important; font-weight : bold; """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    string(name: 'JAVA_VERSION',
+           defaultValue: 'from .tool-versions',
+           description: """Provided java version will be installed with asdf
+                        Examples: adoptopenjdk-11.0.22+7, adoptopenjdk-17.0.11+9 """)
+
+    string(name: 'MAVEN_VERSION',
+           defaultValue: 'from .tool-versions',
+           description: """Provided maven version will be installed with asdf
+                        Examples: 3.8.8, 4.0.0-beta-4 """)
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "ADVANCED_CONFIG", sectionHeader: "Advanced configuration",
+              sectionHeaderStyle: """ background-color: #F8C471;
+                text-align: center; font-size: 35px !important; font-weight : bold; """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    string(
+        name: 'EXTRA_BUILD_PARAMS',
+        defaultValue: '',
+        description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "EXPERT_CONFIG", sectionHeader: "Expert configuration",
+              sectionHeaderStyle: """ background-color: #A9A9A9;
+                text-align: center; font-size: 35px !important; font-weight : bold; """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    booleanParam(
+        name: 'RELEASE_STUDIO_MODULES',
+        defaultValue: true,
+        description: '''Activate release of studio modules.  
+                        EXPERT USER ONLY: to solve specials case eg: release ok but it fails for the Studio modules.  
+                        ''')
+    booleanParam(
+        name: 'NO_STAGING',
+        defaultValue: false,
+        description: '''Activate the no-staging profile.  
+                        Execute the release, but at the end of the release:perform step, 
+                        the artifacts are not publish on the NEXUS.  
+                        EXPERT USER ONLY: to solve specials case eg: release ok but failure during docker publish.  
+                        ''')
+    booleanParam(
+        name: 'NO_DOCKER',
+        defaultValue: false,
+        description: '''Skip the docker stage.  
+                        EXPERT USER ONLY: to solve specials case eg: release script test.  
+                        ''')
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "DEBUG_CONFIG", sectionHeader: "Jenkins job debug configuration ",
+              sectionHeaderStyle: """ background-color: #FF0000;
+                text-align: center; font-size: 35px !important; font-weight : bold; """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    booleanParam(
+        name: 'FAKE_RELEASE',
+        defaultValue: false,
+        description: '''For debug purposes, the job will deploy in:  
+                        - NOT IMPLEMENTED Artifactory Dev instead of Artifactory Prod for docker images  
+                        - NOT IMPLEMENTED Artifacts-zl instead of sonatype for java artefacts  
+                        - The job will not tag/commit on git fork from FAKE_REPOSITORY''')
+    string(
+        name: 'FAKE_REPOSITORY',
+        defaultValue: 'acatoire/component-runtime',
+        description: '''For debug purposes, to indicate the FAKE_RELEASE git repository''')
+
+    booleanParam(
+        name: 'JENKINS_DEBUG',
+        defaultValue: false,
+        description: 'Add an extra step to the pipeline allowing to keep the pod alive for debug purposes.')
+  }
+
+  stages {
+    stage('Prepare') {
+      steps {
+
+        ///////////////////////////////////////////
+        // Login tasks
+        ///////////////////////////////////////////
+        script {
+          withCredentials([gitCredentials]) {
+            GitController.gitLogin()
+          }
+          withCredentials([dockerCredentials]) {
+            // DOCKER_REGISTRY_HOST comes from global jenkins managed env var (in flux config)
+            sh """ bash .jenkins/scripts/docker_login.sh "${DOCKER_REGISTRY_HOST}" "\${DOCKER_USER}" "\${DOCKER_PASS}" """
+          }
+          withCredentials([keyImportCredentials]) {
+            sh """ bash .jenkins/scripts/setup_gpg.sh """
+          }
+        }
+
+        ///////////////////////////////////////////
+        // asdf install
+        ///////////////////////////////////////////
+        script {
+          String javaVersion = JenkinsPodConfig.asdfSetVersion("$env.WORKSPACE/.tool-versions", 'java', params.JAVA_VERSION)
+          String mavenVersion = JenkinsPodConfig.asdfSetVersion("$env.WORKSPACE/.tool-versions", 'maven', params.MAVEN_VERSION)
+          JenkinsStatusController.jobDescriptionAppend("Use java $javaVersion with maven  $mavenVersion  ")
+          JenkinsPodConfig.asdfInstall()
+        }
+
+        ///////////////////////////////////////////
+        // assemblyExtraBuildParams
+        ///////////////////////////////////////////
+        script {
+          println "Create assemblyExtraBuildParams from user provided parameters and job option"
+          extraBuildParams = assemblyExtraBuildParams(params.FAKE_RELEASE as Boolean,
+                                                      params.NO_STAGING as Boolean)
+        }
+
+        ///////////////////////////////////////////
+        // Updating build displayName and description
+        ///////////////////////////////////////////
+        script {
+          JenkinsStatusController.jobNameCreation("$params.ACTION")
+
+          // updating build description
+          String description = """
+            Execute a $params.ACTION release.  
+            Debug: $params.JENKINS_DEBUG  
+            Extra build args: $extraBuildParams
+            """.stripIndent()
+          JenkinsStatusController.jobDescriptionAppend(description)
+
+          if (params.FAKE_RELEASE) {
+            // updating build description
+            description = """
+            ---------------------------------------------------  
+            This is a fake release:  
+            - artefacts will be posted on artifact-zl  
+            - docker image will be deployed on artifactory dev   
+            ---------------------------------------------------  
+            
+            """.stripIndent()
+            JenkinsStatusController.jobDescriptionAppend(description)
+          }
+        }
+      }
+    }
+
+    stage('Post login') {
+      steps {
+        withCredentials([gitCredentials,
+                         dockerCredentials,
+                         ossrhCredentials,
+                         jetbrainsCredentials,
+                         jiraCredentials,
+                         gpgCredentials]) {
+          script {
+            sh """\
+               #!/usr/bin/env bash
+               bash .jenkins/scripts/npm_fix.sh
+             """.stripIndent()
+          }
+        }
+      }
+    }
+
+    stage('Version management') {
+      steps {
+        ///////////////////////////////////////////
+        // ACTION check
+        ///////////////////////////////////////////
+        script {
+          // Check on maintenance branch
+          if (isMaintenanceBranch) {
+            if (params.ACTION == 'MAINTENANCE') {
+              echo("GA release on maintenance branch")
+              isMaintenanceRelease = true
+            }
+            else {
+              error("On maintenance branch, you can only execute a MAINTENANCE release action")
+            }
+          }
+
+          // Check on maintenance branch
+          if (isMasterBranch) {
+            switch (action) {
+              case 'GA':
+                echo("GA release on master branch")
+                break
+              default:
+                error("On master branch, you can only execute a GA release action")
+            }
+          }
+
+          if (!isMasterBranch && !isMaintenanceBranch) {
+            error("You can only execute a release action on master or maintenance branch")
+          }
+        }
+
+        ///////////////////////////////////////////
+        // Pom version management
+        ///////////////////////////////////////////
+        script {
+          echo 'Read the actual version in the pom'
+          final def pom = readMavenPom file: 'pom.xml'
+          pomVersion = pom.version
+
+          echo 'Manage the release version '
+          (releaseVersion, nextVersion,
+          maintenanceVersion, maintenanceBranch) = get_release_info(pomVersion,
+                                                                    isMaintenanceRelease)
+          tagName = "component-runtime-${releaseVersion}"
+        }
+      }
+    }
+
+    stage('Version validation') {
+      steps {
+        script {
+
+          ///////////////////////////////////////////
+          // Updating build description and name with calculated info
+          ///////////////////////////////////////////
+          JenkinsStatusController.jobNameCreation("$releaseVersion")
+
+          String description = """
+            ----------------------------------------------------------------  
+            Actual Version $pomVersion will be release as $releaseVersion.  
+            After the release the repository will be bumped as $nextVersion.  
+            ----------------------------------------------------------------  
+            
+            """.stripIndent()
+          JenkinsStatusController.jobDescriptionAppend(description)
+
+          ///////////////////////////////////////////
+          // Manual validation of release action
+          ///////////////////////////////////////////
+
+          String checkMsg = """
+              You will do a $params.ACTION release  
+              Actual Version $pomVersion will be release as $releaseVersion.  
+              After the release the repository will be bumped as $nextVersion.  
+              **Are you OK to continue?**""".stripIndent()
+
+          // Request user action
+          input message: "$checkMsg", ok: 'Yes'
+        }
+      }
+    }
+
+    stage('Maven release prepare') {
+      steps {
+        withCredentials([nexusCredentials,
+                         ossrhCredentials,
+                         gpgCredentials]) {
+          script {
+            echo "Maven prepare release $releaseVersion (next-dev: $nextVersion; tag: $tagName)"
+            sh "bash .jenkins/scripts/release/release-2-prepare.sh $releaseVersion \
+                                                                   $nextVersion \
+                                                                   $tagName \
+                                                                   $extraBuildParams"
+          }
+        }
+      }
+      post {
+        always {
+          println "Publish prepared pom.xml files as Jenkins artifact for analysis"
+          archiveArtifacts artifacts: '**/*pom.xml', allowEmptyArchive: false, onlyIfSuccessful: false
+        }
+      }
+    }
+
+    stage('Maven release process') {
+      steps {
+        withCredentials([nexusCredentials,
+                         ossrhCredentials,
+                         jetbrainsCredentials,
+                         jiraCredentials,
+                         gpgCredentials]) {
+
+          script {
+            echo "Perform release"
+            sh "bash .jenkins/scripts/release/release-3-perform.sh $extraBuildParams"
+          }
+        }
+      }
+    }
+
+    stage('Release studio modules') {
+      when {
+        expression { params.RELEASE_STUDIO_MODULES }
+      }
+      steps {
+        withCredentials([nexusCredentials,
+                         ossrhCredentials,
+                         jiraCredentials,
+                         gpgCredentials]) {
+
+          script {
+            echo "Perform release"
+            sh "bash .jenkins/scripts/release/release-3.1-perform-studio.sh $releaseVersion \
+                                                                            $nextVersion \
+                                                                            $extraBuildParams"
+          }
+        }
+      }
+    }
+
+    stage('Release Docker image') {
+      when {
+        expression { !params.NO_DOCKER }
+      }
+      steps {
+        withCredentials([gitCredentials,
+                         nexusCredentials,
+                         ossrhCredentials,
+                         dockerCredentials]) {
+          script {
+            echo "Docker image creation from branch $branchName with tag: $tagName on version $releaseVersion"
+            sh "bash .jenkins/scripts/release/release-4-docker-image-creation.sh $releaseVersion $tagName $branchName"
+          }
+        }
+      }
+    }
+
+    stage('Prepare next iteration') {
+      steps {
+        withCredentials([gitCredentials,
+                         nexusCredentials,
+                         ossrhCredentials]) {
+          script {
+            echo "Prepare next iteration on $branchName"
+            sh "bash .jenkins/scripts/release/release-5-prepare-next-iteration.sh $branchName $extraBuildParams"
+          }
+        }
+      }
+    }
+
+    stage('Create maintenance branch') {
+      when {
+        expression { isMasterBranch && params.ACTION == "GA" }
+      }
+      steps {
+        withCredentials([gitCredentials,
+                         nexusCredentials,
+                         ossrhCredentials]) {
+          script {
+            echo "Creating a new branch named $maintenanceBranch with version $maintenanceVersion"
+            sh "bash .jenkins/scripts/release/release-6-create-maintenance-branch.sh $maintenanceBranch $maintenanceVersion"
+          }
+        }
+      }
+    }
+  }
+  post {
+    always {
+      script {
+        alertingTools.slack_result(
+            env.SLACK_CI_CHANNEL,
+            currentBuild.result,
+            currentBuild.previousBuild.result,
+            true, // Post for success and failure for release scripts
+            true,
+            "Failure of $pomVersion $params.ACTION release.")
+      }
+      script {
+        if (params.JENKINS_DEBUG) {
+          JenkinsController.jenkinsBreakpoint()
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Assembly all needed items to put inside extraBuildParams
+ *
+ * @param Boolean fakeRelease
+ * @param Boolean noStaging
+ *
+ * @return extraBuildParams as a string ready for mvn cmd
+ */
+private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean noStaging) {
+  String extraBuildParams
+
+  println 'Processing extraBuildParams'
+  final List<String> buildParamsAsArray = []
+
+  if (params.EXTRA_BUILD_PARAMS) {
+    buildParamsAsArray.add(params.EXTRA_BUILD_PARAMS as String)
+  }
+
+  // Manage fake release parameter
+  if (fakeRelease) {
+    // Overwrite the git repository, in order not to write in "talend/component-runtime"
+    buildParamsAsArray.add("--define scm.repository=$params.FAKE_REPOSITORY")
+  }
+
+  // Manage no-staging parameter
+  if (noStaging) {
+    buildParamsAsArray.add("--activate-profiles no-staging")
+  }
+
+  println 'Construct final params content'
+  extraBuildParams = buildParamsAsArray.join(' ')
+
+  println "extraBuildParams: $extraBuildParams"
+
+  return extraBuildParams
+}
+
+
+/**
+ * Retrieves release information based on the provided current version.
+ *
+ * @param currentVersion The current version string to evaluate (e.g., "1.65.0M1-SNAPSHOT").
+ * @param maintenance Indicates whether it is a maintenance release (true) or a main branch release (false).
+ * @return An ArrayList containing release information:
+ *                               - Index 0: Release version.
+ *                               - Index 1: Next development version.
+ *                               - Index 2: Maintenance version (empty string for main branch releases).
+ *                               - Index 3: Maintenance branch name (empty string for main branch releases).
+ */
+private static ArrayList<String> get_release_info(String currentVersion,
+                                                  Boolean maintenance) {
+
+  println("Evaluate release name from current version: $currentVersion")
+  if (maintenance) {
+    println("This is a Maintenance release")
+  }
+  else {
+    println("This is a GA release")
+  }
+
+  // Split the version (ex: "1.65.0M1-SNAPSHOT") on '.' and '-'
+  def parts = currentVersion.split(/[\.-]/)
+  int maj = parts[0] as int
+  int min = parts[1] as int
+  int rev = parts[2] as int
+
+  String releaseVersion
+  releaseVersion = "${maj}.${min}.${rev}"
+
+  println("Release version : $releaseVersion")
+
+  // New maintenance branch need to be created.
+  String maintenanceBranch = "maintenance/${maj}.${min}"
+  String maintenanceVersion = "${maj}.${min}.${rev + 1}-SNAPSHOT"
+  println("Maintenance version : $releaseVersion")
+  println("Maintenance branch name : $maintenanceBranch")
+
+
+  // Calculate variables according to branch
+  String nextVersion
+  if (!maintenance) {
+    // master release
+    min++
+    rev = 0
+
+    // Calculate the next development version
+    nextVersion = "${maj}.${min}.${rev}-SNAPSHOT"
+
+  }
+  else {
+    // Maintenance release
+    rev++
+    // Calculate the next development version
+    nextVersion = "${maj}.${min}.${rev}-SNAPSHOT"
+  }
+
+  println("Next version : $nextVersion")
+
+  return [releaseVersion, nextVersion, maintenanceVersion, maintenanceBranch]
+}

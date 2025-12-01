@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#  Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+#  Copyright (C) 2006-2025 Talend Inc. - www.talend.com
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ set -xe
 
 main() (
 
-  mvn ossindex:audit-aggregate -pl '!bom' \
+  mvn ossindex:audit-aggregate \
     --define ossindex.fail=false \
     --define ossindex.reportFile=target/audit.txt \
     --settings .jenkins/settings.xml
