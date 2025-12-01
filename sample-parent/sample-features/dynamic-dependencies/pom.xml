@@ -36,7 +36,9 @@
         <module>dynamic-dependencies-with-dataprepRunAnnotation</module>
         <module>dynamic-dependencies-with-spi</module>
         <module>classloader-test-library</module>
-        <module>classloader-test-spi</module>
+        <module>service-provider-from-dependency</module>
+        <module>service-provider-from-dynamic-dependency</module>
+        <module>service-provider-from-external-dependency</module>
     </modules>
 
     <dependencies>

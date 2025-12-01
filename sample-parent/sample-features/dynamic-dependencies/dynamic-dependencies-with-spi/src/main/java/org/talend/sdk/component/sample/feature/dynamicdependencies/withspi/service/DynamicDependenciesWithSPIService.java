@@ -22,11 +22,13 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.exception.ComponentException;
@@ -36,7 +38,9 @@ import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.dependency.DynamicDependencies;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
-import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.StringListTransformer;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.spiConsumers.DependencySPIConsumer;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.spiConsumers.DynamicDependencySPIConsumer;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.spiConsumers.ExternalDependencySPIConsumer;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.withspi.config.Dataset;
 
 import lombok.extern.slf4j.Slf4j;
@@ -54,7 +58,6 @@ public class DynamicDependenciesWithSPIService implements Serializable {
     public List<String> getDynamicDependencies(@Option("theDataset") final Dataset dataset) {
         String dep = "org.talend.sdk.samplefeature.dynamicdependencies:classloader-test-spi:"
                 + loadVersion();
-        System.out.println("Dynamic dependency to load: " + dep);
         return Collections.singletonList(dep);
     }
 
@@ -70,23 +73,16 @@ public class DynamicDependenciesWithSPIService implements Serializable {
     }
 
     public Iterator<Record> getRecordIterator() {
-        String contentFromResourceDependency;
-        try (InputStream resourceStreamFromDependency = DynamicDependenciesWithSPIService.class.getClassLoader()
-                .getResourceAsStream("CLASSLOADER-TEST-LIBRARY/resource.properties")) {
-            contentFromResourceDependency =
-                    new String(resourceStreamFromDependency.readAllBytes(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new ComponentException("Can't retrieve resource from a dependency.", e);
-        }
+        String contentFromResourceDependency = loadAPropertyFromResource("FROM_DEPENDENCY/resource.properties",
+                "ServiceProviderFromDependency.message");
 
-        String contentFromResourceDynamicDependency;
-        try (InputStream resourceStreamFromDynamicDependency = DynamicDependenciesWithSPIService.class.getClassLoader()
-                .getResourceAsStream("CLASSLOADER-TEST-SPI/resource.properties")) {
-            contentFromResourceDynamicDependency =
-                    new String(resourceStreamFromDynamicDependency.readAllBytes(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new ComponentException("Can't retrieve resource from a dependency.", e);
-        }
+        String contentFromResourceDynamicDependency = loadAPropertyFromResource(
+                "FROM_DYNAMIC_DEPENDENCY/resource.properties",
+                "ServiceProviderFromDynamicDependency.message");
+
+        String contentFromResourceExternalDependency = loadAPropertyFromResource(
+                "FROM_EXTERNAL_DEPENDENCY/resource.properties",
+                "ServiceProviderFromExternalDependency.message");
 
         String contentFromMultipleResources;
         try {
@@ -99,13 +95,11 @@ public class DynamicDependenciesWithSPIService implements Serializable {
                 URL url = resources.nextElement();
 
                 try (InputStream is = url.openStream()) {
-                    stringBuilder.append(isFirst ? "" : System.lineSeparator());
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-                    reader.lines()
-                            .filter(line -> !line.trim().startsWith("#"))
-                            .filter(line -> !line.trim().isEmpty())
-                            .forEach(stringBuilder::append);
-                    reader.close();
+                    String content = filterComments(is);
+                    stringBuilder.append(content);
+                    if (!isFirst) {
+                        stringBuilder.append(System.lineSeparator());
+                    }
                     isFirst = false;
                 }
             }
@@ -114,15 +108,40 @@ public class DynamicDependenciesWithSPIService implements Serializable {
             throw new ComponentException("Can't retrieve multiple resources at once.", e);
         }
 
-        StringListTransformer<Record> stringListTransformer = new StringListTransformer<>(true);
-        List<Record> records = stringListTransformer
+        DependencySPIConsumer<Record> dependencySPIConsumer = new DependencySPIConsumer<>(true);
+        List<Record> recordsFromDependencySPI = dependencySPIConsumer
+                .transform(s -> recordBuilderFactory.newRecordBuilder()
+                        .withString("value", s)
+                        .withString("contentFromResourceDependency", contentFromResourceDependency)
+                        .withString("contentFromResourceDynamicDependency", contentFromResourceDynamicDependency)
+                        .withString("contentFromResourceExternalDependency", contentFromResourceExternalDependency)
+                        .withString("contentFromMultipleResources", contentFromMultipleResources)
+                        .build());
+
+        DynamicDependencySPIConsumer<Record> dynamicDependencySPIConsumer = new DynamicDependencySPIConsumer<>(true);
+        List<Record> recordsFromDynamicDependencySPI = dynamicDependencySPIConsumer
                 .transform(s -> recordBuilderFactory.newRecordBuilder()
                         .withString("value", s)
                         .withString("contentFromResourceDependency", contentFromResourceDependency)
                         .withString("contentFromResourceDynamicDependency", contentFromResourceDynamicDependency)
                         .withString("contentFromMultipleResources", contentFromMultipleResources)
                         .build());
-        return records.iterator();
+
+        ExternalDependencySPIConsumer<Record> externalDependencySPI = new ExternalDependencySPIConsumer<>(true);
+        List<Record> recordsFromExternalSPI = externalDependencySPI
+                .transform(s -> recordBuilderFactory.newRecordBuilder()
+                        .withString("value", s)
+                        .withString("contentFromResourceDependency", contentFromResourceDependency)
+                        .withString("contentFromResourceDynamicDependency", contentFromResourceDynamicDependency)
+                        .withString("contentFromMultipleResources", contentFromMultipleResources)
+                        .build());
+
+        List<Record> values = new ArrayList<>();
+        values.addAll(recordsFromDependencySPI);
+        values.addAll(recordsFromDynamicDependencySPI);
+        values.addAll(recordsFromExternalSPI);
+
+        return values.iterator();
     }
 
     private static String loadVersion() {
@@ -137,6 +156,33 @@ public class DynamicDependenciesWithSPIService implements Serializable {
             }
         }
         return version;
+    }
+
+    private String filterComments(final InputStream stream) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
+
+        String collect = reader.lines()
+                .filter(line -> !line.trim().startsWith("#"))
+                .filter(line -> !line.trim().isEmpty())
+                .collect(Collectors.joining(System.lineSeparator()));
+        try {
+            reader.close();
+        } catch (IOException e) {
+            throw new ComponentException("Can't close a resource reader.", e);
+        }
+
+        return collect;
+    }
+
+    private String loadAPropertyFromResource(final String resource, final String property) {
+        try (InputStream resourceStreamFromDependency = DynamicDependenciesWithSPIService.class.getClassLoader()
+                .getResourceAsStream(resource)) {
+            Properties prop = new Properties();
+            prop.load(resourceStreamFromDependency);
+            return prop.getProperty(property);
+        } catch (IOException e) {
+            throw new ComponentException("Can't retrieve resource from a dependency.", e);
+        }
     }
 
 }

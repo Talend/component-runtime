@@ -48,10 +48,24 @@ class DynamicDependenciesWithSPIInputTest {
                 .run();
 
         List<Record> collectedData = handler.getCollectedData(Record.class);
-        Assertions.assertEquals(3, collectedData.size());
-        Assertions.assertEquals("value1", collectedData.get(0).getString("value"));
-        Assertions.assertEquals("value2", collectedData.get(1).getString("value"));
-        Assertions.assertEquals("value3", collectedData.get(2).getString("value"));
+        Assertions.assertEquals(9, collectedData.size());
+
+        int i = 0;
+        for (; i < 3; i++) {
+            Assertions.assertEquals("ServiceProviderFromDependency_" + (i + 1),
+                    collectedData.get(i).getString("value"));
+        }
+
+        for (; i < 6; i++) {
+            Assertions.assertEquals("ServiceProviderFromDynamicDependency_" + (i - 2),
+                    collectedData.get(i).getString("value"));
+        }
+
+        for (; i < 9; i++) {
+            Assertions.assertEquals("ServiceProviderFromExternalDependency_" + (i - 5),
+                    collectedData.get(i).getString("value"));
+        }
+
     }
 
 }

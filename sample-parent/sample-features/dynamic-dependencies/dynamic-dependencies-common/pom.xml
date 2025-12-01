@@ -24,7 +24,6 @@
 
     <!-- All artifacts with group starting by 'org.talend.sdk.component' are automatically excluded -->
     <!-- So we changed the group to org.talend.sdk.sample -->
-    <groupId>org.talend.sdk.samplefeature.dynamicdependencies</groupId>
     <artifactId>dynamic-dependencies-common</artifactId>
     <packaging>jar</packaging>
     <name>Component Runtime :: Sample Feature @DynamicDependency Common</name>

@@ -24,6 +24,9 @@ public class CustomizeClassLoader implements ComponentManager.Customizer {
     @Override
     public Stream<String> containerClassesAndPackages() {
         return Stream.of(
-                "org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.StringProvider");
+                // Implementation should come from a dynamic dependency
+                "org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringsProviderSPIAsDependency",
+                // Implementation should come from runtime
+                "org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringsProviderSPIAsDynamicDependency");
     }
 }

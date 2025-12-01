@@ -22,7 +22,6 @@
         <version>1.88.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.talend.sdk.samplefeature.dynamicdependencies</groupId>
     <artifactId>dynamic-dependencies-with-spi</artifactId>
     <packaging>jar</packaging>
     <name>Component Runtime :: Sample Feature @DynamicDependency with spi</name>
@@ -46,7 +45,18 @@
         </dependency>
         <dependency>
             <groupId>org.talend.sdk.samplefeature.dynamicdependencies</groupId>
-            <artifactId>classloader-test-spi</artifactId>
+            <artifactId>service-provider-from-dependency</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.sdk.samplefeature.dynamicdependencies</groupId>
+            <artifactId>service-provider-from-dynamic-dependency</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.sdk.samplefeature.dynamicdependencies</groupId>
+            <artifactId>service-provider-from-external-dependency</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
