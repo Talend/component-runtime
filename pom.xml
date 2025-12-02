@@ -102,7 +102,6 @@
   </developers>
 
   <modules>
-    <module>bom</module>
     <module>component-api</module>
     <module>container</module>
     <module>component-spi</module>
@@ -287,18 +286,10 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.talend.sdk.component</groupId>
-        <artifactId>component-bom</artifactId>
-        <version>${project.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
         <groupId>com.google.cloud.tools</groupId>
         <artifactId>jib-core</artifactId>
         <version>${jib-core.version}</version>
       </dependency>
-
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-annotation_1.3_spec</artifactId>
