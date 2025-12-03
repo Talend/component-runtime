@@ -27,8 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.talend.sdk.component.api.service.http.QueryFormat.MULTI;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,6 +43,8 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import javax.json.bind.JsonbBuilder;
+
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpServer;
