@@ -49,6 +49,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
+import org.apache.cxf.transport.https.httpclient.DefaultHostnameVerifier;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.components.vault.configuration.Documentation;
 
@@ -188,6 +189,7 @@ public class VaultClientSetup {
             final Optional<String> keystoreType, final String keystorePassword, final Optional<String> truststoreType,
             final List<String> serverHostnames) {
         final ClientBuilder builder = ClientBuilder.newBuilder();
+        final DefaultHostnameVerifier hostnameVerifier = new DefaultHostnameVerifier();
         builder.connectTimeout(connectTimeout, MILLISECONDS);
         builder.readTimeout(readTimeout, MILLISECONDS);
         builder.executorService(executor);
@@ -195,7 +197,7 @@ public class VaultClientSetup {
             builder.hostnameVerifier((host, session) -> true);
             builder.sslContext(createUnsafeSSLContext());
         } else if (keystoreLocation.isPresent()) {
-            builder.hostnameVerifier((host, session) -> serverHostnames.contains(host));
+            builder.hostnameVerifier(hostnameVerifier::verify);
             builder.sslContext(createSSLContext(keystoreLocation, keystoreType, keystorePassword, truststoreType));
         }
         providers.map(it -> Stream.of(it.split(",")).map(String::trim).filter(v -> !v.isEmpty()).map(fqn -> {
