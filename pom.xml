@@ -1263,8 +1263,7 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <!--  mvn ossindex:audit -->
+      <plugin><!--  mvn ossindex:audit -->
         <groupId>org.sonatype.ossindex.maven</groupId>
         <artifactId>ossindex-maven-plugin</artifactId>
         <version>3.1.0</version>
@@ -1323,9 +1322,9 @@
  * limitations under the License.
  */]]></content>
             </licenseHeader>
-            <eclipse>
+            <!--eclipse>
               <file>talend_java_eclipse_formatter.xml</file>
-            </eclipse>
+            </eclipse-->
           </java>
           <pom>
             <sortPom>
