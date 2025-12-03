@@ -18,7 +18,7 @@ spec:
         - name: DOCKER_HOST
           value: tcp://localhost:2375
     - name: docker-daemon
-      image: artifactory.datapwn.com/docker-io-remote/docker:19.03.1-dind
+      image: artifactory.datapwn.com/docker-io-remote/docker:24.0.7-dind
       env:
         - name: DOCKER_TLS_CERTDIR
           value: ""
