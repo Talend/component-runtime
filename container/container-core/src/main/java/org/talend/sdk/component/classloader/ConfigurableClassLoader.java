@@ -98,6 +98,9 @@ public class ConfigurableClassLoader extends URLClassLoader {
     @Getter
     private final Predicate<String> childFirstFilter;
 
+    @Getter
+    private final Predicate<String> resourcesFilter;
+
     private final Map<String, Collection<Resource>> resources = new HashMap<>();
 
     private final Collection<ClassFileTransformer> transformers = new ArrayList<>();
@@ -107,8 +110,6 @@ public class ConfigurableClassLoader extends URLClassLoader {
     private final String[] fullPathJvmPrefixes;
 
     private final String[] nameJvmPrefixes;
-
-    private final String[] allowedParentResources;
 
     private final ConcurrentMap<String, Class<?>> proxies = new ConcurrentHashMap<>();
 
@@ -122,7 +123,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
     public ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
             final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
             final String[] nestedDependencies, final String[] jvmPrefixes) {
-        this(id, urls, parent, parentFilter, childFirstFilter, emptyMap(), jvmPrefixes, new String[] {});
+        this(id, urls, parent, parentFilter, childFirstFilter, emptyMap(), jvmPrefixes, (name) -> false);
         if (nestedDependencies != null) {
             loadNestedDependencies(parent, nestedDependencies);
         }
@@ -130,8 +131,8 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     public ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
             final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
-            final String[] nestedDependencies, final String[] jvmPrefixes, final String[] localParentResources) {
-        this(id, urls, parent, parentFilter, childFirstFilter, emptyMap(), jvmPrefixes, localParentResources);
+            final String[] nestedDependencies, final String[] jvmPrefixes, final Predicate<String> resourcesFilter) {
+        this(id, urls, parent, parentFilter, childFirstFilter, emptyMap(), jvmPrefixes, resourcesFilter);
         if (nestedDependencies != null) {
             loadNestedDependencies(parent, nestedDependencies);
         }
@@ -140,12 +141,13 @@ public class ConfigurableClassLoader extends URLClassLoader {
     private ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
             final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
             final Map<String, Collection<Resource>> resources, final String[] jvmPrefixes,
-            final String[] localParentResources) {
+            final Predicate<String> resourcesFilter) {
         super(urls, parent);
         this.id = id;
         this.creationUrls = urls;
         this.parentFilter = parentFilter;
         this.childFirstFilter = childFirstFilter;
+        this.resourcesFilter = resourcesFilter;
         this.resources.putAll(resources);
 
         this.fullPathJvmPrefixes =
@@ -162,17 +164,6 @@ public class ConfigurableClassLoader extends URLClassLoader {
         } else {
             cacheableClasses = Collections.emptyList();
         }
-        // initialize allowed parent resources for this classloader
-        final String[] globalAllowedParentResources =
-                Arrays.stream(System.getProperty("talend.tccl.allowed.parent.resources", "").split(","))
-                        .map(String::trim)
-                        .filter(s -> !s.isEmpty())
-                        .toArray(String[]::new);
-        allowedParentResources =
-                Stream.concat(Arrays.stream(globalAllowedParentResources), Arrays.stream(localParentResources))
-                        .map(String::trim)
-                        .filter(s -> !s.isEmpty())
-                        .toArray(String[]::new);
     }
 
     // load all in memory to avoid perf issues - should we try offheap?
@@ -258,7 +249,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
     public synchronized URLClassLoader createTemporaryCopy() {
         final ConfigurableClassLoader self = this;
         return temporaryCopy == null ? temporaryCopy = new ConfigurableClassLoader(id, creationUrls, getParent(),
-                parentFilter, childFirstFilter, resources, fullPathJvmPrefixes, allowedParentResources) {
+                parentFilter, childFirstFilter, resources, fullPathJvmPrefixes, resourcesFilter) {
 
             @Override
             public synchronized void close() throws IOException {
@@ -493,10 +484,10 @@ public class ConfigurableClassLoader extends URLClassLoader {
     }
 
     private boolean isInJvm(final URL resource) {
-        // Services and parent global/local allowed resources that should always be found by top level classloader.
+        // Services and parent allowed resources that should always be found by top level classloader.
         // By default, META-INF/services/ is always allowed otherwise SPI won't work properly in nested environments.
-        // Warning: local selection shouldn't be too generic! Use very specific paths only like jndi.properties.
-        if (Stream.of(allowedParentResources).anyMatch(it -> resource.getFile().contains(it))) {
+        // Warning: selection shouldn't be too generic! Use very specific paths only like jndi.properties.
+        if (resourcesFilter.test(resource.getFile())) {
             return true;
         }
         final Path path = toPath(resource);

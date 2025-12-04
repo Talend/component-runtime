@@ -113,6 +113,7 @@ import org.apache.xbean.finder.archive.CompositeArchive;
 import org.apache.xbean.finder.archive.FileArchive;
 import org.apache.xbean.finder.archive.FilteredArchive;
 import org.apache.xbean.finder.archive.JarArchive;
+import org.apache.xbean.finder.filter.ContainsFilter;
 import org.apache.xbean.finder.filter.ExcludeIncludeFilter;
 import org.apache.xbean.finder.filter.Filter;
 import org.apache.xbean.finder.filter.FilterList;
@@ -312,6 +313,8 @@ public class ComponentManager implements AutoCloseable {
     // + tcomp "runtime" indeed (invisible from the components but required for the runtime
     private final Filter classesFilter;
 
+    private final Filter resourcesFilter;
+
     private final ParameterModelService parameterModelService;
 
     private final InternationalizationServiceFactory internationalizationServiceFactory;
@@ -427,6 +430,13 @@ public class ComponentManager implements AutoCloseable {
                 .map(PrefixFilter::new)
                 .toArray(Filter[]::new));
 
+        resourcesFilter = new FilterList(Stream.concat(
+                Stream.of("META-INF/services/"),
+                additionalParentResources())
+                .distinct()
+                .map(ContainsFilter::new)
+                .toArray(Filter[]::new));
+
         jsonpProvider = loadJsonProvider();
         jsonbProvider = loadJsonbProvider();
         // these factories have memory caches so ensure we reuse them properly
@@ -460,6 +470,7 @@ public class ComponentManager implements AutoCloseable {
         migrationHandlerFactory = new MigrationHandlerFactory(reflections);
 
         final Predicate<String> isContainerClass = name -> isContainerClass(classesFilter, name);
+        final Predicate<String> isParentResource = name -> isContainerResource(resourcesFilter, name);
         final ContainerManager.ClassLoaderConfiguration defaultClassLoaderConfiguration =
                 ContainerManager.ClassLoaderConfiguration
                         .builder()
@@ -467,6 +478,7 @@ public class ComponentManager implements AutoCloseable {
                         .parentClassesFilter(isContainerClass)
                         .classesFilter(isContainerClass.negate())
                         .supportsResourceDependencies(true)
+                        .parentResourcesFilter(isParentResource)
                         .create();
         this.container = new ContainerManager(ContainerManager.DependenciesResolutionConfiguration
                 .builder()
@@ -606,6 +618,16 @@ public class ComponentManager implements AutoCloseable {
                 .concat(customizers.stream().flatMap(Customizer::containerClassesAndPackages),
                         ofNullable(
                                 System.getProperty("talend.component.manager.classloader.container.classesAndPackages"))
+                                .map(s -> s.split(","))
+                                .map(Stream::of)
+                                .orElseGet(Stream::empty));
+    }
+
+    private Stream<String> additionalParentResources() {
+        return Stream
+                .concat(customizers.stream().flatMap(Customizer::parentResources),
+                        ofNullable(
+                                System.getProperty("talend.component.manager.classloader.container.parentResources"))
                                 .map(s -> s.split(","))
                                 .map(Stream::of)
                                 .orElseGet(Stream::empty));
@@ -1056,6 +1078,10 @@ public class ComponentManager implements AutoCloseable {
     }
 
     protected boolean isContainerClass(final Filter filter, final String name) {
+        return name != null && filter.accept(name);
+    }
+
+    protected boolean isContainerResource(final Filter filter, final String name) {
         return name != null && filter.accept(name);
     }
 
@@ -2225,6 +2251,13 @@ public class ComponentManager implements AutoCloseable {
          * as loaded from the "container" (ComponentManager loader) and not the components classloaders.
          */
         Stream<String> containerClassesAndPackages();
+
+        /**
+         * @return
+         */
+        default Stream<String> parentResources() {
+            return Stream.empty();
+        }
 
         /**
          * @return advanced toggle to ignore built-in beam exclusions and let this customizer override them.

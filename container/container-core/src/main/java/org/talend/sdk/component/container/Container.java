@@ -147,7 +147,8 @@ public class Container implements Lifecycle {
                     this.hasNestedRepository ? (name) -> true : overrideClassLoaderConfig.getParentClassesFilter();
             final ConfigurableClassLoader loader =
                     new ConfigurableClassLoader(id, urls, overrideClassLoaderConfig.getParent(), parentFilter,
-                            overrideClassLoaderConfig.getClassesFilter(), rawNestedDependencies, jvmMarkers);
+                            overrideClassLoaderConfig.getClassesFilter(), rawNestedDependencies, jvmMarkers,
+                            overrideClassLoaderConfig.getParentResourcesFilter());
             transformers.forEach(loader::registerTransformer);
             activeSpecificTransformers(loader);
             return loader;
