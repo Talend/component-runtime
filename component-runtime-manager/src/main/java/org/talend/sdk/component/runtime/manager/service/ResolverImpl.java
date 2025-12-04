@@ -67,7 +67,7 @@ public class ResolverImpl implements Resolver, Serializable {
                             } catch (final MalformedURLException e) {
                                 throw new IllegalStateException(e);
                             }
-                        } else if (loader.getResource("MAVEN-INF/repository/" + path) != null) {
+                        } else if (loader.getResource(path) != null) {
                             nested.add(path);
                             resolved.add(artifact.toCoordinate());
                         } // else will be missing
