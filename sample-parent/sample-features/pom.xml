@@ -35,7 +35,6 @@
     <module>checkpoint-runner</module>
     <module>configuration-form</module>
     <module>entry-with-error</module>
-    <module>dynamic-dependencies</module>
   </modules>
 
   <dependencies>
