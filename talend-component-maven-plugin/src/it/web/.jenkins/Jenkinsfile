@@ -67,6 +67,9 @@ String tenantInstance = "eu"
  * The pipeline
  */
 pipeline {
+  libraries {
+    lib("tqa-e2e-tests-tool@v2.4.2-ttp2")  // https://github.com/Talend/tqa-e2e-testing-tool
+  }
   /**
    * agent
    */
@@ -132,27 +135,18 @@ pipeline {
    * stages
    */
   stages {
-    stage('Validate parameters') {
+    stage('Prepare') {
       steps {
-        ///////////////////////////////////////////
-        // asdf install
-        ///////////////////////////////////////////
         script {
-          println "asdf install the content of repository .tool-versions'\n"
-          sh 'bash .jenkins/scripts/asdf_install.sh'
-        }
-        ///////////////////////////////////////////
-        // Validate parameters
-        ///////////////////////////////////////////
-        script {
+          JenkinsPodConfig.asdfInstall()
 
           println "Get actual tck version from ${_ROOT_PATH}/pom.xml: \n"
-          TCOMP_VERSION = sh (
+          String tcompVersion = sh (
             script: "bash ${_SCRIPTS_PATH}/pom-get-version.sh ${_ROOT_PATH}/pom.xml",
             returnStdout: true
           ).trim()
 
-          println "TCOMP_VERSION on the pom file is ${TCOMP_VERSION}\n"
+          println "tcompVersion on the pom file is ${tcompVersion}\n"
 
           // RUNTIME_VERSION
           try {
@@ -162,10 +156,10 @@ pipeline {
             runtimeVersion = "default"
           }
 
-          println "Requested TCOMP_VERSION is ${runtimeVersion}\n"
+          println "Requested tcompVersion is ${runtimeVersion}\n"
 
           if (runtimeVersion == "default") {
-            runtimeVersion = "${TCOMP_VERSION}"
+            runtimeVersion = "${tcompVersion}"
             println "RUNTIME_VERSION not supplied, local value will be used (${runtimeVersion})\n"
           }
         }
@@ -191,18 +185,8 @@ pipeline {
         // Updating build displayName and description
         ///////////////////////////////////////////
         script {
-
-          String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
-          if ( user_name == null) { user_name = "auto" }
-
-          currentBuild.displayName = (
-            "#$currentBuild.number: $user_name - $runtimeVersion"
-          )
-
-          // updating build description
-          String description = """
-            Debug: $params.JENKINS_DEBUG""".stripIndent()
-          job_description_append(description)
+          JenkinsStatusController.jobNameCreation(runtimeVersion)
+          JenkinsStatusController.jobDescriptionAppend("Debug: $params.JENKINS_DEBUG")
         }
       }
     }
@@ -380,48 +364,11 @@ pipeline {
 
       script {
         if (params.JENKINS_DEBUG) {
-          jenkinsBreakpoint()
+          JenkinsController.jenkinsBreakpoint()
         }
       }
     }
   }
-}
-
-/**
- * Append a new line to job description
- * This is MARKDOWN, do not forget double space at the end of line
- *
- * @param new line
- * @return void
- */
-private void job_description_append(String new_line) {
-  if (currentBuild.description == null) {
-    println "Create the job description with: \n$new_line"
-    currentBuild.description = new_line
-  } else {
-    println "Edit the job description adding: $new_line"
-    currentBuild.description = currentBuild.description + '\n' + new_line
-  }
-}
-
-/**
- * Implement a simple breakpoint to stop actual job
- * Use the method anywhere you need to stop
- * The first usage is to keep the pod alive on post stage.
- * Change and restore the job description to be more visible
- *
- * @param job_description_to_backup
- * @return void
- */
-private void jenkinsBreakpoint() {
-  // Backup the description
-  String job_description_backup = currentBuild.description
-  // updating build description
-  currentBuild.description = "ACTION NEEDED TO CONTINUE \n ${job_description_backup}"
-  // Request user action
-  input message: 'Finish the job?', ok: 'Yes'
-  // updating build description
-  currentBuild.description = "$job_description_backup"
 }
 
 /**
