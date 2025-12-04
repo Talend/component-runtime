@@ -86,16 +86,26 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
     public Iterator<Record> loadIterator(final DynamicDependencyConfig dynamicDependencyConfig) {
         Schema schema = buildSchema(dynamicDependencyConfig);
 
-        List<Record> standardDependencies = loadStandarDependencies(dynamicDependencyConfig, schema);
+        List<Record> standardDependencies = loadStandardDependencies(dynamicDependencyConfig, schema);
         List<Record> additionalConnectors = loadConnectors(dynamicDependencyConfig, schema);
 
         return Stream.concat(standardDependencies.stream(), additionalConnectors.stream()).iterator();
     }
 
-    private List<Record> loadStandarDependencies(final DynamicDependencyConfig dynamicDependencyConfig,
+    private List<Record> loadStandardDependencies(final DynamicDependencyConfig dynamicDependencyConfig,
             final Schema schema) {
         List<Record> records = new ArrayList<>();
-        for (Dependency dependency : dynamicDependencyConfig.getDependencies()) {
+
+        List<Dependency> dependencies = new ArrayList<>();
+        // Add a class that should be imported by a 'standard' dependency (not a dynamic one)
+        // to have an example from which classloaded it is loaded
+        // In that case the version doesn't matter.
+        dependencies.add(new Dependency("org.talend.sdk.samplefeature.dynamicdependencies",
+                "dynamic-dependencies-common",
+                "N/A",
+                "org.talend.sdk.component.sample.feature.dynamicdependencies.config.Dependency"));
+        dependencies.addAll(dynamicDependencyConfig.getDependencies());
+        for (Dependency dependency : dependencies) {
 
             String maven = String.format("%s:%s:%s", dependency.getGroupId(), dependency.getArtifactId(),
                     dependency.getVersion());
@@ -185,9 +195,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
                 .withString(ENTRY_FROM_LOCATION, fromLocation)
                 .withBoolean(ENTRY_IS_TCK_CONTAINER, isTckContainer);
 
-        if (firstRecord.isPresent()) {
-            builder.withRecord(ENTRY_FIRST_RECORD, firstRecord.get());
-        }
+        firstRecord.ifPresent(record -> builder.withRecord(ENTRY_FIRST_RECORD, record));
 
         if (dynamicDependencyConfig.isEnvironmentInformation()) {
             String rootRepository = System.getProperty("talend.component.manager.m2.repository");

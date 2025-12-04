@@ -21,9 +21,13 @@ import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.meta.Documentation;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @GridLayout(value = {
         @GridLayout.Row({ "groupId", "artifactId", "version", "clazz" })
 })
