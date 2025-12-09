@@ -15,7 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager.service;
 
-import java.io.IOException;
+import java.io.File;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
@@ -35,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * m2 discovery process is used for plugins/connectors loading.
- *
+ * <p>
  * The default discovery process is at it follows:
  * <ul>
  * <li>read {@code talend.component.manager.m2.repository} system property</li>
@@ -70,13 +71,13 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
         if (hasFallback) {
             return Paths.get(USER_HOME).resolve(M2_REPOSITORY);
         } else {
-            try {
-                // we create an empty temporary folder as our default m2.
-                return Files.createTempDirectory("empty_m2_");
-            } catch (IOException e) {
-                // if any permission issue or other, we go to user's dir.
-                return Paths.get(USER_HOME);
+            // Generate a non-existing root path without creating it
+            File[] roots = File.listRoots();
+            if (roots.length == 0) {
+                roots = new File[] { new File("/") };
             }
+            Path rootPath = roots[0].toPath();
+            return rootPath.resolve(UUID.randomUUID().toString());
         }
     }
 

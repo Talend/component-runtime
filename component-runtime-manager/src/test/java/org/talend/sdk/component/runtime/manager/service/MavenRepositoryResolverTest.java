@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.manager.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.talend.sdk.component.runtime.manager.service.MavenRepositoryResolver.STUDIO_MVN_REPOSITORY;
 import static org.talend.sdk.component.runtime.manager.service.MavenRepositoryResolver.TALEND_COMPONENT_MANAGER_M2_REPOSITORY;
@@ -83,6 +84,19 @@ class MavenRepositoryResolverTest {
     @Test
     void fallback() {
         assertEquals(fallback, resolver.fallback().toString());
+    }
+
+    @Test
+    void fallbackDisabled() {
+        String backup = System.getProperty("talend.component.manager.m2.fallback");
+        System.setProperty("talend.component.manager.m2.fallback", "false");
+        MavenRepositoryResolver resolver = new MavenRepositoryDefaultResolver();
+
+        Path fallback = resolver.fallback();
+
+        assertFalse(Files.exists(fallback));
+
+        System.setProperty("talend.component.manager.m2.fallback", backup);
     }
 
     @Test
