@@ -94,7 +94,10 @@ class MavenRepositoryResolverTest {
 
         Path fallback = resolver.fallback();
 
+        // We test that it is a non-existing folder on the root (/AN-UUID or c:\AN-UUID)
+        // The goal is to have a valid non-existing path.
         assertFalse(Files.exists(fallback));
+        assertEquals(1, fallback.getNameCount());
 
         System.setProperty("talend.component.manager.m2.fallback", backup);
     }
