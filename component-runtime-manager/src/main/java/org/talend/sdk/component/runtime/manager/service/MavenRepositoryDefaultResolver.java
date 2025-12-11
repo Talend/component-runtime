@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.runtime.manager.service;
 
-import java.io.File;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -52,6 +51,9 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
 
+    // Path.of("/") => "C:\" on windows
+    public static final Path NON_EXISTENT_PATH = Path.of("/").resolve(UUID.randomUUID().toString());
+
     private PathHandler handler = new PathHandlerImpl();
 
     private boolean hasFallback = Boolean.getBoolean("talend.component.manager.m2.fallback");
@@ -71,13 +73,8 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
         if (hasFallback) {
             return Paths.get(USER_HOME).resolve(M2_REPOSITORY);
         } else {
-            // Generate a non-existing root path without creating it
-            File[] roots = File.listRoots();
-            if (roots.length == 0) {
-                roots = new File[] { new File("/") };
-            }
-            Path rootPath = roots[0].toPath();
-            return rootPath.resolve(UUID.randomUUID().toString());
+           log.debug("[fallback] Use a non-existing repository: {}", NON_EXISTENT_PATH);
+           return NON_EXISTENT_PATH;
         }
     }
 
