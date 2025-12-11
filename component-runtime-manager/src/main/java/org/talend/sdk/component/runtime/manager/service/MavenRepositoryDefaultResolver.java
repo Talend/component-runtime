@@ -56,7 +56,7 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
 
     private PathHandler handler = new PathHandlerImpl();
 
-    private boolean hasFallback = Boolean.getBoolean("talend.component.manager.m2.fallback");
+    private boolean hasFallback = Boolean.getBoolean("talend.component.manager.user.m2.fallback");
 
     @Override
     public Path discover() {
