@@ -71,7 +71,7 @@ class MavenRepositoryResolverTest {
 
     @BeforeAll
     static void setup() throws IOException {
-        System.setProperty("talend.component.manager.m2.fallback", "true");
+        System.setProperty("talend.component.manager.user.m2.fallback", "true");
         final Path repository = Paths.get(new File("target/test-classes").getAbsolutePath());
         Files.createDirectories(repository.resolve(M2_REPOSITORY));
     }
@@ -88,8 +88,8 @@ class MavenRepositoryResolverTest {
 
     @Test
     void fallbackDisabled() {
-        String backup = System.getProperty("talend.component.manager.m2.fallback");
-        System.setProperty("talend.component.manager.m2.fallback", "false");
+        String backup = System.getProperty("talend.component.manager.user.m2.fallback");
+        System.setProperty("talend.component.manager.user.m2.fallback", "false");
         MavenRepositoryResolver resolver = new MavenRepositoryDefaultResolver();
 
         Path fallback = resolver.fallback();
@@ -99,7 +99,7 @@ class MavenRepositoryResolverTest {
         assertFalse(Files.exists(fallback));
         assertEquals(1, fallback.getNameCount());
 
-        System.setProperty("talend.component.manager.m2.fallback", backup);
+        System.setProperty("talend.component.manager.user.m2.fallback", backup);
     }
 
     @Test

@@ -102,12 +102,12 @@ class ComponentManagerTest {
 
     @BeforeAll
     static void setup() {
-        System.setProperty("talend.component.manager.m2.fallback", "true");
+        System.setProperty("talend.component.manager.user.m2.fallback", "true");
     }
 
     @AfterAll
     static void teardown() {
-        System.clearProperty("talend.component.manager.m2.fallback");
+        System.clearProperty("talend.component.manager.user.m2.fallback");
     }
 
     @Test
