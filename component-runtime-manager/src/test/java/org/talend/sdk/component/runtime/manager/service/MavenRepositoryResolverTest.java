@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.manager.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.talend.sdk.component.runtime.manager.service.MavenRepositoryResolver.STUDIO_MVN_REPOSITORY;
 import static org.talend.sdk.component.runtime.manager.service.MavenRepositoryResolver.TALEND_COMPONENT_MANAGER_M2_REPOSITORY;
@@ -70,6 +71,7 @@ class MavenRepositoryResolverTest {
 
     @BeforeAll
     static void setup() throws IOException {
+        System.setProperty("talend.component.manager.user.m2.fallback", "true");
         final Path repository = Paths.get(new File("target/test-classes").getAbsolutePath());
         Files.createDirectories(repository.resolve(M2_REPOSITORY));
     }
@@ -82,6 +84,24 @@ class MavenRepositoryResolverTest {
     @Test
     void fallback() {
         assertEquals(fallback, resolver.fallback().toString());
+    }
+
+    @Test
+    void fallbackDisabled() {
+        String backup = System.getProperty("talend.component.manager.user.m2.fallback");
+        System.setProperty("talend.component.manager.user.m2.fallback", "false");
+        // Instantiate a new resolver that will use the new value of the "talend.component.manager.user.m2.fallback"
+        // property set in this method
+        MavenRepositoryResolver localResolver = new MavenRepositoryDefaultResolver();
+
+        Path localFallback = localResolver.fallback();
+
+        // We test that it is a non-existing folder on the root (/AN-UUID or c:\AN-UUID)
+        // The goal is to have a valid non-existing path.
+        assertFalse(Files.exists(localFallback));
+        assertEquals(1, localFallback.getNameCount());
+
+        System.setProperty("talend.component.manager.user.m2.fallback", backup);
     }
 
     @Test
