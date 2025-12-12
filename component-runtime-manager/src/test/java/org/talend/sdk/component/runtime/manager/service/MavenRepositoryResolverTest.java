@@ -90,9 +90,11 @@ class MavenRepositoryResolverTest {
     void fallbackDisabled() {
         String backup = System.getProperty("talend.component.manager.user.m2.fallback");
         System.setProperty("talend.component.manager.user.m2.fallback", "false");
-        MavenRepositoryResolver resolver = new MavenRepositoryDefaultResolver();
+        // Instantiate a new resolver that will use the new value of the "talend.component.manager.user.m2.fallback"
+        // property set in this method
+        MavenRepositoryResolver localResolver = new MavenRepositoryDefaultResolver();
 
-        Path fallback = resolver.fallback();
+        Path fallback = localResolver.fallback();
 
         // We test that it is a non-existing folder on the root (/AN-UUID or c:\AN-UUID)
         // The goal is to have a valid non-existing path.

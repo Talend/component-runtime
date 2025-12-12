@@ -73,8 +73,8 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
         if (hasFallback) {
             return Paths.get(USER_HOME).resolve(M2_REPOSITORY);
         } else {
-           log.debug("[fallback] Use a non-existing repository: {}", NON_EXISTENT_PATH);
-           return NON_EXISTENT_PATH;
+            log.debug("[fallback] Use a non-existing repository: {}", NON_EXISTENT_PATH);
+            return NON_EXISTENT_PATH;
         }
     }
 
