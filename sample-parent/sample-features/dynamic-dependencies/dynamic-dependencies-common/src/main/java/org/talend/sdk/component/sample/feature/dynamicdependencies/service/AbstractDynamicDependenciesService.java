@@ -21,10 +21,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +35,10 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 
 import org.talend.sdk.component.api.exception.ComponentException;
 import org.talend.sdk.component.api.record.Record;
@@ -220,7 +226,20 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
 
     private Map<String, String> json2Map(final String json) {
         // Transform the given json to map
-        return Collections.emptyMap();
+        if (json == null || json.isBlank()) {
+            return Collections.emptyMap();
+        }
+        try (JsonReader reader = Json.createReader(new StringReader(json))) {
+            JsonObject jsonObject = reader.readObject();
+            Map<String, String> map = new HashMap<>();
+            for (String key : jsonObject.keySet()) {
+                map.put(key, jsonObject.getString(key, null));
+            }
+            return map;
+        } catch (Exception e) {
+            log.error("conversion JSON: {}", e.getMessage(), e);
+            return Collections.emptyMap();
+        }
     }
 
     protected Schema buildSchema(final DynamicDependencyConfig dynamicDependencyConfig) {
@@ -232,8 +251,8 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
                         factory.newEntryBuilder().withName(ENTRY_CONNECTOR_CLASSLOADER).withType(Type.STRING).build())
                 .withEntry(factory.newEntryBuilder().withName(ENTRY_CLAZZ_CLASSLOADER).withType(Type.STRING).build())
                 .withEntry(factory.newEntryBuilder().withName(ENTRY_FROM_LOCATION).withType(Type.STRING).build())
-                .withEntry(factory.newEntryBuilder().withName(ENTRY_IS_TCK_CONTAINER).withType(Type.BOOLEAN).build());
-
+                .withEntry(factory.newEntryBuilder().withName(ENTRY_IS_TCK_CONTAINER).withType(Type.BOOLEAN).build())
+                .withEntry(factory.newEntryBuilder().withName(ENTRY_FIRST_RECORD).withType(Type.RECORD).build());
         if (dynamicDependencyConfig.isEnvironmentInformation()) {
             builder = builder
                     .withEntry(factory.newEntryBuilder().withName(ENTRY_ROOT_REPOSITORY).withType(Type.STRING).build())
