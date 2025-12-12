@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+   Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.talend.sdk.component</groupId>
+        <artifactId>sample-features</artifactId>
+        <version>1.88.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>org.talend.sdk.samplefeature.dynamicdependencies</groupId>
+    <artifactId>dynamic-dependencies</artifactId>
+    <packaging>pom</packaging>
+
+    <name>Component Runtime :: Sample Feature @DynamicDependency</name>
+    <modules>
+        <module>dynamic-dependencies-common</module>
+        <module>dynamic-dependencies-with-dataset</module>
+        <module>dynamic-dependencies-with-datastore</module>
+        <module>dynamic-dependencies-with-dynamicDependenciesConfiguration</module>
+        <module>dynamic-dependencies-with-dataprepRunAnnotation</module>
+        <module>dynamic-dependencies-with-spi</module>
+        <module>classloader-test-library</module>
+        <module>service-provider-from-dependency</module>
+        <module>service-provider-from-dynamic-dependency</module>
+        <module>service-provider-from-external-dependency</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.talend.sdk.component</groupId>
+            <artifactId>component-runtime-junit</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>
