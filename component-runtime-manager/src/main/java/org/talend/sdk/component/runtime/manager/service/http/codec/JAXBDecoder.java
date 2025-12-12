@@ -19,10 +19,11 @@ import java.io.ByteArrayInputStream;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.sax.SAXSource;
+
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 
 import org.talend.sdk.component.api.service.http.Decoder;
 import org.xml.sax.InputSource;
