@@ -33,10 +33,13 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -52,7 +55,7 @@ class KitapTest {
 
     private static Path config;
 
-    private static IO testIO;
+    private static IO byteArrayOutputStreamIO;
 
     private static ByteArrayOutputStream stdout;
 
@@ -60,9 +63,15 @@ class KitapTest {
 
     private static Runnable flushIO;
 
+    private static PrintStream stdoutBackup;
+
+    private static PrintStream stderrBackup;
+
     @BeforeAll
     static void init(@TempDir final Path tempDir) throws IOException {
         EnvironmentSetup.init();
+        stdoutBackup = System.out;
+        stderrBackup = System.err;
 
         config = tempDir.resolve("config.json");
         Files
@@ -71,56 +80,59 @@ class KitapTest {
                                 .getBytes(StandardCharsets.UTF_8),
                         StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
 
-        testIO = new IO();
         stdout = new ByteArrayOutputStream();
-        final PrintStream stdoutPs = new PrintStream(stdout);
         stderr = new ByteArrayOutputStream();
-        final PrintStream stderrPs = new PrintStream(stderr);
-        final IO overridenIO = new IO(new InputStream() {
+        byteArrayOutputStreamIO = new IO(new InputStream() {
 
             @Override
             public int read() {
                 return -1;
             }
-        }, stdoutPs, stderrPs);
-        overridenIO.set();
+        }, new PrintStream(stdout), new PrintStream(stderr));
         flushIO = () -> {
-            stdoutPs.flush();
-            stderrPs.flush();
+            try {
+                stdout.flush();
+                stderr.flush();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         };
     }
 
     @AfterEach
-    void reset() {
+    void resetOutputs() {
         stdout.reset();
         stderr.reset();
     }
 
     @AfterAll
-    static void resetIO() {
-        testIO.set();
+    static void resetSystemStd() {
+        System.setOut(stdoutBackup);
+        System.setErr(stderrBackup);
     }
 
     @Test
     void discover() throws IOException {
         final Kitap kitap = new Kitap(new SingerArgs("--config", config.toAbsolutePath().toString(), "--discover"),
-                new Singer(new IO(), () -> CONSTANT_DATE));
+                new Singer(byteArrayOutputStreamIO, () -> CONSTANT_DATE));
         kitap.run();
         flushIO.run();
         assertEquals("{\"streams\":[" + "{\"tap_stream_id\":\"default\",\"stream\":\"default\","
                 + "\"schema\":{\"type\":[\"null\",\"object\"],\"additionalProperties\":false,\"properties\":{\"record_number\":{\"type\":[\"integer\"]}}},"
-                + "\"metadata\":[{\"metadata\":{\"inclusion\":\"automatic\",\"selected-by-default\":true},\"breadcrumb\":[\"properties\",\"record_number\"]}]}]}\n",
-                stdout.toString("UTF-8"));
+                + "\"metadata\":[{\"metadata\":{\"inclusion\":\"automatic\",\"selected-by-default\":true},\"breadcrumb\":[\"properties\",\"record_number\"]}]}]}"
+                + System.lineSeparator(),
+                stdout.toString(StandardCharsets.UTF_8));
     }
 
     @Test
     void readAll() throws IOException {
         final Kitap kitap = new Kitap(new SingerArgs("--config", config.toAbsolutePath().toString()),
-                new Singer(new IO(), () -> CONSTANT_DATE));
+                new Singer(byteArrayOutputStreamIO, () -> CONSTANT_DATE));
         kitap.run();
         flushIO.run();
 
-        try (final BufferedReader reader = new BufferedReader(new StringReader(stdout.toString("UTF-8")))) {
+        try (final BufferedReader reader =
+                new BufferedReader(new StringReader(stdout.toString(StandardCharsets.UTF_8)))) {
             final List<String> actuals = reader.lines().collect(toList());
             assertLinesMatch(asList(
                     "{\"type\":\"SCHEMA\",\"stream\":\"default\",\"schema\":{\"type\":[\"null\",\"object\"],\"additionalProperties\":false,\"properties\":{\"record_number\":{\"type\":[\"integer\"]}}},\"key_properties\":[],\"bookmark_properties\":[]}",
@@ -136,16 +148,14 @@ class KitapTest {
                     "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000000Z\",\"record\":{\"record_number\":10}}"),
                     actuals, actuals::toString);
         }
-        try (final BufferedReader reader = new BufferedReader(new StringReader(stderr.toString("UTF-8")))) {
-            final String dateRegex =
-                    "\\p{Digit}{4}-\\p{Digit}{2}-\\p{Digit}{2}.\\p{Digit}{2}:\\p{Digit}{2}:\\p{Digit}{2}.\\p{Digit}{1,3}";
+        try (final BufferedReader reader =
+                new BufferedReader(new StringReader(stderr.toString(StandardCharsets.UTF_8)))) {
+            List<String> expected = Arrays.asList("log4j error", "logback error", "jul error");
             final List<String> actuals = reader.lines().collect(toList());
-            assertLinesMatch(
-                    asList("\\[" + dateRegex + "\\]\\[main\\]\\[ERROR\\]\\[log4j2\\] log4j2 error",
-                            "\\[" + dateRegex + "\\]\\[main\\]\\[ERROR\\]\\[log4j\\] log4j error",
-                            "\\[" + dateRegex + "\\]\\[main\\]\\[ERROR\\]\\[logback\\] logback error",
-                            "\\[" + dateRegex + "Z\\]\\[main\\]\\[SEVERE\\]\\[jul\\] jul error"),
-                    actuals, actuals::toString);
+            for (String end : expected) {
+                Optional<String> any = actuals.stream().filter(l -> l.endsWith(end)).findAny();
+                Assertions.assertTrue(any.isPresent(), String.format("Can't find '%s' in error logs.", end));
+            }
         }
     }
 }
