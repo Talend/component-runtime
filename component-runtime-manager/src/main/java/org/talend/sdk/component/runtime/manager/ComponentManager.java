@@ -113,6 +113,7 @@ import org.apache.xbean.finder.archive.CompositeArchive;
 import org.apache.xbean.finder.archive.FileArchive;
 import org.apache.xbean.finder.archive.FilteredArchive;
 import org.apache.xbean.finder.archive.JarArchive;
+import org.apache.xbean.finder.filter.ContainsFilter;
 import org.apache.xbean.finder.filter.ExcludeIncludeFilter;
 import org.apache.xbean.finder.filter.Filter;
 import org.apache.xbean.finder.filter.FilterList;
@@ -312,6 +313,8 @@ public class ComponentManager implements AutoCloseable {
     // + tcomp "runtime" indeed (invisible from the components but required for the runtime
     private final Filter classesFilter;
 
+    private final Filter resourcesFilter;
+
     private final ParameterModelService parameterModelService;
 
     private final InternationalizationServiceFactory internationalizationServiceFactory;
@@ -427,6 +430,13 @@ public class ComponentManager implements AutoCloseable {
                 .map(PrefixFilter::new)
                 .toArray(Filter[]::new));
 
+        resourcesFilter = new FilterList(Stream.concat(
+                Stream.of("META-INF/services/"),
+                additionalParentResources())
+                .distinct()
+                .map(ContainsFilter::new)
+                .toArray(Filter[]::new));
+
         jsonpProvider = loadJsonProvider();
         jsonbProvider = loadJsonbProvider();
         // these factories have memory caches so ensure we reuse them properly
@@ -460,6 +470,7 @@ public class ComponentManager implements AutoCloseable {
         migrationHandlerFactory = new MigrationHandlerFactory(reflections);
 
         final Predicate<String> isContainerClass = name -> isContainerClass(classesFilter, name);
+        final Predicate<String> isParentResource = name -> isContainerResource(resourcesFilter, name);
         final ContainerManager.ClassLoaderConfiguration defaultClassLoaderConfiguration =
                 ContainerManager.ClassLoaderConfiguration
                         .builder()
@@ -467,6 +478,7 @@ public class ComponentManager implements AutoCloseable {
                         .parentClassesFilter(isContainerClass)
                         .classesFilter(isContainerClass.negate())
                         .supportsResourceDependencies(true)
+                        .parentResourcesFilter(isParentResource)
                         .create();
         this.container = new ContainerManager(ContainerManager.DependenciesResolutionConfiguration
                 .builder()
@@ -606,6 +618,16 @@ public class ComponentManager implements AutoCloseable {
                 .concat(customizers.stream().flatMap(Customizer::containerClassesAndPackages),
                         ofNullable(
                                 System.getProperty("talend.component.manager.classloader.container.classesAndPackages"))
+                                .map(s -> s.split(","))
+                                .map(Stream::of)
+                                .orElseGet(Stream::empty));
+    }
+
+    private Stream<String> additionalParentResources() {
+        return Stream
+                .concat(customizers.stream().flatMap(Customizer::parentResources),
+                        ofNullable(
+                                System.getProperty("talend.component.manager.classloader.container.parentResources"))
                                 .map(s -> s.split(","))
                                 .map(Stream::of)
                                 .orElseGet(Stream::empty));
@@ -899,16 +921,30 @@ public class ComponentManager implements AutoCloseable {
         // common for studio until job generation is updated to build a tcomp friendly bundle
         if (classpath && !Boolean.getBoolean("component.manager.classpath.skip")) {
             try {
+                final String markerValue = "TALEND-INF/dependencies.txt";
                 final Enumeration<URL> componentMarkers =
-                        Thread.currentThread().getContextClassLoader().getResources("TALEND-INF/dependencies.txt");
+                        Thread.currentThread().getContextClassLoader().getResources(markerValue);
                 while (componentMarkers.hasMoreElements()) {
-                    File file = Files.toFile(componentMarkers.nextElement());
-                    if (file.getName().equals("dependencies.txt") && file.getParentFile() != null
-                            && file.getParentFile().getName().equals("TALEND-INF")) {
-                        file = file.getParentFile().getParentFile();
-                    }
-                    if (!hasPlugin(container.buildAutoIdFromName(file.getName()))) {
-                        addPlugin(file.getAbsolutePath());
+                    final URL marker = componentMarkers.nextElement();
+                    File file = Files.toFile(marker);
+                    if (file != null) {
+                        if (file.getName().equals("dependencies.txt") && file.getParentFile() != null
+                                && file.getParentFile().getName().equals("TALEND-INF")) {
+                            file = file.getParentFile().getParentFile();
+                        }
+                        if (!hasPlugin(container.buildAutoIdFromName(file.getName()))) {
+                            addPlugin(file.getAbsolutePath());
+                        }
+                    } else {
+                        // lookup nested jar
+                        if (marker != null && "jar".equals(marker.getProtocol())) {
+                            final String urlFile = marker.getFile();
+                            final String jarPath = urlFile.substring(0, urlFile.lastIndexOf("!"));
+                            final String jarFilePath = jarPath.substring(jarPath.lastIndexOf("/") + 1);
+                            if (!hasPlugin(container.buildAutoIdFromName(jarFilePath))) {
+                                addPlugin(jarPath);
+                            }
+                        }
                     }
                 }
             } catch (final IOException e) {
@@ -1042,6 +1078,10 @@ public class ComponentManager implements AutoCloseable {
     }
 
     protected boolean isContainerClass(final Filter filter, final String name) {
+        return name != null && filter.accept(name);
+    }
+
+    protected boolean isContainerResource(final Filter filter, final String name) {
         return name != null && filter.accept(name);
     }
 
@@ -1299,11 +1339,14 @@ public class ComponentManager implements AutoCloseable {
 
             final AnnotationFinder finder;
             Archive archive = null;
+            final String rootModule = container.getRootModule();
+            final boolean nested = rootModule != null && rootModule.startsWith("nested:");
             try {
                 String alreadyScannedClasses = null;
                 Filter filter = KnownClassesFilter.INSTANCE;
-                try (final InputStream containerFilterConfig =
-                        container.getLoader().getResourceAsStream("TALEND-INF/scanning.properties")) {
+                try (final InputStream containerFilterConfig = nested
+                        ? loader.getNestedResource(rootModule + "!/TALEND-INF/scanning.properties")
+                        : loader.getResourceAsStream("TALEND-INF/scanning.properties")) {
                     if (containerFilterConfig != null) {
                         final Properties config = new Properties();
                         config.load(containerFilterConfig);
@@ -1778,8 +1821,10 @@ public class ComponentManager implements AutoCloseable {
                 }
             }
             info(module + " (" + moduleId + ") is not a file, will try to look it up from a nested maven repository");
-            final URL nestedJar =
-                    loader.getParent().getResource(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + module);
+            URL nestedJar = loader.getParent().getResource(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + module);
+            if (nestedJar == null) {
+                nestedJar = loader.getParent().getResource(module);
+            }
             if (nestedJar != null) {
                 InputStream nestedStream = null;
                 final JarInputStream jarStream;
@@ -2206,6 +2251,13 @@ public class ComponentManager implements AutoCloseable {
          * as loaded from the "container" (ComponentManager loader) and not the components classloaders.
          */
         Stream<String> containerClassesAndPackages();
+
+        /**
+         * @return
+         */
+        default Stream<String> parentResources() {
+            return Stream.empty();
+        }
 
         /**
          * @return advanced toggle to ignore built-in beam exclusions and let this customizer override them.

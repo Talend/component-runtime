@@ -26,9 +26,9 @@ import org.talend.sdk.component.api.meta.Documentation;
 
 @Target(TYPE)
 @Retention(RUNTIME)
-@ConfigurationType("dynamicDependenciesServiceConfiguration")
-@Documentation("Mark a model (complex object) as being the configuration used in services annotated with @DynamicDependencies.")
-public @interface DynamicDependenciesServiceConfiguration {
+@ConfigurationType("dynamicDependenciesConfiguration")
+@Documentation("Mark a model (complex object) as being the configuration expected to compute dynamic dependencies.")
+public @interface DynamicDependenciesConfiguration {
 
     String value() default "default";
 }

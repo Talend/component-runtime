@@ -28,6 +28,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.ClassFileTransformer;
@@ -38,7 +40,10 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.security.CodeSource;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
@@ -55,6 +60,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Predicate;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
@@ -92,6 +98,9 @@ public class ConfigurableClassLoader extends URLClassLoader {
     @Getter
     private final Predicate<String> childFirstFilter;
 
+    @Getter
+    private final Predicate<String> resourcesFilter;
+
     private final Map<String, Collection<Resource>> resources = new HashMap<>();
 
     private final Collection<ClassFileTransformer> transformers = new ArrayList<>();
@@ -114,7 +123,16 @@ public class ConfigurableClassLoader extends URLClassLoader {
     public ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
             final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
             final String[] nestedDependencies, final String[] jvmPrefixes) {
-        this(id, urls, parent, parentFilter, childFirstFilter, emptyMap(), jvmPrefixes);
+        this(id, urls, parent, parentFilter, childFirstFilter, emptyMap(), jvmPrefixes, (name) -> false);
+        if (nestedDependencies != null) {
+            loadNestedDependencies(parent, nestedDependencies);
+        }
+    }
+
+    public ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
+            final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
+            final String[] nestedDependencies, final String[] jvmPrefixes, final Predicate<String> resourcesFilter) {
+        this(id, urls, parent, parentFilter, childFirstFilter, emptyMap(), jvmPrefixes, resourcesFilter);
         if (nestedDependencies != null) {
             loadNestedDependencies(parent, nestedDependencies);
         }
@@ -122,12 +140,14 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     private ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
             final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
-            final Map<String, Collection<Resource>> resources, final String[] jvmPrefixes) {
+            final Map<String, Collection<Resource>> resources, final String[] jvmPrefixes,
+            final Predicate<String> resourcesFilter) {
         super(urls, parent);
         this.id = id;
         this.creationUrls = urls;
         this.parentFilter = parentFilter;
         this.childFirstFilter = childFirstFilter;
+        this.resourcesFilter = resourcesFilter;
         this.resources.putAll(resources);
 
         this.fullPathJvmPrefixes =
@@ -150,7 +170,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
     private void loadNestedDependencies(final ClassLoader parent, final String[] nestedDependencies) {
         final byte[] buffer = new byte[8192]; // should be good for most cases
         final ByteArrayOutputStream out = new ByteArrayOutputStream(buffer.length);
-        Stream.of(nestedDependencies).map(d -> NESTED_MAVEN_REPOSITORY + d).forEach(resource -> {
+        Stream.of(nestedDependencies).forEach(resource -> {
             final URL url = ofNullable(super.findResource(resource)).orElseGet(() -> parent.getResource(resource));
             if (url == null) {
                 throw new IllegalArgumentException("Didn't find " + resource + " in " + asList(nestedDependencies));
@@ -229,7 +249,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
     public synchronized URLClassLoader createTemporaryCopy() {
         final ConfigurableClassLoader self = this;
         return temporaryCopy == null ? temporaryCopy = new ConfigurableClassLoader(id, creationUrls, getParent(),
-                parentFilter, childFirstFilter, resources, fullPathJvmPrefixes) {
+                parentFilter, childFirstFilter, resources, fullPathJvmPrefixes, resourcesFilter) {
 
             @Override
             public synchronized void close() throws IOException {
@@ -459,10 +479,17 @@ public class ConfigurableClassLoader extends URLClassLoader {
     }
 
     private boolean isNestedDependencyResource(final String name) {
-        return name != null && name.startsWith(NESTED_MAVEN_REPOSITORY);
+        return name.startsWith(NESTED_MAVEN_REPOSITORY) || name.endsWith(".jar"); // TODO: improve coz not at all
+                                                                                  // precise
     }
 
     private boolean isInJvm(final URL resource) {
+        // Services and parent allowed resources that should always be found by top level classloader.
+        // By default, META-INF/services/ is always allowed otherwise SPI won't work properly in nested environments.
+        // Warning: selection shouldn't be too generic! Use very specific paths only like jndi.properties.
+        if (resourcesFilter.test(resource.getFile())) {
+            return true;
+        }
         final Path path = toPath(resource);
         if (path == null) {
             return false;
@@ -499,6 +526,63 @@ public class ConfigurableClassLoader extends URLClassLoader {
                     .collect(toList());
         } catch (final IOException e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+    /**
+     * Opens a stream to a resource located in a nested JAR.
+     *
+     * @param nestedUrl The full "nested:" URL, e.g.
+     * nested:/path/to/outer.jar/!path/inner.jar!/file.txt
+     * @return InputStream to the resource (must be closed by caller)
+     */
+    public InputStream getNestedResource(final String nestedUrl) throws IOException {
+        if (nestedUrl == null || !nestedUrl.startsWith("nested:")) {
+            throw new IllegalArgumentException("Invalid nested URL: " + nestedUrl);
+        }
+        final String path = nestedUrl.substring("nested:".length());
+        // Find the "/!" and "!/" separators
+        final int firstBang = path.indexOf("/!");
+        final int secondBang = path.indexOf("!/", firstBang + 2);
+        if (firstBang < 0 || secondBang < 0) {
+            throw new IllegalArgumentException("Malformed nested URL: " + nestedUrl);
+        }
+        final Path outerJarPath = Paths.get(path.substring(0, firstBang)); // before /!
+        final String innerJarPath = path.substring(firstBang + 2, secondBang); // between /! and !/
+        final String resourcePath = path.substring(secondBang + 2); // after the last !/
+        // Open the outer JAR file
+        try (JarFile outerJar = new JarFile(outerJarPath.toFile())) {
+            JarEntry innerEntry = outerJar.getJarEntry(innerJarPath);
+            if (innerEntry == null) {
+                throw new FileNotFoundException("Inner JAR not found: " + innerJarPath);
+            }
+            // Copy the inner JAR to a temporary file
+            final Path tempInnerJar = Files.createTempFile("nested-inner-", ".jar");
+            try (InputStream innerStream = outerJar.getInputStream(innerEntry)) {
+                Files.copy(innerStream, tempInnerJar, StandardCopyOption.REPLACE_EXISTING);
+
+                JarFile innerJar = new JarFile(tempInnerJar.toFile());
+                final JarEntry resourceEntry = innerJar.getJarEntry(resourcePath);
+                if (resourceEntry == null) {
+                    throw new FileNotFoundException("Resource not found: " + resourcePath);
+                }
+
+                // Return a stream that cleans up automatically when closed
+                return new FilterInputStream(innerJar.getInputStream(resourceEntry)) {
+
+                    @Override
+                    public void close() throws IOException {
+                        try {
+                            super.close();
+                        } finally {
+                            Files.deleteIfExists(tempInnerJar);
+                        }
+                    }
+                };
+            } catch (IOException e) {
+                Files.deleteIfExists(tempInnerJar);
+                throw e;
+            }
         }
     }
 

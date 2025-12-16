@@ -193,8 +193,7 @@ class ConfigurableClassLoaderTest {
                 final URL url = loader.getResource(resource);
                 assertNotNull(url);
                 assertEquals("nested", url.getProtocol());
-                assertEquals(
-                        "MAVEN-INF/repository/org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar!/org/apache/ziplock/JarLocation.class",
+                assertEquals("org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar!/org/apache/ziplock/JarLocation.class",
                         url.getFile());
                 final byte[] bytes = slurp(url.openStream());
                 assertEquals(4666, bytes.length, mavenJarSizeMargin);
@@ -377,7 +376,7 @@ class ConfigurableClassLoaderTest {
 
             Stream.of(deps).forEach(s -> {
                 final String[] segments = s.split(":");
-                final String path = "MAVEN-INF/repository/" + segments[0].replace(".", "/") + "/" + segments[1] + "/"
+                final String path = segments[0].replace(".", "/") + "/" + segments[1] + "/"
                         + segments[3] + "/" + segments[1] + "-" + segments[3] + "." + segments[2];
 
                 { // create folders for this m2 embedded deps
@@ -393,8 +392,7 @@ class ConfigurableClassLoaderTest {
                     }
                 }
                 { // add the dep
-                    final File jar =
-                            new File(Constants.DEPENDENCIES_LOCATION, path.substring("MAVEN-INF/repository/".length()));
+                    final File jar = new File(Constants.DEPENDENCIES_LOCATION, path);
                     try {
                         out.putNextEntry(new ZipEntry(path));
                         Files.copy(jar.toPath(), out);

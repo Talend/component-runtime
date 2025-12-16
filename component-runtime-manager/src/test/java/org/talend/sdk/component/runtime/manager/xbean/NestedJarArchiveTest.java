@@ -53,9 +53,9 @@ class NestedJarArchiveTest {
         final File jar = createPlugin(temporaryFolder, info.getTestMethod().get().getName());
         final ConfigurableClassLoader configurableClassLoader = new ConfigurableClassLoader("", new URL[0],
                 new URLClassLoader(new URL[] { jar.toURI().toURL() }, Thread.currentThread().getContextClassLoader()),
-                n -> true, n -> true, new String[] { "com/foo/bar/1.0/bar-1.0.jar" }, new String[0]);
+                n -> true, n -> true, new String[] { "BOOT-INF/lib/com/foo/bar/1.0/bar-1.0.jar" }, new String[0]);
         try (final JarInputStream jis = new JarInputStream(
-                configurableClassLoader.getResourceAsStream("MAVEN-INF/repository/com/foo/bar/1.0/bar-1.0.jar"))) {
+                configurableClassLoader.getResourceAsStream("BOOT-INF/lib/com/foo/bar/1.0/bar-1.0.jar"))) {
             assertNotNull(jis, "test is wrongly setup, no nested jar, fix the createPlugin() method please");
             final AnnotationFinder finder =
                     new AnnotationFinder(new NestedJarArchive(null, jis, configurableClassLoader));
@@ -72,7 +72,7 @@ class NestedJarArchiveTest {
         final File target = new File(pluginFolder, name);
         target.getParentFile().mkdirs();
         try (final JarOutputStream outputStream = new JarOutputStream(new FileOutputStream(target))) {
-            outputStream.putNextEntry(new ZipEntry("MAVEN-INF/repository/com/foo/bar/1.0/bar-1.0.jar"));
+            outputStream.putNextEntry(new ZipEntry("BOOT-INF/lib/com/foo/bar/1.0/bar-1.0.jar"));
             try (final JarOutputStream nestedStream = new JarOutputStream(outputStream)) {
                 final String packageName = "org/talend/test/generated/" + name.replace(".jar", "");
                 { // the factory (declaration)

@@ -29,6 +29,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -116,6 +119,7 @@ public class ContainerManager implements Lifecycle {
 
         if (log.isDebugEnabled()) {
             log.debug("Using root repository: " + this.rootRepositoryLocation.toAbsolutePath());
+            getSystemInformation();
         }
 
         final String nestedPluginMappingResource = ofNullable(classLoaderConfiguration.getNestedPluginMappingResource())
@@ -124,11 +128,18 @@ public class ContainerManager implements Lifecycle {
                 ofNullable(classLoaderConfiguration.getParent()).orElseGet(ContainerManager.class::getClassLoader),
                 ofNullable(classLoaderConfiguration.getClassesFilter()).orElseGet(() -> name -> true),
                 ofNullable(classLoaderConfiguration.getParentClassesFilter()).orElseGet(() -> name -> true),
+                ofNullable(classLoaderConfiguration.getParentResourcesFilter()).orElseGet(() -> name -> true),
                 classLoaderConfiguration.isSupportsResourceDependencies(), nestedPluginMappingResource);
         if (classLoaderConfiguration.isSupportsResourceDependencies()) {
             try (final InputStream mappingStream =
                     classLoaderConfiguration.getParent().getResourceAsStream(nestedPluginMappingResource)) {
                 if (mappingStream != null) {
+                    if (log.isDebugEnabled()) {
+                        final URL plug = classLoaderConfiguration.getParent().getResource(nestedPluginMappingResource);
+                        if (plug != null) {
+                            log.debug("[sysinfo] plugins mapping " + plug.toString());
+                        }
+                    }
                     final Properties properties = new Properties() {
 
                         {
@@ -155,10 +166,13 @@ public class ContainerManager implements Lifecycle {
         this.jvmMarkers = Stream
                 .concat(Stream.concat(Stream.of(getJre()), getComponentModules()), getCustomJvmMarkers())
                 .toArray(String[]::new);
-        this.hasNestedRepository =
-                this.classLoaderConfiguration.isSupportsResourceDependencies() && this.classLoaderConfiguration
-                        .getParent()
-                        .getResource(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY) != null;
+        final URL nestedMvn = this.classLoaderConfiguration
+                .getParent()
+                .getResource(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY);
+        this.hasNestedRepository = this.classLoaderConfiguration.isSupportsResourceDependencies() && nestedMvn != null;
+        if (log.isDebugEnabled() && hasNestedRepository) {
+            log.debug("[sysinfo] nested maven repository: " + nestedMvn);
+        }
     }
 
     public File getRootRepositoryLocation() {
@@ -394,6 +408,22 @@ public class ContainerManager implements Lifecycle {
                 .orElseThrow(IllegalArgumentException::new);
     }
 
+    private void getSystemInformation() {
+        try {
+            final RuntimeMXBean rt = ManagementFactory.getRuntimeMXBean();
+            log.debug("[sysinfo] JVM arguments: " + rt.getInputArguments());
+            try {
+                log.debug("[sysinfo] Boot classpath: " + rt.getBootClassPath());
+            } catch (Exception e) {
+                // nop, will fail in some cases for boot classpath
+            }
+            log.debug("[sysinfo] Runtime classpath: " + rt.getClassPath());
+            log.debug("[sysinfo] Runtime arguments: " + System.getProperty("sun.java.command"));
+        } catch (Exception e) {
+            log.debug("Unable to get JVM information: " + e.getMessage(), e);
+        }
+    }
+
     @Override
     public void close() {
         lifecycle.closeIfNeeded(() -> {
@@ -425,6 +455,8 @@ public class ContainerManager implements Lifecycle {
         private final Predicate<String> classesFilter;
 
         private final Predicate<String> parentClassesFilter;
+
+        private final Predicate<String> parentResourcesFilter;
 
         // is nested jar in jar supported (1 level only)
         private final boolean supportsResourceDependencies;
