@@ -287,11 +287,10 @@
     <ivy.version>2.5.2</ivy.version>
     <aws-java-sdk-s3.version>1.12.285</aws-java-sdk-s3.version>
     <testng.version>7.7.1</testng.version>
+    <jakarta.version>4.0.2</jakarta.version>
 
     <!-- for manual testing only, not required -->
     <talend.component.server.component.coordinates.samples>org.talend.components:servicenow:0.0.1-SNAPSHOT</talend.component.server.component.coordinates.samples>
-    <jaxb.version>2.3.1</jaxb.version>
-    <java11.jaxb.version>2.3.8</java11.jaxb.version>
     <!-- minimal code coverage ratio -->
     <coverage.min>0.75</coverage.min>
     <coverage.fail>false</coverage.fail>
@@ -391,7 +390,7 @@
       <dependency>
         <groupId>org.glassfish.jaxb</groupId>
         <artifactId>jaxb-runtime</artifactId>
-        <version>${java11.jaxb.version}</version>
+        <version>${jakarta.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -633,12 +632,6 @@
         <groupId>org.apache.meecrowave</groupId>
         <artifactId>meecrowave-core</artifactId>
         <version>${meecrowave.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.openwebbeans</groupId>
@@ -739,10 +732,6 @@
             <artifactId>jakarta.activation-api</artifactId>
           </exclusion>
           <exclusion>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-          </exclusion>
-          <exclusion>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
           </exclusion>
@@ -810,10 +799,6 @@
             <artifactId>jakarta.activation-api</artifactId>
           </exclusion>
           <exclusion>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-          </exclusion>
-          <exclusion>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
           </exclusion>
@@ -863,10 +848,6 @@
           <exclusion>
             <groupId>jakarta.activation</groupId>
             <artifactId>jakarta.activation-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -1032,38 +1013,6 @@
               <version>${groovy.version}</version>
               <type>pom</type>
             </dependency>
-            <dependency>
-              <groupId>javax.xml.bind</groupId>
-              <artifactId>jaxb-api</artifactId>
-              <version>${jaxb.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>com.sun.xml.bind</groupId>
-              <artifactId>jaxb-impl</artifactId>
-              <version>${jaxb.version}</version>
-              <exclusions>
-                <exclusion>
-                  <groupId>javax.xml.bind</groupId>
-                  <artifactId>jsr173_api</artifactId>
-                </exclusion>
-                <exclusion>
-                  <groupId>javax.xml</groupId>
-                  <artifactId>jsr173</artifactId>
-                </exclusion>
-                <exclusion>
-                  <groupId>javax.activation</groupId>
-                  <artifactId>activation</artifactId>
-                </exclusion>
-                <exclusion>
-                  <groupId>javax.xml.bind</groupId>
-                  <artifactId>activation</artifactId>
-                </exclusion>
-                <exclusion>
-                  <groupId>javax.xml.bind</groupId>
-                  <artifactId>jaxb-api</artifactId>
-                </exclusion>
-              </exclusions>
-            </dependency>
           </dependencies>
         </plugin>
         <plugin>
@@ -1135,10 +1084,6 @@
                   <artifactId>jakarta.activation-api</artifactId>
                 </exclusion>
                 <exclusion>
-                  <groupId>jakarta.xml.bind</groupId>
-                  <artifactId>jakarta.xml.bind-api</artifactId>
-                </exclusion>
-                <exclusion>
                   <groupId>javax.ws.rs</groupId>
                   <artifactId>javax.ws.rs-api</artifactId>
                 </exclusion>
@@ -1189,10 +1134,6 @@
                   <groupId>jakarta.activation</groupId>
                   <artifactId>jakarta.activation-api</artifactId>
                 </exclusion>
-                <exclusion>
-                  <groupId>jakarta.xml.bind</groupId>
-                  <artifactId>jakarta.xml.bind-api</artifactId>
-                </exclusion>
               </exclusions>
             </dependency>
             <dependency>
@@ -1223,10 +1164,6 @@
                 <exclusion>
                   <groupId>jakarta.activation</groupId>
                   <artifactId>jakarta.activation-api</artifactId>
-                </exclusion>
-                <exclusion>
-                  <groupId>jakarta.xml.bind</groupId>
-                  <artifactId>jakarta.xml.bind-api</artifactId>
                 </exclusion>
               </exclusions>
             </dependency>
@@ -1650,7 +1587,7 @@
                 </module>
                 <module name="UpperEll" />
                 <module name="ImportOrder">
-                  <property name="groups" value="*,java,javafx,javax,jdk,com,crawlercommons,org,orgomg,brave,com.jcraft,freemarker,io,zipkin2,routines,lombok" />
+                  <property name="groups" value="*,java,javafx,javax,jakarta,jdk,com,crawlercommons,org,orgomg,brave,com.jcraft,freemarker,io,zipkin2,routines,lombok" />
                   <property name="ordered" value="true" />
                   <property name="separated" value="true" />
                   <property name="option" value="top" />

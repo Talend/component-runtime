@@ -75,6 +75,8 @@ public final class Kitap implements Runnable {
 
     @Override
     public void run() {
+        singer.getRunIo().set();
+
         final JsonObject componentConfig = ofNullable(args.getConfig().getJsonObject("component"))
                 .orElseGet(() -> ofNullable(args.getConfig().getJsonString("component_config")).map(jsonString -> {
                     try (final JsonReader reader = Json.createReader(new StringReader(jsonString.getString()))) {
