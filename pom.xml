@@ -161,7 +161,7 @@
     <talend.build.name.base>${project.groupId}.runtime</talend.build.name.base>
     <talend.build.name>${talend.build.name.base}.${project.artifactId}</talend.build.name>
 
-    <xbean.version>4.20</xbean.version>
+    <xbean.version>4.29</xbean.version>
     <!-- do not update without updating test-->
     <xbean.test.version>4.9</xbean.test.version>
     <xerces.version>2.12.2</xerces.version>
