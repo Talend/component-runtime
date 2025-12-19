@@ -17,10 +17,7 @@ package org.talend.sdk.component.runtime.di.schema;
 
 import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.api.exception.DiscoverSchemaException.HandleErrorWith.EXCEPTION;
-import static org.talend.sdk.component.api.exception.DiscoverSchemaException.HandleErrorWith.EXECUTE_LIFECYCLE;
 import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
 import static org.talend.sdk.component.api.record.SchemaProperty.ORIGIN_TYPE;
 import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
@@ -36,10 +33,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -65,12 +60,8 @@ import org.talend.sdk.component.runtime.di.JobStateAware;
 import org.talend.sdk.component.runtime.di.OutputsHandler;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
-import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ComponentManager.AllServices;
-import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
-import org.talend.sdk.component.runtime.manager.ParameterMeta;
-import org.talend.sdk.component.runtime.manager.ServiceMeta;
 import org.talend.sdk.component.runtime.manager.chain.ChainedMapper;
 import org.talend.sdk.component.runtime.manager.xbean.converter.SchemaConverter;
 import org.talend.sdk.component.runtime.output.InputFactory;
@@ -84,23 +75,15 @@ public class TaCoKitGuessSchema {
 
     public static final String STRING_ESCAPE = "\"";
 
-    public static final String NO_COMPONENT = "No component ";
-
-    public static final String TCOMP_CONFIGURATIONTYPE_TYPE = "tcomp::configurationtype::type";
-
-    public static final String DATASET = "dataset";
-
     public static final String ERROR_THROUGH_ACTION = "Can't guess schema through action.";
 
     public static final String ERROR_NO_AVAILABLE_SCHEMA_FOUND = "There is no available schema found.";
-
-    public static final String ERROR_INSTANCE_SCHEMA = "Result is not an instance of Talend Component Kit Schema.";
 
     private static final String NO_COLUMN_FOUND_BY_GUESS_SCHEMA = "No column found by guess schema action";
 
     private ComponentManager componentManager;
 
-    private JavaTypesManager javaTypesManager;
+    private final JavaTypesManager javaTypesManager;
 
     private PrintStream out;
 
@@ -122,18 +105,12 @@ public class TaCoKitGuessSchema {
 
     private String componentName;
 
-    private String action;
-
     private final Integer version;
-
-    private static final String SCHEMA_TYPE = "schema";
-
-    private static final String SCHEMA_EXTENDED_TYPE = "schema_extended";
 
     private static final String EMPTY = ""; //$NON-NLS-1$
 
     public TaCoKitGuessSchema(final PrintStream out, final Map<String, String> configuration, final String plugin,
-            final String family, final String componentName, final String action, final String version) {
+            final String family, final String componentName, final String version) {
         this.out = out;
         this.lineLimit = 50;
         this.lineCount = -1;
@@ -143,7 +120,6 @@ public class TaCoKitGuessSchema {
         this.plugin = plugin;
         this.family = family;
         this.componentName = componentName;
-        this.action = action;
         this.columns = new LinkedHashMap<>();
         this.keysNoTypeYet = new HashSet<>();
         this.javaTypesManager = new JavaTypesManager();
@@ -159,7 +135,7 @@ public class TaCoKitGuessSchema {
 
     private void initClass2JavaTypeMap() {
         class2JavaTypeMap = new HashMap<>();
-        JavaType javaTypes[] = javaTypesManager.getJavaTypes();
+        JavaType[] javaTypes = javaTypesManager.getJavaTypes();
         for (JavaType javaType : javaTypes) {
             Class nullableClass = javaType.getNullableClass();
             if (nullableClass != null) {
@@ -194,11 +170,8 @@ public class TaCoKitGuessSchema {
         return discoverSchemaException;
     }
 
-    public void guessInputComponentSchema(final Schema schema) throws Exception {
+    public void guessInputComponentSchema() throws Exception {
         try {
-            if (guessSchemaThroughAction(schema)) {
-                return;
-            }
             if (guessInputComponentSchemaThroughResult()) {
                 return;
             }
@@ -208,272 +181,15 @@ public class TaCoKitGuessSchema {
         throw handleException(new Exception(ERROR_NO_AVAILABLE_SCHEMA_FOUND));
     }
 
-    public void guessComponentSchema(final Schema incomingSchema, final String outgoingBranch,
-            final boolean isStartOfJob) throws Exception {
+    /**
+     * When a processor is the start of a studio job and dev explicitly set the handleError to Lifecycle exec
+     */
+    public void guessComponentSchemaByLifecycle() throws Exception {
         try {
-            executeDiscoverSchemaExtendedAction(incomingSchema, outgoingBranch);
-        } catch (Exception e) {
-            final DiscoverSchemaException dse = transformException(e);
-            // When a processor is the start of a studio job and dev explicitly set the handleError to Lifecycle exec
-            if (isStartOfJob && EXECUTE_LIFECYCLE == dse.getPossibleHandleErrorWith()) {
-                try {
-                    guessOutputComponentSchemaThroughResult();
-                } catch (Exception er) {
-                    throw handleException(e);
-                }
-            } else {
-                throw handleException(e);
-            }
+            guessOutputComponentSchemaThroughResult();
+        } catch (Exception er) {
+            throw handleException(er);
         }
-    }
-
-    public void guessComponentSchema(final Schema incomingSchema, final String outgoingBranch) throws Exception {
-        guessComponentSchema(incomingSchema, outgoingBranch, false);
-    }
-
-    private void executeDiscoverSchemaExtendedAction(final Schema schema, final String branch) throws Exception {
-        final Collection<ServiceMeta> services = getPluginServices();
-        ServiceMeta.ActionMeta actionRef = services
-                .stream()
-                .flatMap(s -> s.getActions().stream())
-                .filter(a -> a.getFamily().equals(family) &&
-                        a.getType().equals(SCHEMA_EXTENDED_TYPE) &&
-                        componentName.equals(a.getAction()))
-                .findFirst()
-                .orElse(null);
-        // did not find action named like componentName, trying to find one matching action...
-        if (actionRef == null) {
-            actionRef = services
-                    .stream()
-                    .flatMap(s -> s.getActions().stream())
-                    .filter(a -> a.getFamily().equals(family) && a.getType().equals(SCHEMA_EXTENDED_TYPE))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "No action " + family + "#" + SCHEMA_EXTENDED_TYPE));
-        }
-        final Object schemaResult =
-                actionRef.getInvoker().apply(buildActionConfig(actionRef, configuration, schema, branch));
-        if (schemaResult instanceof Schema) {
-            final Schema result = (Schema) schemaResult;
-            if (result.getEntries().isEmpty()) {
-                throw new DiscoverSchemaException(ERROR_NO_AVAILABLE_SCHEMA_FOUND, EXCEPTION);
-            } else {
-                fromSchema(Schema.class.cast(schemaResult));
-            }
-        }
-    }
-
-    private Map<String, String> buildActionConfig(final ServiceMeta.ActionMeta action,
-            final Map<String, String> configuration, final Schema schema, final String branch) {
-        final String schemaPath = action.getParameters()
-                .get()
-                .stream()
-                .filter(p -> Schema.class.isAssignableFrom((Class) p.getJavaType()))
-                .map(p -> p.getPath())
-                .findFirst()
-                .orElse("");
-        final String branchPath = action.getParameters()
-                .get()
-                .stream()
-                .filter(p -> String.class.isAssignableFrom((Class) p.getJavaType()))
-                .map(ParameterMeta::getPath)
-                .findFirst()
-                .orElse("");
-
-        final Map<String, String> mapped = new HashMap<>();
-        if (!schemaPath.isEmpty()) {
-            try (final Jsonb jsonb = JsonbBuilder.create()) {
-                mapped.put(schemaPath, jsonb.toJson(schema));
-            } catch (final Exception e) {
-                throw new IllegalStateException(e);
-            }
-        }
-        if (!branchPath.isEmpty()) {
-            mapped.put(branchPath, branch);
-        }
-        if (configuration == null || configuration.isEmpty()) {
-            return mapped;
-        }
-        final String prefix = action
-                .getParameters()
-                .get()
-                .stream()
-                .filter(s -> !s.getPath().equals(schemaPath) && !s.getPath().equals(branchPath))
-                .map(ParameterMeta::getPath)
-                .findFirst()
-                .orElse(null);
-        if (prefix == null) {
-            return mapped;
-        }
-        mapped.putAll(configuration
-                .entrySet()
-                .stream()
-                .filter(e -> isChildParameter(e.getKey(), prefix) || prefix.equals(e.getKey()))
-                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)));
-        return mapped;
-    }
-
-    private Map<String, String> buildActionConfig(final ServiceMeta.ActionMeta action,
-            final Map<String, String> configuration) {
-        if (configuration == null || configuration.isEmpty()) {
-            return configuration; // no-mapping
-        }
-
-        final String prefix = action
-                .getParameters()
-                .get()
-                .stream()
-                .filter(param -> param.getMetadata().containsKey(TCOMP_CONFIGURATIONTYPE_TYPE)
-                        && DATASET.equals(param.getMetadata().get(TCOMP_CONFIGURATIONTYPE_TYPE)))
-                .findFirst()
-                .map(ParameterMeta::getPath)
-                .orElse(null);
-
-        if (prefix == null) { // no mapping to do
-            return configuration;
-        }
-
-        final ParameterMeta dataSet = findDataset(action)
-                .orElseThrow(() -> new IllegalArgumentException("Dataset not found for " + action.getAction()));
-
-        final String dataSetPath = dataSet.getPath();
-        return configuration
-                .entrySet()
-                .stream()
-                .filter(e -> isChildParameter(e.getKey(), dataSetPath))
-                .collect(toMap(e -> prefix + e.getKey().substring(dataSetPath.length()), Map.Entry::getValue));
-    }
-
-    private boolean isChildParameter(final String path, final String parentPath) {
-        return path.startsWith(parentPath) && path.substring(parentPath.length()).startsWith(".");
-    }
-
-    private Optional<ParameterMeta> findDataset(final ServiceMeta.ActionMeta action) {
-        final ComponentFamilyMeta familyMeta = findFamily();
-        final ComponentFamilyMeta.BaseMeta<?> componentMeta = findComponent(familyMeta);
-
-        // dataset name should be the same as DiscoverSchema action name
-        final Collection<ParameterMeta> metas = toStream(componentMeta.getParameterMetas().get()).collect(toList());
-        return ofNullable(metas
-                .stream()
-                .filter(p -> DATASET.equals(p.getMetadata().get(TCOMP_CONFIGURATIONTYPE_TYPE))
-                        && action.getAction().equals(p.getMetadata().get("tcomp::configurationtype::name")))
-                .findFirst()
-                .orElseGet(() -> {
-                    // find and use single dataset
-                    final Iterator<ParameterMeta> iterator = metas
-                            .stream()
-                            .filter(p -> DATASET.equals(p.getMetadata().get(TCOMP_CONFIGURATIONTYPE_TYPE)))
-                            .iterator();
-                    if (iterator.hasNext()) {
-                        final ParameterMeta value = iterator.next();
-                        if (!iterator.hasNext()) {
-                            return value;
-                        }
-                        log
-                                .warn("Multiple potential datasets for {}:{}, ignoring parameters", action.getType(),
-                                        action.getAction());
-                    }
-                    return null;
-                }));
-    }
-
-    private ComponentFamilyMeta.BaseMeta<?> findComponent(final ComponentFamilyMeta familyMeta) {
-        return Stream
-                .concat(familyMeta.getPartitionMappers().entrySet().stream(),
-                        familyMeta.getProcessors().entrySet().stream())
-                .filter(e -> e.getKey().equals(componentName))
-                .map(Map.Entry::getValue)
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException(NO_COMPONENT + componentName));
-    }
-
-    private ComponentFamilyMeta findFamily() {
-        return componentManager
-                .findPlugin(plugin)
-                .orElseThrow(() -> new IllegalArgumentException("No component family " + plugin))
-                .get(ContainerComponentRegistry.class)
-                .getComponents()
-                .get(family);
-    }
-
-    private Stream<ParameterMeta> toStream(final Collection<ParameterMeta> parameterMetas) {
-        return Stream
-                .concat(parameterMetas.stream(),
-                        parameterMetas
-                                .stream()
-                                .map(ParameterMeta::getNestedParameters)
-                                .filter(Objects::nonNull)
-                                .flatMap(this::toStream));
-    }
-
-    private Optional<String> findFirstComponentDataSetName() {
-        final ComponentFamilyMeta familyMeta = findFamily();
-        final ComponentFamilyMeta.BaseMeta<?> componentMeta = findComponent(familyMeta);
-        return toStream(componentMeta.getParameterMetas().get())
-                .filter(p -> DATASET.equals(p.getMetadata().get(TCOMP_CONFIGURATIONTYPE_TYPE)))
-                .findFirst()
-                .map(p -> p.getMetadata().get("tcomp::configurationtype::name"));
-    }
-
-    public boolean guessSchemaThroughAction(final Schema schema) {
-        final Collection<ServiceMeta> services = getPluginServices();
-
-        ServiceMeta.ActionMeta actionRef;
-        if (action == null || action.isEmpty()) {
-            // dataset name should be the same as DiscoverSchema action name so let's try to guess from the component
-            actionRef = findFirstComponentDataSetName()
-                    .flatMap(datasetName -> services
-                            .stream()
-                            .flatMap(s -> s.getActions().stream())
-                            .filter(a -> a.getFamily().equals(family) && a.getType().equals(SCHEMA_TYPE))
-                            .filter(a -> a.getAction().equals(datasetName))
-                            .findFirst())
-                    .orElse(null);
-            if (actionRef == null) {
-                // let's try DiscoverSchemaExtended action name
-                actionRef = findFirstComponentDataSetName()
-                        .flatMap(datasetName -> services
-                                .stream()
-                                .flatMap(s -> s.getActions().stream())
-                                .filter(a -> a.getFamily().equals(family) && a.getType().equals(SCHEMA_EXTENDED_TYPE))
-                                .filter(a -> a.getAction().equals(datasetName))
-                                .findFirst())
-                        .orElse(null);
-            }
-        } else {
-            actionRef = services
-                    .stream()
-                    .flatMap(s -> s.getActions().stream())
-                    .filter(a -> a.getFamily().equals(family) && a.getAction().equals(action)
-                            && a.getType().equals(SCHEMA_TYPE))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "No action " + family + "#" + SCHEMA_TYPE + "#" + action));
-        }
-        if (actionRef == null) {
-            return false;
-        }
-        final Map<String, String> actionConfiguration =
-                SCHEMA_TYPE.equals(actionRef.getType()) ? buildActionConfig(actionRef, configuration)
-                        : buildActionConfig(actionRef, configuration, schema, "INPUT");
-        final Object schemaResult = actionRef.getInvoker().apply(actionConfiguration);
-
-        if (schemaResult instanceof Schema) {
-            return fromSchema(Schema.class.cast(schemaResult));
-
-        } else {
-            log.error(ERROR_INSTANCE_SCHEMA);
-            return false;
-        }
-    }
-
-    private Collection<ServiceMeta> getPluginServices() {
-        return componentManager
-                .findPlugin(plugin)
-                .orElseThrow(() -> new IllegalArgumentException(NO_COMPONENT + plugin))
-                .get(ContainerComponentRegistry.class)
-                .getServices();
     }
 
     private boolean fromSchema(final Schema schema) {
@@ -492,8 +208,7 @@ public class TaCoKitGuessSchema {
     public Collection<Column> getFixedSchema(final String execute) {
         SchemaConverter sc = new SchemaConverter();
         Object o = sc.toObjectImpl(execute);
-        if (o instanceof Schema) {
-            final Schema schema = Schema.class.cast(o);
+        if (o instanceof final Schema schema) {
             final Collection<Schema.Entry> entries = schema.getEntries();
             if (entries == null || entries.isEmpty()) {
                 log.info(NO_COLUMN_FOUND_BY_GUESS_SCHEMA);
