@@ -145,7 +145,8 @@ public class Container implements Lifecycle {
                             : null;
             final ConfigurableClassLoader loader = new ConfigurableClassLoader(id, urls,
                     overrideClassLoaderConfig.getParent(), overrideClassLoaderConfig.getParentClassesFilter(),
-                    overrideClassLoaderConfig.getClassesFilter(), rawNestedDependencies, jvmMarkers);
+                    overrideClassLoaderConfig.getClassesFilter(), rawNestedDependencies, jvmMarkers,
+                    overrideClassLoaderConfig.getParentResourcesFilter());
             transformers.forEach(loader::registerTransformer);
             activeSpecificTransformers(loader);
             return loader;

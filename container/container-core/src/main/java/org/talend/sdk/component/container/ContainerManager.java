@@ -125,6 +125,7 @@ public class ContainerManager implements Lifecycle {
                 ofNullable(classLoaderConfiguration.getParent()).orElseGet(ContainerManager.class::getClassLoader),
                 ofNullable(classLoaderConfiguration.getClassesFilter()).orElseGet(() -> name -> true),
                 ofNullable(classLoaderConfiguration.getParentClassesFilter()).orElseGet(() -> name -> true),
+                ofNullable(classLoaderConfiguration.getParentResourcesFilter()).orElseGet(() -> name -> true),
                 classLoaderConfiguration.isSupportsResourceDependencies(), nestedPluginMappingResource);
         if (classLoaderConfiguration.isSupportsResourceDependencies()) {
             try (final InputStream mappingStream =
@@ -450,6 +451,8 @@ public class ContainerManager implements Lifecycle {
         private final Predicate<String> classesFilter;
 
         private final Predicate<String> parentClassesFilter;
+
+        private final Predicate<String> parentResourcesFilter;
 
         // is nested jar in jar supported (1 level only)
         private final boolean supportsResourceDependencies;
