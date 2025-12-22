@@ -32,7 +32,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.jar.JarFile;
@@ -62,8 +61,8 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
 
     @Override
     public Stream<Artifact> resolve(final ClassLoader rootLoader, final String artifact) {
-        return Stream.of(
-                readDependencies(ofNullable(getJar(artifact))
+        return Stream
+                .of(readDependencies(ofNullable(getJar(artifact))
                         .filter(Files::exists)
                         .map(this::findDependenciesFile)
                         .orElseGet(() -> {
@@ -99,26 +98,7 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
                             }
 
                             return "";
-                        })), readDynamicDependencies(rootLoader, artifact));
-    }
-
-    private String readDynamicDependencies(ClassLoader rootLoader, String artifact) {
-        try (final InputStream stream = rootLoader.getResourceAsStream("TALEND-INF/dynamic-dependencies.properties")) {
-            if (stream == null) {
-                return "";
-            }
-            final Properties properties = new Properties() {
-
-                {
-                    load(stream);
-                }
-            };
-            final String dyndeps = properties.getProperty(artifact, "");
-            return dyndeps.replaceAll(",", System.lineSeparator());
-        } catch (final IOException e) {
-            log.debug(e.getMessage(), e);
-            return "";
-        }
+                        })));
     }
 
     private Path getJar(final String artifact) {
