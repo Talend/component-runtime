@@ -1,3 +1,18 @@
+/**
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.talend.sdk.component.server.front.model;
 
 import java.io.StringReader;
@@ -10,16 +25,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import java.util.stream.Collectors;
+
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonValue;
+
 import lombok.Getter;
 import lombok.Setter;
-//import org.json.JSONObject;
+
 
 public class JsonSchemaModel {
 
@@ -29,6 +45,7 @@ public class JsonSchemaModel {
 
     private final JsonObject jsonSchema;
 
+    @Setter
     @Getter
     private JsonSchemaModel elementSchema;
 
@@ -45,9 +62,10 @@ public class JsonSchemaModel {
     private Map<String, String> props = new HashMap<String, String>();
 
     @Getter
+    @Setter
     private Map<String, JsonEntryModel> entryMap = new HashMap<>();
 
-    public JsonSchemaModel(String jsonString) {
+    public JsonSchemaModel(final String jsonString) {
         try (JsonReader reader = Json.createReader(new StringReader(jsonString))) {
             this.jsonSchema = reader.readObject();
         }
@@ -69,8 +87,10 @@ public class JsonSchemaModel {
                 : null;
     }
 
-    private List<JsonEntryModel> parseEntries(JsonArray jsonArray, boolean isMetadata) {
-        if (jsonArray == null) return Collections.emptyList();
+    private List<JsonEntryModel> parseEntries(final JsonArray jsonArray, final boolean isMetadata) {
+        if (jsonArray == null) {
+            return Collections.emptyList();
+        }
 
         return jsonArray.stream()
                 .map(JsonValue::asJsonObject)
@@ -78,8 +98,10 @@ public class JsonSchemaModel {
                 .collect(Collectors.toList());
     }
 
-    private Map<String, String> parseProps(JsonObject propsObj) {
-        if (propsObj == null) return Collections.emptyMap();
+    private Map<String, String> parseProps(final JsonObject propsObj) {
+        if (propsObj == null) {
+            return Collections.emptyMap();
+        }
 
         Map<String, String> result = new HashMap<>();
         propsObj.forEach((key, value) ->
@@ -87,14 +109,6 @@ public class JsonSchemaModel {
                         ? ((javax.json.JsonString) value).getString()
                         : value.toString()));
         return result;
-    }
-
-    public void setEntryMap(Map<String, JsonEntryModel> entryMap) {
-        this.entryMap = entryMap;
-    }
-
-    public void setElementSchema(JsonSchemaModel elementSchema) {
-        this.elementSchema = elementSchema;
     }
 
     public enum Type {

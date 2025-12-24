@@ -190,7 +190,6 @@
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-server-api</artifactId>
       <version>${project.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
