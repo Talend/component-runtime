@@ -68,9 +68,119 @@ class JsonSchemaTest {
 
         assertEquals(2, model.getEntries().size());
         assertEquals("id", model.getEntries().get(0).getName());
+        assertEquals(JsonSchemaModel.Type.STRING, model.getEntries().get(0).getType());
+        assertEquals("field2", model.getEntries().get(1).getName());
+        assertEquals(JsonSchemaModel.Type.LONG, model.getEntries().get(1).getType());
+        assertEquals("field2 comment", model.getEntries().get(1).getComment());
+        assertEquals(false, model.getEntries().get(1).isNullable());
 
         // entryMap built correctly
         assertTrue(model.getEntryMap().containsKey("id"));
+    }
+
+    @Test
+    void testAllDataTypes() {
+        // given
+        final Schema schema =  new SchemaImpl.BuilderImpl() //
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("id")
+                        .withType(Schema.Type.INT)
+                        .withNullable(false)
+                        .withErrorCapable(true)
+                        .build())
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("field_date")
+                        .withType(Schema.Type.DATETIME)
+                        .withNullable(false)
+                        .withErrorCapable(false)
+                        .withComment("field date")
+                        .build())
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("field_boolean")
+                        .withType(Schema.Type.BOOLEAN)
+                        .withNullable(true)
+                        .withComment("field boolean")
+                        .build())
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("field_bytes")
+                        .withType(Schema.Type.BYTES)
+                        .withComment("field bytes")
+                        .withNullable(true)
+                        .build())
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("field_decimal")
+                        .withType(Schema.Type.DECIMAL)
+                        .withComment("field decimal")
+                        .withNullable(true)
+                        .build())
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("field_double")
+                        .withType(Schema.Type.DOUBLE)
+                        .withComment("field double")
+                        .withNullable(true)
+                        .build())
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("field_float")
+                        .withType(Schema.Type.FLOAT)
+                        .withComment("field float")
+                        .withNullable(true)
+                        .build())
+                .withProp("namespace", "test")
+                .build();
+
+        // when: serialize SchemaImpl
+        String json = jsonb.toJson(schema);
+
+        // then: sanity check JSON
+        assertTrue(json.contains("\"type\":\"RECORD\""));
+        assertTrue(json.contains("\"entries\""));
+
+        // when: deserialize into JsonSchemaModel
+        JsonSchemaModel model = new JsonSchemaModel(json);
+
+        // then
+        assertEquals(JsonSchemaModel.Type.RECORD, model.getType());
+        assertEquals("test", model.getProps().get("namespace"));
+
+        assertEquals(7, model.getEntries().size());
+        assertEquals("id", model.getEntries().get(0).getName());
+        assertEquals(JsonSchemaModel.Type.INT, model.getEntries().get(0).getType());
+        assertFalse(model.getEntries().get(0).isNullable());
+        assertTrue(model.getEntries().get(0).isErrorCapable());
+        assertEquals("field_date", model.getEntries().get(1).getName());
+        assertEquals(JsonSchemaModel.Type.DATETIME, model.getEntries().get(1).getType());
+        assertEquals("field date", model.getEntries().get(1).getComment());
+        assertFalse(model.getEntries().get(1).isNullable());
+        assertFalse(model.getEntries().get(1).isErrorCapable());
+
+        assertEquals("field_boolean", model.getEntries().get(2).getName());
+        assertEquals(JsonSchemaModel.Type.BOOLEAN, model.getEntries().get(2).getType());
+        assertEquals("field boolean", model.getEntries().get(2).getComment());
+        assertTrue(model.getEntries().get(2).isNullable());
+        assertFalse(model.getEntries().get(2).isErrorCapable());
+        assertEquals("field_bytes", model.getEntries().get(3).getName());
+        assertEquals(JsonSchemaModel.Type.BYTES, model.getEntries().get(3).getType());
+        assertEquals("field bytes", model.getEntries().get(3).getComment());
+        assertTrue(model.getEntries().get(3).isNullable());
+
+        assertEquals("field_decimal", model.getEntries().get(4).getName());
+        assertEquals(JsonSchemaModel.Type.DECIMAL, model.getEntries().get(4).getType());
+        assertEquals("field decimal", model.getEntries().get(4).getComment());
+        assertTrue(model.getEntries().get(4).isNullable());
+        assertEquals("field_double", model.getEntries().get(5).getName());
+        assertEquals(JsonSchemaModel.Type.DOUBLE, model.getEntries().get(5).getType());
+        assertEquals("field double", model.getEntries().get(5).getComment());
+        assertTrue(model.getEntries().get(5).isNullable());
+
+        assertEquals("field_float", model.getEntries().get(6).getName());
+        assertEquals(JsonSchemaModel.Type.FLOAT, model.getEntries().get(6).getType());
+        assertEquals("field float", model.getEntries().get(6).getComment());
+        assertTrue(model.getEntries().get(6).isNullable());
+        // entryMap built correctly
+        assertTrue(model.getEntryMap().containsKey("id"));
+        assertEquals("id,field_date,field_boolean,field_bytes,field_decimal,field_double,field_float",
+                model.getProps().get("talend.fields.order"));
     }
 
     @Test

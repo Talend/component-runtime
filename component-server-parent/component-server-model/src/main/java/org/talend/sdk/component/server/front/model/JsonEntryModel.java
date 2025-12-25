@@ -30,21 +30,18 @@ public class JsonEntryModel {
 
     private final JsonObject jsonEntry;
 
-    @Getter
     private final boolean isMetadata;
 
     /**
      * The name of this entry.
      */
     @Setter
-    @Getter
     private String name;
 
     /**
      * The raw name of this entry.
      */
     @Setter
-    @Getter
     private String rawName;
 
     /**
@@ -58,7 +55,6 @@ public class JsonEntryModel {
      * Is this entry nullable or always valued.
      */
     @Setter
-    @Getter
     private boolean nullable;
 
     /**
@@ -77,7 +73,6 @@ public class JsonEntryModel {
      * Default value for this entry.
      */
     @Setter
-    @Getter
     private Object defaultValue;
 
     /**
@@ -91,11 +86,9 @@ public class JsonEntryModel {
      * Allows to associate to this field a comment - for doc purposes, no use in the runtime.
      */
     @Setter
-    @Getter
     private String comment;
 
     @Setter
-    @Getter
     private boolean valid;
 
     /**
@@ -143,7 +136,7 @@ public class JsonEntryModel {
     }
 
     public boolean isNullable() {
-        return jsonEntry.getBoolean("nullable", true);
+        return !jsonEntry.containsKey("nullable") || jsonEntry.getBoolean("nullable");
     }
 
     public boolean isErrorCapable() {
