@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.jar.JarFile;
@@ -61,44 +62,68 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
 
     @Override
     public Stream<Artifact> resolve(final ClassLoader rootLoader, final String artifact) {
-        return Stream
-                .of(readDependencies(ofNullable(getJar(artifact))
-                        .filter(Files::exists)
-                        .map(this::findDependenciesFile)
-                        .orElseGet(() -> {
-                            final boolean isNested;
-                            try (final InputStream stream = rootLoader
-                                    .getResourceAsStream(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + artifact)) {
-                                isNested = stream != null;
-                            } catch (final IOException e) {
-                                log.debug(e.getMessage(), e);
-                                return "";
-                            }
+        final String standardDeps = ofNullable(getJar(artifact))
+                .filter(Files::exists)
+                .map(this::findDependenciesFile)
+                .orElseGet(() -> {
+                    final boolean isNested;
+                    try (final InputStream stream = rootLoader
+                            .getResourceAsStream(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + artifact)) {
+                        isNested = stream != null;
+                    } catch (final IOException e) {
+                        log.debug(e.getMessage(), e);
+                        return "";
+                    }
 
-                            if (isNested) { // we reuse ConfigurableClassLoader just to not
-                                            // rewrite the logic but it is NOT a plugin!
-                                try (final ConfigurableClassLoader configurableClassLoader =
-                                        new ConfigurableClassLoader("", new URL[0], rootLoader, name -> true,
-                                                name -> true, new String[] { artifact }, new String[0])) {
-                                    try (final InputStream deps =
-                                            configurableClassLoader.getResourceAsStream(dependenciesListFile)) {
-                                        return ofNullable(deps).map(s -> {
-                                            try {
-                                                return slurp(s);
-                                            } catch (final IOException e) {
-                                                log.debug(e.getMessage(), e);
-                                                return "";
-                                            }
-                                        }).orElse("");
+                    if (isNested) { // we reuse ConfigurableClassLoader just to not
+                                    // rewrite the logic but it is NOT a plugin!
+                        try (final ConfigurableClassLoader configurableClassLoader =
+                                new ConfigurableClassLoader("", new URL[0], rootLoader, name -> true,
+                                        name -> true, new String[] { artifact }, new String[0])) {
+                            try (final InputStream deps =
+                                    configurableClassLoader.getResourceAsStream(dependenciesListFile)) {
+                                return ofNullable(deps).map(s -> {
+                                    try {
+                                        return slurp(s);
+                                    } catch (final IOException e) {
+                                        log.debug(e.getMessage(), e);
+                                        return "";
                                     }
-                                } catch (final IOException e) {
-                                    log.debug(e.getMessage(), e);
-                                    return "";
-                                }
+                                }).orElse("");
                             }
-
+                        } catch (final IOException e) {
+                            log.debug(e.getMessage(), e);
                             return "";
-                        })));
+                        }
+                    }
+
+                    return "";
+                });
+        final String dynamicDeps = findDynamicDependencies(rootLoader, artifact);
+        final String allDeps = Stream.of(standardDeps, dynamicDeps)
+                .filter(s -> !s.isEmpty())
+                .collect(joining(System.lineSeparator()));
+
+        return Stream.of(readDependencies(allDeps));
+    }
+
+    private String findDynamicDependencies(final ClassLoader rootLoader, final String artifact) {
+        try (final InputStream stream = rootLoader.getResourceAsStream("TALEND-INF/dynamic-dependencies.properties")) {
+            if (stream == null) {
+                return "";
+            }
+            final Properties properties = new Properties() {
+
+                {
+                    load(stream);
+                }
+            };
+            final String dyndeps = properties.getProperty(artifact, "");
+            return dyndeps.replaceAll(",", System.lineSeparator());
+        } catch (final IOException e) {
+            log.debug(e.getMessage(), e);
+            return "";
+        }
     }
 
     private Path getJar(final String artifact) {
