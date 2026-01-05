@@ -51,15 +51,14 @@ public class JsonSchemaModel {
 
     @Getter
     @Setter
-    private List<JsonEntryModel> entries = new ArrayList<JsonEntryModel>();
+    private List<JsonEntryModel> entries = new ArrayList<>();
 
     @Getter
-    private List<JsonEntryModel> metadataEntries = new ArrayList<JsonEntryModel>();
-    ;
+    private List<JsonEntryModel> metadataEntries = new ArrayList<>();
 
     @Getter
     @Setter
-    private Map<String, String> props = new HashMap<String, String>();
+    private Map<String, String> props = new HashMap<>();
 
     @Getter
     @Setter
@@ -95,7 +94,7 @@ public class JsonSchemaModel {
         return jsonArray.stream()
                 .map(JsonValue::asJsonObject)
                 .map(obj -> new JsonEntryModel(obj, isMetadata))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Map<String, String> parseProps(final JsonObject propsObj) {

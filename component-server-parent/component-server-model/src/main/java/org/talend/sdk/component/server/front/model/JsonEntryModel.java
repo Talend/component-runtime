@@ -30,19 +30,8 @@ public class JsonEntryModel {
 
     private final JsonObject jsonEntry;
 
+    @Getter
     private final boolean isMetadata;
-
-    /**
-     * The name of this entry.
-     */
-    @Setter
-    private String name;
-
-    /**
-     * The raw name of this entry.
-     */
-    @Setter
-    private String rawName;
 
     /**
      * Type of the entry, this determine which other fields are populated.
@@ -52,17 +41,6 @@ public class JsonEntryModel {
     private JsonSchemaModel.Type type;
 
     /**
-     * Is this entry nullable or always valued.
-     */
-    @Setter
-    private boolean nullable;
-
-    /**
-     * Is this entry can be in error.
-     */
-    private boolean errorCapable;
-
-    /**
      * Is this entry a metadata entry.
      */
     @Setter
@@ -70,26 +48,11 @@ public class JsonEntryModel {
     private boolean metadata;
 
     /**
-     * Default value for this entry.
-     */
-    @Setter
-    private Object defaultValue;
-
-    /**
      * For type == record, the element type.
      */
     @Getter
     @Setter
     private JsonSchemaModel elementSchema;
-
-    /**
-     * Allows to associate to this field a comment - for doc purposes, no use in the runtime.
-     */
-    @Setter
-    private String comment;
-
-    @Setter
-    private boolean valid;
 
     /**
      * metadata
