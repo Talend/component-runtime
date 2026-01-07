@@ -26,7 +26,8 @@ public class ExternalDependencySPIConsumer<T> extends AbstractSPIConsumer<String
     }
 
     public List<String> getValues() {
-        return this.getSPIImpl().getStringsFromExternalSPI();
+        return this.getSPIImpl().isPresent() ? this.getSPIImpl().get().getStringsFromExternalSPI()
+                : List.of("[ERROR] StringsProviderFromExternalSPI not loaded!");
     }
 
 }

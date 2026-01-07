@@ -26,7 +26,8 @@ public class DependencySPIConsumer<T> extends AbstractSPIConsumer<StringsProvide
     }
 
     public List<String> getValues() {
-        return this.getSPIImpl().getStringsFromDependency();
+        return this.getSPIImpl().isPresent() ? this.getSPIImpl().get().getStringsFromDependency()
+                : List.of("[ERROR] StringsProviderSPIAsDependency not loaded!");
     }
 
 }

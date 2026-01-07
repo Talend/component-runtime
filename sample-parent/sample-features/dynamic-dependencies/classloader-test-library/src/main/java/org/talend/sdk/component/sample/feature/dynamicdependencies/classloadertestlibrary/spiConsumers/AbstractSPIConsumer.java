@@ -17,15 +17,19 @@ package org.talend.sdk.component.sample.feature.dynamicdependencies.classloadert
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.talend.sdk.component.api.exception.ComponentException;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public abstract class AbstractSPIConsumer<S, T> {
 
-    private final S spiImpl;
+    private final Optional<S> spiImpl;
 
     protected AbstractSPIConsumer(final Class clazz, final boolean failIfSeveralServicesFound) {
         ServiceLoader<S> serviceLoader = ServiceLoader.load(clazz);
@@ -34,7 +38,9 @@ public abstract class AbstractSPIConsumer<S, T> {
         serviceLoader.iterator().forEachRemaining(stringMapProviderList::add);
 
         if (stringMapProviderList.size() <= 0) {
-            throw new ComponentException("No SPI service found for %s.".formatted(clazz));
+            log.error("No SPI service found for %s.".formatted(clazz));
+            spiImpl = Optional.empty();
+            return;
         }
 
         if (stringMapProviderList.size() > 1 && failIfSeveralServicesFound) {
@@ -45,7 +51,7 @@ public abstract class AbstractSPIConsumer<S, T> {
                     .formatted(clazz, join));
         }
 
-        this.spiImpl = stringMapProviderList.get(0);
+        this.spiImpl = Optional.of(stringMapProviderList.get(0));
     }
 
     public abstract List<String> getValues();
@@ -58,7 +64,7 @@ public abstract class AbstractSPIConsumer<S, T> {
                 .toList();
     }
 
-    public S getSPIImpl() {
+    public Optional<S> getSPIImpl() {
         return this.spiImpl;
     }
 

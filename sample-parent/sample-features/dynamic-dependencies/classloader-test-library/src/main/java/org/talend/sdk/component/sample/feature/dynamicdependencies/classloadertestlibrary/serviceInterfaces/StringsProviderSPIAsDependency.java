@@ -17,7 +17,7 @@ package org.talend.sdk.component.sample.feature.dynamicdependencies.classloadert
 
 import java.util.List;
 
-public interface StringsProviderSPIAsDependency {
+public interface StringsProviderSPIAsDependency extends StringsProviderSPI {
 
     List<String> getStringsFromDependency();
 
