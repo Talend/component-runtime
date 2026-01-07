@@ -24,8 +24,9 @@ public class ServiceProviderFromExternalDependency implements StringsProviderFro
 
     public List<String> getStringsFromExternalSPI() {
         List<String> values = new ArrayList<>();
-        for (int i = 1; i <= 3; i++) {
-            values.add("ServiceProviderFromExternalDependency_" + i);
+        for (int i = 1; i <= NB_VALUES; i++) {
+            values.add("ServiceProviderFromExternalDependency_" + i + "/" + NB_VALUES +
+                    " loaded from classloader: " + this.getClass().getClassLoader());
         }
         return values;
     }

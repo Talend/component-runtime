@@ -24,8 +24,9 @@ public class ServiceProviderFromDependency implements StringsProviderSPIAsDepend
 
     public List<String> getStringsFromDependency() {
         List<String> values = new ArrayList<>();
-        for (int i = 1; i <= 3; i++) {
-            values.add("ServiceProviderFromDependency_" + i);
+        for (int i = 1; i <= NB_VALUES; i++) {
+            values.add("ServiceProviderFromDependency_" + i + "/" + NB_VALUES +
+                    " loaded from classloader: " + this.getClass().getClassLoader());
         }
         return values;
     }

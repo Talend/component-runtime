@@ -25,8 +25,9 @@ public class ServiceProviderFromDynamicDependency implements StringsProviderSPIA
     @Override
     public List<String> getStringsFromASPIAsDynamicDependency() {
         List<String> values = new ArrayList<>();
-        for (int i = 1; i <= 3; i++) {
-            values.add("ServiceProviderFromDynamicDependency_" + i);
+        for (int i = 1; i <= NB_VALUES; i++) {
+            values.add("ServiceProviderFromDynamicDependency_" + i + "/" + NB_VALUES +
+                    " loaded from classloader: " + this.getClass().getClassLoader());
         }
         return values;
     }
