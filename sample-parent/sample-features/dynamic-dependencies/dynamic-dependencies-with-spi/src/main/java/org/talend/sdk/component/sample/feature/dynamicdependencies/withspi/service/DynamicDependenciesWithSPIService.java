@@ -177,6 +177,12 @@ public class DynamicDependenciesWithSPIService implements Serializable {
     private String loadAPropertyFromResource(final String resource, final String property) {
         try (InputStream resourceStreamFromDependency = DynamicDependenciesWithSPIService.class.getClassLoader()
                 .getResourceAsStream(resource)) {
+
+            if (resourceStreamFromDependency == null) {
+                return "The resource '%s' has not been found, it can't retrieve the '%s' property value."
+                        .formatted(resource, property);
+            }
+
             Properties prop = new Properties();
             prop.load(resourceStreamFromDependency);
             return prop.getProperty(property);
