@@ -203,7 +203,9 @@ public class VaultClientSetup {
                 builder.hostnameVerifier(hostnameVerifier);
                 builder.sslContext(createSSLContext(keystoreLocation, keystoreType, keystorePassword, truststoreType));
             } else {
-                log.warn("Key store location is NOT present. ");
+                log.info("TCK vault-client doesn't explicitly define the keystore location. You can use" + 
+                         "'talend.vault.cache.client.vault.certificate.keystore.location' and " +
+                         "'talend.vault.cache.client.vault.certificate.keystore.type' to explicit it.");
             }
         }
         providers.map(it -> Stream.of(it.split(",")).map(String::trim).filter(v -> !v.isEmpty()).map(fqn -> {
