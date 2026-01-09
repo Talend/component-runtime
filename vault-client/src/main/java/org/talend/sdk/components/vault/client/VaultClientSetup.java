@@ -203,9 +203,9 @@ public class VaultClientSetup {
                 builder.hostnameVerifier(hostnameVerifier);
                 builder.sslContext(createSSLContext(keystoreLocation, keystoreType, keystorePassword, truststoreType));
             } else {
-                log.info("TCK vault-client doesn't explicitly define the keystore location. You can use" + 
+                log.info("TCK vault-client doesn't explicitly define the keystore location. Please configure " + 
                          "'talend.vault.cache.client.vault.certificate.keystore.location' and " +
-                         "'talend.vault.cache.client.vault.certificate.keystore.type' to explicit it.");
+                         "'talend.vault.cache.client.vault.certificate.keystore.type' to define it explicitly.");
             }
         }
         providers.map(it -> Stream.of(it.split(",")).map(String::trim).filter(v -> !v.isEmpty()).map(fqn -> {
