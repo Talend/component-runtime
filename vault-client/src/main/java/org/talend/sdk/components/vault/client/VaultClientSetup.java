@@ -198,9 +198,13 @@ public class VaultClientSetup {
         if (acceptAnyCertificate) {
             builder.hostnameVerifier((host, session) -> true);
             builder.sslContext(createUnsafeSSLContext());
-        } else if (keystoreLocation.isPresent()) {
-            builder.hostnameVerifier(hostnameVerifier);
-            builder.sslContext(createSSLContext(keystoreLocation, keystoreType, keystorePassword, truststoreType));
+        } else {
+            if (keystoreLocation.isPresent()) {
+                builder.hostnameVerifier(hostnameVerifier);
+                builder.sslContext(createSSLContext(keystoreLocation, keystoreType, keystorePassword, truststoreType));
+            } else {
+                log.warn("Key store location is NOT present. ");
+            }
         }
         providers.map(it -> Stream.of(it.split(",")).map(String::trim).filter(v -> !v.isEmpty()).map(fqn -> {
             try {
