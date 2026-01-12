@@ -925,13 +925,26 @@ public class ComponentManager implements AutoCloseable {
                 final Enumeration<URL> componentMarkers =
                         Thread.currentThread().getContextClassLoader().getResources("TALEND-INF/dependencies.txt");
                 while (componentMarkers.hasMoreElements()) {
-                    File file = Files.toFile(componentMarkers.nextElement());
-                    if (file.getName().equals("dependencies.txt") && file.getParentFile() != null
-                            && file.getParentFile().getName().equals("TALEND-INF")) {
-                        file = file.getParentFile().getParentFile();
-                    }
-                    if (!hasPlugin(container.buildAutoIdFromName(file.getName()))) {
-                        addPlugin(file.getAbsolutePath());
+                    final URL marker = componentMarkers.nextElement();
+                    File file = Files.toFile(marker);
+                    if (file != null) {
+                        if (file.getName().equals("dependencies.txt") && file.getParentFile() != null
+                                && file.getParentFile().getName().equals("TALEND-INF")) {
+                            file = file.getParentFile().getParentFile();
+                        }
+                        if (!hasPlugin(container.buildAutoIdFromName(file.getName()))) {
+                            addPlugin(file.getAbsolutePath());
+                        }
+                    } else {
+                        // lookup nested jar
+                        if (marker != null && "jar".equals(marker.getProtocol())) {
+                            final String urlFile = marker.getFile();
+                            final String jarPath = urlFile.substring(0, urlFile.lastIndexOf("!"));
+                            final String jarFilePath = jarPath.substring(jarPath.lastIndexOf("/") + 1);
+                            if (!hasPlugin(container.buildAutoIdFromName(jarFilePath))) {
+                                addPlugin(jarPath);
+                            }
+                        }
                     }
                 }
             } catch (final IOException e) {
@@ -1749,7 +1762,7 @@ public class ComponentManager implements AutoCloseable {
                     return true;
                 }).map(nested -> {
                     if ("nested".equals(nested.getProtocol())
-                            || (nested.getPath() != null && nested.getPath().contains("!/MAVEN-INF/repository/"))) {
+                            || (nested.getPath() != null && nested.getPath().contains(NESTED_MAVEN_REPOSITORY))) {
                         JarInputStream jarStream = null;
                         try {
                             jarStream = new JarInputStream(nested.openStream());
