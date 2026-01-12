@@ -40,6 +40,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
+import org.talend.sdk.component.container.ContainerManager;
 import org.talend.sdk.component.dependencies.Resolver;
 import org.talend.sdk.component.path.PathFactory;
 
@@ -118,7 +119,8 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
                     load(stream);
                 }
             };
-            final String dyndeps = properties.getProperty(artifact, "");
+            final String module = ContainerManager.buildAutoIdFromName(artifact);
+            final String dyndeps = properties.getProperty(module, "");
             return dyndeps.replaceAll(",", System.lineSeparator());
         } catch (final IOException e) {
             log.debug(e.getMessage(), e);

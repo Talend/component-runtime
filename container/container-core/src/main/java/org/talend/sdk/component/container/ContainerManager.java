@@ -103,10 +103,6 @@ public class ContainerManager implements Lifecycle {
 
     private final boolean hasNestedRepository;
 
-    private final Pattern versionWithJiraIssue = Pattern.compile("-[A-Z]{2,}-\\d+$");
-
-    private final Pattern versionWithMilestone = Pattern.compile("M\\d+$");
-
     public ContainerManager(final DependenciesResolutionConfiguration dependenciesResolutionConfiguration,
             final ClassLoaderConfiguration classLoaderConfiguration, final Consumer<Container> containerInitializer,
             final Level logInfoLevelMapping) {
@@ -265,7 +261,7 @@ public class ContainerManager implements Lifecycle {
         return builder(buildAutoIdFromName(module), module);
     }
 
-    public String buildAutoIdFromName(final String module) {
+    public static String buildAutoIdFromName(final String module) {
         final String[] segments = module.split(":");
         if (segments.length > 2) { // == 2 can be a windows path so enforce > 2 but then
             // assume it is mvn GAV
@@ -281,11 +277,11 @@ public class ContainerManager implements Lifecycle {
             if (autoId.endsWith("-SNAPSHOT")) {
                 autoId = autoId.substring(0, autoId.length() - "-SNAPSHOT".length());
             }
-            final Matcher jiraTicket = versionWithJiraIssue.matcher(autoId);
+            final Matcher jiraTicket = Pattern.compile("-[A-Z]{2,}-\\d+$").matcher(autoId);
             if (jiraTicket.find()) {
                 autoId = autoId.substring(0, jiraTicket.start());
             }
-            final Matcher milestone = versionWithMilestone.matcher(autoId);
+            final Matcher milestone = Pattern.compile("M\\d+$").matcher(autoId);
             if (milestone.find()) {
                 autoId = autoId.substring(0, milestone.start());
             }
