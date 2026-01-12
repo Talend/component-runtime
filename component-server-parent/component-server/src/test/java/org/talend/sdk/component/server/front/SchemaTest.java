@@ -18,7 +18,6 @@ package org.talend.sdk.component.server.front;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -47,179 +46,19 @@ class SchemaTest {
 
 
     private org.talend.sdk.component.server.front.model.Schema emptySchema() {
+
         // minimal self-referential schema to satisfy required fields
         org.talend.sdk.component.server.front.model.Schema placeholder =
-                org.talend.sdk.component.server.front.model.Schema.builder()
-                .type(org.talend.sdk.component.server.front.model.Schema.Type.RECORD)
-                .build();
+                new org.talend.sdk.component.server.front.model.Schema(org.talend.sdk.component.server.front.model.Schema.Type.RECORD,
+                        null, null, null, null);
 
-        return org.talend.sdk.component.server.front.model.Schema.builder()
-                .type(org.talend.sdk.component.server.front.model.Schema.Type.RECORD)
-                .elementSchema(placeholder)
-                .build();
+        return  new org.talend.sdk.component.server.front.model.Schema(org.talend.sdk.component.server.front.model.Schema.Type.RECORD,
+                placeholder, null, null, null);
     }
 
     private Entry entry(String name) {
-        return Entry.builder()
-                .name(name)
-                .rawName(name)
-                .originalFieldName(name)
-                .type(org.talend.sdk.component.server.front.model.Schema.Type.STRING)
-                .isNullable(false)
-                .isMetadata(false)
-                .isErrorCapable(false)
-                .isValid(true)
-                .elementSchema(emptySchema())
-                .comment("c")
-                .internalDefaultValue("")
-                .build();
-    }
-
-    // ----------------------------------------------------------------------
-    // withEntries
-    // ----------------------------------------------------------------------
-
-    @Test
-    void withEntriesVarargsReplacesEntries() {
-        org.talend.sdk.component.server.front.model.Schema schema = emptySchema();
-
-        Entry e1 = entry("a");
-        Entry e2 = entry("b");
-
-        org.talend.sdk.component.server.front.model.Schema updated = schema.withEntries(e1, e2);
-
-        assertEquals(List.of(e1, e2), updated.getEntries());
-        assertNotSame(schema, updated);
-    }
-
-    @Test
-    void withEntriesIterableReplacesEntries() {
-        org.talend.sdk.component.server.front.model.Schema schema = emptySchema();
-        Entry e1 = entry("x");
-
-        List<Entry> list = List.of(e1);
-        org.talend.sdk.component.server.front.model.Schema updated = schema.withEntries(list);
-
-        assertEquals(list, updated.getEntries());
-    }
-
-    @Test
-    void withEntriesReturnsSameInstanceWhenSameReference() {
-        Entry e1 = entry("a");
-
-        org.talend.sdk.component.server.front.model.Schema schema =
-                org.talend.sdk.component.server.front.model.Schema.builder()
-                .type(org.talend.sdk.component.server.front.model.Schema.Type.RECORD)
-                .elementSchema(emptySchema())
-                .addEntries(e1)
-                .build();
-
-        // same list reference
-        org.talend.sdk.component.server.front.model.Schema same = schema.withEntries(schema.getEntries());
-
-        assertSame(schema, same);
-    }
-
-    @Test
-    void withEntriesListIsUnmodifiable() {
-        org.talend.sdk.component.server.front.model.Schema schema = emptySchema();
-        Entry e1 = entry("a");
-
-        org.talend.sdk.component.server.front.model.Schema updated = schema.withEntries(e1);
-
-        assertThrows(UnsupportedOperationException.class,
-                () -> updated.getEntries().add(entry("b")));
-    }
-
-    // ----------------------------------------------------------------------
-    // withMetadata
-    // ----------------------------------------------------------------------
-
-    @Test
-    void withMetadataVarargsReplacesMetadata() {
-        org.talend.sdk.component.server.front.model.Schema schema = emptySchema();
-
-        Entry m1 = entry("m1");
-        Entry m2 = entry("m2");
-
-        org.talend.sdk.component.server.front.model.Schema updated = schema.withMetadata(m1, m2);
-
-        assertEquals(List.of(m1, m2), updated.getMetadata());
-        assertNotSame(schema, updated);
-    }
-
-    @Test
-    void withMetadataIterableReplacesMetadata() {
-        org.talend.sdk.component.server.front.model.Schema schema = emptySchema();
-        Entry m1 = entry("meta");
-
-        List<Entry> list = List.of(m1);
-        org.talend.sdk.component.server.front.model.Schema updated = schema.withMetadata(list);
-
-        assertEquals(list, updated.getMetadata());
-    }
-
-    @Test
-    void withMetadataReturnsSameInstanceWhenSameReference() {
-        Entry m1 = entry("meta");
-
-        org.talend.sdk.component.server.front.model.Schema schema =
-                org.talend.sdk.component.server.front.model.Schema.builder()
-                .type(org.talend.sdk.component.server.front.model.Schema.Type.RECORD)
-                .elementSchema(emptySchema())
-                .addMetadata(m1)
-                .build();
-
-        org.talend.sdk.component.server.front.model.Schema same = schema.withMetadata(schema.getMetadata());
-
-        assertSame(schema, same);
-    }
-
-    @Test
-    void withMetadataListIsUnmodifiable() {
-        org.talend.sdk.component.server.front.model.Schema schema = emptySchema();
-        Entry m1 = entry("meta");
-
-        org.talend.sdk.component.server.front.model.Schema updated = schema.withMetadata(m1);
-
-        assertThrows(UnsupportedOperationException.class,
-                () -> updated.getMetadata().add(entry("x")));
-    }
-
-    // ----------------------------------------------------------------------
-    // Regression: ensure other fields are untouched
-    // ----------------------------------------------------------------------
-
-    @Test
-    void withEntriesDoesNotModifyMetadata() {
-        Entry meta = entry("meta");
-
-        org.talend.sdk.component.server.front.model.Schema schema =
-                org.talend.sdk.component.server.front.model.Schema.builder()
-                .type(org.talend.sdk.component.server.front.model.Schema.Type.RECORD)
-                .elementSchema(emptySchema())
-                .addMetadata(meta)
-                .build();
-
-        org.talend.sdk.component.server.front.model.Schema updated = schema.withEntries(entry("field"));
-
-        assertEquals(List.of(meta), updated.getMetadata());
-    }
-
-    @Test
-    void withMetadataDoesNotModifyEntries() {
-        Entry field = entry("field");
-
-        org.talend.sdk.component.server.front.model.Schema schema =
-                org.talend.sdk.component.server.front.model.Schema.builder()
-                .type(org.talend.sdk.component.server.front.model.Schema.Type.RECORD)
-                .elementSchema(emptySchema())
-                .addEntries(field)
-                .build();
-
-        org.talend.sdk.component.server.front.model.Schema updated = schema.withMetadata(entry("meta"));
-
-        assertEquals(List.of(field), updated.getEntries());
+        return new Entry(name, name, org.talend.sdk.component.server.front.model.Schema.Type.STRING,false,
+                false, false, true, emptySchema(), "c", null, "");
     }
 
     @Test
@@ -401,7 +240,7 @@ class SchemaTest {
     }
 
     @Test
-    void testAllDataTypes() {
+    void testAllDataTypes1() {
         // given
         final Schema schema =  new SchemaImpl.BuilderImpl() //
                 .withType(Schema.Type.RECORD)
@@ -430,6 +269,54 @@ class SchemaTest {
                         .withComment("field bytes")
                         .withNullable(true)
                         .build())
+                .withProp("namespace", "test")
+                .build();
+
+        // when: serialize SchemaImpl
+        String json = jsonb.toJson(schema);
+
+        // then: sanity check JSON
+        assertTrue(json.contains("\"type\":\"RECORD\""));
+        assertTrue(json.contains("\"entries\""));
+
+        // when: deserialize into Schema
+        org.talend.sdk.component.server.front.model.Schema model = jsonb.fromJson(new StringReader(json),
+                org.talend.sdk.component.server.front.model.Schema.class);
+
+        // then
+        assertEquals(org.talend.sdk.component.server.front.model.Schema.Type.RECORD, model.getType());
+        assertEquals("test", model.getProps().get("namespace"));
+
+        assertEquals(4, model.getEntries().size());
+        assertEquals("id", model.getEntries().get(0).getName());
+        assertEquals(org.talend.sdk.component.server.front.model.Schema.Type.INT, model.getEntries().get(0).getType());
+        assertFalse(model.getEntries().get(0).isNullable());
+        assertTrue(model.getEntries().get(0).isErrorCapable());
+        assertEquals("field_date", model.getEntries().get(1).getName());
+        assertEquals(org.talend.sdk.component.server.front.model.Schema.Type.DATETIME, model.getEntries().get(1).getType());
+        assertEquals("field date", model.getEntries().get(1).getComment());
+        assertFalse(model.getEntries().get(1).isNullable());
+        assertFalse(model.getEntries().get(1).isErrorCapable());
+
+        assertEquals("field_boolean", model.getEntries().get(2).getName());
+        assertEquals(org.talend.sdk.component.server.front.model.Schema.Type.BOOLEAN, model.getEntries().get(2).getType());
+        assertEquals("field boolean", model.getEntries().get(2).getComment());
+        assertTrue(model.getEntries().get(2).isNullable());
+        assertFalse(model.getEntries().get(2).isErrorCapable());
+        assertEquals("field_bytes", model.getEntries().get(3).getName());
+        assertEquals(org.talend.sdk.component.server.front.model.Schema.Type.BYTES, model.getEntries().get(3).getType());
+        assertEquals("field bytes", model.getEntries().get(3).getComment());
+        assertTrue(model.getEntries().get(3).isNullable());
+
+        assertEquals("id,field_date,field_boolean,field_bytes",
+                model.getProps().get("talend.fields.order"));
+    }
+
+    @Test
+    void testAllDataTypes2() {
+        // given
+        final Schema schema =  new SchemaImpl.BuilderImpl() //
+                .withType(Schema.Type.RECORD)
                 .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withName("field_decimal")
                         .withType(Schema.Type.DECIMAL)
@@ -466,42 +353,23 @@ class SchemaTest {
         assertEquals(org.talend.sdk.component.server.front.model.Schema.Type.RECORD, model.getType());
         assertEquals("test", model.getProps().get("namespace"));
 
-        assertEquals(7, model.getEntries().size());
-        assertEquals("id", model.getEntries().get(0).getName());
-        assertEquals(org.talend.sdk.component.server.front.model.Schema.Type.INT, model.getEntries().get(0).getType());
-        assertFalse(model.getEntries().get(0).isNullable());
-        assertTrue(model.getEntries().get(0).isErrorCapable());
-        assertEquals("field_date", model.getEntries().get(1).getName());
-        assertEquals(org.talend.sdk.component.server.front.model.Schema.Type.DATETIME, model.getEntries().get(1).getType());
-        assertEquals("field date", model.getEntries().get(1).getComment());
-        assertFalse(model.getEntries().get(1).isNullable());
-        assertFalse(model.getEntries().get(1).isErrorCapable());
+        assertEquals(3, model.getEntries().size());
 
-        assertEquals("field_boolean", model.getEntries().get(2).getName());
-        assertEquals(org.talend.sdk.component.server.front.model.Schema.Type.BOOLEAN, model.getEntries().get(2).getType());
-        assertEquals("field boolean", model.getEntries().get(2).getComment());
+        assertEquals("field_decimal", model.getEntries().get(0).getName());
+        assertEquals(org.talend.sdk.component.server.front.model.Schema.Type.DECIMAL, model.getEntries().get(0).getType());
+        assertEquals("field decimal", model.getEntries().get(0).getComment());
+        assertTrue(model.getEntries().get(0).isNullable());
+        assertEquals("field_double", model.getEntries().get(1).getName());
+        assertEquals(org.talend.sdk.component.server.front.model.Schema.Type.DOUBLE, model.getEntries().get(1).getType());
+        assertEquals("field double", model.getEntries().get(1).getComment());
+        assertTrue(model.getEntries().get(1).isNullable());
+
+        assertEquals("field_float", model.getEntries().get(2).getName());
+        assertEquals(org.talend.sdk.component.server.front.model.Schema.Type.FLOAT, model.getEntries().get(2).getType());
+        assertEquals("field float", model.getEntries().get(2).getComment());
         assertTrue(model.getEntries().get(2).isNullable());
-        assertFalse(model.getEntries().get(2).isErrorCapable());
-        assertEquals("field_bytes", model.getEntries().get(3).getName());
-        assertEquals(org.talend.sdk.component.server.front.model.Schema.Type.BYTES, model.getEntries().get(3).getType());
-        assertEquals("field bytes", model.getEntries().get(3).getComment());
-        assertTrue(model.getEntries().get(3).isNullable());
 
-        assertEquals("field_decimal", model.getEntries().get(4).getName());
-        assertEquals(org.talend.sdk.component.server.front.model.Schema.Type.DECIMAL, model.getEntries().get(4).getType());
-        assertEquals("field decimal", model.getEntries().get(4).getComment());
-        assertTrue(model.getEntries().get(4).isNullable());
-        assertEquals("field_double", model.getEntries().get(5).getName());
-        assertEquals(org.talend.sdk.component.server.front.model.Schema.Type.DOUBLE, model.getEntries().get(5).getType());
-        assertEquals("field double", model.getEntries().get(5).getComment());
-        assertTrue(model.getEntries().get(5).isNullable());
-
-        assertEquals("field_float", model.getEntries().get(6).getName());
-        assertEquals(org.talend.sdk.component.server.front.model.Schema.Type.FLOAT, model.getEntries().get(6).getType());
-        assertEquals("field float", model.getEntries().get(6).getComment());
-        assertTrue(model.getEntries().get(6).isNullable());
-
-        assertEquals("id,field_date,field_boolean,field_bytes,field_decimal,field_double,field_float",
+        assertEquals("field_decimal,field_double,field_float",
                 model.getProps().get("talend.fields.order"));
     }
 

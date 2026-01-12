@@ -15,10 +15,15 @@
  */
 package org.talend.sdk.component.server;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.HashMap;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.LinkedHashMap;
+
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -31,19 +36,10 @@ import org.talend.sdk.component.server.front.model.Schema;
 class EntryTest {
 
      private Entry createValidEntry() {
-        return Entry.builder()
-                .name("name")
-                .rawName("raw")
-                .originalFieldName("original")
-                .type(Schema.Type.STRING)
-                .isNullable(true)
-                .isMetadata(false)
-                .isErrorCapable(true)
-                .isValid(true)
-                .comment("comment")
-                .putProps("p1", "v1")
-                .internalDefaultValue("default")
-                .build();
+         Map<String, String> props = new LinkedHashMap<>(0);
+         props.put("p1", "v1");
+        return new Entry("name", "raw", Schema.Type.STRING, true, false, true,
+         true, null,"comment", props, "default");
     }
 
     // ----------------------------------------------------------------------
@@ -68,48 +64,6 @@ class EntryTest {
     }
 
     // ----------------------------------------------------------------------
-    // withXxx methods
-    // ----------------------------------------------------------------------
-
-    @Test
-    void withNameSameValueReturnsSameInstance() {
-        Entry entry = createValidEntry();
-        assertSame(entry, entry.withName("name"));
-    }
-
-    @Test
-    void withNameDifferentValueReturnsNewInstance() {
-        Entry entry = createValidEntry();
-        Entry modified = entry.withName("other");
-
-        assertNotSame(entry, modified);
-        assertEquals("other", modified.getName());
-        assertEquals(entry.getRawName(), modified.getRawName());
-    }
-
-    @Test
-    void withIsNullableChangesValue() {
-        Entry entry = createValidEntry();
-        Entry modified = entry.withIsNullable(false);
-
-        assertFalse(modified.isNullable());
-        assertTrue(entry.isNullable());
-    }
-
-    @Test
-    void withPropsReplacesMap() {
-        Entry entry = createValidEntry();
-
-        Map<String, String> newProps = new HashMap<>();
-        newProps.put("a", "b");
-
-        Entry modified = entry.withProps(newProps);
-
-        assertEquals(Map.of("a", "b"), modified.getProps());
-        assertEquals(Map.of("p1", "v1"), entry.getProps());
-    }
-
-    // ----------------------------------------------------------------------
     // Accessors
     // ----------------------------------------------------------------------
 
@@ -126,16 +80,6 @@ class EntryTest {
         Entry entry = createValidEntry();
         assertEquals("v1", entry.getProp("p1"));
         assertNull(entry.getProp("k1"));
-    }
-
-    // ----------------------------------------------------------------------
-    // copyOf
-    // ----------------------------------------------------------------------
-
-    @Test
-    void copyOfReturnsSameInstanceForEntry() {
-        Entry entry = createValidEntry();
-        assertSame(entry, Entry.copyOf(entry));
     }
 
     // ----------------------------------------------------------------------
