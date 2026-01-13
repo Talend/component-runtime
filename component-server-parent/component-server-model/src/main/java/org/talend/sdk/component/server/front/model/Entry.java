@@ -80,8 +80,16 @@ public final class Entry {
         return defaultValue;
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T getDefaultValue() {
-        return (T) this.getInternalDefaultValue();
+        return switch (this.getType()) {
+            case INT -> (T) ((Integer) ((Number) this.getInternalDefaultValue()).intValue());
+            case LONG -> (T) ((Long) ((Number) this.getInternalDefaultValue()).longValue());
+            case FLOAT -> (T) ((Float) ((Number) this.getInternalDefaultValue()).floatValue());
+            case DOUBLE -> (T) ((Double) ((Number) this.getInternalDefaultValue()).doubleValue());
+            default -> (T) this.getInternalDefaultValue();
+        };
+
     }
 
     public String getOriginalFieldName() {

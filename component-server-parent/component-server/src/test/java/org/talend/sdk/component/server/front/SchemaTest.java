@@ -34,6 +34,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.record.SchemaProperty;
+import org.talend.sdk.component.api.record.SchemaProperty.LogicalType;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 import org.talend.sdk.component.server.front.model.Entry;
@@ -42,178 +44,6 @@ import org.talend.sdk.component.server.front.model.Schema;
 class SchemaTest {
 
     private final Jsonb jsonb = JsonbBuilder.create();
-
-    @Test
-    void deserializeSchemaFromJson() throws Exception {
-        RecordBuilderFactoryImpl factory = new RecordBuilderFactoryImpl("test");
-        org.talend.sdk.component.api.record.Schema schemaImpl =
-                factory.newSchemaBuilder(org.talend.sdk.component.api.record.Schema.Type.RECORD)
-                        .withEntry(factory.newEntryBuilder()
-                                .withName("id")
-                                .withType(org.talend.sdk.component.api.record.Schema.Type.LONG)
-                                .withNullable(false)
-                                .withComment("User ID")
-                                .build())
-                        .withEntry(factory.newEntryBuilder()
-                                .withName("username")
-                                .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
-                                .withNullable(false)
-                                .withComment("Username")
-                                .build())
-                        .withEntry(factory.newEntryBuilder()
-                                .withName("email")
-                                .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
-                                .withNullable(false)
-                                .withComment("Email address")
-                                .build())
-                        .withEntry(factory.newEntryBuilder()
-                                .withName("passwordHash")
-                                .withType(org.talend.sdk.component.api.record.Schema.Type.BYTES)
-                                .withNullable(false)
-                                .withComment("Password hash")
-                                .build())
-                        .withEntry(factory.newEntryBuilder()
-                                .withName("createdAt")
-                                .withType(org.talend.sdk.component.api.record.Schema.Type.DATETIME)
-                                .withNullable(false)
-                                .withComment("Account creation date")
-                                .build())
-                        .withEntry(factory.newEntryBuilder()
-                                .withName("lastLogin")
-                                .withType(org.talend.sdk.component.api.record.Schema.Type.DATETIME)
-                                .withNullable(true)
-                                .withComment("Last login date")
-                                .build())
-                        .withEntry(factory.newEntryBuilder()
-                                .withName("isActive")
-                                .withType(org.talend.sdk.component.api.record.Schema.Type.BOOLEAN)
-                                .withNullable(false)
-                                .withDefaultValue(true)
-                                .withComment("Is active user")
-                                .build())
-                        .withEntry(factory.newEntryBuilder()
-                                .withName("roles")
-                                .withType(org.talend.sdk.component.api.record.Schema.Type.ARRAY)
-                                .withElementSchema(
-                                        factory.newSchemaBuilder(org.talend.sdk.component.api.record.Schema.Type.STRING)
-                                                .build())
-                                .withNullable(true)
-                                .withComment("User roles")
-                                .build())
-                        .withEntry(factory.newEntryBuilder()
-                                .withName("profile")
-                                .withType(org.talend.sdk.component.api.record.Schema.Type.RECORD)
-                                .withElementSchema(
-                                        factory.newSchemaBuilder(org.talend.sdk.component.api.record.Schema.Type.RECORD)
-                                                .withEntry(factory.newEntryBuilder()
-                                                        .withName("firstName")
-                                                        .withType(
-                                                                org.talend.sdk.component.api.record.Schema.Type.STRING)
-                                                        .withNullable(true)
-                                                        .build())
-                                                .withEntry(factory.newEntryBuilder()
-                                                        .withName("lastName")
-                                                        .withType(
-                                                                org.talend.sdk.component.api.record.Schema.Type.STRING)
-                                                        .withNullable(true)
-                                                        .build())
-                                                .withEntry(factory.newEntryBuilder()
-                                                        .withName("birthDate")
-                                                        .withType(
-                                                                org.talend.sdk.component.api.record.Schema.Type.DATETIME)
-                                                        .withNullable(true)
-                                                        .build())
-                                                .build())
-                                .withNullable(true)
-                                .withComment("User profile")
-                                .build())
-                        .build();
-
-        String json = jsonb.toJson(schemaImpl);
-
-        ObjectMapper mapper = new ObjectMapper();
-        Schema schema = mapper.readValue(json, Schema.class);
-
-        assertNotNull(schema);
-        assertEquals(Schema.Type.RECORD, schema.getType());
-        assertNotNull(schema.getEntries());
-        assertEquals(9, schema.getEntries().size());
-
-        Entry idEntry = schema.getEntries().get(0);
-        assertEquals("id", idEntry.getName());
-        assertEquals(Schema.Type.LONG, idEntry.getType());
-        assertFalse(idEntry.isNullable());
-        assertEquals("User ID", idEntry.getComment());
-
-        Entry usernameEntry = schema.getEntries().get(1);
-        assertEquals("username", usernameEntry.getName());
-        assertEquals(Schema.Type.STRING, usernameEntry.getType());
-        assertFalse(usernameEntry.isNullable());
-        assertEquals("Username", usernameEntry.getComment());
-
-        Entry emailEntry = schema.getEntries().get(2);
-        assertEquals("email", emailEntry.getName());
-        assertEquals(Schema.Type.STRING, emailEntry.getType());
-        assertFalse(emailEntry.isNullable());
-        assertEquals("Email address", emailEntry.getComment());
-
-        Entry passwordHashEntry = schema.getEntries().get(3);
-        assertEquals("passwordHash", passwordHashEntry.getName());
-        assertEquals(Schema.Type.BYTES, passwordHashEntry.getType());
-        assertFalse(passwordHashEntry.isNullable());
-        assertEquals("Password hash", passwordHashEntry.getComment());
-
-        Entry createdAtEntry = schema.getEntries().get(4);
-        assertEquals("createdAt", createdAtEntry.getName());
-        assertEquals(Schema.Type.DATETIME, createdAtEntry.getType());
-        assertFalse(createdAtEntry.isNullable());
-        assertEquals("Account creation date", createdAtEntry.getComment());
-
-        Entry lastLoginEntry = schema.getEntries().get(5);
-        assertEquals("lastLogin", lastLoginEntry.getName());
-        assertEquals(Schema.Type.DATETIME, lastLoginEntry.getType());
-        assertTrue(lastLoginEntry.isNullable());
-        assertEquals("Last login date", lastLoginEntry.getComment());
-
-        Entry isActiveEntry = schema.getEntries().get(6);
-        assertEquals("isActive", isActiveEntry.getName());
-        assertEquals(Schema.Type.BOOLEAN, isActiveEntry.getType());
-        assertFalse(isActiveEntry.isNullable());
-        assertEquals("Is active user", isActiveEntry.getComment());
-        assertEquals(true, isActiveEntry.getDefaultValue());
-
-        Entry rolesEntry = schema.getEntries().get(7);
-        assertEquals("roles", rolesEntry.getName());
-        assertEquals(Schema.Type.ARRAY, rolesEntry.getType());
-        assertTrue(rolesEntry.isNullable());
-        assertEquals("User roles", rolesEntry.getComment());
-        assertNotNull(rolesEntry.getElementSchema());
-        assertEquals(Schema.Type.STRING, rolesEntry.getElementSchema().getType());
-
-        Entry profileEntry = schema.getEntries().get(8);
-        assertEquals("profile", profileEntry.getName());
-        assertEquals(Schema.Type.RECORD, profileEntry.getType());
-        assertTrue(profileEntry.isNullable());
-        assertEquals("User profile", profileEntry.getComment());
-        assertNotNull(profileEntry.getElementSchema());
-        assertEquals(Schema.Type.RECORD, profileEntry.getElementSchema().getType());
-        assertEquals(3, profileEntry.getElementSchema().getEntries().size());
-
-        Entry firstNameEntry = profileEntry.getElementSchema().getEntries().get(0);
-        assertEquals("firstName", firstNameEntry.getName());
-        assertEquals(Schema.Type.STRING, firstNameEntry.getType());
-        assertTrue(firstNameEntry.isNullable());
-
-        Entry lastNameEntry = profileEntry.getElementSchema().getEntries().get(1);
-        assertEquals("lastName", lastNameEntry.getName());
-        assertEquals(Schema.Type.STRING, lastNameEntry.getType());
-        assertTrue(lastNameEntry.isNullable());
-
-        Entry birthDateEntry = profileEntry.getElementSchema().getEntries().get(2);
-        assertEquals("birthDate", birthDateEntry.getName());
-        assertEquals(Schema.Type.DATETIME, birthDateEntry.getType());
-        assertTrue(birthDateEntry.isNullable());
-    }
 
     @Test
     void shouldSerializeSchemaImplAndDeserializeToJsonSchemaModel() {
@@ -584,7 +414,6 @@ class SchemaTest {
         Assertions.assertTrue(entryTypes.contains(org.talend.sdk.component.server.front.model.Schema.Type.STRING));
     }
 
-
     @Test
     void shouldMarkMetadataEntries() {
         org.talend.sdk.component.api.record.Schema.Entry meta1 = new SchemaImpl.EntryImpl.BuilderImpl() //
@@ -666,5 +495,452 @@ class SchemaTest {
 
         assertTrue(metaEntry.isMetadata());
         assertEquals("meta1", metaEntry.getName());
+    }
+
+    @Test
+    void deserializeCompleteSchemaWithAllTypesAndParameters() throws Exception {
+        RecordBuilderFactoryImpl factory = new RecordBuilderFactoryImpl("test");
+
+        // Build a comprehensive schema with all supported types and all field parameters
+        org.talend.sdk.component.api.record.Schema schemaImpl =
+                factory.newSchemaBuilder(org.talend.sdk.component.api.record.Schema.Type.RECORD)
+                        .withProp("namespace", "com.talend.test")
+                        .withProp("doc", "Comprehensive schema test")
+                        .withProp("customProp1", "value1")
+                        .withProp("customProp2", "value2")
+                        // STRING type with various parameters
+                        .withEntry(factory.newEntryBuilder()
+                                .withName("stringField")
+                                .withRawName("string_field")
+                                .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
+                                .withNullable(false)
+                                .withDefaultValue("default string")
+                                .withComment("String field with default value")
+                                .withProp(SchemaProperty.SIZE, "255")
+                                .withProp(SchemaProperty.PATTERN, "[a-zA-Z0-9]+")
+                                .withProp(SchemaProperty.IS_KEY, "true")
+                                .build())
+                        // INT type
+                        .withEntry(factory.newEntryBuilder()
+                                .withName("intField")
+                                .withRawName("int_field")
+                                .withType(org.talend.sdk.component.api.record.Schema.Type.INT)
+                                .withNullable(true)
+                                .withDefaultValue(42)
+                                .withComment("Integer field with default")
+                                .withProp(SchemaProperty.ORIGIN_TYPE, "integer")
+                                .build())
+                        // LONG type with error handling
+                        .withEntry(factory.newEntryBuilder()
+                                .withName("longField")
+                                .withRawName("long_field")
+                                .withType(org.talend.sdk.component.api.record.Schema.Type.LONG)
+                                .withNullable(false)
+                                .withErrorCapable(true)
+                                .withComment("Long field with error capability")
+                                .withProp(SchemaProperty.IS_UNIQUE, "true")
+                                .build())
+                        // FLOAT type
+                        .withEntry(factory.newEntryBuilder()
+                                .withName("floatField")
+                                .withRawName("float_field")
+                                .withType(org.talend.sdk.component.api.record.Schema.Type.FLOAT)
+                                .withNullable(true)
+                                .withDefaultValue(3.14f)
+                                .withComment("Float field")
+                                .withProp(SchemaProperty.SCALE, "2")
+                                .build())
+                        // DOUBLE type
+                        .withEntry(factory.newEntryBuilder()
+                                .withName("doubleField")
+                                .withRawName("double_field")
+                                .withType(org.talend.sdk.component.api.record.Schema.Type.DOUBLE)
+                                .withNullable(false)
+                                .withDefaultValue(2.718281828)
+                                .withComment("Double field with high precision")
+                                .withProp(SchemaProperty.SCALE, "9")
+                                .build())
+                        // BOOLEAN type
+                        .withEntry(factory.newEntryBuilder()
+                                .withName("booleanField")
+                                .withRawName("boolean_field")
+                                .withType(org.talend.sdk.component.api.record.Schema.Type.BOOLEAN)
+                                .withNullable(true)
+                                .withDefaultValue(true)
+                                .withComment("Boolean field")
+                                .build())
+                        // BYTES type
+                        .withEntry(factory.newEntryBuilder()
+                                .withName("bytesField")
+                                .withRawName("bytes_field")
+                                .withType(org.talend.sdk.component.api.record.Schema.Type.BYTES)
+                                .withNullable(true)
+                                .withComment("Bytes field for binary data")
+                                .withProp(SchemaProperty.SIZE, "1024")
+                                .build())
+                        // DECIMAL type
+                        .withEntry(factory.newEntryBuilder()
+                                .withName("decimalField")
+                                .withRawName("decimal_field")
+                                .withType(org.talend.sdk.component.api.record.Schema.Type.DECIMAL)
+                                .withNullable(false)
+                                .withComment("Decimal field for precise calculations")
+                                .withProp(SchemaProperty.SIZE, "10")
+                                .withProp(SchemaProperty.SCALE, "2")
+                                .build())
+                        // DATETIME type with DATE logical type
+                        .withEntry(factory.newEntryBuilder()
+                                .withName("dateField")
+                                .withRawName("date_field")
+                                .withType(org.talend.sdk.component.api.record.Schema.Type.DATETIME)
+                                .withLogicalType(LogicalType.DATE)
+                                .withNullable(true)
+                                .withComment("Date field with DATE logical type")
+                                .withProp(SchemaProperty.PATTERN, "yyyy-MM-dd")
+                                .build())
+                        // DATETIME type with TIME logical type
+                        .withEntry(factory.newEntryBuilder()
+                                .withName("timeField")
+                                .withRawName("time_field")
+                                .withType(org.talend.sdk.component.api.record.Schema.Type.DATETIME)
+                                .withLogicalType(LogicalType.TIME)
+                                .withNullable(true)
+                                .withComment("Time field with TIME logical type")
+                                .withProp(SchemaProperty.PATTERN, "HH:mm:ss")
+                                .build())
+                        // DATETIME type with TIMESTAMP logical type
+                        .withEntry(factory.newEntryBuilder()
+                                .withName("timestampField")
+                                .withRawName("timestamp_field")
+                                .withType(org.talend.sdk.component.api.record.Schema.Type.DATETIME)
+                                .withLogicalType(LogicalType.TIMESTAMP)
+                                .withNullable(false)
+                                .withComment("Timestamp field")
+                                .withProp(SchemaProperty.PATTERN, "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+                                .build())
+                        // STRING type with UUID logical type
+                        .withEntry(factory.newEntryBuilder()
+                                .withName("uuidField")
+                                .withRawName("uuid_field")
+                                .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
+                                .withLogicalType(LogicalType.UUID)
+                                .withNullable(true)
+                                .withComment("UUID field")
+                                .withProp(SchemaProperty.IS_FOREIGN_KEY, "true")
+                                .build())
+                        // ARRAY type with primitive element schema
+                        .withEntry(factory.newEntryBuilder()
+                                .withName("stringArrayField")
+                                .withRawName("string_array_field")
+                                .withType(org.talend.sdk.component.api.record.Schema.Type.ARRAY)
+                                .withElementSchema(
+                                        factory.newSchemaBuilder(org.talend.sdk.component.api.record.Schema.Type.STRING)
+                                                .build())
+                                .withNullable(true)
+                                .withComment("Array of strings")
+                                .build())
+                        // ARRAY type with complex element schema
+                        .withEntry(factory.newEntryBuilder()
+                                .withName("intArrayField")
+                                .withRawName("int_array_field")
+                                .withType(org.talend.sdk.component.api.record.Schema.Type.ARRAY)
+                                .withElementSchema(
+                                        factory.newSchemaBuilder(org.talend.sdk.component.api.record.Schema.Type.INT)
+                                                .build())
+                                .withNullable(false)
+                                .withComment("Array of integers")
+                                .build())
+                        // RECORD type (nested record)
+                        .withEntry(factory.newEntryBuilder()
+                                .withName("nestedRecord")
+                                .withRawName("nested_record")
+                                .withType(org.talend.sdk.component.api.record.Schema.Type.RECORD)
+                                .withElementSchema(
+                                        factory.newSchemaBuilder(org.talend.sdk.component.api.record.Schema.Type.RECORD)
+                                                .withProp("nestedNamespace", "com.talend.nested")
+                                                .withEntry(factory.newEntryBuilder()
+                                                        .withName("nestedString")
+                                                        .withRawName("nested_string")
+                                                        .withType(
+                                                                org.talend.sdk.component.api.record.Schema.Type.STRING)
+                                                        .withNullable(true)
+                                                        .withComment("Nested string field")
+                                                        .build())
+                                                .withEntry(factory.newEntryBuilder()
+                                                        .withName("nestedInt")
+                                                        .withRawName("nested_int")
+                                                        .withType(org.talend.sdk.component.api.record.Schema.Type.INT)
+                                                        .withNullable(false)
+                                                        .withDefaultValue(100)
+                                                        .withComment("Nested int field")
+                                                        .build())
+                                                .withEntry(factory.newEntryBuilder()
+                                                        .withName("nestedDate")
+                                                        .withRawName("nested_date")
+                                                        .withType(
+                                                                org.talend.sdk.component.api.record.Schema.Type.DATETIME)
+                                                        .withLogicalType(LogicalType.DATE)
+                                                        .withNullable(true)
+                                                        .withComment("Nested date field")
+                                                        .build())
+                                                .build())
+                                .withNullable(true)
+                                .withComment("Nested record structure")
+                                .build())
+                        // ARRAY of RECORD type
+                        .withEntry(factory.newEntryBuilder()
+                                .withName("arrayOfRecordsField")
+                                .withRawName("array_of_records_field")
+                                .withType(org.talend.sdk.component.api.record.Schema.Type.ARRAY)
+                                .withElementSchema(
+                                        factory.newSchemaBuilder(org.talend.sdk.component.api.record.Schema.Type.RECORD)
+                                                .withEntry(factory.newEntryBuilder()
+                                                        .withName("recordInArrayString")
+                                                        .withType(
+                                                                org.talend.sdk.component.api.record.Schema.Type.STRING)
+                                                        .withNullable(true)
+                                                        .build())
+                                                .withEntry(factory.newEntryBuilder()
+                                                        .withName("recordInArrayLong")
+                                                        .withType(org.talend.sdk.component.api.record.Schema.Type.LONG)
+                                                        .withNullable(false)
+                                                        .build())
+                                                .build())
+                                .withNullable(true)
+                                .withComment("Array of nested records")
+                                .build())
+                        // Metadata entry
+                        .withEntry(factory.newEntryBuilder()
+                                .withName("metadataSource")
+                                .withRawName("metadata_source")
+                                .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
+                                .withMetadata(true)
+                                .withNullable(true)
+                                .withComment("Metadata field indicating source")
+                                .withProp("metaProp1", "metaValue1")
+                                .build())
+                        .build();
+
+        // Serialize the schema to JSON
+        String json = jsonb.toJson(schemaImpl);
+
+        // Deserialize using ObjectMapper (Jackson)
+        ObjectMapper mapper = new ObjectMapper();
+        Schema schema = mapper.readValue(json, Schema.class);
+
+        // ===== Validate top-level schema properties =====
+        assertNotNull(schema);
+        assertEquals(Schema.Type.RECORD, schema.getType());
+        assertNotNull(schema.getEntries());
+        assertNotNull(schema.getProps());
+        assertEquals("com.talend.test", schema.getProp("namespace"));
+        assertEquals("Comprehensive schema test", schema.getProp("doc"));
+        assertEquals("value1", schema.getProp("customProp1"));
+        assertEquals("value2", schema.getProp("customProp2"));
+
+        // We have 17 data entries + 1 metadata entry = 18 total
+        // But entries list only contains data entries
+        assertEquals(schemaImpl.getEntries().size(), schema.getEntries().size());
+        assertEquals(schemaImpl.getMetadata().size(), schema.getMetadata().size());
+
+        // ===== Validate STRING field =====
+        Entry stringField = schema.getEntries().get(0);
+        assertEquals("stringField", stringField.getName());
+        assertEquals("string_field", stringField.getRawName());
+        assertEquals(Schema.Type.STRING, stringField.getType());
+        assertFalse(stringField.isNullable());
+        assertEquals("default string", stringField.getDefaultValue());
+        assertEquals("String field with default value", stringField.getComment());
+        assertEquals("255", stringField.getProp(SchemaProperty.SIZE));
+        assertEquals("[a-zA-Z0-9]+", stringField.getProp(SchemaProperty.PATTERN));
+        assertEquals("true", stringField.getProp(SchemaProperty.IS_KEY));
+        assertFalse(stringField.isMetadata());
+
+        // ===== Validate INT field =====
+        Entry intField = schema.getEntries().get(1);
+        assertEquals("intField", intField.getName());
+        assertEquals("int_field", intField.getRawName());
+        assertEquals(Schema.Type.INT, intField.getType());
+        assertTrue(intField.isNullable());
+        assertEquals(42, intField.<Integer> getDefaultValue());
+        assertEquals("Integer field with default", intField.getComment());
+        assertEquals("integer", intField.getProp(SchemaProperty.ORIGIN_TYPE));
+
+        // ===== Validate LONG field with error capability =====
+        Entry longField = schema.getEntries().get(2);
+        assertEquals("longField", longField.getName());
+        assertEquals("long_field", longField.getRawName());
+        assertEquals(Schema.Type.LONG, longField.getType());
+        assertFalse(longField.isNullable());
+        assertTrue(longField.isErrorCapable());
+        assertEquals("Long field with error capability", longField.getComment());
+        assertEquals("true", longField.getProp(SchemaProperty.IS_UNIQUE));
+
+        // ===== Validate FLOAT field =====
+        Entry floatField = schema.getEntries().get(3);
+        assertEquals("floatField", floatField.getName());
+        assertEquals("float_field", floatField.getRawName());
+        assertEquals(Schema.Type.FLOAT, floatField.getType());
+        assertTrue(floatField.isNullable());
+        assertEquals(3.14f, floatField.<Float> getDefaultValue());
+        assertEquals("Float field", floatField.getComment());
+        assertEquals("2", floatField.getProp(SchemaProperty.SCALE));
+
+        // ===== Validate DOUBLE field =====
+        Entry doubleField = schema.getEntries().get(4);
+        assertEquals("doubleField", doubleField.getName());
+        assertEquals("double_field", doubleField.getRawName());
+        assertEquals(Schema.Type.DOUBLE, doubleField.getType());
+        assertFalse(doubleField.isNullable());
+        assertEquals(2.718281828, doubleField.getDefaultValue());
+        assertEquals("Double field with high precision", doubleField.getComment());
+        assertEquals("9", doubleField.getProp(SchemaProperty.SCALE));
+
+        // ===== Validate BOOLEAN field =====
+        Entry booleanField = schema.getEntries().get(5);
+        assertEquals("booleanField", booleanField.getName());
+        assertEquals("boolean_field", booleanField.getRawName());
+        assertEquals(Schema.Type.BOOLEAN, booleanField.getType());
+        assertTrue(booleanField.isNullable());
+        assertEquals(true, booleanField.getDefaultValue());
+        assertEquals("Boolean field", booleanField.getComment());
+
+        // ===== Validate BYTES field =====
+        Entry bytesField = schema.getEntries().get(6);
+        assertEquals("bytesField", bytesField.getName());
+        assertEquals("bytes_field", bytesField.getRawName());
+        assertEquals(Schema.Type.BYTES, bytesField.getType());
+        assertTrue(bytesField.isNullable());
+        assertEquals("Bytes field for binary data", bytesField.getComment());
+        assertEquals("1024", bytesField.getProp(SchemaProperty.SIZE));
+
+        // ===== Validate DECIMAL field =====
+        Entry decimalField = schema.getEntries().get(7);
+        assertEquals("decimalField", decimalField.getName());
+        assertEquals("decimal_field", decimalField.getRawName());
+        assertEquals(Schema.Type.DECIMAL, decimalField.getType());
+        assertFalse(decimalField.isNullable());
+        assertEquals("Decimal field for precise calculations", decimalField.getComment());
+        assertEquals("10", decimalField.getProp(SchemaProperty.SIZE));
+        assertEquals("2", decimalField.getProp(SchemaProperty.SCALE));
+
+        // ===== Validate DATE field (DATETIME with DATE logical type) =====
+        Entry dateField = schema.getEntries().get(8);
+        assertEquals("dateField", dateField.getName());
+        assertEquals("date_field", dateField.getRawName());
+        assertEquals(Schema.Type.DATETIME, dateField.getType());
+        assertEquals(LogicalType.DATE.key(), dateField.getProp(SchemaProperty.LOGICAL_TYPE));
+        assertTrue(dateField.isNullable());
+        assertEquals("Date field with DATE logical type", dateField.getComment());
+        assertEquals("yyyy-MM-dd", dateField.getProp(SchemaProperty.PATTERN));
+
+        // ===== Validate TIME field (DATETIME with TIME logical type) =====
+        Entry timeField = schema.getEntries().get(9);
+        assertEquals("timeField", timeField.getName());
+        assertEquals("time_field", timeField.getRawName());
+        assertEquals(Schema.Type.DATETIME, timeField.getType());
+        assertEquals(LogicalType.TIME.key(), timeField.getProp(SchemaProperty.LOGICAL_TYPE));
+        assertTrue(timeField.isNullable());
+        assertEquals("Time field with TIME logical type", timeField.getComment());
+        assertEquals("HH:mm:ss", timeField.getProp(SchemaProperty.PATTERN));
+
+        // ===== Validate TIMESTAMP field (DATETIME with TIMESTAMP logical type) =====
+        Entry timestampField = schema.getEntries().get(10);
+        assertEquals("timestampField", timestampField.getName());
+        assertEquals("timestamp_field", timestampField.getRawName());
+        assertEquals(Schema.Type.DATETIME, timestampField.getType());
+        assertEquals(LogicalType.TIMESTAMP.key(), timestampField.getProp(SchemaProperty.LOGICAL_TYPE));
+        assertFalse(timestampField.isNullable());
+        assertEquals("Timestamp field", timestampField.getComment());
+        assertEquals("yyyy-MM-dd'T'HH:mm:ss.SSSZ", timestampField.getProp(SchemaProperty.PATTERN));
+
+        // ===== Validate UUID field (STRING with UUID logical type) =====
+        Entry uuidField = schema.getEntries().get(11);
+        assertEquals("uuidField", uuidField.getName());
+        assertEquals("uuid_field", uuidField.getRawName());
+        assertEquals(Schema.Type.STRING, uuidField.getType());
+        assertEquals(LogicalType.UUID.key(), uuidField.getProp(SchemaProperty.LOGICAL_TYPE));
+        assertTrue(uuidField.isNullable());
+        assertEquals("UUID field", uuidField.getComment());
+        assertEquals("true", uuidField.getProp(SchemaProperty.IS_FOREIGN_KEY));
+
+        // ===== Validate ARRAY field with STRING elements =====
+        Entry stringArrayField = schema.getEntries().get(12);
+        assertEquals("stringArrayField", stringArrayField.getName());
+        assertEquals("string_array_field", stringArrayField.getRawName());
+        assertEquals(Schema.Type.ARRAY, stringArrayField.getType());
+        assertTrue(stringArrayField.isNullable());
+        assertEquals("Array of strings", stringArrayField.getComment());
+        assertNotNull(stringArrayField.getElementSchema());
+        assertEquals(Schema.Type.STRING, stringArrayField.getElementSchema().getType());
+
+        // ===== Validate ARRAY field with INT elements =====
+        Entry intArrayField = schema.getEntries().get(13);
+        assertEquals("intArrayField", intArrayField.getName());
+        assertEquals("int_array_field", intArrayField.getRawName());
+        assertEquals(Schema.Type.ARRAY, intArrayField.getType());
+        assertFalse(intArrayField.isNullable());
+        assertEquals("Array of integers", intArrayField.getComment());
+        assertNotNull(intArrayField.getElementSchema());
+        assertEquals(Schema.Type.INT, intArrayField.getElementSchema().getType());
+
+        // ===== Validate nested RECORD field =====
+        Entry nestedRecord = schema.getEntries().get(14);
+        assertEquals("nestedRecord", nestedRecord.getName());
+        assertEquals("nested_record", nestedRecord.getRawName());
+        assertEquals(Schema.Type.RECORD, nestedRecord.getType());
+        assertTrue(nestedRecord.isNullable());
+        assertEquals("Nested record structure", nestedRecord.getComment());
+        assertNotNull(nestedRecord.getElementSchema());
+        assertEquals(Schema.Type.RECORD, nestedRecord.getElementSchema().getType());
+
+        // Validate nested record properties
+        Schema nestedSchema = nestedRecord.getElementSchema();
+        assertEquals("com.talend.nested", nestedSchema.getProp("nestedNamespace"));
+        assertEquals(3, nestedSchema.getEntries().size());
+
+        // Validate nested string field
+        Entry nestedString = nestedSchema.getEntries().get(0);
+        assertEquals("nestedString", nestedString.getName());
+        assertEquals("nested_string", nestedString.getRawName());
+        assertEquals(Schema.Type.STRING, nestedString.getType());
+        assertTrue(nestedString.isNullable());
+        assertEquals("Nested string field", nestedString.getComment());
+
+        // Validate nested int field
+        Entry nestedInt = nestedSchema.getEntries().get(1);
+        assertEquals("nestedInt", nestedInt.getName());
+        assertEquals("nested_int", nestedInt.getRawName());
+        assertEquals(Schema.Type.INT, nestedInt.getType());
+        assertFalse(nestedInt.isNullable());
+        assertEquals(100, nestedInt.<Integer> getDefaultValue());
+        assertEquals("Nested int field", nestedInt.getComment());
+
+        // Validate nested date field
+        Entry nestedDate = nestedSchema.getEntries().get(2);
+        assertEquals("nestedDate", nestedDate.getName());
+        assertEquals("nested_date", nestedDate.getRawName());
+        assertEquals(Schema.Type.DATETIME, nestedDate.getType());
+        assertEquals(LogicalType.DATE.key(), nestedDate.getProp(SchemaProperty.LOGICAL_TYPE));
+        assertTrue(nestedDate.isNullable());
+        assertEquals("Nested date field", nestedDate.getComment());
+
+        // ===== Validate ARRAY type with nested RECORD =====
+        Entry arrayOfRecordsField = schema.getEntries().get(15);
+        assertEquals("arrayOfRecordsField", arrayOfRecordsField.getName());
+        assertEquals(Schema.Type.ARRAY, arrayOfRecordsField.getType());
+        assertNotNull(arrayOfRecordsField.getElementSchema());
+        assertEquals(Schema.Type.RECORD, arrayOfRecordsField.getElementSchema().getType());
+
+        // ===== Validate metadata entry =====
+        assertEquals(1, schema.getMetadata().size());
+        Entry metadataEntry = schema.getMetadata().get(0);
+        assertEquals("metadataSource", metadataEntry.getName());
+        assertEquals("metadata_source", metadataEntry.getRawName());
+        assertEquals(Schema.Type.STRING, metadataEntry.getType());
+        assertTrue(metadataEntry.isMetadata());
+        assertTrue(metadataEntry.isNullable());
+        assertEquals("Metadata field indicating source", metadataEntry.getComment());
+        assertEquals("metaValue1", metadataEntry.getProp("metaProp1"));
     }
 }
