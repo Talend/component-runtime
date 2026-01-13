@@ -44,23 +44,6 @@ class SchemaTest {
 
     private final Jsonb jsonb = JsonbBuilder.create();
 
-
-    private org.talend.sdk.component.server.front.model.Schema emptySchema() {
-
-        // minimal self-referential schema to satisfy required fields
-        org.talend.sdk.component.server.front.model.Schema placeholder =
-                new org.talend.sdk.component.server.front.model.Schema(org.talend.sdk.component.server.front.model.Schema.Type.RECORD,
-                        null, null, null, null);
-
-        return  new org.talend.sdk.component.server.front.model.Schema(org.talend.sdk.component.server.front.model.Schema.Type.RECORD,
-                placeholder, null, null, null);
-    }
-
-    private Entry entry(String name) {
-        return new Entry(name, name, org.talend.sdk.component.server.front.model.Schema.Type.STRING,false,
-                false, false, true, emptySchema(), "c", null, "");
-    }
-
     @Test
     void shouldSerializeSchemaImplAndDeserializeToJsonSchemaModel() {
         // given
