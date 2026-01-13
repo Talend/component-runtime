@@ -44,10 +44,12 @@ public final class Entry {
 
     private final Map<String, String> props = new LinkedHashMap<>(0);
 
-    private final Object internalDefaultValue;
+    private final Object defaultValue;
 
-    @ConstructorProperties({"name", "rawName", "type", "nullable", "metadata", "errorCapable",
-   "valid", "elementSchema", "comment", "props", "internalDefaultValue"})
+    @ConstructorProperties({ "name", "rawName", "type", "nullable", "metadata", "errorCapable",
+            "valid", "elementSchema", "comment", "props", "defaultValue" })
+    // Checkstyle off to let have 11 parameters to this constructor (normally 10 max)
+    // CHECKSTYLE:OFF
     public Entry(
             final String name,
             final String rawName,
@@ -59,7 +61,8 @@ public final class Entry {
             final Schema elementSchema,
             final String comment,
             final Map<String, String> props,
-            final Object internalDefaultValue) {
+            final Object defaultValue) {
+        // CHECKSTYLE:ON
         this.name = name;
         this.rawName = rawName;
         this.type = type;
@@ -70,10 +73,14 @@ public final class Entry {
         this.elementSchema = elementSchema;
         this.comment = comment;
         this.props.putAll(props);
-        this.internalDefaultValue = internalDefaultValue;
+        this.defaultValue = defaultValue;
     }
 
-    public <T> T getDefaultValue(){
+    private Object getInternalDefaultValue() {
+        return defaultValue;
+    }
+
+    public <T> T getDefaultValue() {
         return (T) this.getInternalDefaultValue();
     }
 

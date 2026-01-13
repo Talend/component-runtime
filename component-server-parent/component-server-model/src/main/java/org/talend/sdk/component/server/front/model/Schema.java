@@ -28,74 +28,74 @@ import lombok.Data;
 @Data
 public final class Schema {
 
-  private final Type type;
+    private final Type type;
 
-  private final Schema elementSchema;
+    private final Schema elementSchema;
 
-  private final List<Entry> entries;
+    private final List<Entry> entries;
 
-  private final List<Entry> metadata;
+    private final List<Entry> metadata;
 
-  private final Map<String, String> props;
+    private final Map<String, String> props;
 
-  @ConstructorProperties({"type", "elementSchema", "entries", "metadata", "props"})
-  public Schema(
-          final Type type,
-          final Schema elementSchema,
-          final List<Entry> entries,
-          final List<Entry> metadata,
-          final Map<String, String> props) {
-    this.type = type;
-    this.elementSchema = elementSchema;
-    this.entries = entries;
-    this.metadata = metadata;
-    this.props = props;
-  }
-
-  public String getProp(final String key){
-      return this.props.get(key);
-  }
-
-  public enum Type {
-
-    RECORD(new Class<?>[] { Record.class }),
-    ARRAY(new Class<?>[] { Collection.class }),
-    STRING(new Class<?>[] { String.class, Object.class }),
-    BYTES(new Class<?>[] { byte[].class, Byte[].class }),
-    INT(new Class<?>[] { Integer.class }),
-    LONG(new Class<?>[] { Long.class }),
-    FLOAT(new Class<?>[] { Float.class }),
-    DOUBLE(new Class<?>[] { Double.class }),
-    BOOLEAN(new Class<?>[] { Boolean.class }),
-    DATETIME(new Class<?>[] { Long.class, Date.class, Temporal.class }),
-    DECIMAL(new Class<?>[] { BigDecimal.class });
-
-    /**
-     * All compatibles Java classes
-     */
-    private final Class<?>[] classes;
-
-    Type(final Class<?>[] classes) {
-      this.classes = classes;
+    @ConstructorProperties({ "type", "elementSchema", "entries", "metadata", "props" })
+    public Schema(
+            final Type type,
+            final Schema elementSchema,
+            final List<Entry> entries,
+            final List<Entry> metadata,
+            final Map<String, String> props) {
+        this.type = type;
+        this.elementSchema = elementSchema;
+        this.entries = entries;
+        this.metadata = metadata;
+        this.props = props;
     }
 
-    /**
-     * Check if input can be affected to an entry of this type.
-     *
-     * @param input : object.
-     *
-     * @return true if input is null or ok.
-     */
-    public boolean isCompatible(final Object input) {
-      if (input == null) {
-        return true;
-      }
-      for (final Class<?> clazz : classes) {
-        if (clazz.isInstance(input)) {
-          return true;
+    public String getProp(final String key) {
+        return this.props.get(key);
+    }
+
+    public enum Type {
+
+        RECORD(new Class<?>[] { Record.class }),
+        ARRAY(new Class<?>[] { Collection.class }),
+        STRING(new Class<?>[] { String.class, Object.class }),
+        BYTES(new Class<?>[] { byte[].class, Byte[].class }),
+        INT(new Class<?>[] { Integer.class }),
+        LONG(new Class<?>[] { Long.class }),
+        FLOAT(new Class<?>[] { Float.class }),
+        DOUBLE(new Class<?>[] { Double.class }),
+        BOOLEAN(new Class<?>[] { Boolean.class }),
+        DATETIME(new Class<?>[] { Long.class, Date.class, Temporal.class }),
+        DECIMAL(new Class<?>[] { BigDecimal.class });
+
+        /**
+         * All compatibles Java classes
+         */
+        private final Class<?>[] classes;
+
+        Type(final Class<?>[] classes) {
+            this.classes = classes;
         }
-      }
-      return false;
+
+        /**
+         * Check if input can be affected to an entry of this type.
+         *
+         * @param input : object.
+         *
+         * @return true if input is null or ok.
+         */
+        public boolean isCompatible(final Object input) {
+            if (input == null) {
+                return true;
+            }
+            for (final Class<?> clazz : classes) {
+                if (clazz.isInstance(input)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
-  }
 }
