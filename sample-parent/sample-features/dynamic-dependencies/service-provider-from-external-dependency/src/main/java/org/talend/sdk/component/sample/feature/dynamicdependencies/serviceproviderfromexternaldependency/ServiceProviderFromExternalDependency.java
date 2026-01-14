@@ -15,20 +15,12 @@
  */
 package org.talend.sdk.component.sample.feature.dynamicdependencies.serviceproviderfromexternaldependency;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringProviderFromExternalSPI;
 
-import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringsProviderFromExternalSPI;
+public class ServiceProviderFromExternalDependency implements StringProviderFromExternalSPI {
 
-public class ServiceProviderFromExternalDependency implements StringsProviderFromExternalSPI {
-
-    public List<String> getStringsFromExternalSPI() {
-        List<String> values = new ArrayList<>();
-        for (int i = 1; i <= NB_VALUES; i++) {
-            values.add("ServiceProviderFromExternalDependency_" + i + "/" + NB_VALUES +
-                    " loaded from classloader: " + this.getClass().getClassLoader());
-        }
-        return values;
+    public String getValueFromExternalSPI() {
+        return "ServiceProviderFromExternalDependency value";
     }
 
 }

@@ -15,19 +15,17 @@
  */
 package org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.spiConsumers;
 
-import java.util.List;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDynamicDependency;
 
-import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringsProviderSPIAsDynamicDependency;
-
-public class DynamicDependencySPIConsumer<T> extends AbstractSPIConsumer<StringsProviderSPIAsDynamicDependency, T> {
+public class DynamicDependencySPIConsumer<T> extends AbstractSPIConsumer<StringProviderSPIAsDynamicDependency, T> {
 
     public DynamicDependencySPIConsumer(final boolean failIfSeveralServicesFound) {
-        super(StringsProviderSPIAsDynamicDependency.class, failIfSeveralServicesFound);
+        super(StringProviderSPIAsDynamicDependency.class, failIfSeveralServicesFound);
     }
 
-    public List<String> getValues() {
-        return this.getSPIImpl().isPresent() ? this.getSPIImpl().get().getStringsFromASPIAsDynamicDependency()
-                : List.of("[ERROR] StringsProviderSPIAsDynamicDependency not loaded!");
+    public String getValue() {
+        return this.getSPIImpl().isPresent() ? this.getSPIImpl().get().getValueFromASPIAsDynamicDependency()
+                : "[ERROR] StringsProviderSPIAsDynamicDependency not loaded!";
     }
 
 }

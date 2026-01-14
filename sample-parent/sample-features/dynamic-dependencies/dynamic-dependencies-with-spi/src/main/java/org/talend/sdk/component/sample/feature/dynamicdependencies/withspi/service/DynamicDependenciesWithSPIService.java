@@ -30,14 +30,21 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.exception.ComponentException;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.dependency.DynamicDependencies;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringProviderFromExternalSPI;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDependency;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDynamicDependency;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.spiConsumers.DependencySPIConsumer;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.spiConsumers.DynamicDependencySPIConsumer;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.spiConsumers.ExternalDependencySPIConsumer;
@@ -54,6 +61,9 @@ public class DynamicDependenciesWithSPIService implements Serializable {
     @Service
     private RecordBuilderFactory recordBuilderFactory;
 
+    @Service
+    private JsonBuilderFactory jsonBuilderFactory;
+
     @DynamicDependencies
     public List<String> getDynamicDependencies(@Option("theDataset") final Dataset dataset) {
         String dep = "org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-dynamic-dependency:"
@@ -63,13 +73,20 @@ public class DynamicDependenciesWithSPIService implements Serializable {
 
     @DiscoverSchema("dyndepsdse")
     public Schema guessSchema4Input(final @Option("configuration") Dataset dse) {
-        Iterator<Record> recordIterator = getRecordIterator();
-        if (!recordIterator.hasNext()) {
-            throw new ComponentException("No data loaded from StringMapTransformer.");
-        }
-
-        Record record = recordIterator.next();
-        return record.getSchema();
+        return recordBuilderFactory.newSchemaBuilder(Type.RECORD)
+                .withEntry(recordBuilderFactory.newEntryBuilder().withType(Type.STRING).withName("value").build())
+                .withEntry(
+                        recordBuilderFactory.newEntryBuilder().withType(Type.STRING).withName("SPI_Interface").build())
+                .withEntry(recordBuilderFactory.newEntryBuilder()
+                        .withType(Type.STRING)
+                        .withName("SPI_Interface_classloader")
+                        .build())
+                .withEntry(recordBuilderFactory.newEntryBuilder().withType(Type.STRING).withName("SPI_Impl").build())
+                .withEntry(recordBuilderFactory.newEntryBuilder()
+                        .withType(Type.STRING)
+                        .withName("SPI_Impl_classloader")
+                        .build())
+                .build();
     }
 
     public Iterator<Record> getRecordIterator() {
@@ -86,21 +103,17 @@ public class DynamicDependenciesWithSPIService implements Serializable {
 
         String contentFromMultipleResources;
         try {
-            boolean isFirst = true;
             Enumeration<URL> resources = DynamicDependenciesWithSPIService.class.getClassLoader()
-                    .getResources("MULTIPLE_RESOURCE/common.properties");
+                    .getResources("MULTIPLE_RESOURCE/content.txt");
 
-            StringBuilder stringBuilder = new StringBuilder();
+            StringBuilder stringBuilder = new StringBuilder("There should be 3 different values:");
             while (resources.hasMoreElements()) {
                 URL url = resources.nextElement();
 
                 try (InputStream is = url.openStream()) {
                     String content = filterComments(is);
+                    stringBuilder.append(System.lineSeparator());
                     stringBuilder.append(content);
-                    if (!isFirst) {
-                        stringBuilder.append(System.lineSeparator());
-                    }
-                    isFirst = false;
                 }
             }
             contentFromMultipleResources = stringBuilder.toString();
@@ -109,37 +122,76 @@ public class DynamicDependenciesWithSPIService implements Serializable {
         }
 
         DependencySPIConsumer<Record> dependencySPIConsumer = new DependencySPIConsumer<>(true);
-        List<Record> recordsFromDependencySPI = dependencySPIConsumer
+        Record recordsFromDependencySPI = dependencySPIConsumer
                 .transform(s -> recordBuilderFactory.newRecordBuilder()
                         .withString("value", s)
-                        .withString("contentFromResourceDependency", contentFromResourceDependency)
-                        .withString("contentFromResourceDynamicDependency", contentFromResourceDynamicDependency)
-                        .withString("contentFromResourceExternalDependency", contentFromResourceExternalDependency)
-                        .withString("contentFromMultipleResources", contentFromMultipleResources)
+                        .withString("SPI_Interface", String.valueOf(StringProviderSPIAsDependency.class))
+                        .withString("SPI_Impl",
+                                dependencySPIConsumer.getSPIImpl().isPresent()
+                                        ? String.valueOf(dependencySPIConsumer.getSPIImpl().get().getClass())
+                                        : "N/A")
+                        .withString("SPI_Interface_classloader",
+                                String.valueOf(StringProviderSPIAsDependency.class.getClassLoader()))
+                        .withString("SPI_Impl_classloader",
+                                dependencySPIConsumer.getSPIImpl().isPresent()
+                                        ? String.valueOf(
+                                                dependencySPIConsumer.getSPIImpl().get().getClass().getClassLoader())
+                                        : "N/A")
                         .build());
 
         DynamicDependencySPIConsumer<Record> dynamicDependencySPIConsumer = new DynamicDependencySPIConsumer<>(true);
-        List<Record> recordsFromDynamicDependencySPI = dynamicDependencySPIConsumer
+        Record recordsFromDynamicDependencySPI = dynamicDependencySPIConsumer
                 .transform(s -> recordBuilderFactory.newRecordBuilder()
                         .withString("value", s)
-                        .withString("contentFromResourceDependency", contentFromResourceDependency)
-                        .withString("contentFromResourceDynamicDependency", contentFromResourceDynamicDependency)
-                        .withString("contentFromMultipleResources", contentFromMultipleResources)
+                        .withString("SPI_Interface", String.valueOf(StringProviderSPIAsDynamicDependency.class))
+                        .withString("SPI_Impl",
+                                dynamicDependencySPIConsumer.getSPIImpl().isPresent()
+                                        ? String.valueOf(dynamicDependencySPIConsumer.getSPIImpl().getClass())
+                                        : "N/A")
+                        .withString("SPI_Interface_classloader",
+                                String.valueOf(StringProviderSPIAsDynamicDependency.class.getClassLoader()))
+                        .withString("SPI_Impl_classloader",
+                                dynamicDependencySPIConsumer.getSPIImpl().isPresent() ? String.valueOf(
+                                        dynamicDependencySPIConsumer.getSPIImpl().get().getClass().getClassLoader())
+                                        : "N/A")
                         .build());
 
         ExternalDependencySPIConsumer<Record> externalDependencySPI = new ExternalDependencySPIConsumer<>(true);
-        List<Record> recordsFromExternalSPI = externalDependencySPI
+        Record recordsFromExternalSPI = externalDependencySPI
                 .transform(s -> recordBuilderFactory.newRecordBuilder()
                         .withString("value", s)
-                        .withString("contentFromResourceDependency", contentFromResourceDependency)
-                        .withString("contentFromResourceDynamicDependency", contentFromResourceDynamicDependency)
-                        .withString("contentFromMultipleResources", contentFromMultipleResources)
+                        .withString("SPI_Interface", String.valueOf(StringProviderFromExternalSPI.class))
+                        .withString("SPI_Impl",
+                                externalDependencySPI.getSPIImpl().isPresent()
+                                        ? String.valueOf(externalDependencySPI.getSPIImpl().getClass())
+                                        : "N/A")
+                        .withString("SPI_Interface_classloader",
+                                String.valueOf(StringProviderFromExternalSPI.class.getClassLoader()))
+                        .withString("SPI_Impl_classloader",
+                                externalDependencySPI.getSPIImpl().isPresent()
+                                        ? String.valueOf(externalDependencySPI.getSPIImpl().getClass().getClassLoader())
+                                        : "N/A")
                         .build());
 
+        JsonObject contentFromResources = jsonBuilderFactory.createObjectBuilder()
+                .add("contentFromResourceDependency", contentFromResourceDependency)
+                .add("contentFromResourceDynamicDependency", contentFromResourceDynamicDependency)
+                .add("contentFromResourceExternalDependency", contentFromResourceExternalDependency)
+                .add("contentFromMultipleResources", contentFromMultipleResources)
+                .build();
+        Record recordWithContentFromResources = recordBuilderFactory.newRecordBuilder()
+                .withString("value", contentFromResources.toString())
+                .withString("SPI_Interface", "N/A")
+                .withString("SPI_Impl", "N/A")
+                .withString("SPI_Interface_classloader", "N/A")
+                .withString("SPI_Impl_classloader", "N/A")
+                .build();
+
         List<Record> values = new ArrayList<>();
-        values.addAll(recordsFromDependencySPI);
-        values.addAll(recordsFromDynamicDependencySPI);
-        values.addAll(recordsFromExternalSPI);
+        values.add(recordsFromDependencySPI);
+        values.add(recordsFromDynamicDependencySPI);
+        values.add(recordsFromExternalSPI);
+        values.add(recordWithContentFromResources);
 
         return values.iterator();
     }

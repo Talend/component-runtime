@@ -15,20 +15,12 @@
  */
 package org.talend.sdk.component.sample.feature.dynamicdependencies.serviceproviderfromdynamicdependency;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDynamicDependency;
 
-import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringsProviderSPIAsDynamicDependency;
-
-public class ServiceProviderFromDynamicDependency implements StringsProviderSPIAsDynamicDependency {
+public class ServiceProviderFromDynamicDependency implements StringProviderSPIAsDynamicDependency {
 
     @Override
-    public List<String> getStringsFromASPIAsDynamicDependency() {
-        List<String> values = new ArrayList<>();
-        for (int i = 1; i <= NB_VALUES; i++) {
-            values.add("ServiceProviderFromDynamicDependency_" + i + "/" + NB_VALUES +
-                    " loaded from classloader: " + this.getClass().getClassLoader());
-        }
-        return values;
+    public String getValueFromASPIAsDynamicDependency() {
+        return "ServiceProviderFromDynamicDependency value";
     }
 }

@@ -15,19 +15,17 @@
  */
 package org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.spiConsumers;
 
-import java.util.List;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringProviderFromExternalSPI;
 
-import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringsProviderFromExternalSPI;
-
-public class ExternalDependencySPIConsumer<T> extends AbstractSPIConsumer<StringsProviderFromExternalSPI, T> {
+public class ExternalDependencySPIConsumer<T> extends AbstractSPIConsumer<StringProviderFromExternalSPI, T> {
 
     public ExternalDependencySPIConsumer(final boolean failIfSeveralServicesFound) {
-        super(StringsProviderFromExternalSPI.class, failIfSeveralServicesFound);
+        super(StringProviderFromExternalSPI.class, failIfSeveralServicesFound);
     }
 
-    public List<String> getValues() {
-        return this.getSPIImpl().isPresent() ? this.getSPIImpl().get().getStringsFromExternalSPI()
-                : List.of("[ERROR] StringsProviderFromExternalSPI not loaded!");
+    public String getValue() {
+        return this.getSPIImpl().isPresent() ? this.getSPIImpl().get().getValueFromExternalSPI()
+                : "[ERROR] StringProviderFromExternalSPI not loaded!";
     }
 
 }

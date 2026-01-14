@@ -54,14 +54,11 @@ public abstract class AbstractSPIConsumer<S, T> {
         this.spiImpl = Optional.of(stringMapProviderList.get(0));
     }
 
-    public abstract List<String> getValues();
+    public abstract String getValue();
 
-    public List<T> transform(final Function<String, T> function) {
-        List<String> strings = this.getValues();
-        return strings
-                .stream()
-                .map(function::apply)
-                .toList();
+    public T transform(final Function<String, T> function) {
+        String value = this.getValue();
+        return function.apply(value);
     }
 
     public Optional<S> getSPIImpl() {

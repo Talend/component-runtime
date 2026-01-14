@@ -15,10 +15,8 @@
  */
 package org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces;
 
-import java.util.List;
+public interface StringProviderFromExternalSPI {
 
-public interface StringsProviderFromExternalSPI extends StringsProviderSPI {
-
-    List<String> getStringsFromExternalSPI();
+    String getValueFromExternalSPI();
 
 }

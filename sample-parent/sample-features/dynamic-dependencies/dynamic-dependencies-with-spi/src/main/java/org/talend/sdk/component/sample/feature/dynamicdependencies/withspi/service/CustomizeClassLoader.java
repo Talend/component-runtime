@@ -19,14 +19,32 @@ import java.util.stream.Stream;
 
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class CustomizeClassLoader implements ComponentManager.Customizer {
+
+    private static final String DISABLE_CUSTOMIZE_PROPERTY =
+            "talend.sample.feature.dynamicdependencies.withspi.CustomizeClassLoader.disabled";
+
+    private static final boolean DISABLE_CUSTOMIZE = Boolean.getBoolean(DISABLE_CUSTOMIZE_PROPERTY);
 
     @Override
     public Stream<String> containerClassesAndPackages() {
+        if (DISABLE_CUSTOMIZE) {
+            log.info(
+                    "org.talend.sdk.component.sample.feature.dynamicdependencies.withspi.service.CustomizeClassLoader is disabled.");
+            return Stream.empty();
+        }
+
+        log.info(
+                "org.talend.sdk.component.sample.feature.dynamicdependencies.withspi.service.CustomizeClassLoader is enable,\n"
+                        + "use \"" + DISABLE_CUSTOMIZE_PROPERTY + "=true\""
+                        + " property to disable it.");
         return Stream.of(
                 // Implementation should come from a dynamic dependency
-                "org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringsProviderSPIAsDependency",
+                "org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDependency",
                 // Implementation should come from runtime
-                "org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringsProviderSPIAsDynamicDependency");
+                "org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDynamicDependency");
     }
 }

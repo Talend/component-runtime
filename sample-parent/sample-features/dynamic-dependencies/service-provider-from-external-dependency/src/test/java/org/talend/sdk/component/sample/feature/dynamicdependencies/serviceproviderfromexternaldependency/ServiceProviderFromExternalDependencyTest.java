@@ -15,9 +15,6 @@
  */
 package org.talend.sdk.component.sample.feature.dynamicdependencies.serviceproviderfromexternaldependency;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.spiConsumers.ExternalDependencySPIConsumer;
@@ -27,13 +24,8 @@ class ServiceProviderFromExternalDependencyTest {
     @Test
     void testSPI() {
         ExternalDependencySPIConsumer<String> values = new ExternalDependencySPIConsumer<>(true);
-        List<String> transform = values.transform(String::valueOf);
-        List<String> sorted = new ArrayList<>(transform);
-        sorted.sort(String::compareTo);
-        String collect = String.join("/", sorted);
-        Assertions.assertEquals("ServiceProviderFromExternalDependency_1/" +
-                "ServiceProviderFromExternalDependency_2/ServiceProviderFromExternalDependency_3",
-                collect);
+        String transform = values.transform(String::valueOf);
+        Assertions.assertTrue(transform.startsWith("ServiceProviderFromExternalDependency loaded from classloader:"));
     }
 
 }

@@ -15,8 +15,8 @@
  */
 package org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces;
 
-public interface StringsProviderSPI {
+public interface StringProviderSPIAsDynamicDependency {
 
-    int NB_VALUES = 3;
+    String getValueFromASPIAsDynamicDependency();
 
 }

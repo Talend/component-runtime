@@ -40,6 +40,7 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 
+import org.eclipse.aether.artifact.DefaultArtifact;
 import org.talend.sdk.component.api.exception.ComponentException;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Record.Builder;
@@ -80,6 +81,8 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
 
     public static final String ENTRY_WORKING_DIRECTORY = "Working_directory";
 
+    public static final String ENTRY_COMMENT = "comment";
+
     @Service
     private RecordBuilderFactory factory;
 
@@ -110,9 +113,19 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
                 "dynamic-dependencies-common",
                 "N/A",
                 "org.talend.sdk.component.sample.feature.dynamicdependencies.config.Dependency"));
+
+        // This is a hardcoded dependency to check how are loaded dependencies
+        // provided by the runtime
+        dependencies.add(new Dependency("org.talend.sdk.component",
+                "component-runtime",
+                "N/A",
+                "org.talend.sdk.component.api.service.asyncvalidation.ValidationResult"));
+
+        dependencies.addAll(additionalDependencies());
+
         dependencies.addAll(dynamicDependencyConfig.getDependencies());
         for (Dependency dependency : dependencies) {
-
+            String comment = "";
             String maven = String.format("%s:%s:%s", dependency.getGroupId(), dependency.getArtifactId(),
                     dependency.getVersion());
 
@@ -130,6 +143,17 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
                 String classPath = clazz.getName().replace('.', '/') + ".class";
                 URL url = clazz.getClassLoader().getResource(classPath);
                 fromLocation = String.valueOf(url);
+
+                if ("maven-resolver-api".equals(dependency.getArtifactId())) {
+                    // This dependency is automatically added by additionalDependencies()
+                    checkAssignmentFromDynamicDependency();
+                    comment = "An instance has been instantiated and assigned.";
+                } else if ("dynamic-dependencies-common".equals(dependency.getArtifactId())) {
+                    comment = "Check static dependency.";
+                } else if ("component-runtime".equals(dependency.getArtifactId())) {
+                    comment = "Check provided dependency.";
+                }
+
             } catch (ClassNotFoundException e) {
                 manageException(dynamicDependencyConfig.isDieOnError(),
                         "Cannot load class %s from system classloader".formatted(dependency.getClazz()), e);
@@ -144,7 +168,8 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
                     clazzClassLoaderId,
                     fromLocation,
                     false,
-                    Optional.empty());
+                    Optional.empty(),
+                    comment);
             records.add(record);
         }
 
@@ -173,7 +198,8 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
                     clazzClassLoaderId,
                     fromLocation,
                     true,
-                    optionalRecord);
+                    optionalRecord,
+                    "");
             records.add(record);
         }
 
@@ -181,6 +207,8 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
 
     }
 
+    // Checkstyle off to let have 11 parameters to this method (normally 10 max)
+    // CHECKSTYLE:OFF
     private Record buildRecord(final Schema schema,
             final DynamicDependencyConfig dynamicDependencyConfig,
             final String maven,
@@ -190,7 +218,9 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
             final String clazzClassLoaderId,
             final String fromLocation,
             final boolean isTckContainer,
-            final Optional<Record> firstRecord) {
+            final Optional<Record> firstRecord,
+            final String comment) {
+
         Builder builder = factory.newRecordBuilder(schema);
         Builder recordBuilder = builder
                 .withString(ENTRY_MAVEN, maven)
@@ -199,7 +229,8 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
                 .withString(ENTRY_CONNECTOR_CLASSLOADER, connectorClassLoaderId)
                 .withString(ENTRY_CLAZZ_CLASSLOADER, clazzClassLoaderId)
                 .withString(ENTRY_FROM_LOCATION, fromLocation)
-                .withBoolean(ENTRY_IS_TCK_CONTAINER, isTckContainer);
+                .withBoolean(ENTRY_IS_TCK_CONTAINER, isTckContainer)
+                .withString(ENTRY_COMMENT, comment);
 
         firstRecord.ifPresent(record -> builder.withRecord(ENTRY_FIRST_RECORD, record));
 
@@ -216,6 +247,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
 
         return recordBuilder.build();
     }
+    // CHECKSTYLE:ON
 
     private Optional<Record> testLoadingData(final Connector connector) {
         Iterator<Record> recordIterator = this.loadData(connector.getConnectorFamily(), connector.getConnectorName(),
@@ -261,6 +293,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
                     .withEntry(
                             factory.newEntryBuilder().withName(ENTRY_WORKING_DIRECTORY).withType(Type.STRING).build());
         }
+        builder = builder.withEntry(factory.newEntryBuilder().withName(ENTRY_COMMENT).withType(Type.STRING).build());
 
         return builder.build();
     }
@@ -278,8 +311,26 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
         }
     }
 
-    protected List<String> getDynamicDependencies(final List<Dependency> dependencies,
+    private List<Dependency> additionalDependencies() {
+        List<Dependency> additionalDependencies = new ArrayList<>();
+
+        // This dynamic dependency is hardcoded since we test assignment in checkAssignmentFromDynamicDependency
+        // It is a dependency without any transitive dependency
+        additionalDependencies.add(new Dependency("org.apache.maven.resolver",
+                "maven-resolver-api",
+                "2.0.14",
+                "org.eclipse.aether.artifact.DefaultArtifact"));
+
+        return additionalDependencies;
+    }
+
+    protected List<String> getDynamicDependencies(final List<Dependency> dependenciesFromConfiguration,
             final List<Connector> connectors) {
+
+        List<Dependency> dependencies = new ArrayList<>();
+        dependencies.addAll(dependenciesFromConfiguration);
+        dependencies.addAll(additionalDependencies());
+
         List<String> standardDependencies = dependencies
                 .stream()
                 .map(d -> String.format("%s:%s:%s", d.getGroupId(), d.getArtifactId(), d.getVersion()))
@@ -302,6 +353,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
             String collect = all.stream().collect(Collectors.joining("\n- ", "- ", ""));
             log.info("All identified dependencies:\n" + collect);
         }
+
         return all;
     }
 
@@ -360,4 +412,13 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
         // TO DO
         return false;
     }
+
+    private void checkAssignmentFromDynamicDependency() {
+        DefaultArtifact defaultArtifact = new DefaultArtifact("g:a:v");
+        // Do nothing, just check assignment
+        // commons-net should be provided by a dynamic dependency
+        // to validate the test.
+        log.info("Successful assignment from a class loaded from a dynamic dependency.");
+    }
+
 }
