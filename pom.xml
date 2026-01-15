@@ -1825,11 +1825,11 @@
         Its overwrite the snapshotRepository with a private one.
       -->
       <distributionManagement>
-          <snapshotRepository>
-              <id>github_package_snapshots</id>
-              <name>GitHub Maven Packages (snapshots)</name>
-              <url>https://maven.pkg.github.com/Talend/global-artifacts</url>
-          </snapshotRepository>
+        <snapshotRepository>
+            <id>github_package_snapshots</id>
+            <name>GitHub Maven Packages (snapshots)</name>
+            <url>https://maven.pkg.github.com/Talend/global-artifacts</url>
+        </snapshotRepository>
       </distributionManagement>
     </profile>
     <profile>
