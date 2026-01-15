@@ -102,7 +102,6 @@
   </developers>
 
   <modules>
-    <module>bom</module>
     <module>component-api</module>
     <module>container</module>
     <module>component-spi</module>
@@ -279,6 +278,7 @@
     <johnzon.version>1.2.21</johnzon.version>
     <commons-io.version>2.13.0</commons-io.version>
     <commons-compress.version>1.24.0</commons-compress.version>
+    <commons-lang3.version>3.18.0</commons-lang3.version>
     <slf4j.version>1.7.34</slf4j.version>
     <log4j2.version>2.20.0</log4j2.version>
     <rhino.version>1.7.14</rhino.version>
@@ -287,18 +287,10 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.talend.sdk.component</groupId>
-        <artifactId>component-bom</artifactId>
-        <version>${project.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
         <groupId>com.google.cloud.tools</groupId>
         <artifactId>jib-core</artifactId>
         <version>${jib-core.version}</version>
       </dependency>
-
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-annotation_1.3_spec</artifactId>
@@ -404,6 +396,11 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
         <version>${commons-compress.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>${commons-lang3.version}</version>
       </dependency>
       <dependency>
         <groupId>org.yaml</groupId>
@@ -1272,8 +1269,7 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <!--  mvn ossindex:audit -->
+      <plugin><!--  mvn ossindex:audit -->
         <groupId>org.sonatype.ossindex.maven</groupId>
         <artifactId>ossindex-maven-plugin</artifactId>
         <version>3.1.0</version>
@@ -1332,9 +1328,9 @@
  * limitations under the License.
  */]]></content>
             </licenseHeader>
-            <eclipse>
+            <!--eclipse>
               <file>talend_java_eclipse_formatter.xml</file>
-            </eclipse>
+            </eclipse-->
           </java>
           <pom>
             <sortPom>

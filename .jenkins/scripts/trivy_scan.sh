@@ -17,19 +17,17 @@
 
 set -xe
 
-# Parameters:
-# $1: Docker registry
-# $2: Docker username
-# $3: Docker password
 main() {
-  local registry="${1?Missing artifactory registry host}"
-  local username="${2?Missing artifactory login environment}"
-  local password="${3?Missing artifactory password environment}"
+  echo "Printing Trivy version:"
+  trivy --version
 
-  echo ">> Docker build environment:"
-  docker version
-  printf ">> Docker Login to %s\n" "${registry}"
-  docker login "${registry}" --username "${username}" --password-stdin <<<"${password}"
+  echo "Running Trivy scan:"
+  mkdir -p output
+  trivy fs . -f json \
+             --scanners vuln \
+             -o output/trivy-results.json \
+             --timeout 60m \
+             --debug
 }
 
 main "$@"

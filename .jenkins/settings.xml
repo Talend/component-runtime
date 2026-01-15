@@ -5,14 +5,14 @@
             https://maven.apache.org/xsd/settings-1.0.0.xsd">
   <servers>
     <server>
-      <id>ossrh</id>
+      <id>central.portal</id>
       <username>${env.OSSRH_USER}</username>
       <password>${env.OSSRH_PASS}</password>
     </server>
     <server>
       <id>github</id>
-      <username>${env.GITHUB_USER}</username>
-      <password>${env.GITHUB_PASS}</password>
+      <username>${env.GITHUB_LOGIN}</username>
+      <password>${env.GITHUB_TOKEN}</password>
     </server>
     <server>
       <id>jira</id>
