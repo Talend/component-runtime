@@ -47,6 +47,13 @@ class EntryTest {
                 true, null, "comment", props, "default");
     }
 
+    private Entry createEmptyEntry() {
+        Map<String, String> props = new LinkedHashMap<>(0);
+        props.put("p1", "v1");
+        return new Entry("name", null, Schema.Type.STRING, true, false, true,
+                true, null, null, props, null);
+    }
+
     // ----------------------------------------------------------------------
     // Builder
     // ----------------------------------------------------------------------
@@ -78,6 +85,14 @@ class EntryTest {
 
         String value = entry.getDefaultValue();
         assertEquals("default", value);
+    }
+
+    @Test
+    void getDefaultValueEmpty() {
+        Entry entry = createEmptyEntry();
+
+        String value = entry.getDefaultValue();
+        assertNull(value);
     }
 
     @Test

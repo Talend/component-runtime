@@ -82,6 +82,10 @@ public final class Entry {
 
     @SuppressWarnings("unchecked")
     public <T> T getDefaultValue() {
+        if (defaultValue == null) {
+            return null;
+        }
+
         return switch (this.getType()) {
             case INT -> (T) ((Integer) ((Number) this.getInternalDefaultValue()).intValue());
             case LONG -> (T) ((Long) ((Number) this.getInternalDefaultValue()).longValue());
