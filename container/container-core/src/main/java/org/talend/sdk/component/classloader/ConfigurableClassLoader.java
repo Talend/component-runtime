@@ -92,6 +92,9 @@ public class ConfigurableClassLoader extends URLClassLoader {
     @Getter
     private final Predicate<String> childFirstFilter;
 
+    @Getter
+    private final Predicate<String> resourcesFilter;
+
     private final Map<String, Collection<Resource>> resources = new HashMap<>();
 
     private final Collection<ClassFileTransformer> transformers = new ArrayList<>();
@@ -111,10 +114,21 @@ public class ConfigurableClassLoader extends URLClassLoader {
     @Getter
     private final List<String> cacheableClasses;
 
+    private List<URL> nestedURLs = new ArrayList<>();
+
     public ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
             final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
             final String[] nestedDependencies, final String[] jvmPrefixes) {
-        this(id, urls, parent, parentFilter, childFirstFilter, emptyMap(), jvmPrefixes);
+        this(id, urls, parent, parentFilter, childFirstFilter, emptyMap(), jvmPrefixes, (name) -> false);
+        if (nestedDependencies != null) {
+            loadNestedDependencies(parent, nestedDependencies);
+        }
+    }
+
+    public ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
+            final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
+            final String[] nestedDependencies, final String[] jvmPrefixes, final Predicate<String> resourcesFilter) {
+        this(id, urls, parent, parentFilter, childFirstFilter, emptyMap(), jvmPrefixes, resourcesFilter);
         if (nestedDependencies != null) {
             loadNestedDependencies(parent, nestedDependencies);
         }
@@ -122,12 +136,14 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     private ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
             final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
-            final Map<String, Collection<Resource>> resources, final String[] jvmPrefixes) {
+            final Map<String, Collection<Resource>> resources, final String[] jvmPrefixes,
+            final Predicate<String> resourcesFilter) {
         super(urls, parent);
         this.id = id;
         this.creationUrls = urls;
         this.parentFilter = parentFilter;
         this.childFirstFilter = childFirstFilter;
+        this.resourcesFilter = resourcesFilter;
         this.resources.putAll(resources);
 
         this.fullPathJvmPrefixes =
@@ -155,6 +171,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
             if (url == null) {
                 throw new IllegalArgumentException("Didn't find " + resource + " in " + asList(nestedDependencies));
             }
+            nestedURLs.add(url);
             final Map<String, Resource> resources = new HashMap<>();
             final URLConnection urlConnection;
             final Manifest manifest;
@@ -229,7 +246,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
     public synchronized URLClassLoader createTemporaryCopy() {
         final ConfigurableClassLoader self = this;
         return temporaryCopy == null ? temporaryCopy = new ConfigurableClassLoader(id, creationUrls, getParent(),
-                parentFilter, childFirstFilter, resources, fullPathJvmPrefixes) {
+                parentFilter, childFirstFilter, resources, fullPathJvmPrefixes, resourcesFilter) {
 
             @Override
             public synchronized void close() throws IOException {
@@ -458,11 +475,26 @@ public class ConfigurableClassLoader extends URLClassLoader {
         return enumeration(aggregated);
     }
 
+    @Override
+    public URL[] getURLs() {
+        final List<URL> urls = new ArrayList<>(Arrays.asList(super.getURLs()));
+        if (!nestedURLs.isEmpty()) {
+            urls.addAll(nestedURLs);
+        }
+        return urls.toArray(new URL[0]);
+    }
+
     private boolean isNestedDependencyResource(final String name) {
         return name != null && name.startsWith(NESTED_MAVEN_REPOSITORY);
     }
 
     private boolean isInJvm(final URL resource) {
+        // Services and parent allowed resources that should always be found by top level classloader.
+        // By default, META-INF/services/ is always allowed otherwise SPI won't work properly in nested environments.
+        // Warning: selection shouldn't be too generic! Use very specific paths only like jndi.properties.
+        if (resourcesFilter.test(resource.getFile())) {
+            return true;
+        }
         final Path path = toPath(resource);
         if (path == null) {
             return false;

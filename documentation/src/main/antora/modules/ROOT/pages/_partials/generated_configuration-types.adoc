@@ -47,18 +47,18 @@ Mark a model (complex object) as being a dataset discovery configuration.
 ----
 
 
-= DynamicDependenciesServiceConfiguration
+= DynamicDependenciesConfiguration
 
-Mark a model (complex object) as being the configuration used in services annotated with @DynamicDependencies.
+Mark a model (complex object) as being the configuration expected to compute dynamic dependencies.
 
-- API: @org.talend.sdk.component.api.configuration.type.DynamicDependenciesServiceConfiguration
+- API: @org.talend.sdk.component.api.configuration.type.DynamicDependenciesConfiguration
 - Sample:
 
 [source,js]
 ----
 {
   "tcomp::configurationtype::name":"test",
-  "tcomp::configurationtype::type":"dynamicDependenciesServiceConfiguration"
+  "tcomp::configurationtype::type":"dynamicDependenciesConfiguration"
 }
 ----
 
