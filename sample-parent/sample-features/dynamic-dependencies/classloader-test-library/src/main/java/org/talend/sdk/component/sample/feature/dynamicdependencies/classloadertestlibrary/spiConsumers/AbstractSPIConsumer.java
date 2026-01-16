@@ -35,7 +35,12 @@ public abstract class AbstractSPIConsumer<S, T> {
         ServiceLoader<S> serviceLoader = ServiceLoader.load(clazz);
 
         List<S> stringMapProviderList = new ArrayList<>();
-        serviceLoader.iterator().forEachRemaining(stringMapProviderList::add);
+
+        try {
+            serviceLoader.iterator().forEachRemaining(stringMapProviderList::add);
+        } catch (Throwable e) {
+            log.error("Can't load %s spi implementation: %s.".formatted(clazz, e.getMessage()), e);
+        }
 
         if (stringMapProviderList.size() <= 0) {
             log.error("No SPI service found for %s.".formatted(clazz));

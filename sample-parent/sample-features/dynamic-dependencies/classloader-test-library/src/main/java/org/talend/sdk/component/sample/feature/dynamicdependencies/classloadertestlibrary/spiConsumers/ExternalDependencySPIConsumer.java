@@ -24,8 +24,12 @@ public class ExternalDependencySPIConsumer<T> extends AbstractSPIConsumer<String
     }
 
     public String getValue() {
-        return this.getSPIImpl().isPresent() ? this.getSPIImpl().get().getValueFromExternalSPI()
-                : "[ERROR] StringProviderFromExternalSPI not loaded!";
+        if (this.getSPIImpl().isPresent()) {
+            StringProviderFromExternalSPI impl = this.getSPIImpl().get();
+            return impl.getValueFromExternalSPI();
+        } else {
+            return "[ERROR] StringProviderFromExternalSPI not loaded!";
+        }
     }
 
 }

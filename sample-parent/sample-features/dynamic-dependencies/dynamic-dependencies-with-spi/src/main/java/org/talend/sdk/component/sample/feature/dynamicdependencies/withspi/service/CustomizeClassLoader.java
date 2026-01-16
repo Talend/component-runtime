@@ -27,13 +27,16 @@ public class CustomizeClassLoader implements ComponentManager.Customizer {
     private static final String DISABLE_CUSTOMIZE_PROPERTY =
             "talend.sample.feature.dynamicdependencies.withspi.CustomizeClassLoader.disabled";
 
-    private static final boolean DISABLE_CUSTOMIZE = Boolean.getBoolean(DISABLE_CUSTOMIZE_PROPERTY);
+    private static final boolean DISABLE_CUSTOMIZE = Boolean.parseBoolean(
+            System.getProperty(DISABLE_CUSTOMIZE_PROPERTY, "true"));
 
     @Override
     public Stream<String> containerClassesAndPackages() {
         if (DISABLE_CUSTOMIZE) {
             log.info(
-                    "org.talend.sdk.component.sample.feature.dynamicdependencies.withspi.service.CustomizeClassLoader is disabled.");
+                    "org.talend.sdk.component.sample.feature.dynamicdependencies.withspi.service.CustomizeClassLoader is disabled.\n"
+                            + "use \"" + DISABLE_CUSTOMIZE_PROPERTY + "=false\""
+                            + " property to enable it.");
             return Stream.empty();
         }
 

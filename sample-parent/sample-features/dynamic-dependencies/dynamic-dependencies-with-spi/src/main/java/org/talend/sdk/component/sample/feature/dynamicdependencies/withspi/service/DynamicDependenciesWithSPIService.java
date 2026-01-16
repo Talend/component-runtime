@@ -146,7 +146,7 @@ public class DynamicDependenciesWithSPIService implements Serializable {
                         .withString("SPI_Interface", String.valueOf(StringProviderSPIAsDynamicDependency.class))
                         .withString("SPI_Impl",
                                 dynamicDependencySPIConsumer.getSPIImpl().isPresent()
-                                        ? String.valueOf(dynamicDependencySPIConsumer.getSPIImpl().getClass())
+                                        ? String.valueOf(dynamicDependencySPIConsumer.getSPIImpl().get().getClass())
                                         : "N/A")
                         .withString("SPI_Interface_classloader",
                                 String.valueOf(StringProviderSPIAsDynamicDependency.class.getClassLoader()))
@@ -163,13 +163,14 @@ public class DynamicDependenciesWithSPIService implements Serializable {
                         .withString("SPI_Interface", String.valueOf(StringProviderFromExternalSPI.class))
                         .withString("SPI_Impl",
                                 externalDependencySPI.getSPIImpl().isPresent()
-                                        ? String.valueOf(externalDependencySPI.getSPIImpl().getClass())
+                                        ? String.valueOf(externalDependencySPI.getSPIImpl().get().getClass())
                                         : "N/A")
                         .withString("SPI_Interface_classloader",
                                 String.valueOf(StringProviderFromExternalSPI.class.getClassLoader()))
                         .withString("SPI_Impl_classloader",
                                 externalDependencySPI.getSPIImpl().isPresent()
-                                        ? String.valueOf(externalDependencySPI.getSPIImpl().getClass().getClassLoader())
+                                        ? String.valueOf(
+                                                externalDependencySPI.getSPIImpl().get().getClass().getClassLoader())
                                         : "N/A")
                         .build());
 
