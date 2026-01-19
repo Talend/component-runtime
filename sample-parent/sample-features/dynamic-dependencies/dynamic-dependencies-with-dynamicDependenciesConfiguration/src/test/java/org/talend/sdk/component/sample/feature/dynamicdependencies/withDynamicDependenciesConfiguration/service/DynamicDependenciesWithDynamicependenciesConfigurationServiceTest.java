@@ -46,7 +46,6 @@ public class DynamicDependenciesWithDynamicependenciesConfigurationServiceTest
         config.getSubConfig().setDependencies(depends);
         dse.setDso(dso);
         config.setDse(dse);
-        config.setEnvironmentInformation(true);
 
         return config;
     }

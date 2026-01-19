@@ -34,12 +34,7 @@ import lombok.Data;
 @Data
 @GridLayout({
         @GridLayout.Row({ "dse" }),
-        @GridLayout.Row({ "subConfig" }),
-        @GridLayout.Row({ "environmentInformation" })
-})
-@GridLayout(names = GridLayout.FormType.ADVANCED, value = {
-        @GridLayout.Row({ "dse" }),
-        @GridLayout.Row({ "dieOnError" }),
+        @GridLayout.Row({ "subConfig" })
 })
 public class Config implements DynamicDependencyConfig, Serializable {
 
@@ -50,14 +45,6 @@ public class Config implements DynamicDependencyConfig, Serializable {
     @Option
     @Documentation("Sub-configuration that contains the DynamidDependenciesConfiguration.")
     private SubConfig subConfig = new SubConfig();
-
-    @Option
-    @Documentation("If enable throw an exception for any error, if not just log the error.")
-    private boolean dieOnError = false;
-
-    @Option
-    @Documentation("More environment information.")
-    private boolean environmentInformation = false;
 
     @Override
     public List<Dependency> getDependencies() {

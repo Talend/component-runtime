@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
+import org.talend.sdk.component.api.configuration.ui.layout.AutoLayout;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Connector;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Dependency;
@@ -32,27 +32,12 @@ import lombok.Data;
  * For this sample, the same configuration is used for all connectors input/processor/output.
  */
 @Data
-@GridLayout({
-        @GridLayout.Row({ "dse" }),
-        @GridLayout.Row({ "environmentInformation" })
-})
-@GridLayout(names = GridLayout.FormType.ADVANCED, value = {
-        @GridLayout.Row({ "dse" }),
-        @GridLayout.Row({ "dieOnError" }),
-})
+@AutoLayout
 public class Config implements DynamicDependencyConfig, Serializable {
 
     @Option
     @Documentation("The dataset configuration.")
     private Dataset dse = new Dataset();
-
-    @Option
-    @Documentation("If enable throw an exception for any error, if not just log the error.")
-    private boolean dieOnError = false;
-
-    @Option
-    @Documentation("More environment information.")
-    private boolean environmentInformation = false;
 
     @Override
     public List<Dependency> getDependencies() {

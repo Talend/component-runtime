@@ -18,7 +18,7 @@ package org.talend.sdk.component.sample.feature.dynamicdependencies.withspi.conf
 import java.io.Serializable;
 
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
+import org.talend.sdk.component.api.configuration.ui.layout.AutoLayout;
 import org.talend.sdk.component.api.meta.Documentation;
 
 import lombok.Data;
@@ -27,21 +27,11 @@ import lombok.Data;
  * For this sample, the same configuration is used for all connectors input/processor/output.
  */
 @Data
-@GridLayout({
-        @GridLayout.Row({ "dse" }),
-})
-@GridLayout(names = GridLayout.FormType.ADVANCED, value = {
-        @GridLayout.Row({ "dse" }),
-        @GridLayout.Row({ "dieOnError" }),
-})
+@AutoLayout
 public class Config implements Serializable {
 
     @Option
     @Documentation("The dataset configuration.")
     private Dataset dse = new Dataset();
-
-    @Option
-    @Documentation("If enable throw an exception for any error, if not just log the error.")
-    private boolean dieOnError = false;
 
 }

@@ -44,7 +44,6 @@ public class DynamicDependenciesWithDatastoreServiceTest
         dso.setDependencies(depends);
         dse.setDso(dso);
         config.setDse(dse);
-        config.setEnvironmentInformation(true);
 
         return config;
     }

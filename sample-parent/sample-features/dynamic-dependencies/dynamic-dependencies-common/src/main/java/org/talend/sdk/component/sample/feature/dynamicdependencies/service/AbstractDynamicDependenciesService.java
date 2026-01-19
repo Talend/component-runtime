@@ -155,8 +155,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
                 }
 
             } catch (ClassNotFoundException e) {
-                manageException(dynamicDependencyConfig.isDieOnError(),
-                        "Cannot load class %s from system classloader".formatted(dependency.getClazz()), e);
+                logError("Cannot load class %s from system classloader".formatted(dependency.getClazz()), e);
             }
 
             Record record = buildRecord(schema,
@@ -234,16 +233,14 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
 
         firstRecord.ifPresent(record -> builder.withRecord(ENTRY_FIRST_RECORD, record));
 
-        if (dynamicDependencyConfig.isEnvironmentInformation()) {
-            String rootRepository = System.getProperty("talend.component.manager.m2.repository");
-            String runtimeClasspath = System.getProperty("java.class.path");
-            String workDirectory = System.getProperty("user.dir");
+        String rootRepository = System.getProperty("talend.component.manager.m2.repository");
+        String runtimeClasspath = System.getProperty("java.class.path");
+        String workDirectory = System.getProperty("user.dir");
 
-            recordBuilder = recordBuilder
-                    .withString(ENTRY_ROOT_REPOSITORY, rootRepository)
-                    .withString(ENTRY_RUNTIME_CLASSPATH, runtimeClasspath)
-                    .withString(ENTRY_WORKING_DIRECTORY, workDirectory);
-        }
+        recordBuilder = recordBuilder
+                .withString(ENTRY_ROOT_REPOSITORY, rootRepository)
+                .withString(ENTRY_RUNTIME_CLASSPATH, runtimeClasspath)
+                .withString(ENTRY_WORKING_DIRECTORY, workDirectory);
 
         return recordBuilder.build();
     }
@@ -285,14 +282,14 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
                 .withEntry(factory.newEntryBuilder().withName(ENTRY_FROM_LOCATION).withType(Type.STRING).build())
                 .withEntry(factory.newEntryBuilder().withName(ENTRY_IS_TCK_CONTAINER).withType(Type.BOOLEAN).build())
                 .withEntry(factory.newEntryBuilder().withName(ENTRY_FIRST_RECORD).withType(Type.RECORD).build());
-        if (dynamicDependencyConfig.isEnvironmentInformation()) {
-            builder = builder
-                    .withEntry(factory.newEntryBuilder().withName(ENTRY_ROOT_REPOSITORY).withType(Type.STRING).build())
-                    .withEntry(
-                            factory.newEntryBuilder().withName(ENTRY_RUNTIME_CLASSPATH).withType(Type.STRING).build())
-                    .withEntry(
-                            factory.newEntryBuilder().withName(ENTRY_WORKING_DIRECTORY).withType(Type.STRING).build());
-        }
+
+        builder = builder
+                .withEntry(factory.newEntryBuilder().withName(ENTRY_ROOT_REPOSITORY).withType(Type.STRING).build())
+                .withEntry(
+                        factory.newEntryBuilder().withName(ENTRY_RUNTIME_CLASSPATH).withType(Type.STRING).build())
+                .withEntry(
+                        factory.newEntryBuilder().withName(ENTRY_WORKING_DIRECTORY).withType(Type.STRING).build());
+
         builder = builder.withEntry(factory.newEntryBuilder().withName(ENTRY_COMMENT).withType(Type.STRING).build());
 
         return builder.build();
@@ -303,12 +300,9 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
         return finder.find(family, name, version, parameters);
     }
 
-    private void manageException(final boolean dieOnError, final String message, final Exception e) {
+    private void logError(final String message, final Exception e) {
         String msg = "Dynamic dependencies connector raised an exception: %s : %s".formatted(message, e.getMessage());
         log.error(msg, e);
-        if (dieOnError) {
-            throw new ComponentException(msg, e);
-        }
     }
 
     private List<Dependency> additionalDependencies() {

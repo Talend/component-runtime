@@ -19,28 +19,18 @@ import java.io.Serializable;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.type.DataSet;
-import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
+import org.talend.sdk.component.api.configuration.ui.layout.AutoLayout;
 import org.talend.sdk.component.api.meta.Documentation;
 
 import lombok.Data;
 
 @Data
 @DataSet("dyndepsdse")
-@GridLayout(value = {
-        @GridLayout.Row({ "dso" }),
-        @GridLayout.Row({ "bbb" }),
-})
-@GridLayout(names = GridLayout.FormType.ADVANCED, value = {
-        @GridLayout.Row({ "dso" })
-})
+@AutoLayout
 public class Dataset implements Serializable {
 
     @Option
     @Documentation("A datastore.")
     private Datastore dso = new Datastore();
-
-    @Option
-    @Documentation("Xxxx xxx.")
-    private String bbb;
 
 }
