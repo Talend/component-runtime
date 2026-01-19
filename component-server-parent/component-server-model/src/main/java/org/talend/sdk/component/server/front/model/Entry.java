@@ -72,7 +72,9 @@ public final class Entry {
         this.valid = valid;
         this.elementSchema = elementSchema;
         this.comment = comment;
-        this.props.putAll(props);
+        if (props != null) {
+            this.props.putAll(props);
+        }
         this.defaultValue = defaultValue;
     }
 
@@ -96,6 +98,11 @@ public final class Entry {
 
     }
 
+    /**
+     * * Returns the property value associated with the given key.
+     * * @param key the property key
+     * * @return the property value, or {@code null} if there is no mapping for the given key
+     */
     public String getOriginalFieldName() {
         return rawName != null ? rawName : name;
     }

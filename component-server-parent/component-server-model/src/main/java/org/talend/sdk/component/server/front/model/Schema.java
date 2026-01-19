@@ -79,23 +79,5 @@ public final class Schema {
             this.classes = classes;
         }
 
-        /**
-         * Check if input can be affected to an entry of this type.
-         *
-         * @param input : object.
-         *
-         * @return true if input is null or ok.
-         */
-        public boolean isCompatible(final Object input) {
-            if (input == null) {
-                return true;
-            }
-            for (final Class<?> clazz : classes) {
-                if (clazz.isInstance(input)) {
-                    return true;
-                }
-            }
-            return false;
-        }
     }
 }
