@@ -281,7 +281,11 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
                 .withEntry(factory.newEntryBuilder().withName(ENTRY_CLAZZ_CLASSLOADER).withType(Type.STRING).build())
                 .withEntry(factory.newEntryBuilder().withName(ENTRY_FROM_LOCATION).withType(Type.STRING).build())
                 .withEntry(factory.newEntryBuilder().withName(ENTRY_IS_TCK_CONTAINER).withType(Type.BOOLEAN).build())
-                .withEntry(factory.newEntryBuilder().withName(ENTRY_FIRST_RECORD).withType(Type.RECORD).build());
+                .withEntry(factory.newEntryBuilder()
+                        .withName(ENTRY_FIRST_RECORD)
+                        .withType(Type.RECORD)
+                        .withNullable(true)
+                        .build());
 
         builder = builder
                 .withEntry(factory.newEntryBuilder().withName(ENTRY_ROOT_REPOSITORY).withType(Type.STRING).build())

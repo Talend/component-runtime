@@ -20,6 +20,7 @@ import static org.talend.sdk.component.sample.feature.dynamicdependencies.servic
 import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.AbstractDynamicDependenciesService.ENTRY_CONNECTOR_CLASSLOADER;
 import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.AbstractDynamicDependenciesService.ENTRY_FROM_LOCATION;
 import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.AbstractDynamicDependenciesService.ENTRY_IS_LOADED;
+import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.AbstractDynamicDependenciesService.ENTRY_IS_TCK_CONTAINER;
 import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.AbstractDynamicDependenciesService.ENTRY_MAVEN;
 import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.AbstractDynamicDependenciesService.ENTRY_ROOT_REPOSITORY;
 import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.AbstractDynamicDependenciesService.ENTRY_RUNTIME_CLASSPATH;
@@ -59,9 +60,24 @@ public abstract class AbstractDynamicDependenciesServiceTest<C extends DynamicDe
 
         final Iterator<Record> result = getService().loadIterator(config);
 
-        Assertions.assertTrue(result.hasNext());
-        this.assertRecord(result.next());
-        Assertions.assertFalse(result.hasNext());
+        List<Record> records = new ArrayList<>();
+        result.forEachRemaining(records::add);
+        Assertions.assertEquals(4, records.size());
+
+        Record fourth = records.get(3);
+        ResultDetails expected = new ResultDetails(
+                false,
+                "./lib/",
+                "jdk.internal.loader.ClassLoaders$AppClassLoader",
+                "jdk.internal.loader.ClassLoaders$AppClassLoader",
+                "org.apache.commons:commons-numbers-primes:1.2",
+                System.getProperty("user.dir"),
+                true,
+                "org/apache/commons/commons-numbers-primes/1.2/commons-numbers-primes-1.2.jar!/org/apache/commons/numbers/primes/SmallPrimes.class",
+                null,
+                "org.apache.commons.numbers.primes.SmallPrimes",
+                "commons-numbers-primes-1.2.jar");
+        this.assertRecord(fourth, expected);
     }
 
     protected List<Dependency> getDependList() {
@@ -75,26 +91,35 @@ public abstract class AbstractDynamicDependenciesServiceTest<C extends DynamicDe
         return depends;
     }
 
-    private void assertRecord(Record record) {
+    private void assertRecord(Record record, ResultDetails expected) {
         Assertions.assertNotNull(record);
-        Assertions.assertEquals("org.apache.commons:commons-numbers-primes:1.2", record.getString(ENTRY_MAVEN));
-        Assertions.assertEquals(
-                "org.apache.commons.numbers.primes.SmallPrimes",
-                record.getString(ENTRY_CLASS));
-        Assertions.assertTrue(record.getBoolean(ENTRY_IS_LOADED));
-        Assertions.assertNotNull(record.getString(ENTRY_CONNECTOR_CLASSLOADER));
+
+        Assertions.assertEquals(expected.isTckContainer(), record.getBoolean(ENTRY_IS_TCK_CONTAINER));
+        Assertions.assertEquals(expected.rootRepository(), record.getString(ENTRY_ROOT_REPOSITORY));
         Assertions.assertTrue(record.getString(ENTRY_CONNECTOR_CLASSLOADER)
-                .startsWith("jdk.internal.loader.ClassLoaders$AppClassLoader"));
-        Assertions.assertNotNull(record.getString(ENTRY_CLAZZ_CLASSLOADER));
-        Assertions.assertTrue(record.getString(ENTRY_CLAZZ_CLASSLOADER)
-                .startsWith("jdk.internal.loader.ClassLoaders$AppClassLoader"));
-        Assertions.assertNotNull(record.getString(ENTRY_FROM_LOCATION));
-        Assertions.assertTrue(record.getString(ENTRY_FROM_LOCATION)
-                .endsWith(
-                        "org/apache/commons/commons-numbers-primes/1.2/commons-numbers-primes-1.2.jar!/org/apache/commons/numbers/primes/SmallPrimes.class"));
-        Assertions.assertEquals("./lib/", record.getString(ENTRY_ROOT_REPOSITORY));
-        Assertions.assertNotNull(record.getString(ENTRY_RUNTIME_CLASSPATH));
-        Assertions.assertEquals(System.getProperty("user.dir"), record.getString(ENTRY_WORKING_DIRECTORY));
-        Assertions.assertTrue(record.getString(ENTRY_RUNTIME_CLASSPATH).contains("commons-numbers-primes-1.2.jar"));
+                .startsWith(expected.connectorClassloader()));
+        Assertions.assertTrue(record.getString(ENTRY_CLAZZ_CLASSLOADER).startsWith(expected.clazzClassloader()));
+        Assertions.assertEquals(expected.maven(), record.getString(ENTRY_MAVEN));
+        Assertions.assertEquals(expected.workingDirectory(), record.getString(ENTRY_WORKING_DIRECTORY));
+        Assertions.assertEquals(expected.isLoaded(), record.getBoolean(ENTRY_IS_LOADED));
+        Assertions.assertTrue(record.getString(ENTRY_FROM_LOCATION).endsWith(expected.fromLocation()));
+        Assertions.assertEquals(expected.clazz(), record.getString(ENTRY_CLASS));
+        Assertions.assertTrue(record.getString(ENTRY_RUNTIME_CLASSPATH).contains(expected.runtimeClasspath()));
+
+    }
+
+    public record ResultDetails(
+            boolean isTckContainer,
+            String rootRepository,
+            String connectorClassloader,
+            String clazzClassloader,
+            String maven,
+            String workingDirectory,
+            boolean isLoaded,
+            String fromLocation,
+            String comment,
+            String clazz,
+            String runtimeClasspath
+    ) {
     }
 }

@@ -32,31 +32,31 @@ public abstract class AbstractSPIConsumer<S, T> {
     private final Optional<S> spiImpl;
 
     protected AbstractSPIConsumer(final Class clazz, final boolean failIfSeveralServicesFound) {
-        ServiceLoader<S> serviceLoader = ServiceLoader.load(clazz);
+        ServiceLoader<S> serviceLoader = ServiceLoader.load(clazz, AbstractSPIConsumer.class.getClassLoader());
 
-        List<S> stringMapProviderList = new ArrayList<>();
+        List<S> implProvider = new ArrayList<>();
 
         try {
-            serviceLoader.iterator().forEachRemaining(stringMapProviderList::add);
+            serviceLoader.iterator().forEachRemaining(implProvider::add);
         } catch (Throwable e) {
             log.error("Can't load %s spi implementation: %s.".formatted(clazz, e.getMessage()), e);
         }
 
-        if (stringMapProviderList.size() <= 0) {
+        if (implProvider.size() <= 0) {
             log.error("No SPI service found for %s.".formatted(clazz));
             spiImpl = Optional.empty();
             return;
         }
 
-        if (stringMapProviderList.size() > 1 && failIfSeveralServicesFound) {
-            String join = stringMapProviderList.stream()
+        if (implProvider.size() > 1 && failIfSeveralServicesFound) {
+            String join = implProvider.stream()
                     .map(m -> m.getClass().getName())
                     .collect(Collectors.joining("\n"));
             throw new ComponentException("More than one %s service has been found: %s"
                     .formatted(clazz, join));
         }
 
-        this.spiImpl = Optional.of(stringMapProviderList.get(0));
+        this.spiImpl = Optional.of(implProvider.get(0));
     }
 
     public abstract String getValue();

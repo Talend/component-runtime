@@ -47,25 +47,64 @@ class DynamicDependenciesWithSPIInputTest {
                 .build()
                 .run();
 
-        List<Record> collectedData = handler.getCollectedData(Record.class);
-        Assertions.assertEquals(9, collectedData.size());
+        List<Record> records = handler.getCollectedData(Record.class);
+        Assertions.assertEquals(4, records.size());
 
-        int i = 0;
-        for (; i < 3; i++) {
-            Assertions.assertEquals("ServiceProviderFromDependency_" + (i + 1),
-                    collectedData.get(i).getString("value"));
-        }
+        Result expected0 = new Result(
+                "interface org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDependency",
+                "class org.talend.sdk.component.sample.feature.dynamicdependencies.serviceproviderfromdependency.ServiceProviderFromDependency",
+                "jdk.internal.loader.ClassLoaders$AppClassLoader",
+                "jdk.internal.loader.ClassLoaders$AppClassLoader",
+                "SPI implementation loaded from a dependency.",
+                "ServiceProviderFromDependency value");
+        validate(expected0, records.get(0));
 
-        for (; i < 6; i++) {
-            Assertions.assertEquals("ServiceProviderFromDynamicDependency_" + (i - 2),
-                    collectedData.get(i).getString("value"));
-        }
+        Result expected1 = new Result(
+                "interface org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDynamicDependency",
+                "class org.talend.sdk.component.sample.feature.dynamicdependencies.serviceproviderfromdynamicdependency.ServiceProviderFromDynamicDependency",
+                "jdk.internal.loader.ClassLoaders$AppClassLoader",
+                "jdk.internal.loader.ClassLoaders$AppClassLoader",
+                "SPI implementation loaded from a dynamic dependency.",
+                "ServiceProviderFromDynamicDependency value");
+        validate(expected1, records.get(1));
 
-        for (; i < 9; i++) {
-            Assertions.assertEquals("ServiceProviderFromExternalDependency_" + (i - 5),
-                    collectedData.get(i).getString("value"));
-        }
+        Result expected2 = new Result(
+                "interface org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringProviderFromExternalSPI",
+                "class org.talend.sdk.component.sample.feature.dynamicdependencies.serviceproviderfromexternaldependency.ServiceProviderFromExternalDependency",
+                "jdk.internal.loader.ClassLoaders$AppClassLoader",
+                "jdk.internal.loader.ClassLoaders$AppClassLoade",
+                "SPI implementation loaded from a runtime/provided dependency.",
+                "ServiceProviderFromExternalDependency value");
+        validate(expected2, records.get(2));
 
+        Result expected3 = new Result(
+                "N/A",
+                "N/A",
+                "N/A",
+                "N/A",
+                "Resources loading.",
+                "{\"contentFromResourceDependency\":\"Message from a dependency resource.\",\"contentFromResourceDynamicDependency\":\"Message from a dynamic dependency resource.\",\"contentFromResourceExternalDependency\":\"Message from an external dependency resource.\",\"contentFromMultipleResources\":\"There should be 3 different values:\\nContent from static dependency\\nContent from dynamic dependency\\nContent from external dependency\"}");
+        validate(expected3, records.get(3));
+    }
+
+    private void validate(Result expected, Record record) {
+        Assertions.assertEquals(expected.spiInterface(), record.getString("SPI_Interface"));
+        Assertions.assertEquals(expected.spiImpl(), record.getString("SPI_Impl"));
+        Assertions.assertTrue(
+                record.getString("SPI_Interface_classloader").startsWith(expected.spiInterfaceClassloader()));
+        Assertions.assertTrue(record.getString("SPI_Impl_classloader").startsWith(expected.spiImplClassloader()));
+        Assertions.assertEquals(expected.comment(), record.getString("comment"));
+        Assertions.assertEquals(expected.value(), record.getString("value"));
+    }
+
+    private record Result(
+            String spiInterface,
+            String spiImpl,
+            String spiInterfaceClassloader,
+            String spiImplClassloader,
+            String comment,
+            String value
+    ) {
     }
 
 }

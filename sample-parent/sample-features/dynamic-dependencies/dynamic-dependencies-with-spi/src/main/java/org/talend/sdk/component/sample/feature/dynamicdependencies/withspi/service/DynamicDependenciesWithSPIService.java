@@ -86,6 +86,7 @@ public class DynamicDependenciesWithSPIService implements Serializable {
                         .withType(Type.STRING)
                         .withName("SPI_Impl_classloader")
                         .build())
+                .withEntry(recordBuilderFactory.newEntryBuilder().withType(Type.STRING).withName("comment").build())
                 .build();
     }
 
@@ -112,7 +113,7 @@ public class DynamicDependenciesWithSPIService implements Serializable {
 
                 try (InputStream is = url.openStream()) {
                     String content = filterComments(is);
-                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append("\n");
                     stringBuilder.append(content);
                 }
             }
@@ -129,14 +130,15 @@ public class DynamicDependenciesWithSPIService implements Serializable {
                         .withString("SPI_Impl",
                                 dependencySPIConsumer.getSPIImpl().isPresent()
                                         ? String.valueOf(dependencySPIConsumer.getSPIImpl().get().getClass())
-                                        : "N/A")
+                                        : "Not found")
                         .withString("SPI_Interface_classloader",
                                 String.valueOf(StringProviderSPIAsDependency.class.getClassLoader()))
                         .withString("SPI_Impl_classloader",
                                 dependencySPIConsumer.getSPIImpl().isPresent()
                                         ? String.valueOf(
                                                 dependencySPIConsumer.getSPIImpl().get().getClass().getClassLoader())
-                                        : "N/A")
+                                        : "Not found")
+                        .withString("comment", "SPI implementation loaded from a dependency.")
                         .build());
 
         DynamicDependencySPIConsumer<Record> dynamicDependencySPIConsumer = new DynamicDependencySPIConsumer<>(true);
@@ -147,13 +149,14 @@ public class DynamicDependenciesWithSPIService implements Serializable {
                         .withString("SPI_Impl",
                                 dynamicDependencySPIConsumer.getSPIImpl().isPresent()
                                         ? String.valueOf(dynamicDependencySPIConsumer.getSPIImpl().get().getClass())
-                                        : "N/A")
+                                        : "Not found")
                         .withString("SPI_Interface_classloader",
                                 String.valueOf(StringProviderSPIAsDynamicDependency.class.getClassLoader()))
                         .withString("SPI_Impl_classloader",
                                 dynamicDependencySPIConsumer.getSPIImpl().isPresent() ? String.valueOf(
                                         dynamicDependencySPIConsumer.getSPIImpl().get().getClass().getClassLoader())
-                                        : "N/A")
+                                        : "Not found")
+                        .withString("comment", "SPI implementation loaded from a dynamic dependency.")
                         .build());
 
         ExternalDependencySPIConsumer<Record> externalDependencySPI = new ExternalDependencySPIConsumer<>(true);
@@ -164,14 +167,15 @@ public class DynamicDependenciesWithSPIService implements Serializable {
                         .withString("SPI_Impl",
                                 externalDependencySPI.getSPIImpl().isPresent()
                                         ? String.valueOf(externalDependencySPI.getSPIImpl().get().getClass())
-                                        : "N/A")
+                                        : "Not found")
                         .withString("SPI_Interface_classloader",
                                 String.valueOf(StringProviderFromExternalSPI.class.getClassLoader()))
                         .withString("SPI_Impl_classloader",
                                 externalDependencySPI.getSPIImpl().isPresent()
                                         ? String.valueOf(
                                                 externalDependencySPI.getSPIImpl().get().getClass().getClassLoader())
-                                        : "N/A")
+                                        : "Not found")
+                        .withString("comment", "SPI implementation loaded from a runtime/provided dependency.")
                         .build());
 
         JsonObject contentFromResources = jsonBuilderFactory.createObjectBuilder()
@@ -186,6 +190,7 @@ public class DynamicDependenciesWithSPIService implements Serializable {
                 .withString("SPI_Impl", "N/A")
                 .withString("SPI_Interface_classloader", "N/A")
                 .withString("SPI_Impl_classloader", "N/A")
+                .withString("comment", "Resources loading.")
                 .build();
 
         List<Record> values = new ArrayList<>();

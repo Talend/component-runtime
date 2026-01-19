@@ -25,7 +25,7 @@ class ServiceProviderFromExternalDependencyTest {
     void testSPI() {
         ExternalDependencySPIConsumer<String> values = new ExternalDependencySPIConsumer<>(true);
         String transform = values.transform(String::valueOf);
-        Assertions.assertTrue(transform.startsWith("ServiceProviderFromExternalDependency loaded from classloader:"));
+        Assertions.assertTrue(transform.startsWith("ServiceProviderFromExternalDependency value"));
     }
 
 }
