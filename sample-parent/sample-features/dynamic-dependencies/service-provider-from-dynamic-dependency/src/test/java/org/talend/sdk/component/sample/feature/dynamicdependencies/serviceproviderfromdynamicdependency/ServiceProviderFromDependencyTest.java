@@ -25,7 +25,7 @@ class ServiceProviderFromDependencyTest {
 
     @Test
     void testSPI() {
-        DynamicDependencySPIConsumer<String> useADynamicDependencySPI = new DynamicDependencySPIConsumer<>(true);
+        DynamicDependencySPIConsumer<String> useADynamicDependencySPI = new DynamicDependencySPIConsumer<>();
         String transform = useADynamicDependencySPI.transform(Function.identity());
         Assertions.assertTrue(transform.startsWith("ServiceProviderFromDynamicDependency value"));
     }

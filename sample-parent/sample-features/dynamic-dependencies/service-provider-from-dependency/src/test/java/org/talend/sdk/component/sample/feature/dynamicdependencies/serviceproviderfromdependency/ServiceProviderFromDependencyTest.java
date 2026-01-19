@@ -23,7 +23,7 @@ class ServiceProviderFromDependencyTest {
 
     @Test
     void testSPI() {
-        DependencySPIConsumer<String> dependencySPIConsumer = new DependencySPIConsumer<>(true);
+        DependencySPIConsumer<String> dependencySPIConsumer = new DependencySPIConsumer<>();
         String transform = dependencySPIConsumer.transform(String::valueOf);
 
         Assertions.assertTrue(transform.startsWith("ServiceProviderFromDependency value"));

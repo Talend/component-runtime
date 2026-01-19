@@ -22,8 +22,6 @@ import java.util.ServiceLoader;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.talend.sdk.component.api.exception.ComponentException;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -31,7 +29,7 @@ public abstract class AbstractSPIConsumer<S, T> {
 
     private final Optional<S> spiImpl;
 
-    protected AbstractSPIConsumer(final Class clazz, final boolean failIfSeveralServicesFound) {
+    protected AbstractSPIConsumer(final Class clazz) {
         ServiceLoader<S> serviceLoader = ServiceLoader.load(clazz, AbstractSPIConsumer.class.getClassLoader());
 
         List<S> implProvider = new ArrayList<>();
@@ -48,12 +46,14 @@ public abstract class AbstractSPIConsumer<S, T> {
             return;
         }
 
-        if (implProvider.size() > 1 && failIfSeveralServicesFound) {
+        if (implProvider.size() > 1) {
             String join = implProvider.stream()
                     .map(m -> m.getClass().getName())
                     .collect(Collectors.joining("\n"));
-            throw new ComponentException("More than one %s service has been found: %s"
-                    .formatted(clazz, join));
+            log.error("More than one %s service has been found: %s.".formatted(clazz, join));
+            // For testing purpose (the goal of this connector), better to fail in that case.
+            spiImpl = Optional.empty();
+            return;
         }
 
         this.spiImpl = Optional.of(implProvider.get(0));

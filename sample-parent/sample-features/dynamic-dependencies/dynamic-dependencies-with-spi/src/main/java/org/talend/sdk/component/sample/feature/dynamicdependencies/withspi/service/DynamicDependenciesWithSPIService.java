@@ -122,7 +122,7 @@ public class DynamicDependenciesWithSPIService implements Serializable {
             throw new ComponentException("Can't retrieve multiple resources at once.", e);
         }
 
-        DependencySPIConsumer<Record> dependencySPIConsumer = new DependencySPIConsumer<>(true);
+        DependencySPIConsumer<Record> dependencySPIConsumer = new DependencySPIConsumer<>();
         Record recordsFromDependencySPI = dependencySPIConsumer
                 .transform(s -> recordBuilderFactory.newRecordBuilder()
                         .withString("value", s)
@@ -141,7 +141,7 @@ public class DynamicDependenciesWithSPIService implements Serializable {
                         .withString("comment", "SPI implementation loaded from a dependency.")
                         .build());
 
-        DynamicDependencySPIConsumer<Record> dynamicDependencySPIConsumer = new DynamicDependencySPIConsumer<>(true);
+        DynamicDependencySPIConsumer<Record> dynamicDependencySPIConsumer = new DynamicDependencySPIConsumer<>();
         Record recordsFromDynamicDependencySPI = dynamicDependencySPIConsumer
                 .transform(s -> recordBuilderFactory.newRecordBuilder()
                         .withString("value", s)
@@ -159,7 +159,7 @@ public class DynamicDependenciesWithSPIService implements Serializable {
                         .withString("comment", "SPI implementation loaded from a dynamic dependency.")
                         .build());
 
-        ExternalDependencySPIConsumer<Record> externalDependencySPI = new ExternalDependencySPIConsumer<>(true);
+        ExternalDependencySPIConsumer<Record> externalDependencySPI = new ExternalDependencySPIConsumer<>();
         Record recordsFromExternalSPI = externalDependencySPI
                 .transform(s -> recordBuilderFactory.newRecordBuilder()
                         .withString("value", s)

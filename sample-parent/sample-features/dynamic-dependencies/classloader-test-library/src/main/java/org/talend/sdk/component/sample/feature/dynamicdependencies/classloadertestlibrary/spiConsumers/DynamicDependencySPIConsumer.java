@@ -19,8 +19,8 @@ import org.talend.sdk.component.sample.feature.dynamicdependencies.classloaderte
 
 public class DynamicDependencySPIConsumer<T> extends AbstractSPIConsumer<StringProviderSPIAsDynamicDependency, T> {
 
-    public DynamicDependencySPIConsumer(final boolean failIfSeveralServicesFound) {
-        super(StringProviderSPIAsDynamicDependency.class, failIfSeveralServicesFound);
+    public DynamicDependencySPIConsumer() {
+        super(StringProviderSPIAsDynamicDependency.class);
     }
 
     public String getValue() {
