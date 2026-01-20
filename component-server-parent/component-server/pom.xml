@@ -65,6 +65,11 @@
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-server-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
       <artifactId>vault-client</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -188,19 +193,8 @@
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
-      <artifactId>component-server-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-form-core</artifactId>
       <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>${jackson.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
