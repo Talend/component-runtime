@@ -298,7 +298,7 @@
     <johnzon.version>1.2.21</johnzon.version>
     <slf4j.version>1.7.34</slf4j.version>
     <log4j2.version>2.20.0</log4j2.version>
-    <rhino.version>1.7.14</rhino.version>
+    <rhino.version>1.9.0</rhino.version>
     <tomitribe-crest.version>0.32</tomitribe-crest.version>
     <httpclient.version>4.5.14</httpclient.version>
     <guava.version>33.4.8-jre</guava.version>
