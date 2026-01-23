@@ -73,6 +73,8 @@ public class Container implements Lifecycle {
     @Getter
     private final Artifact[] dependencies;
 
+    private final Collection<Artifact> dynamicDependencies = new ArrayList<>();
+
     private final AtomicReference<Date> created = new AtomicReference<>();
 
     private final AtomicReference<Date> lastModifiedTimestamp = new AtomicReference<>();
@@ -223,7 +225,10 @@ public class Container implements Lifecycle {
     public Stream<Path> findExistingClasspathFiles() {
         return Stream
                 .concat(getContainerFile().map(Stream::of).orElseGet(Stream::empty),
-                        Stream.of(dependencies).map(Artifact::toPath).map(localDependencyRelativeResolver))
+                        Stream
+                                .concat(Stream.of(dependencies), dynamicDependencies.stream())
+                                .map(Artifact::toPath)
+                                .map(localDependencyRelativeResolver))
                 .filter(Files::exists);
     }
 
@@ -236,7 +241,7 @@ public class Container implements Lifecycle {
     }
 
     public Stream<Artifact> findDependencies() {
-        return Stream.of(dependencies);
+        return Stream.concat(Stream.of(dependencies), dynamicDependencies.stream());
     }
 
     public <S, T> T executeAndContextualize(final Supplier<S> supplier, final Class<T> api) {
@@ -314,6 +319,42 @@ public class Container implements Lifecycle {
 
     public void registerTransformer(final ClassFileTransformer transformer) {
         transformers.add(transformer);
+    }
+
+    /**
+     * Adds dynamic dependencies to this container and reloads the classloader.
+     * This allows adding dependencies at runtime, such as those discovered
+     * from @DynamicDependencies annotated services.
+     * 
+     * @param artifacts the artifacts to add as dependencies
+     */
+    public synchronized void addDynamicDependencies(final Collection<Artifact> artifacts) {
+        checkState();
+        if (artifacts != null && !artifacts.isEmpty()) {
+            dynamicDependencies.addAll(artifacts);
+            reload();
+            log.info("Added {} dynamic dependencies to container {}", artifacts.size(), id);
+        }
+    }
+
+    /**
+     * Adds a single dynamic dependency to this container and reloads the classloader.
+     * 
+     * @param artifact the artifact to add as a dependency
+     */
+    public void addDynamicDependency(final Artifact artifact) {
+        if (artifact != null) {
+            addDynamicDependencies(java.util.Collections.singletonList(artifact));
+        }
+    }
+
+    /**
+     * Returns all dynamic dependencies that have been added to this container.
+     * 
+     * @return collection of dynamic dependencies
+     */
+    public Collection<Artifact> getDynamicDependencies() {
+        return new ArrayList<>(dynamicDependencies);
     }
 
     private void checkState() {
