@@ -17,8 +17,10 @@ package org.talend.sdk.component.sample.feature.dynamicdependencies.withspi.conf
 
 import java.io.Serializable;
 
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.configuration.ui.layout.AutoLayout;
+import org.talend.sdk.component.api.meta.Documentation;
 
 import lombok.Data;
 
@@ -26,5 +28,9 @@ import lombok.Data;
 @DataStore("dyndepsdso")
 @AutoLayout
 public class Datastore implements Serializable {
+
+    @Option
+    @Documentation("Unused option to force dependency inclusion.")
+    private String unusedOption;
 
 }

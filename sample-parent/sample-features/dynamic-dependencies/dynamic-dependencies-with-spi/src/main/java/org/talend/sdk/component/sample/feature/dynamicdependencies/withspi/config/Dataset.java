@@ -33,4 +33,8 @@ public class Dataset implements Serializable {
     @Documentation("A datastore.")
     private Datastore dso = new Datastore();
 
+    @Option
+    @Documentation("Unused option to force dependency inclusion.")
+    private String unusedOption;
+
 }

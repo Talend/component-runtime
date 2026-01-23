@@ -68,7 +68,9 @@ public class DynamicDependenciesWithSPIService implements Serializable {
     public List<String> getDynamicDependencies(@Option("theDataset") final Dataset dataset) {
         String dep = "org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-dynamic-dependency:"
                 + loadVersion();
-        return Collections.singletonList(dep);
+        List<String> strings = Collections.singletonList(dep);
+        log.info("Dynamic dependencies with SPI: {}", strings.stream().collect(Collectors.joining(";")));
+        return strings;
     }
 
     @DiscoverSchema("dyndepsdse")

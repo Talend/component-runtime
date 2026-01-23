@@ -17,6 +17,7 @@ package org.talend.sdk.component.sample.feature.dynamicdependencies.withdataset.
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.record.Schema;
@@ -37,7 +38,11 @@ public class DynamicDependenciesWithDatasetService extends AbstractDynamicDepend
 
     @DynamicDependencies()
     public List<String> getDynamicDependencies(@Option("theDataset") final Dataset dataset) {
-        return super.getDynamicDependencies(dataset.getDependencies(), dataset.getConnectors());
+        List<String> dynamicDependencies =
+                super.getDynamicDependencies(dataset.getDependencies(), dataset.getConnectors());
+        log.info("Dynamic dependencies with dataset: {}",
+                dynamicDependencies.stream().collect(Collectors.joining(";")));
+        return dynamicDependencies;
     }
 
     @DiscoverSchemaExtended(DEPENDENCY_WITHDATASET_ACTION)

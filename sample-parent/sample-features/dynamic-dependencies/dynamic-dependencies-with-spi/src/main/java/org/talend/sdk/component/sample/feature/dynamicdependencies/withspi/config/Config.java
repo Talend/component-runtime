@@ -34,4 +34,8 @@ public class Config implements Serializable {
     @Documentation("The dataset configuration.")
     private Dataset dse = new Dataset();
 
+    @Option
+    @Documentation("Unused option to force dependency inclusion.")
+    private String unusedOption;
+
 }
