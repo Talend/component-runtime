@@ -50,11 +50,11 @@
                     <artifactId>xbean-finder-shaded</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>xbean.version</groupId>
+                    <groupId>org.apache.xbean</groupId>
                     <artifactId>xbean-asm9-shaded</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>xbean.version</groupId>
+                    <groupId>org.apache.xbean</groupId>
                     <artifactId>xbean-reflect</artifactId>
                 </exclusion>
             </exclusions>
