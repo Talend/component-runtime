@@ -17,6 +17,7 @@ package org.talend.sdk.component.container;
 
 import static java.lang.reflect.Proxy.newProxyInstance;
 import static java.util.Collections.list;
+import static java.util.Collections.singletonList;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
@@ -344,7 +345,7 @@ public class Container implements Lifecycle {
      */
     public void addDynamicDependency(final Artifact artifact) {
         if (artifact != null) {
-            addDynamicDependencies(java.util.Collections.singletonList(artifact));
+            addDynamicDependencies(singletonList(artifact));
         }
     }
 
