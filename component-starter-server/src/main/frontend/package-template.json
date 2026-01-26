@@ -40,6 +40,7 @@
   },
   "proxy": "http://localhost:8080/",
   "overrides": {
-    "webpack": "^5.94.0"
+    "webpack": "^5.94.0",
+    "qs": "^6.14.1"
   }
 }
