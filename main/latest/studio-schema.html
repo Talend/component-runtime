@@ -15,7 +15,7 @@
     <meta name="description" content="How to access studio's schema in your component.">
     <meta name="keywords" content="studio, studio-integration, schema, metadata, dynamic, columns, output, sink, connector, record-schema, guess, discover, guess-schema, discover-schema">
     <meta name="generator" content="Antora 3.0.3">
-<meta name="date" content="2026-01-27T00:58:59.958Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<meta name="date" content="2026-01-27T17:15:23.556Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
@@ -754,10 +754,13 @@ This usage of properties is cumbersome but may fix some potential issues for now
 <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Service
 public class UiServices {
 
+    @Service
+    private RecordBuilderFactory factory;
+
     @DiscoverSchema("MyDataSet")
     public Schema guessSchema(@Option final MyDataSet dataset) {
        // some code
-       retrurn factory.newSchemaBuilder(Schema.Type.RECORD)
+       return factory.newSchemaBuilder(Schema.Type.RECORD)
                 .withEntry(factory.newEntryBuilder()
                         .withName("DataSetor")
                         .withType(Schema.Type.STRING)
@@ -972,9 +975,12 @@ public class MyEmitter implements Serializable {
 <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Service
 public class UiServices {
 
+    @Service
+    private RecordBuilderFactory factory;
+
     @DiscoverSchema("my_fixed_input_schema")
     public Schema guessSchema(@Option final MyDataSet dataset) {
-       retrurn factory.newSchemaBuilder(Schema.Type.RECORD)
+       return factory.newSchemaBuilder(Schema.Type.RECORD)
                 .withEntry(factory.newEntryBuilder()
                         .withName("header")
                         .withType(Schema.Type.STRING)
