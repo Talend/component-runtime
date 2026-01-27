@@ -89,10 +89,21 @@ public class DynamicDependenciesWithSPIService implements Serializable {
                         .withName("SPI_Impl_classloader")
                         .build())
                 .withEntry(recordBuilderFactory.newEntryBuilder().withType(Type.STRING).withName("comment").build())
+                .withEntry(
+                        recordBuilderFactory.newEntryBuilder().withType(Type.STRING).withName("rootRepository").build())
+                .withEntry(recordBuilderFactory.newEntryBuilder().withType(Type.STRING).withName("classpath").build())
+                .withEntry(recordBuilderFactory.newEntryBuilder()
+                        .withType(Type.STRING)
+                        .withName("workingDirectory")
+                        .build())
                 .build();
     }
 
     public Iterator<Record> getRecordIterator() {
+        String rootRepository = System.getProperty("talend.component.manager.m2.repository");
+        String runtimeClasspath = System.getProperty("java.class.path");
+        String workDirectory = System.getProperty("user.dir");
+
         String contentFromResourceDependency = loadAPropertyFromResource("FROM_DEPENDENCY/resource.properties",
                 "ServiceProviderFromDependency.message");
 
@@ -141,6 +152,9 @@ public class DynamicDependenciesWithSPIService implements Serializable {
                                                 dependencySPIConsumer.getSPIImpl().get().getClass().getClassLoader())
                                         : "Not found")
                         .withString("comment", "SPI implementation loaded from a dependency.")
+                        .withString("rootRepository", rootRepository)
+                        .withString("classpath", runtimeClasspath)
+                        .withString("workingDirectory", workDirectory)
                         .build());
 
         DynamicDependencySPIConsumer<Record> dynamicDependencySPIConsumer = new DynamicDependencySPIConsumer<>();
@@ -159,6 +173,9 @@ public class DynamicDependenciesWithSPIService implements Serializable {
                                         dynamicDependencySPIConsumer.getSPIImpl().get().getClass().getClassLoader())
                                         : "Not found")
                         .withString("comment", "SPI implementation loaded from a dynamic dependency.")
+                        .withString("rootRepository", rootRepository)
+                        .withString("classpath", runtimeClasspath)
+                        .withString("workingDirectory", workDirectory)
                         .build());
 
         ExternalDependencySPIConsumer<Record> externalDependencySPI = new ExternalDependencySPIConsumer<>();
@@ -178,6 +195,9 @@ public class DynamicDependenciesWithSPIService implements Serializable {
                                                 externalDependencySPI.getSPIImpl().get().getClass().getClassLoader())
                                         : "Not found")
                         .withString("comment", "SPI implementation loaded from a runtime/provided dependency.")
+                        .withString("rootRepository", rootRepository)
+                        .withString("classpath", runtimeClasspath)
+                        .withString("workingDirectory", workDirectory)
                         .build());
 
         JsonObject contentFromResources = jsonBuilderFactory.createObjectBuilder()
@@ -193,6 +213,9 @@ public class DynamicDependenciesWithSPIService implements Serializable {
                 .withString("SPI_Interface_classloader", "N/A")
                 .withString("SPI_Impl_classloader", "N/A")
                 .withString("comment", "Resources loading.")
+                .withString("rootRepository", rootRepository)
+                .withString("classpath", runtimeClasspath)
+                .withString("workingDirectory", workDirectory)
                 .build();
 
         List<Record> values = new ArrayList<>();
