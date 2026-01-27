@@ -62,7 +62,7 @@ final String branch_name = pull_request_id != null ? env.CHANGE_BRANCH : env.BRA
 
 // Job config
 final Boolean isMasterBranch = branch_name == "master"
-final Boolean isStdBranch = (branch_name == "master" || branch_name.startsWith("maintenance/"))
+final Boolean isStdBranch = (branch_name == "master" || branch_name.startsWith("maintenance/") || branch_name == "feat/QTDI-2292_security")
 final String extraBuildParams = ""
 final String buildTimestamp = String.format('-%tY%<tm%<td%<tH%<tM%<tS', LocalDateTime.now())
 final String artifactoryAddr = "https://artifactory.datapwn.com"
