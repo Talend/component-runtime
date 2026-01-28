@@ -35,6 +35,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.bind.Jsonb;
 
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.internationalization.ParameterBundle;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ValidationParameterEnricher;
@@ -94,6 +95,9 @@ public class PropertiesService {
             } else {
                 metadata = ofNullable(sanitizedMetadata).orElseGet(HashMap::new);
                 metadata.put("definition::parameter::index", String.valueOf(meta.indexOf(p)));
+                if (p.getJavaType() instanceof Class clazzType && Schema.class.isAssignableFrom(clazzType)) {
+                    metadata.put("definition::parameter::schema", "");
+                }
             }
             final DefaultValueInspector.Instance instance = defaultValueInspector
                     .createDemoInstance(
