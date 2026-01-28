@@ -161,7 +161,7 @@
     <talend.build.name.base>${project.groupId}.runtime</talend.build.name.base>
     <talend.build.name>${talend.build.name.base}.${project.artifactId}</talend.build.name>
 
-    <xbean.version>4.20</xbean.version>
+    <xbean.version>4.29</xbean.version>
     <!-- do not update without updating test-->
     <xbean.test.version>4.9</xbean.test.version>
     <xerces.version>2.12.2</xerces.version>
@@ -173,12 +173,12 @@
     <ziplock.test.version>8.0.14</ziplock.test.version>
     <meecrowave.version>1.2.15</meecrowave.version>
     <owb.version>2.0.27</owb.version>
-    <tomcat.version>9.0.109</tomcat.version>
+    <tomcat.version>9.0.113</tomcat.version>
     <cxf.version>3.5.11</cxf.version>
 
     <woodstox.version>6.5.0</woodstox.version>
 
-    <logback.version>1.5.18</logback.version>
+    <logback.version>1.5.19</logback.version>
     <reload4j.version>1.2.19</reload4j.version>
     <geronimo-jcdi.version>1.1</geronimo-jcdi.version>
     <geronimo-atinject.version>1.1</geronimo-atinject.version>
@@ -297,8 +297,8 @@
 
     <johnzon.version>1.2.21</johnzon.version>
     <slf4j.version>1.7.34</slf4j.version>
-    <log4j2.version>2.20.0</log4j2.version>
-    <rhino.version>1.7.14</rhino.version>
+    <log4j2.version>2.25.3</log4j2.version>
+    <rhino.version>1.9.0</rhino.version>
     <tomitribe-crest.version>0.32</tomitribe-crest.version>
     <httpclient.version>4.5.14</httpclient.version>
     <guava.version>33.4.8-jre</guava.version>
