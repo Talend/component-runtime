@@ -28,10 +28,6 @@
     <packaging>jar</packaging>
     <name>Component Runtime :: Sample Feature @DynamicDependency Common</name>
 
-    <properties>
-        <talend.car.skip>true</talend.car.skip>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.maven.resolver</groupId>
@@ -62,6 +58,19 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>create-TALEND-INF/dependencies.txt</id>
+                        <goals>
+                            <goal>list</goal>
+                        </goals>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.talend.sdk.component</groupId>
                 <artifactId>talend-component-maven-plugin</artifactId>
                 <version>${project.version}</version>
@@ -73,6 +82,27 @@
                             <validateDataStore>false</validateDataStore>
                             <validateDataSet>false</validateDataSet>
                         </configuration>
+                    </execution>
+                    <execution>
+                        <id>talend-dependencies</id>
+                        <goals>
+                            <goal>dependencies</goal>
+                        </goals>
+                        <phase>none</phase>
+                    </execution>
+                    <execution>
+                        <id>talend-component-bundle</id>
+                        <goals>
+                            <goal>car</goal>
+                        </goals>
+                        <phase>none</phase>
+                    </execution>
+                    <execution>
+                        <id>talend-scan-descriptor</id>
+                        <goals>
+                            <goal>scan-descriptor</goal>
+                        </goals>
+                        <phase>none</phase>
                     </execution>
                 </executions>
             </plugin>
