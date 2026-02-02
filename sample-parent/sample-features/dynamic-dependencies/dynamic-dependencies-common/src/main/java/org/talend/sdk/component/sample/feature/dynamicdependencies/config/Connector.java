@@ -47,7 +47,7 @@ public class Connector implements Serializable {
     private String connectorFamily;
 
     @Option
-    @Documentation("The connector's namer.")
+    @Documentation("The connector's name.")
     private String connectorName;
 
     @Option

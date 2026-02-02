@@ -60,22 +60,22 @@ Those 3 modules has the module `dynamic-dependencies-common` as dependency. They
 #### How to configure them?
 Each of those TCK modules provide an input connector in which you can configure:
 - A list of maven coordinate that will be returned as dynamic dependencies.
-  - The user has to setthe maven coordinate and a class to load coming from this dependency. If the class is successfully loaded, it means that the dependency is well loaded.
+  - The user has to set the maven coordinate and a class to load coming from this dependency. If the class is successfully loaded, it means that the dependency is well loaded.
   - The coordinate `org.apache.maven.resolver:maven-resolver-api:2.0.14` is also returned by the `@DynamicDependencies`, the class to load is `org.eclipse.aether.artifact.DefaultArtifact`.
 - A list of maven coordinates that references a TCK connector.
   - For each of them, the user has to set the connector's family, its name, its version and the configuration to use to retrieve data from it.
     - A boolean option `useDynamicDependencyLoading` is also provided to indicate that we also want to load dependencies coming from the configured connector.
 
-Here is an example of connector's configuraiton:
+Here is an example of connector's configuration:
 ```
 - groupId: org.talend.components
 - artifactId: data-generator
 - version: 1.2512.0
 - connector's family: DataGenerator
 - connnector's name: DataGeneratorInput
-- Connector's verion: 1
+- Connector's version: 1
 - load transitive dependencies: true
-- connector's confiugration:
+- connector's configuration:
     {
       "configuration.minimumRows": "1000",
       "configuration.maximumRows": "10000",
@@ -150,7 +150,7 @@ The `DynamicDependencyWithXxxInput` is well loaded from `org.talend.sdk.componen
 | comment               | Check provided dependency.                                                                                                                                                                                                                                                                                   |
 +-----------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ```
-In this exmple, we can see that the class `org.talend.sdk.component.api.service.asyncvalidation.ValidationResult` is loaded from the `AppClassLoader`, meaning that it is provided by the runtime and not loaded from the `ConfigurableClassLoader` of the TCK container.
+In this example, we can see that the class `org.talend.sdk.component.api.service.asyncvalidation.ValidationResult` is loaded from the `AppClassLoader`, meaning that it is provided by the runtime and not loaded from the `ConfigurableClassLoader` of the TCK container.
 
 ##### The third record is the result of loading a class from a dynamic dependency:
 ```
@@ -279,7 +279,7 @@ The spi implementation is provided by the dependency `org.talend.sdk.samplefeatu
 In this thirds record, we can see that the connector were not able to find implementation for this SPI whereas it should be available in the runtime.
 
 ### The fourth record checks resource loading from dependencies
-The last record is quite different. Only the `value` field is interresting. It contains a json document with resources loading results:
+The last record is quite different. Only the `value` field is interesting. It contains a json document with resources loading results:
 ```
 +---------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | key                       | value                                                                                                                                                                                                                                                                                                                                                                                                                                                       |

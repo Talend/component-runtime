@@ -43,7 +43,7 @@ public class Config implements DynamicDependencyConfig, Serializable {
     private Dataset dse = new Dataset();
 
     @Option
-    @Documentation("Sub-configuration that contains the DynamidDependenciesConfiguration.")
+    @Documentation("Sub-configuration that contains the DynamicDependenciesConfiguration.")
     private SubConfig subConfig = new SubConfig();
 
     @Override
