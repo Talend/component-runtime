@@ -1,211 +1,317 @@
-# Dynamic Dependencies Module Documentation
+# Dynamic Dependencies Module
 
 ## Overview
 
-The `dynamic-dependencies` module provides several TCK connector plugins designed to validate the `@DynamicDependencies` feature in the Talend Component Kit. It contains 5 test connectors organized into two categories: dependencies checking and SPI (_Service Provider Interface_) checking.
+The `dynamic-dependencies` module provides several TCK connector plugins designed to validate the `@DynamicDependencies` feature integration, at design time and runtime. It contains several connectors organized into two categories:
 
-## Dependency Checking Connectors
-All `dynamic-dependencies-with-*` provide a TCK connector that will get a list of dynamic dependencies (_defined with maven GAV_) and a list of dynamic loaded TCK connectors. They all rely on `dynamic-dependencies-common` to generate same kind of records.
+- Firsts are connectors with a service that inherits `AbstractDynamicDependenciesService` and that check:
+  - All supported ways to call `@DynamicDependencies` annotated services, according to expected configuration types
+  - Loading of static, dynamic and provided dependencies
+  - Load a TCK connectors as dynamic dependencies and retrieve data from them
+- The other one is `DynamicDependenciesWithSPIInput`, and it checks:
+  - `Service Provider Interface` (_SPI_) loading from different dependency scopes:
+    - Standard dependency
+    - Dynamic dependency
+    - Provided by the runtime
+  - Loading of resources from those dependencies
+    - Loading a single resource as stream
+    - Loading multiple resources at once
 
-Each `dynamic-dependencies-with-*` module proposes its own implementation of a `@DynamicSchema` service, that serves a list of GAV, each expect a different kind of TCK configuration as parameter:
-- `dynamic-dependencies-with-datastore` has a `@DynamicSchema` that expect a `@Datastore`
-- `dynamic-dependencies-with-dataset` has a `@DynamicSchema` that expect a `@Dataset`
-- `dynamic-dependencies-with-dynamicDependenciesConfiguration` has a `@DynamicSchema` that expect a `@DynamicDependenciesConfiguration`
-- `dynamic-dependencies-with-dataPrepRunAnnotation` has a `@DynamicSchema` that expect a `@DynamicDependencySupported`. this annotation is cuurently provided and used in connectors-se/dataprep, and that should be removed afterward
+## Check dynamic dependencies loading
+When TCK connectors are built, a file `TALEND-INF/dependencies.txt` is generated in the `jar`, that contains all its dependencies as a list of maven coordinates (_group:artifactId:version:scope_):
 
-### Generated Records for Dependency Checkers
-
-All dependency checking connectors generate records through `AbstractDynamicDependenciesService.loadIterator()`.
-Each record contains:
-
-- `maven`: GAV coordinate of the dependency (_this is set by the user in the connectors' configuration_)
-- `class`: Class name being loaded (_this is set by the user in the connectors' configuration_)
-- `is_loaded`: Whether the class was successfully loaded
-- `connector_classloader`: Classloader ID of the connector
-- `clazz_classloader`: Classloader ID of the loaded class
-- `from_location`: JAR location where the class was found
-- `is_tck_container`: Whether this is a TCK container
-- `first_record`: First record from additional connectors (if any). If a record is retrieved, it means the connectors has been well loaded.
-- `root_repository`: Maven repository path (if environment info enabled)
-- `runtime_classpath`: Runtime classpath (if environment info enabled)
-- `working_directory`: Current working directory (if environment info enabled)
-
-## SPI Checking Connector
-The `jvm` provides the `Service Provider Interface` (_SPI_) mechanism. It allows to load implementations of interfaces without explicitly specifying them. The classloader search for all resource files in `META-INF/services/` that have the same name as the full qualified name of the interface you want some implementation. See more information in [ServiceLoader javadoc](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/ServiceLoader.html). The goal is to check that SPI implementations can be loaded in several case, for instance when the implementation is provided by a dynamic dependency or by te runtime, etc... 
-
-### The dynamic-dependencies-with-spi module
-It provides a connector that has `classloader-test-library` as dependency. This library contains several interfaces that have their implementations provided by `SPI` mechanism, loading them from `service-provided-from-*` modules. The connector will also try to load some resources from those modules:
-
-- `service-provider-from-dependency` is a direct dependency of `dynamic-dependencies-with-spi`
-  - It proposes those resource files to load:
-    - `FROM_DEPENDENCY/resource.properties`
-    - `MULTIPLE_RESOURCE/common.properties`
-- `service-provider-from-dynamic-dependency` is a dynamic dependency returned by `DynamicDependenciesWithSPIService#getDynamicDependencies` service that is annotated with `@DynamicDependencies`
-   - It proposes those resource files to load: 
-     - `FROM_DYNAMIC_DEPENDENCY/resource.properties`
-     - `MULTIPLE_RESOURCE/common.properties`
-- `service-provider-from-external-dependency` is a library that should be loaded and provided by the runtime, for instance in a studio job, it should be loaded by a `tLibraryLoad`
-    - It proposes those resource files to load: 
-      - `FROM_EXTERNAL_DEPENDENCY/resource.properties`
-      - `MULTIPLE_RESOURCE/common.properties`
-
-The connector in `dynamic-dependencies-with-spi` tries to load `FROM_xxxx/resource.properties` resources with `classloadOfTheDependency.getResourceAsStream(resource)`, and, it tries to load `MULTIPLE_RESOURCE/common.properties` with `classloadOfTheDependency.getResources("MULTIPLE_RESOURCE/common.properties")`.
-
-### Generated Records for SPI Checker
-
-The SPI connector generates 9 records total (3 from each SPI type) through `DynamicDependenciesWithSPIService.getRecordIterator()` [11](#3-10) . Each record contains:
-
-- `value`: Value from the SPI implementation
-    - Records 0-2: `ServiceProviderFromDependency_1`, `_2`, `_3`
-    - Records 3-5: `ServiceProviderFromDynamicDependency_1`, `_2`, `_3`
-    - Records 6-8: `ServiceProviderFromExternalDependency_1`, `_2`, `_3`
-- `contentFromResourceDependency`: Content from `FROM_DEPENDENCY/resource.properties`
-- `contentFromResourceDynamicDependency`: Content from `FROM_DYNAMIC_DEPENDENCY/resource.properties`
-- `contentFromResourceExternalDependency`: Content from `FROM_EXTERNAL_DEPENDENCY/resource.properties`
-- `contentFromMultipleResources`: Combined content from `MULTIPLE_RESOURCE/common.properties`
-
-## Module Structure
-
-### Core Module
-- **dynamic-dependencies-common**: Shared library containing:
-    - `AbstractDynamicDependenciesService`: Base service for dependency loading and record generation [12](#3-11)
-    - Configuration interfaces (`DynamicDependencyConfig`, `Dependency`, `Connector`)
-
-### SPI Testing Modules
-- **classloader-test-library**: Library providing SPI consumers for testing [13](#3-12)
-- **service-provider-from-dependency**: SPI provider as standard dependency [14](#3-13)
-- **service-provider-from-dynamic-dependency**: SPI provider loaded dynamically [15](#3-14)
-- **service-provider-from-external-dependency**: SPI provider from runtime [16](#3-15)
-
-## Usage
-
-### Building
-```bash
-mvn clean install -am -pl :dynamicdependencies
+**dependencies.txt**
+```
+net.datafaker:datafaker:jar:2.4.2:compile
+org.yaml:snakeyaml:jar:2.4:compile
+com.github.curious-odd-man:rgxgen:jar:2.0:compile
+com.googlecode.libphonenumber:libphonenumber:jar:8.13.50:compile
+org.talend.components.extension:polling:jar:1.2512.0:compile
 ```
 
-### Testing in Studio
-1. Deploy any connector CAR file to Studio:
-```bash
-java -jar dynamic-dependencies-with-dataset-1.88.0-SNAPSHOT.car studio-deploy --location <studio-path>
+It happens that some dependencies can only be computed at design time, because, it depends on the connector's configuration. To support this, TCK provides the `@DynamicDependencies` annotation that can be used on a service. The annotated service should return a list of maven coordinates as strings:
+```java
+    @DynamicDependencies()
+    public List<String> getDynamicDependencies(@Option("theDataset") final Dataset dataset) {
+        List<String> dynamicDependencies = new ArrayList<>();
+        if(dataset.hasASpecialOption()){
+           dynamicDependencies.add("org.company:special-dependency:1.0.0");
+           dynamicDependencies.add("org.company:another-special-dependency:2.1.0");
+        }
+        return dynamicDependencies;
+    }
 ```
-2. Create a job with the connector
-3. Click "Guess schema" to trigger dynamic dependency loading
-4. Run the job to see generated diagnostic records [17](#3-16)
+Then, the final application that integrates TCK, call the service with the configuration the user set, load those dependencies and provide them for the runtime.
 
-## Using Connectors in Talend Studio Jobs
+### Connectors in this module
+As you can see in the previous example, the annotated `@DynamicDependencies` service expect a parameter. This parameter can be of 3 different types:
+- A datastore
+- A dataset
+- Any configuration annotated with `DynamicDependenciesConfiguration`
 
-This section provides step-by-step instructions for testing each dynamic dependencies connector in Talend Studio to validate all use cases.
+(_This documentation will not mention the deprecated `DynamicDependencySupported` provided by the `tDataprepRun` connector._)
 
-### Prerequisites
+So, 3 TCK modules have been designed, each one provide a service with one of those parameter types:
+- dynamic-dependencies-with-datastore
+- dynamic-dependencies-with-dataset
+- dynamic-dependencies-with-dynamic-dependencies-configuration
+Those 3 modules has the module `dynamic-dependencies-common` as dependency. They all have a service that inherits `AbstractDynamicDependenciesService`, that implements the `@DynamicDependencies` annotated method.
 
-1. Build all connectors:
-```bash
-mvn clean install -am -pl :dynamicdependencies
+#### How to configure them?
+Each of those TCK modules provide an input connector in which you can configure:
+- A list of maven coordinate that will be returned as dynamic dependencies.
+  - The user has to setthe maven coordinate and a class to load coming from this dependency. If the class is successfully loaded, it means that the dependency is well loaded.
+  - The coordinate `org.apache.maven.resolver:maven-resolver-api:2.0.14` is also returned by the `@DynamicDependencies`, the class to load is `org.eclipse.aether.artifact.DefaultArtifact`.
+- A list of maven coordinates that references a TCK connector.
+  - For each of them, the user has to set the connector's family, its name, its version and the configuration to use to retrieve data from it.
+    - A boolean option `useDynamicDependencyLoading` is also provided to indicate that we also want to load dependencies coming from the configured connector.
+
+Here is an example of connector's configuraiton:
+```
+- groupId: org.talend.components
+- artifactId: data-generator
+- version: 1.2512.0
+- connector's family: DataGenerator
+- connnector's name: DataGeneratorInput
+- Connector's verion: 1
+- load transitive dependencies: true
+- connector's confiugration:
+    {
+      "configuration.minimumRows": "1000",
+      "configuration.maximumRows": "10000",
+      "configuration.dataset.seed": "123456",
+      "configuration.dataset.customLocale": "false",
+      "configuration.dataset.customSeed": "false",
+      "configuration.dataset.rows": "10000",
+      "configuration.dataset.fields[0].name": "name",
+      "configuration.dataset.fields[0].type": "LASTNAME",
+      "configuration.dataset.fields[0].$type_name": "Last name",
+      "configuration.dataset.fields[0].blank": "0",
+      "configuration.randomRows": "false"
+    }
 ```
 
-2. Deploy each connector CAR file to Studio:
-```bash
-java -jar dynamic-dependencies-with-dataset-1.88.0-SNAPSHOT.car studio-deploy --location <studio-path>
-java -jar dynamic-dependencies-with-datastore-1.88.0-SNAPSHOT.car studio-deploy --location <studio-path>
-java -jar dynamic-dependencies-with-dynamicDependenciesConfiguration-1.88.0-SNAPSHOT.car studio-deploy --location <studio-path>
-java -jar dynamic-dependencies-with-dataprepRunAnnotation-1.88.0-SNAPSHOT.car studio-deploy --location <studio-path>
-java -jar dynamic-dependencies-with-spi-1.88.0-SNAPSHOT.car studio-deploy --location <studio-path>
+#### Output of those connectors
+All of those connectors generate the same output. Only the configuration type of the `@DynamicDependencies` annotated service is different.
+
+It will generate TCK/records containing those fields:
+- `maven`: the maven coordinate of the dependency
+- `clazz`: the class that we tried to load from this dependency
+- `is_loaded`: a boolean indicating if the class has been successfully loaded
+- `connector_classloader`: the classloader name of the dynamic dependency connector
+- `clazz_classloader`: the classloader name of the loaded class
+- `from_location`: the location from which the class has been loaded
+- `is_tck_container`: a boolean indicating if the dependency is a standard dependency or a TCK plugin
+- `first_record`: if the dependency is a TCK plugin, this is the first record retrieve from the loaded connector
+- `root_repository`: The value of the property `talend.component.manager.m2.repository`
+- `runtime_classpath`: the value of the property `java.class.path`
+- `Working_directory`: the value of the property `user.dir`
+- `comment`: a comment
+
+##### The first record is the result of the class loading from a static dependency, the generated record should be something like:
+```
++-----------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| key                   | value                                                                                                                                                                                                                                                                                                                                     |
++-----------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| maven                 | org.talend.sdk.samplefeature.dynamicdependencies:dynamic-dependencies-common:N/A                                                                                                                                                                                                                                                          |
+| clazz                 | org.talend.sdk.component.sample.feature.dynamicdependencies.config.Dependency                                                                                                                                                                                                                                                             |
+| is_loaded             | true                                                                                                                                                                                                                                                                                                                                      |
+| connector_classloader | org.talend.sdk.component.classloader.ConfigurableClassLoader@9ebe38b                                                                                                                                                                                                                                                                      |
+| clazz_classloader     | org.talend.sdk.component.classloader.ConfigurableClassLoader@9ebe38b                                                                                                                                                                                                                                                                      |
+| from_location         | jar:file:/C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository/org/talend/sdk/samplefeature/dynamicdependencies/dynamic-dependencies-common/1.89.0-SNAPSHOT/dynamic-dependencies-common-1.89.0-SNAPSHOT.jar!/org/talend/sdk/component/sample/feature/dynamicdependencies/config/Dependency.class |
+| is_tck_container      | false                                                                                                                                                                                                                                                                                                                                     |
+| first_record          | null                                                                                                                                                                                                                                                                                                                                      |
+| root_repository       | C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository                                                                                                                                                                                                                                             |
+| runtime_classpath     | C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/workspace/AAAA/poms/jobs/process/qtdi2134_dyndeps_0.1/target/classpath.jar;/C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository/org/apache/commons/commons-lang3/3.18.0/commons-lang3-3.18.0.jar;                              |
+| Working_directory     | C:\tmp\202601_dyndeps_exports\Talend-Studio-20260121_1719-V8.0.1                                                                                                                                                                                                                                                                          |
+| comment               | Check static dependency.                                                                                                                                                                                                                                                                                                                  |
++-----------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+```
+In this exemple we can see that we try to load the class `org.talend.sdk.component.sample.feature.dynamicdependencies.config.Dependency` from the dependency `org.talend.sdk.samplefeature.dynamicdependencies:dynamic-dependencies-common`.
+The version is `N/A` since it is not needed, the dependency is a static one and is loaded at build time.
+The `DynamicDependencyWithXxxInput` is well loaded from `org.talend.sdk.component.classloader.ConfigurableClassLoader` as the class to test.
+
+##### The second record is the result when it tries to load a class from the runtime. It tries to load `org.talend.sdk.component.api.service.asyncvalidation.ValidationResult` that is provided by TCK:
+```
++-----------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| key                   | value                                                                                                                                                                                                                                                                                                        |
++-----------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| maven                 | org.talend.sdk.component:component-runtime:N/A                                                                                                                                                                                                                                                               |
+| clazz                 | org.talend.sdk.component.api.service.asyncvalidation.ValidationResult                                                                                                                                                                                                                                        |
+| is_loaded             | true                                                                                                                                                                                                                                                                                                         |
+| connector_classloader | org.talend.sdk.component.classloader.ConfigurableClassLoader@9ebe38b                                                                                                                                                                                                                                         |
+| clazz_classloader     | jdk.internal.loader.ClassLoaders$AppClassLoader@73d16e93                                                                                                                                                                                                                                                     |
+| from_location         | jar:file:/C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository/org/talend/sdk/component/component-api/1.89.0-QTDI-2134-YPL-SNAPSHOT/component-api-1.89.0-QTDI-2134-YPL-SNAPSHOT.jar!/org/talend/sdk/component/api/service/asyncvalidation/ValidationResult.class    |
+| is_tck_container      | false                                                                                                                                                                                                                                                                                                        |
+| first_record          | null                                                                                                                                                                                                                                                                                                         |
+| root_repository       | C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository                                                                                                                                                                                                                |
+| runtime_classpath     | C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/workspace/AAAA/poms/jobs/process/qtdi2134_dyndeps_0.1/target/classpath.jar;/C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository/org/apache/commons/commons-lang3/3.18.0/commons-lang3-3.18.0.jar; |
+| Working_directory     | C:\tmp\202601_dyndeps_exports\Talend-Studio-20260121_1719-V8.0.1                                                                                                                                                                                                                                             |
+| comment               | Check provided dependency.                                                                                                                                                                                                                                                                                   |
++-----------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+```
+In this exmple, we can see that the class `org.talend.sdk.component.api.service.asyncvalidation.ValidationResult` is loaded from the `AppClassLoader`, meaning that it is provided by the runtime and not loaded from the `ConfigurableClassLoader` of the TCK container.
+
+##### The third record is the result of loading a class from a dynamic dependency:
+```
++-----------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| key                   | value                                                                                                                                                                                                                                                                                                        |
++-----------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| maven                 | org.apache.maven.resolver:maven-resolver-api:2.0.14                                                                                                                                                                                                                                                          |
+| clazz                 | org.eclipse.aether.artifact.DefaultArtifact                                                                                                                                                                                                                                                                  |
+| is_loaded             | true                                                                                                                                                                                                                                                                                                         |
+| connector_classloader | org.talend.sdk.component.classloader.ConfigurableClassLoader@9ebe38b                                                                                                                                                                                                                                         |
+| clazz_classloader     | jdk.internal.loader.ClassLoaders$AppClassLoader@73d16e93                                                                                                                                                                                                                                                     |
+| from_location         | jar:file:/C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository/org/apache/maven/resolver/maven-resolver-api/2.0.14/maven-resolver-api-2.0.14.jar!/org/eclipse/aether/artifact/DefaultArtifact.class                                                                 |
+| is_tck_container      | false                                                                                                                                                                                                                                                                                                        |
+| first_record          | null                                                                                                                                                                                                                                                                                                         |
+| root_repository       | C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository                                                                                                                                                                                                                |
+| runtime_classpath     | C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/workspace/AAAA/poms/jobs/process/qtdi2134_dyndeps_0.1/target/classpath.jar;/C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository/org/apache/commons/commons-lang3/3.18.0/commons-lang3-3.18.0.jar; |
+| Working_directory     | C:\tmp\202601_dyndeps_exports\Talend-Studio-20260121_1719-V8.0.1                                                                                                                                                                                                                                             |
+| comment               | An instance has been instantiated and assigned.                                                                                                                                                                                                                                                              |
++-----------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+```
+This is the result of the default dynamic dependency loading. We can see that the class `org.eclipse.aether.artifact.DefaultArtifact` has been successfully loaded from the dynamic dependency `org.apache.maven.resolver:maven-resolver-api:2.0.14`.
+In this environment, it has been loaded from the `AppClassLoader`. It happens when all dependencies are flatten in single folder, and not organized as a maven repository.
+
+##### Example of a record when loading a TCK connector as dynamic dependency
+```
++-----------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| key                   | value                                                                                                                                                                                                                                                                                                        |
++-----------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| maven                 | org.talend.components:data-generator:1.2512.0                                                                                                                                                                                                                                                                |
+| clazz                 | N/A                                                                                                                                                                                                                                                                                                          |
+| is_loaded             | true                                                                                                                                                                                                                                                                                                         |
+| connector_classloader | org.talend.sdk.component.classloader.ConfigurableClassLoader@9ebe38b                                                                                                                                                                                                                                         |
+| clazz_classloader     | N/A                                                                                                                                                                                                                                                                                                          |
+| from_location         | N/A                                                                                                                                                                                                                                                                                                          |
+| is_tck_container      | true                                                                                                                                                                                                                                                                                                         |
+| first_record          | {"name":"Rogahn"}                                                                                                                                                                                                                                                                                            |
+| root_repository       | C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository                                                                                                                                                                                                                |
+| runtime_classpath     | C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/workspace/AAAA/poms/jobs/process/qtdi2134_dyndeps_0.1/target/classpath.jar;/C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository/org/apache/commons/commons-lang3/3.18.0/commons-lang3-3.18.0.jar; |
+| Working_directory     | C:\tmp\202601_dyndeps_exports\Talend-Studio-20260121_1719-V8.0.1                                                                                                                                                                                                                                             |
+| comment               |                                                                                                                                                                                                                                                                                                              |
++-----------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+```
+In that example, we can see that we don't try to load a class, `clazz: N/A`, but TCK plugin, `is_tck_container: true`. It has been well loaded since we retrieve some data from it:
+```
+| first_record          | {"name":"Rogahn"}   
 ```
 
-### Testing Dependency Checking Connectors
+## Check SPI and resource loading
+The `dynamic-depdencies-with-spi` provides an input connector that will try to load:
+- The SPI implementation from a static dependency
+- The SPI implementation from a dynamic dependency
+- The SPI implementation provided by the runtime
+- A resource as stream from a static dependency
+- A resource as stream from a dynamic dependency
+- A resource as stream provided by the runtime
+- Multiple resources at once from a static, dynamic and provided dependencies
 
-#### Step 1: Create Test Job
-1. Create a new Standard Job in Studio
-2. Add the connector to test (e.g., `DynamicDependenciesWithDataset` > `Input`)
-3. Add a `tLogRow` component to view output
-4. Connect the connector to `tLogRow`
+There is no configuration to set in that connector.
 
-#### Step 2: Configure Dependencies
-For each dependency checking connector, configure the test dependency:
+It generates TCK records containing those fields:
+- `value`: a string value returned by the loaded SPI implementation or values from resources forthe last record
+- `SPI_Interface`: the SPI interface class name
+- `SPI_Interface_classloader`: the classloader name that loaded the SPI interface
+- `SPI_Impl`: the SPI implementation class name
+- `SPI_Impl_classloader`: the classloader name that loaded the SPI implementation
+- `comment`: a comment
+- `rootRepository`: The value of the property `talend.component.manager.m2.repository`
+- `classpath`: the value of the property `java.class.path`
+- `workingDirectory`: the value of the property `user.dir`
 
-1. Open the component configuration
-2. In the **Dependencies** table, add:
-    - **Group ID**: `org.apache.commons`
-    - **Artifact ID**: `commons-numbers-primes`
-    - **Version**: `1.2`
-    - **Class**: `org.apache.commons.numbers.primes.SmallPrimes`
+### The first record checks SPI implementation provided by a static dependency
+The SPI implementation is provided by the dependency `org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-dependency`.
+```
++---------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| key                       | value                                                                                                                                                                                                                                                                                                                        |
++---------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| value                     | ServiceProviderFromDependency value                                                                                                                                                                                                                                                                                          |
+| SPI_Interface             | interface org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDependency                                                                                                                                                                                 |
+| SPI_Interface_classloader | org.talend.sdk.component.classloader.ConfigurableClassLoader@6457a08f                                                                                                                                                                                                                                                        |
+| SPI_Impl                  | class org.talend.sdk.component.sample.feature.dynamicdependencies.serviceproviderfromdependency.ServiceProviderFromDependency                                                                                                                                                                                                |
+| SPI_Impl_classloader      | org.talend.sdk.component.classloader.ConfigurableClassLoader@6457a08f                                                                                                                                                                                                                                                        |
+| comment                   | SPI implementation loaded from a dependency.                                                                                                                                                                                                                                                                                 |
+| rootRepository            | C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository                                                                                                                                                                                                                                |
+| classpath                 | C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/workspace/AAAA/poms/jobs/process/qtdi2134_dyndeps_withspi_service_0.1/target/classpath.jar;/C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository/org/apache/commons/commons-lang3/3.18.0/commons-lang3-3.18.0.jar; |
+| workingDirectory          | C:\tmp\202601_dyndeps_exports\Talend-Studio-20260121_1719-V8.0.1                                                                                                                                                                                                                                                             |
++---------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+```
+We can see that the SPI implementation has been well loaded, since the value is retrieved, and has been loaded by the container classloader `ConfigurableClassLoader` as expected.
 
-3. Enable **Environment Information** to see additional diagnostic data
+### The second record checks SPI implementation provided by a dynamic dependency
+The spi implementation is provided by the dependency `org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-dynamic-dependency`. It is returned by the `@DynamicDependency` service.
+```
++---------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| key                       | value                                                                                                                                                                                                                                                                                                                        |
++---------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| value                     | ServiceProviderFromDynamicDependency value                                                                                                                                                                                                                                                                                   |
+| SPI_Interface             | interface org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDynamicDependency                                                                                                                                                                          |
+| SPI_Interface_classloader | org.talend.sdk.component.classloader.ConfigurableClassLoader@6457a08f                                                                                                                                                                                                                                                        |
+| SPI_Impl                  | class org.talend.sdk.component.sample.feature.dynamicdependencies.serviceproviderfromdynamicdependency.ServiceProviderFromDynamicDependency                                                                                                                                                                                  |
+| SPI_Impl_classloader      | org.talend.sdk.component.classloader.ConfigurableClassLoader@6457a08f                                                                                                                                                                                                                                                        |
+| comment                   | SPI implementation loaded from a dynamic dependency.                                                                                                                                                                                                                                                                         |
+| rootRepository            | C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository                                                                                                                                                                                                                                |
+| classpath                 | C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/workspace/AAAA/poms/jobs/process/qtdi2134_dyndeps_withspi_service_0.1/target/classpath.jar;/C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository/org/apache/commons/commons-lang3/3.18.0/commons-lang3-3.18.0.jar; |
+| workingDirectory          | C:\tmp\202601_dyndeps_exports\Talend-Studio-20260121_1719-V8.0.1                                                                                                                                                                                                                                                             |
++---------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+```
+In this second record, we see that the SPI implementation has been loaded from the `ConfigurableClassLoader`.
 
-#### Step 3: Validate Dynamic Loading
-1. Click **Guess Schema** on the connector
-    - This triggers the `@DynamicDependencies` service
-    - Validates that the dependency is loaded dynamically
-2. Check Studio logs for dependency loading messages
-3. Run the job to generate diagnostic records
+### The third record checks SPI implementation provided by the runtime
+The spi implementation is provided by the dependency `org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-external-dependency`. In the studio, we can add this library using the `tLibraryLoad` connector.
+```
++---------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| key                       | value                                                                                                                                                                                                                                                                                                                        |
++---------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| value                     | [ERROR] StringProviderFromExternalSPI not loaded!                                                                                                                                                                                                                                                                            |
+| SPI_Interface             | interface org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringProviderFromExternalSPI                                                                                                                                                                                 |
+| SPI_Interface_classloader | org.talend.sdk.component.classloader.ConfigurableClassLoader@6457a08f                                                                                                                                                                                                                                                        |
+| SPI_Impl                  | Not found                                                                                                                                                                                                                                                                                                                    |
+| SPI_Impl_classloader      | Not found                                                                                                                                                                                                                                                                                                                    |
+| comment                   | SPI implementation loaded from a runtime/provided dependency.                                                                                                                                                                                                                                                                |
+| rootRepository            | C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository                                                                                                                                                                                                                                |
+| classpath                 | C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/workspace/AAAA/poms/jobs/process/qtdi2134_dyndeps_withspi_service_0.1/target/classpath.jar;/C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository/org/apache/commons/commons-lang3/3.18.0/commons-lang3-3.18.0.jar; |
+| workingDirectory          | C:\tmp\202601_dyndeps_exports\Talend-Studio-20260121_1719-V8.0.1                                                                                                                                                                                                                                                             |
++---------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+```
+In this thirds record, we can see that the connector were not able to find implementation for this SPI whereas it should be available in the runtime.
 
-#### Step 4: Verify Output Records
-Check the `tLogRow` output for these fields:
-- `maven`: Should show `org.apache.commons:commons-numbers-primes:1.2`
-- `class`: Should show `org.apache.commons.numbers.primes.SmallPrimes`
-- `is_loaded`: Should be `true`
-- `from_location`: Path to the downloaded JAR
-- Additional fields if environment info is enabled
+### The fourth record checks resource loading from dependencies
+The last record is quite different. Only the `value` field is interresting. It contains a json document with resources loading results:
+```
++---------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| key                       | value                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
++---------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| value                     | {"contentFromResourceDependency":"Message from a dependency resource.","contentFromResourceDynamicDependency":"Message from a dynamic dependency resource.","contentFromResourceExternalDependency":"Message from an external dependency resource.","contentFromMultipleResources":"There should be 3 different values:\nContent from static dependency\nContent from dynamic dependency\nContent from static dependency\nContent from dynamic dependency"} |
+| SPI_Interface             | N/A                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| SPI_Interface_classloader | N/A                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| SPI_Impl                  | N/A                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| SPI_Impl_classloader      | N/A                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| comment                   | Resources loading.                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| rootRepository            | C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository                                                                                                                                                                                                                                                                                                                                                               |
+| classpath                 | C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/workspace/AAAA/poms/jobs/process/qtdi2134_dyndeps_withspi_service_0.1/target/classpath.jar;/C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository/org/apache/commons/commons-lang3/3.18.0/commons-lang3-3.18.0.jar;                                                                                                                                |
+| workingDirectory          | C:\tmp\202601_dyndeps_exports\Talend-Studio-20260121_1719-V8.0.1                                                                                                                                                                                                                                                                                                                                                                                            |
++---------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+```
+Here is the json documentation contained in the `value` field:
+```
+{
+  "contentFromResourceDependency": "Message from a dependency resource.",
+  "contentFromResourceDynamicDependency": "Message from a dynamic dependency resource.",
+  "contentFromResourceExternalDependency": "Message from an external dependency resource.",
+  "contentFromMultipleResources": "There should be 3 different values:\nContent from static dependency\nContent from dynamic dependency\nContent from static dependency\nContent from dynamic dependency"
+}
+```
+The `DynamicDependenciesWithSPIInput` connector tries to load some resources using `DynamicDependenciesWithSPIService.class.getClassLoader().getResourceAsStream(resource)`:
+- `FROM_DEPENDENCY/resource.properties`: this resource exists only in `org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-dependency` module. The resource value is copied in the `contentFromResourceDependency` field of the record.
+- `FROM_DYNAMIC_DEPENDENCY/resource.properties`: this resource exists only in `org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-dynamic-dependency` module. The resource value is copied in the `contentFromResourceDynamicDependency` field of the record.
+- `FROM_EXTERNAL_DEPENDENCY/resource.properties`: this resource exists only in `org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-external-dependency` module. The resource value is copied in the `contentFromResourceExternalDependency` field of the record.
 
-### Testing SPI Connector
+All those three resources are successfully loaded in this example.
 
-#### Step 1: Create SPI Test Job
-1. Create a new Standard Job
-2. Add `DynamicDependenciesWithSPI` > `Input` component
-3. Add `tLogRow` component
-4. Connect them
-
-#### Step 2: Validate SPI Loading
-1. Click **Guess Schema** to trigger dynamic dependency loading
-2. The connector will:
-    - Load `service-provider-from-dynamic-dependency` dynamically
-    - Discover SPI implementations from all three scopes
-3. Run the job
-
-#### Step 3: Verify SPI Output
-Check for 9 records with this pattern:
-
-| Record | value Field | Expected Content |
-|--------|-------------|------------------|
-| 0-2 | ServiceProviderFromDependency_1/2/3 | From standard dependency |
-| 3-5 | ServiceProviderFromDynamicDependency_1/2/3 | From dynamic dependency |
-| 6-8 | ServiceProviderFromExternalDependency_1/2/3 | From external dependency |
-
-Each record should also contain:
-- `contentFromResourceDependency`: Message from standard dependency resource
-- `contentFromResourceDynamicDependency`: Message from dynamic dependency resource
-- `contentFromResourceExternalDependency`: Message from external dependency resource
-- `contentFromMultipleResources`: Combined content from all dependencies
-
-### Validation Checklist
-
-For each connector, verify:
-
-- [ ] **Guess Schema** triggers without errors
-- [ ] Dynamic dependencies are downloaded and loaded
-- [ ] Generated records contain expected fields
-- [ ] Class loading information is correct
-- [ ] Resource loading works (for SPI connector)
-- [ ] No classloader conflicts occur
-
-### Common Issues and Solutions
-
-1. **Dependency not found**: Check Maven repository configuration in Studio
-2. **Class loading fails**: Verify the GAV coordinates and class name
-3. **SPI not discovered**: Ensure all service provider modules are deployed
-4. **Resource loading fails**: Check that resource files exist in the correct paths
-
-### Advanced Testing
-
-To test multiple dependencies or connectors:
-1. Add multiple entries in the Dependencies/Connectors tables
-2. Use different Maven coordinates
-3. Verify that all dependencies are loaded and reported in the output
-
-## Notes
-
-- The `@DynamicDependencySupported` annotation in the dataprep module is temporary and should be removed after testing [18](#3-17)
-- All modules use `org.talend.sdk.samplefeature.dynamicdependencies` as groupId to avoid automatic exclusion
-- Test modules use `commons-numbers-primes` as a simulated dynamic dependency [19](#3-18)
-- The SPI connector uses a custom classloader customizer to ensure proper SPI loading from different dependency scopes [20](#3-19)
+The last field, `contentFromMultipleResources` contain the result of loading multiple resources at once using `DynamicDependenciesWithSPIService.class.getClassLoader().getResources(resource)` for the resource path `FROM_MULTIPLE/resource.txt`.
+This resource exists in all the three modules `org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-dependency`, `org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-dynamic-dependency`, `org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-external-dependency`.
+So, 3 values should be concatenated in this field if everything were loaded. In the example, the content of this resource is successfully loaded from static and dynamic dependencies, but twice for each! And, the `FROM_MULTIPLE/resource.txt`
+in `org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-external-dependency` is not found.
