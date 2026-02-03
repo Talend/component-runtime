@@ -432,9 +432,7 @@ public class ComponentManager implements AutoCloseable {
                 .distinct()
                 .map(PrefixFilter::new)
                 .toArray(Filter[]::new));
-        resourcesFilter = new FilterList(Stream.concat(
-                Stream.of("META-INF/services/"),
-                additionalParentResources())
+        resourcesFilter = new FilterList(additionalParentResources()
                 .distinct()
                 .map(ContainsFilter::new)
                 .toArray(Filter[]::new));
