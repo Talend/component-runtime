@@ -422,21 +422,22 @@ public class TaCoKitGuessSchema {
         ServiceMeta.ActionMeta actionRef;
         if (action == null || action.isEmpty()) {
             // dataset name should be the same as DiscoverSchema action name so let's try to guess from the component
+            //First find DiscoverSchemaExtended action name
             actionRef = findFirstComponentDataSetName()
                     .flatMap(datasetName -> services
                             .stream()
                             .flatMap(s -> s.getActions().stream())
-                            .filter(a -> a.getFamily().equals(family) && a.getType().equals(SCHEMA_TYPE))
+                            .filter(a -> a.getFamily().equals(family) && a.getType().equals(SCHEMA_EXTENDED_TYPE))
                             .filter(a -> a.getAction().equals(datasetName))
                             .findFirst())
                     .orElse(null);
             if (actionRef == null) {
-                // let's try DiscoverSchemaExtended action name
+                // second find DiscoverSchema action name
                 actionRef = findFirstComponentDataSetName()
                         .flatMap(datasetName -> services
                                 .stream()
                                 .flatMap(s -> s.getActions().stream())
-                                .filter(a -> a.getFamily().equals(family) && a.getType().equals(SCHEMA_EXTENDED_TYPE))
+                                .filter(a -> a.getFamily().equals(family) && a.getType().equals(SCHEMA_TYPE))
                                 .filter(a -> a.getAction().equals(datasetName))
                                 .findFirst())
                         .orElse(null);
