@@ -147,10 +147,13 @@ There are two annotations allowing to discover a component's schema:
 @Service
 public class UiServices {
 
+    @Service
+    private RecordBuilderFactory factory;
+
     @DiscoverSchema("MyDataSet")
     public Schema guessSchema(@Option final MyDataSet dataset) {
        // some code
-       retrurn factory.newSchemaBuilder(Schema.Type.RECORD)
+       return factory.newSchemaBuilder(Schema.Type.RECORD)
                 .withEntry(factory.newEntryBuilder()
                         .withName("DataSetor")
                         .withType(Schema.Type.STRING)
@@ -281,9 +284,12 @@ In service class:
 @Service
 public class UiServices {
 
+    @Service
+    private RecordBuilderFactory factory;
+
     @DiscoverSchema("my_fixed_input_schema")
     public Schema guessSchema(@Option final MyDataSet dataset) {
-       retrurn factory.newSchemaBuilder(Schema.Type.RECORD)
+       return factory.newSchemaBuilder(Schema.Type.RECORD)
                 .withEntry(factory.newEntryBuilder()
                         .withName("header")
                         .withType(Schema.Type.STRING)
