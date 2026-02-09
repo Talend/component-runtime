@@ -36,7 +36,7 @@
     <module>configuration-form</module>
     <module>actions-in-forms</module>
     <module>entry-with-error</module>
-    <module>dynamic-dependencies</module>
+    <module>loading-analysis</module>
   </modules>
 
   <dependencies>
