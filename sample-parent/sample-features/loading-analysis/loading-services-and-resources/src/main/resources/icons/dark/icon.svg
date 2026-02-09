@@ -28,7 +28,8 @@
      inkscape:window-x="-12"
      inkscape:window-y="3768"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg3" />
+     inkscape:current-layer="svg3"
+     showgrid="false" />
   <rect
      x="0.375"
      y="0.665"
@@ -50,17 +51,15 @@
          x="13.80696"
          y="2.8092387"
          id="tspan1"
-         style="line-height:2.94px;text-align:center;letter-spacing:0px;text-anchor:middle;stroke-width:1.1597;stroke-dasharray:none"
-         dy="0 0 0 0 0 0 0"
-         dx="0">Dynamic</tspan></tspan><tspan
+         style="line-height:2.94px;text-align:center;letter-spacing:0px;text-anchor:middle;stroke-width:1.1597;stroke-dasharray:none">Loading</tspan></tspan><tspan
        sodipodi:role="line"
        x="13.80696"
        y="5.749239"
-       id="tspan23"
-       style="line-height:2.94px;letter-spacing:0px;stroke-width:1.1597">Dependencies</tspan><tspan
+       style="line-height:2.94px;letter-spacing:0px;stroke-width:1.1597"
+       id="tspan2">SPIs and</tspan><tspan
        sodipodi:role="line"
-       x="13.80696"
+       x="13.806961"
        y="8.6892385"
        style="line-height:2.94px;letter-spacing:0px;stroke-width:1.1597"
-       id="tspan2">Dataset</tspan></text>
+       id="tspan3">Resources</tspan></text>
 </svg>

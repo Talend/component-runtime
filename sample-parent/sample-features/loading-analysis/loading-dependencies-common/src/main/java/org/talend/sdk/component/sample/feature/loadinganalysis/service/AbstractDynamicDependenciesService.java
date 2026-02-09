@@ -109,10 +109,10 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
         // Add a class that should be imported by a 'standard' dependency (not a dynamic one)
         // to have an example from which classloaded it is loaded
         // In that case the version doesn't matter.
-        dependencies.add(new Dependency("org.talend.sdk.samplefeature.dynamicdependencies",
-                "dynamic-dependencies-common",
+        dependencies.add(new Dependency("org.talend.sdk.component.loading-analysis",
+                "loading-dependencies-common",
                 "N/A",
-                "org.talend.sdk.component.sample.feature.dynamicdependencies.config.Dependency"));
+                "org.talend.sdk.component.sample.feature.loadinganalysis.config.Dependency"));
 
         // This is a hardcoded dependency to check how are loaded dependencies
         // provided by the runtime

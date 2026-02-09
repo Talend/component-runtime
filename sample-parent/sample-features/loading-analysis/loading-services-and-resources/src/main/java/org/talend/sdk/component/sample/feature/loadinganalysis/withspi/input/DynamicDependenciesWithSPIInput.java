@@ -32,7 +32,7 @@ import org.talend.sdk.component.sample.feature.loadinganalysis.withspi.service.D
 @Version
 @Icon(value = Icon.IconType.CUSTOM, custom = "icon")
 @Emitter(name = "Input")
-@Documentation("Dynamic dependencies sample input connector.")
+@Documentation("Loading SPIs and resources.")
 public class DynamicDependenciesWithSPIInput implements Serializable {
 
     private final Config config;

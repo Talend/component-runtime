@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 @Components(
-        family = "DynamicDependenciesWithDataprepAnnotation",
+        family = "LoadingDependenciesWithDataprepAnnotation",
         categories = "sample")
 @Icon(value = Icon.IconType.CUSTOM, custom = "icon")
 package org.talend.sdk.component.sample.feature.loadinganalysis.withDataprepRunAnnotation;

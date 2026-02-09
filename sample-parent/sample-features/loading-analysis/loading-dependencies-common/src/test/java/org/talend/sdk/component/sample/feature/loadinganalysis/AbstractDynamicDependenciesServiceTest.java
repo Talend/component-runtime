@@ -55,7 +55,7 @@ public abstract class AbstractDynamicDependenciesServiceTest<C extends DynamicDe
     }
 
     @Test
-    void testloadIterator() {
+    void testLoadIterator() {
         System.setProperty("talend.component.manager.m2.repository", "./lib/");
 
         final Iterator<Record> result = getService().loadIterator(config);

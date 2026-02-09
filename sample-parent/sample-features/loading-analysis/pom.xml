@@ -23,7 +23,7 @@
         <version>1.89.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.talend.sdk.component.loadinganalysis</groupId>
+    <groupId>org.talend.sdk.component.loading-analysis</groupId>
     <artifactId>loading-analysis</artifactId>
     <packaging>pom</packaging>
 

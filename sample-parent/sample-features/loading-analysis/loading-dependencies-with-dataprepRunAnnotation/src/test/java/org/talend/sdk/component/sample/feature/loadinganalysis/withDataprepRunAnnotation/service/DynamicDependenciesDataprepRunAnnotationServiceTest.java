@@ -49,7 +49,7 @@ public class DynamicDependenciesDataprepRunAnnotationServiceTest
         return config;
     }
 
-    // use tck cnnector as dependency
+    // use tck connector as dependency
     protected List<Dependency> getDependList() {
         List<Dependency> depends = new ArrayList<>();
         Dependency depend = new Dependency();
@@ -59,13 +59,6 @@ public class DynamicDependenciesDataprepRunAnnotationServiceTest
         depend.setClazz("org.apache.commons.numbers.primes.SmallPrimes");
         depends.add(depend);
 
-        // //for connector depend
-        // Dependency depend2 = new Dependency();
-        // depend.setArtifactId("record-provider");
-        // depend.setVersion("1.71.0-SNAPSHOT");
-        // depend.setGroupId("org.talend.components");
-        // depend.setClazz("org.talend.components.recordprovider.source.GenericMapper");
-        // depends.add(depend2);
         return depends;
     }
 

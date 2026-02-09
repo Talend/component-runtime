@@ -39,7 +39,7 @@ class DynamicDependenciesWithSPIInputTest {
         String queryString = SimpleFactory.configurationByExample().forInstance(config).configured().toQueryString();
 
         Job.components()
-                .component("input", "DynamicDependenciesWithSPI://Input?" + queryString)
+                .component("input", "LoadingSPIsAndResources://Input?" + queryString)
                 .component("collector", "test://collector")
                 .connections()
                 .from("input")

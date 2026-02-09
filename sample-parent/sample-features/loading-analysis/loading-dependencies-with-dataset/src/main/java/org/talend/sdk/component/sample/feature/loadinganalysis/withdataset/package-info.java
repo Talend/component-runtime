@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 @Components(
-        family = "DynamicDependenciesWithDataset",
+        family = "LoadingDependenciesWithDataset",
         categories = "sample")
 @Icon(value = Icon.IconType.CUSTOM, custom = "icon")
 package org.talend.sdk.component.sample.feature.loadinganalysis.withdataset;
