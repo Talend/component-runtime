@@ -27,7 +27,7 @@ import org.talend.sdk.component.junit5.WithComponents;
 import org.talend.sdk.component.runtime.manager.chain.Job;
 import org.talend.sdk.component.sample.feature.loadinganalysis.withspi.config.Config;
 
-@WithComponents("org.talend.sdk.component.sample.feature.dynamicdependencies.withspi")
+@WithComponents("org.talend.sdk.component.sample.feature.loadinganalysis.withspi")
 class DynamicDependenciesWithSPIInputTest {
 
     @Injected
@@ -51,8 +51,8 @@ class DynamicDependenciesWithSPIInputTest {
         Assertions.assertEquals(4, records.size());
 
         Result expected0 = new Result(
-                "interface org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDependency",
-                "class org.talend.sdk.component.sample.feature.dynamicdependencies.serviceproviderfromdependency.ServiceProviderFromDependency",
+                "interface org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDependency",
+                "class org.talend.sdk.component.sample.feature.loadinganalysis.serviceproviderfromdependency.ServiceProviderFromDependency",
                 "jdk.internal.loader.ClassLoaders$AppClassLoader",
                 "jdk.internal.loader.ClassLoaders$AppClassLoader",
                 "SPI implementation loaded from a dependency.",
@@ -60,8 +60,8 @@ class DynamicDependenciesWithSPIInputTest {
         validate(expected0, records.get(0));
 
         Result expected1 = new Result(
-                "interface org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDynamicDependency",
-                "class org.talend.sdk.component.sample.feature.dynamicdependencies.serviceproviderfromdynamicdependency.ServiceProviderFromDynamicDependency",
+                "interface org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDynamicDependency",
+                "class org.talend.sdk.component.sample.feature.loadinganalysis.serviceproviderfromdynamicdependency.ServiceProviderFromDynamicDependency",
                 "jdk.internal.loader.ClassLoaders$AppClassLoader",
                 "jdk.internal.loader.ClassLoaders$AppClassLoader",
                 "SPI implementation loaded from a dynamic dependency.",
@@ -69,8 +69,8 @@ class DynamicDependenciesWithSPIInputTest {
         validate(expected1, records.get(1));
 
         Result expected2 = new Result(
-                "interface org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringProviderFromExternalSPI",
-                "class org.talend.sdk.component.sample.feature.dynamicdependencies.serviceproviderfromexternaldependency.ServiceProviderFromExternalDependency",
+                "interface org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestlibrary.serviceInterfaces.StringProviderFromExternalSPI",
+                "class org.talend.sdk.component.sample.feature.loadinganalysis.serviceproviderfromexternaldependency.ServiceProviderFromExternalDependency",
                 "jdk.internal.loader.ClassLoaders$AppClassLoader",
                 "jdk.internal.loader.ClassLoaders$AppClassLoader",
                 "SPI implementation loaded from a runtime/provided dependency.",

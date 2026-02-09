@@ -29,7 +29,7 @@ import org.talend.sdk.component.sample.feature.loadinganalysis.withDataprepRunAn
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@WithComponents(value = "org.talend.sdk.component.sample.feature.dynamicdependencies.withDataprepRunAnnotation")
+@WithComponents(value = "org.talend.sdk.component.sample.feature.loadinganalysis.withDataprepRunAnnotation")
 public class DynamicDependenciesDataprepRunAnnotationServiceTest
         extends AbstractDynamicDependenciesServiceTest<Config, DynamicDependenciesDataprepRunAnnotationService> {
 

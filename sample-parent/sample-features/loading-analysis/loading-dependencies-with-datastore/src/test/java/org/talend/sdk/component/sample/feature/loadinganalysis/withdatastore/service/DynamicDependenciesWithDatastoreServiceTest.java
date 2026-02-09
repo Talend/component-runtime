@@ -28,7 +28,7 @@ import org.talend.sdk.component.sample.feature.loadinganalysis.withdatastore.con
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@WithComponents(value = "org.talend.sdk.component.sample.feature.dynamicdependencies.withdatastore")
+@WithComponents(value = "org.talend.sdk.component.sample.feature.loadinganalysis.withdatastore")
 public class DynamicDependenciesWithDatastoreServiceTest
         extends AbstractDynamicDependenciesServiceTest<Config, DynamicDependenciesWithDatastoreService> {
 

@@ -17,12 +17,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.talend.sdk.samplefeature.loadinganalysis</groupId>
+        <groupId>org.talend.sdk.component.loadinganalysis</groupId>
         <artifactId>loading-analysis</artifactId>
         <version>1.89.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>dynamic-dependencies-with-spi</artifactId>
+    <artifactId>loading-services-and-resources</artifactId>
     <packaging>jar</packaging>
     <name>Component Runtime :: Sample Feature @DynamicDependency with spi</name>
 
@@ -39,23 +39,23 @@
             <version>${project.version}</version>
         </dependency -->
         <dependency>
-            <groupId>org.talend.sdk.samplefeature.dynamicdependencies</groupId>
+            <groupId>org.talend.sdk.component.loadinganalysis</groupId>
             <artifactId>loading-services-and-resources-lib</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.talend.sdk.samplefeature.dynamicdependencies</groupId>
+            <groupId>org.talend.sdk.component.loadinganalysis</groupId>
             <artifactId>service-provider-from-dependency</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.talend.sdk.samplefeature.dynamicdependencies</groupId>
+            <groupId>org.talend.sdk.component.loadinganalysis</groupId>
             <artifactId>service-provider-from-dynamic-dependency</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.talend.sdk.samplefeature.dynamicdependencies</groupId>
+            <groupId>org.talend.sdk.component.loadinganalysis</groupId>
             <artifactId>service-provider-from-external-dependency</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -76,8 +76,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>org.talend.sdk.component.dynamic.dependencies.withspi
-                            </Automatic-Module-Name>
+                            <Automatic-Module-Name>loading.services.and.resources</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>

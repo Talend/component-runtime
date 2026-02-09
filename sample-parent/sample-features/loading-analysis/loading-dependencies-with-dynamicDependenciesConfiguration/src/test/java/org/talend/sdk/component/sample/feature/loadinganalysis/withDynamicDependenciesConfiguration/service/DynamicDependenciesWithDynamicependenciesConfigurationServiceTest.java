@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @WithComponents(
-        value = "org.talend.sdk.component.sample.feature.dynamicdependencies.withDynamicDependenciesConfiguration")
+        value = "org.talend.sdk.component.sample.feature.loadinganalysis.withDynamicDependenciesConfiguration")
 public class DynamicDependenciesWithDynamicependenciesConfigurationServiceTest
         extends
         AbstractDynamicDependenciesServiceTest<Config, DynamicDependenciesWithDynamicependenciesConfigurationService> {

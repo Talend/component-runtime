@@ -28,7 +28,7 @@ import org.talend.sdk.component.sample.feature.loadinganalysis.withdataset.confi
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@WithComponents(value = "org.talend.sdk.component.sample.feature.dynamicdependencies.withdataset")
+@WithComponents(value = "org.talend.sdk.component.sample.feature.loadinganalysis.withdataset")
 public class DynamicDependenciesWithDatasetServiceTest
         extends AbstractDynamicDependenciesServiceTest<Config, DynamicDependenciesWithDatasetService> {
 
