@@ -103,6 +103,8 @@ public class ContainerManager implements Lifecycle {
 
     private final boolean hasNestedRepository;
 
+    private final List<String> runtimeClasspath = new ArrayList<>();
+
     public ContainerManager(final DependenciesResolutionConfiguration dependenciesResolutionConfiguration,
             final ClassLoaderConfiguration classLoaderConfiguration, final Consumer<Container> containerInitializer,
             final Level logInfoLevelMapping) {
@@ -114,7 +116,7 @@ public class ContainerManager implements Lifecycle {
         if (log.isDebugEnabled()) {
             getSystemInformations();
         }
-
+        readRuntimeClasspath();
         final String nestedPluginMappingResource = ofNullable(classLoaderConfiguration.getNestedPluginMappingResource())
                 .orElse("TALEND-INF/plugins.properties");
         this.classLoaderConfiguration = new ClassLoaderConfiguration(
@@ -165,6 +167,55 @@ public class ContainerManager implements Lifecycle {
         this.hasNestedRepository = this.classLoaderConfiguration.isSupportsResourceDependencies() && nestedMvn != null;
         if (log.isDebugEnabled() && hasNestedRepository) {
             log.debug("[sysinfo] nested maven repository: " + nestedMvn);
+        }
+    }
+
+    /**
+     * Catch the runtime classpath to be able to resolve plugins from it if needed.
+     * This may be useful in case of running in an environment like jobServer where
+     * the classpath is not linked to a single directory like `../lib` but scattered
+     * through cache dirs.
+     */
+    private void readRuntimeClasspath() {
+        try {
+            final RuntimeMXBean rt = ManagementFactory.getRuntimeMXBean();
+            final String classpath = rt.getClassPath();
+            if ("classpath.jar".equals(classpath)) {
+                // read MANIFEST.MF in "classpath.jar" to get classpath jars' list
+                final Path cpJar = PathFactory.get("classpath.jar");
+                if (Files.exists(cpJar)) {
+                    try (InputStream is = Files.newInputStream(cpJar)) {
+                        final java.util.jar.JarInputStream jarStream = new java.util.jar.JarInputStream(is);
+                        final java.util.jar.Manifest manifest = jarStream.getManifest();
+                        if (manifest != null) {
+                            final String cp = manifest.getMainAttributes().getValue("Class-Path");
+                            if (cp != null) {
+                                Stream.of(cp.split(" "))
+                                        .filter(c -> !c.equals(".") || !c.trim().isEmpty())
+                                        .map(PathFactory::get)
+                                        .filter(Files::exists)
+                                        .forEach(p -> {
+                                            runtimeClasspath.add(p.toAbsolutePath().toString());
+                                            log.debug("[sysinfo] Runtime classpath entry (manifest): "
+                                                    + p.toAbsolutePath());
+                                        });
+                            }
+                        }
+                    } catch (IOException e) {
+                        info("Unable to read classpath.jar manifest: " + e.getMessage());
+                    }
+                }
+            } else {
+                Stream.of(classpath.split(File.pathSeparator))
+                        .map(PathFactory::get)
+                        .filter(Files::exists)
+                        .forEach(p -> {
+                            runtimeClasspath.add(p.toAbsolutePath().toString());
+                            log.debug("[sysinfo] Runtime classpath entry: " + p.toAbsolutePath());
+                        });
+            }
+        } catch (Exception e) {
+            info("Unable to get runtime classpath: " + e.getMessage());
         }
     }
 
@@ -247,10 +298,22 @@ public class ContainerManager implements Lifecycle {
             return file;
         }
 
+        final String artifactName = path.substring(path.lastIndexOf('/') + 1);
         // from job lib folder
-        final Path libFile = rootRepositoryLocation.resolve(path.substring(path.lastIndexOf('/') + 1));
+        final Path libFile = rootRepositoryLocation.resolve(artifactName);
         if (Files.exists(libFile)) {
             return libFile;
+        }
+
+        // try to find it in the runtime classpath
+        final Optional<String> rtcpFile = runtimeClasspath.stream()
+                .filter(p -> p.endsWith(artifactName) && p.contains(File.separator + artifactName))
+                .findFirst();
+        if (rtcpFile.isPresent()) {
+            final Path cpFile = PathFactory.get(rtcpFile.get());
+            if (Files.exists(cpFile)) {
+                return cpFile;
+            }
         }
 
         // will be filtered later
