@@ -1,8 +1,8 @@
-# Dynamic Dependencies Module
+# Loading Analysis Module
 
 ## Overview
 
-The `dynamic-dependencies` module provides several TCK connector plugins designed to validate the `@DynamicDependencies` feature integration, at design time and runtime. It contains several connectors organized into two categories:
+The `loading-analysis` module provides several TCK connector plugins designed to validate the `@DynamicDependencies` feature integration, at design time and runtime. It contains several connectors organized into two categories:
 
 - Firsts are connectors with a service that inherits `AbstractDynamicDependenciesService` and that check:
   - All supported ways to call `@DynamicDependencies` annotated services, according to expected configuration types
@@ -52,10 +52,10 @@ As you can see in the previous example, the annotated `@DynamicDependencies` ser
 (_This documentation will not mention the deprecated `DynamicDependencySupported` provided by the `tDataprepRun` connector._)
 
 So, 3 TCK modules have been designed, each one provide a service with one of those parameter types:
-- dynamic-dependencies-with-datastore
-- dynamic-dependencies-with-dataset
-- dynamic-dependencies-with-dynamic-dependencies-configuration
-Those 3 modules has the module `dynamic-dependencies-common` as dependency. They all have a service that inherits `AbstractDynamicDependenciesService`, that implements the `@DynamicDependencies` annotated method.
+- loading-dependencies-with-datastore
+- loading-dependencies-with-dataset
+- loading-dependencies-with-dynamicDependenciesConfiguration
+Those 3 modules has the module `loading-dependencies-common` as dependency. They all have a service that inherits `AbstractDynamicDependenciesService`, that implements the `@DynamicDependencies` annotated method.
 
 #### How to configure them?
 Each of those TCK modules provide an input connector in which you can configure:
@@ -113,12 +113,12 @@ It will generate TCK/records containing those fields:
 +-----------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | key                   | value                                                                                                                                                                                                                                                                                                                                     |
 +-----------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| maven                 | org.talend.sdk.samplefeature.dynamicdependencies:dynamic-dependencies-common:N/A                                                                                                                                                                                                                                                          |
+| maven                 | org.talend.sdk.component.loading-analysis:loading-dependencies-common:N/A                                                                                                                                                                                                                                                                 |
 | clazz                 | org.talend.sdk.component.sample.feature.loadinganalysis.config.Dependency                                                                                                                                                                                                                                                             |
 | is_loaded             | true                                                                                                                                                                                                                                                                                                                                      |
 | connector_classloader | org.talend.sdk.component.classloader.ConfigurableClassLoader@9ebe38b                                                                                                                                                                                                                                                                      |
 | clazz_classloader     | org.talend.sdk.component.classloader.ConfigurableClassLoader@9ebe38b                                                                                                                                                                                                                                                                      |
-| from_location         | jar:file:/C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository/org/talend/sdk/samplefeature/dynamicdependencies/dynamic-dependencies-common/1.89.0-SNAPSHOT/dynamic-dependencies-common-1.89.0-SNAPSHOT.jar!/org/talend/sdk/component/sample/feature/dynamicdependencies/config/Dependency.class |
+| from_location         | jar:file:/C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository/org/talend/sdk/component/loading-analysis/loading-dependencies-common/1.89.0-SNAPSHOT/loading-dependencies-common-1.89.0-SNAPSHOT.jar!/org/talend/sdk/component/sample/feature/loadinganalysis/config/Dependency.class            |
 | is_tck_container      | false                                                                                                                                                                                                                                                                                                                                     |
 | first_record          | null                                                                                                                                                                                                                                                                                                                                      |
 | root_repository       | C:/tmp/202601_dyndeps_exports/Talend-Studio-20260121_1719-V8.0.1/configuration/.m2/repository                                                                                                                                                                                                                                             |
@@ -127,7 +127,7 @@ It will generate TCK/records containing those fields:
 | comment               | Check static dependency.                                                                                                                                                                                                                                                                                                                  |
 +-----------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ```
-In this exemple we can see that we try to load the class `org.talend.sdk.component.sample.feature.loadinganalysis.config.Dependency` from the dependency `org.talend.sdk.samplefeature.dynamicdependencies:dynamic-dependencies-common`.
+In this exemple we can see that we try to load the class `org.talend.sdk.component.sample.feature.loadinganalysis.config.Dependency` from the dependency `org.talend.sdk.component.loading-analysis:loading-dependencies-common`.
 The version is `N/A` since it is not needed, the dependency is a static one and is loaded at build time.
 The `DynamicDependencyWithXxxInput` is well loaded from `org.talend.sdk.component.classloader.ConfigurableClassLoader` as the class to test.
 
@@ -199,7 +199,7 @@ In that example, we can see that we don't try to load a class, `clazz: N/A`, but
 ```
 
 ## Check SPI and resource loading
-The `dynamic-depdencies-with-spi` provides an input connector that will try to load:
+The `loading-services-and-resources` provides an input connector that will try to load:
 - The SPI implementation from a static dependency
 - The SPI implementation from a dynamic dependency
 - The SPI implementation provided by the runtime
@@ -222,7 +222,7 @@ It generates TCK records containing those fields:
 - `workingDirectory`: the value of the property `user.dir`
 
 ### The first record checks SPI implementation provided by a static dependency
-The SPI implementation is provided by the dependency `org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-dependency`.
+The SPI implementation is provided by the dependency `org.talend.sdk.component.loading-analysis:service-provider-from-dependency`.
 ```
 +---------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | key                       | value                                                                                                                                                                                                                                                                                                                        |
@@ -241,7 +241,7 @@ The SPI implementation is provided by the dependency `org.talend.sdk.samplefeatu
 We can see that the SPI implementation has been well loaded, since the value is retrieved, and has been loaded by the container classloader `ConfigurableClassLoader` as expected.
 
 ### The second record checks SPI implementation provided by a dynamic dependency
-The spi implementation is provided by the dependency `org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-dynamic-dependency`. It is returned by the `@DynamicDependency` service.
+The spi implementation is provided by the dependency `org.talend.sdk.component.loading-analysis:service-provider-from-dynamic-dependency`. It is returned by the `@DynamicDependency` service.
 ```
 +---------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | key                       | value                                                                                                                                                                                                                                                                                                                        |
@@ -260,7 +260,7 @@ The spi implementation is provided by the dependency `org.talend.sdk.samplefeatu
 In this second record, we see that the SPI implementation has been loaded from the `ConfigurableClassLoader`.
 
 ### The third record checks SPI implementation provided by the runtime
-The spi implementation is provided by the dependency `org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-external-dependency`. In the studio, we can add this library using the `tLibraryLoad` connector.
+The spi implementation is provided by the dependency `org.talend.sdk.component.loading-analysis:service-provider-from-external-dependency`. In the studio, we can add this library using the `tLibraryLoad` connector.
 ```
 +---------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | key                       | value                                                                                                                                                                                                                                                                                                                        |
@@ -305,13 +305,13 @@ Here is the json documentation contained in the `value` field:
 }
 ```
 The `DynamicDependenciesWithSPIInput` connector tries to load some resources using `DynamicDependenciesWithSPIService.class.getClassLoader().getResourceAsStream(resource)`:
-- `FROM_DEPENDENCY/resource.properties`: this resource exists only in `org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-dependency` module. The resource value is copied in the `contentFromResourceDependency` field of the record.
-- `FROM_DYNAMIC_DEPENDENCY/resource.properties`: this resource exists only in `org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-dynamic-dependency` module. The resource value is copied in the `contentFromResourceDynamicDependency` field of the record.
-- `FROM_EXTERNAL_DEPENDENCY/resource.properties`: this resource exists only in `org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-external-dependency` module. The resource value is copied in the `contentFromResourceExternalDependency` field of the record.
+- `FROM_DEPENDENCY/resource.properties`: this resource exists only in `org.talend.sdk.component.loading-analysis:service-provider-from-dependency` module. The resource value is copied in the `contentFromResourceDependency` field of the record.
+- `FROM_DYNAMIC_DEPENDENCY/resource.properties`: this resource exists only in `org.talend.sdk.component.loading-analysis:service-provider-from-dynamic-dependency` module. The resource value is copied in the `contentFromResourceDynamicDependency` field of the record.
+- `FROM_EXTERNAL_DEPENDENCY/resource.properties`: this resource exists only in `org.talend.sdk.component.loading-analysis:service-provider-from-external-dependency` module. The resource value is copied in the `contentFromResourceExternalDependency` field of the record.
 
 All those three resources are successfully loaded in this example.
 
 The last field, `contentFromMultipleResources` contain the result of loading multiple resources at once using `DynamicDependenciesWithSPIService.class.getClassLoader().getResources(resource)` for the resource path `FROM_MULTIPLE/resource.txt`.
-This resource exists in all the three modules `org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-dependency`, `org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-dynamic-dependency`, `org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-external-dependency`.
+This resource exists in all the three modules `org.talend.sdk.component.loading-analysis:service-provider-from-dependency`, `org.talend.sdk.component.loading-analysis:service-provider-from-dynamic-dependency`, `org.talend.sdk.component.loading-analysis:service-provider-from-external-dependency`.
 So, 3 values should be concatenated in this field if everything were loaded. In the example, the content of this resource is successfully loaded from static and dynamic dependencies, but twice for each! And, the `FROM_MULTIPLE/resource.txt`
-in `org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-external-dependency` is not found.
+in `org.talend.sdk.component.loading-analysis:service-provider-from-external-dependency` is not found.
