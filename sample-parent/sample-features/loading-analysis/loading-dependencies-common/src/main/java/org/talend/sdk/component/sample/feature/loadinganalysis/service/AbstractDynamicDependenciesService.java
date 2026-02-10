@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -385,7 +386,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
             }
 
             try (InputStream is = jar.getInputStream(entry);
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
 
                 result = reader.lines()
                         .filter(line -> !line.isBlank()) // skip empty lines
@@ -397,18 +398,6 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
             throw new ComponentException("Can't load dependencies for %s: %s".formatted(gav, e.getMessage()), e);
         }
         return result.stream();
-    }
-
-    /**
-     * Return true if the given path correspond to a class that has been loaded from a jar that contains
-     * a TALEND-INF/dependencies.txt file.
-     *
-     * @param path The clazz location
-     * @return true if the given path correspond to a TCK container
-     */
-    private boolean isTCKContainer(final String path) {
-        // TO DO
-        return false;
     }
 
     private void checkAssignmentFromDynamicDependency() {

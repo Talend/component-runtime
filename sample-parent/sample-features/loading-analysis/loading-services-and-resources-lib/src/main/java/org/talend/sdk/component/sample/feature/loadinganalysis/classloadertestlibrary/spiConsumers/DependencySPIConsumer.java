@@ -28,7 +28,7 @@ public class DependencySPIConsumer<T> extends AbstractSPIConsumer<StringProvider
             StringProviderSPIAsDependency impl = this.getSPIImpl().get();
             return impl.getValueFromDependency();
         } else {
-            return "[ERROR] StringsProviderSPIAsDependency not loaded!";
+            return "[ERROR] StringProviderSPIAsDependency not loaded!";
         }
     }
 

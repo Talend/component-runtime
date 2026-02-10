@@ -28,7 +28,7 @@ public class DynamicDependencySPIConsumer<T> extends AbstractSPIConsumer<StringP
             StringProviderSPIAsDynamicDependency impl = this.getSPIImpl().get();
             return impl.getValueFromASPIAsDynamicDependency();
         } else {
-            return "[ERROR] StringsProviderSPIAsDynamicDependency not loaded!";
+            return "[ERROR] StringProviderSPIAsDynamicDependency not loaded!";
         }
     }
 

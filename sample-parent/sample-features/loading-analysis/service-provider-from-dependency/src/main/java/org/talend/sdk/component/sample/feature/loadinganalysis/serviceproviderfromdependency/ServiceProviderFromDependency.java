@@ -19,6 +19,7 @@ import org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestli
 
 public class ServiceProviderFromDependency implements StringProviderSPIAsDependency {
 
+    @Override
     public String getValueFromDependency() {
         return "ServiceProviderFromDependency value";
     }

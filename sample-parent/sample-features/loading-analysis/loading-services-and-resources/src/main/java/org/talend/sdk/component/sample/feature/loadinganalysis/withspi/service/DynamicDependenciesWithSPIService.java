@@ -247,9 +247,10 @@ public class DynamicDependenciesWithSPIService implements Serializable {
     private String filterComments(final InputStream stream) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
             return reader.lines()
+                    .map(String::trim)
                     .filter(line -> !line.trim().startsWith("#"))
                     .filter(line -> !line.trim().isEmpty())
-                    .collect(Collectors.joining(System.lineSeparator()));
+                    .collect(Collectors.joining("\n"));
         } catch (IOException e) {
             throw new ComponentException("Can't close a resource reader.", e);
         }

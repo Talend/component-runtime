@@ -19,6 +19,7 @@ import org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestli
 
 public class ServiceProviderFromExternalDependency implements StringProviderFromExternalSPI {
 
+    @Override
     public String getValueFromExternalSPI() {
         return "ServiceProviderFromExternalDependency value";
     }
