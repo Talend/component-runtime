@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.container;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.list;
 import static java.util.Optional.of;
@@ -103,6 +104,7 @@ public class ContainerManager implements Lifecycle {
 
     private final boolean hasNestedRepository;
 
+    @Getter
     private final List<String> runtimeClasspath = new ArrayList<>();
 
     public ContainerManager(final DependenciesResolutionConfiguration dependenciesResolutionConfiguration,
@@ -167,55 +169,6 @@ public class ContainerManager implements Lifecycle {
         this.hasNestedRepository = this.classLoaderConfiguration.isSupportsResourceDependencies() && nestedMvn != null;
         if (log.isDebugEnabled() && hasNestedRepository) {
             log.debug("[sysinfo] nested maven repository: " + nestedMvn);
-        }
-    }
-
-    /**
-     * Catch the runtime classpath to be able to resolve plugins from it if needed.
-     * This may be useful in case of running in an environment like jobServer where
-     * the classpath is not linked to a single directory like `../lib` but scattered
-     * through cache dirs.
-     */
-    private void readRuntimeClasspath() {
-        try {
-            final RuntimeMXBean rt = ManagementFactory.getRuntimeMXBean();
-            final String classpath = rt.getClassPath();
-            if ("classpath.jar".equals(classpath)) {
-                // read MANIFEST.MF in "classpath.jar" to get classpath jars' list
-                final Path cpJar = PathFactory.get("classpath.jar");
-                if (Files.exists(cpJar)) {
-                    try (InputStream is = Files.newInputStream(cpJar)) {
-                        final java.util.jar.JarInputStream jarStream = new java.util.jar.JarInputStream(is);
-                        final java.util.jar.Manifest manifest = jarStream.getManifest();
-                        if (manifest != null) {
-                            final String cp = manifest.getMainAttributes().getValue("Class-Path");
-                            if (cp != null) {
-                                Stream.of(cp.split(" "))
-                                        .filter(c -> !c.equals(".") || !c.trim().isEmpty())
-                                        .map(PathFactory::get)
-                                        .filter(Files::exists)
-                                        .forEach(p -> {
-                                            runtimeClasspath.add(p.toAbsolutePath().toString());
-                                            log.debug("[sysinfo] Runtime classpath entry (manifest): "
-                                                    + p.toAbsolutePath());
-                                        });
-                            }
-                        }
-                    } catch (IOException e) {
-                        info("Unable to read classpath.jar manifest: " + e.getMessage());
-                    }
-                }
-            } else {
-                Stream.of(classpath.split(File.pathSeparator))
-                        .map(PathFactory::get)
-                        .filter(Files::exists)
-                        .forEach(p -> {
-                            runtimeClasspath.add(p.toAbsolutePath().toString());
-                            log.debug("[sysinfo] Runtime classpath entry: " + p.toAbsolutePath());
-                        });
-            }
-        } catch (Exception e) {
-            info("Unable to get runtime classpath: " + e.getMessage());
         }
     }
 
@@ -477,6 +430,70 @@ public class ContainerManager implements Lifecycle {
         } catch (Exception e) {
             log.debug("Unable to get JVM information: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Catch the runtime classpath to be able to resolve plugins from it if needed.
+     * This may be useful in case of running in an environment like jobServer where
+     * the classpath is not linked to a single directory like `../lib` but scattered
+     * through cache dirs.
+     */
+    private void readRuntimeClasspath() {
+        try {
+            final RuntimeMXBean rt = ManagementFactory.getRuntimeMXBean();
+            final String classpath = rt.getClassPath();
+            Stream.of(classpath.split(File.pathSeparator))
+                    .filter(p -> p.endsWith(".jar"))
+                    .map(PathFactory::get)
+                    .filter(Files::exists)
+                    .forEach(p -> {
+                        if ("classpath.jar".equals(p.getFileName().toString())) {
+                            runtimeClasspath.addAll(getClasspathFromJar(p));
+                        } else {
+                            runtimeClasspath.add(p.toAbsolutePath().toString());
+                            log.debug("[sysinfo] Runtime classpath entry: " + p.toAbsolutePath());
+                        }
+                    });
+            // cleanup the classpath from entries that are known as framework artifacts
+            final Predicate<String> frameworkFilter = p -> p.matches(".*" + File.separatorChar +
+                    "(container-core|component-api|component-spi|component-runtime-impl|component-runtime-manager|" +
+                    "component-spi|component-runtime-design-extension|component-runtime-di|geronimo|johnzon|xbean|slf4j|log4j|log4j2)"
+                    + "-.*jar$");
+            runtimeClasspath.removeIf(p -> frameworkFilter.test(p));
+        } catch (Exception e) {
+            info("Unable to get runtime classpath: " + e.getMessage());
+        }
+    }
+
+    /**
+     * In some environments like jobServer, the classpath can be set to a single "classpath.jar" file containing in its
+     * manifest the list of real classpath entries.
+     * In this case we need to read MANIFEST.MF in "classpath.jar" to get classpath jars' list
+     *
+     * @param jar
+     * @return classpath entries defined in the manifest of the given jar, or an empty list if the manifest can't be
+     * read or doesn't contain a Class-Path entry
+     */
+    private List<String> getClasspathFromJar(final Path jar) {
+        try (final java.util.jar.JarFile jarFile = new java.util.jar.JarFile(jar.toFile())) {
+            final java.util.jar.Manifest manifest = jarFile.getManifest();
+            if (manifest != null) {
+                final String cp = manifest.getMainAttributes().getValue("Class-Path");
+                if (cp != null) {
+                    return Stream.of(cp.split(" "))
+                            .filter(c -> !c.equals(".") || !c.trim().isEmpty())
+                            .filter(c -> c.endsWith(".jar"))
+                            .map(PathFactory::get)
+                            .filter(Files::exists)
+                            .map(p -> p.toAbsolutePath().toString())
+                            .peek(p -> log.debug("[sysinfo] Runtime classpath entry from manifest: " + p))
+                            .collect(toList());
+                }
+            }
+        } catch (IOException e) {
+            info("Unable to read " + jar + " manifest: " + e.getMessage());
+        }
+        return emptyList();
     }
 
     @Override
