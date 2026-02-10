@@ -4,7 +4,7 @@
 
 The `loading-analysis` module provides several TCK connector plugins designed to validate the `@DynamicDependencies` feature integration, at design time and runtime. It contains several connectors organized into two categories:
 
-- Firsts are connectors with a service that inherits `AbstractDynamicDependenciesService` and that check:
+- First are connectors with a service that inherits `AbstractDynamicDependenciesService` and that check:
   - All supported ways to call `@DynamicDependencies` annotated services, according to expected configuration types
   - Loading of static, dynamic and provided dependencies
   - Load a TCK connectors as dynamic dependencies and retrieve data from them
@@ -72,7 +72,7 @@ Here is an example of connector's configuration:
 - artifactId: data-generator
 - version: 1.2512.0
 - connector's family: DataGenerator
-- connnector's name: DataGeneratorInput
+- connector's name: DataGeneratorInput
 - Connector's version: 1
 - load transitive dependencies: true
 - connector's configuration:
@@ -127,7 +127,7 @@ It will generate TCK/records containing those fields:
 | comment               | Check static dependency.                                                                                                                                                                                                                                                                                                                  |
 +-----------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ```
-In this exemple we can see that we try to load the class `org.talend.sdk.component.sample.feature.loadinganalysis.config.Dependency` from the dependency `org.talend.sdk.component.loading-analysis:loading-dependencies-common`.
+In this example we can see that we try to load the class `org.talend.sdk.component.sample.feature.loadinganalysis.config.Dependency` from the dependency `org.talend.sdk.component.loading-analysis:loading-dependencies-common`.
 The version is `N/A` since it is not needed, the dependency is a static one and is loaded at build time.
 The `DynamicDependencyWithXxxInput` is well loaded from `org.talend.sdk.component.classloader.ConfigurableClassLoader` as the class to test.
 
