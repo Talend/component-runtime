@@ -28,7 +28,7 @@ import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.sample.feature.loadinganalysis.service.AbstractDynamicDependenciesService;
 import org.talend.sdk.component.sample.feature.loadinganalysis.withDynamicDependenciesConfiguration.config.Config;
-import org.talend.sdk.component.sample.feature.loadinganalysis.withDynamicDependenciesConfiguration.service.DynamicDependenciesWithDynamicependenciesConfigurationService;
+import org.talend.sdk.component.sample.feature.loadinganalysis.withDynamicDependenciesConfiguration.service.DynamicDependenciesWithDynamicDependenciesConfigurationService;
 
 @Version
 @Icon(value = Icon.IconType.CUSTOM, custom = "icon")
@@ -39,12 +39,12 @@ public class DynamicDependenciesWithDynamicDependenciesConfigurationInput extend
 
     private final Config config;
 
-    private final DynamicDependenciesWithDynamicependenciesConfigurationService service;
+    private final DynamicDependenciesWithDynamicDependenciesConfigurationService service;
 
     private Iterator<Record> recordIterator;
 
     public DynamicDependenciesWithDynamicDependenciesConfigurationInput(final Config config,
-            final DynamicDependenciesWithDynamicependenciesConfigurationService service) {
+            final DynamicDependenciesWithDynamicDependenciesConfigurationService service) {
         this.config = config;
         this.service = service;
     }

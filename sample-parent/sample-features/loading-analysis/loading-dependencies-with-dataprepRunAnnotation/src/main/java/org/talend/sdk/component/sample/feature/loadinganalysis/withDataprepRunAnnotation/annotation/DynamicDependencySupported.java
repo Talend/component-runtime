@@ -27,7 +27,7 @@ import org.talend.sdk.component.api.meta.Documentation;
 @Target(TYPE)
 @Retention(RUNTIME)
 @ConfigurationType("configuration")
-@Documentation("Copy/past of the annotation from tDataprepRun." +
+@Documentation("Copy/paste of the annotation from tDataprepRun." +
         "It should be removed soon and replaced by the 'DynamicDependenciesConfiguration' provided by the framework.")
 @Deprecated
 public @interface DynamicDependencySupported {

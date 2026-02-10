@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CustomizeClassLoader implements ComponentManager.Customizer {
 
     private static final String DISABLE_CUSTOMIZE_PROPERTY =
-            "talend.sample.feature.dynamicdependencies.withspi.CustomizeClassLoader.disabled";
+            "org.talend.sdk.component.sample.feature.loadinganalysis.withspi.service.CustomizeClassLoader.disabled";
 
     private static final boolean DISABLE_CUSTOMIZE = Boolean.parseBoolean(
             System.getProperty(DISABLE_CUSTOMIZE_PROPERTY, "true"));
@@ -34,20 +34,20 @@ public class CustomizeClassLoader implements ComponentManager.Customizer {
     public Stream<String> containerClassesAndPackages() {
         if (DISABLE_CUSTOMIZE) {
             log.info(
-                    "org.talend.sdk.component.sample.feature.dynamicdependencies.withspi.service.CustomizeClassLoader is disabled.\n"
+                    "org.talend.sdk.component.sample.feature.loadinganalysis.withspi.service.CustomizeClassLoader is disabled.\n"
                             + "use \"" + DISABLE_CUSTOMIZE_PROPERTY + "=false\""
                             + " property to enable it.");
             return Stream.empty();
         }
 
         log.info(
-                "org.talend.sdk.component.sample.feature.dynamicdependencies.withspi.service.CustomizeClassLoader is enable,\n"
+                "org.talend.sdk.component.sample.feature.loadinganalysis.withspi.service.CustomizeClassLoader is enabled,\n"
                         + "use \"" + DISABLE_CUSTOMIZE_PROPERTY + "=true\""
                         + " property to disable it.");
         return Stream.of(
                 // Implementation should come from a dynamic dependency
-                "org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDependency",
+                "org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDependency",
                 // Implementation should come from runtime
-                "org.talend.sdk.component.sample.feature.dynamicdependencies.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDynamicDependency");
+                "org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDynamicDependency");
     }
 }

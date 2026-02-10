@@ -29,7 +29,7 @@ public abstract class AbstractSPIConsumer<S, T> {
 
     private final Optional<S> spiImpl;
 
-    protected AbstractSPIConsumer(final Class clazz) {
+    protected AbstractSPIConsumer(final Class<S> clazz) {
         ServiceLoader<S> serviceLoader = ServiceLoader.load(clazz, AbstractSPIConsumer.class.getClassLoader());
 
         List<S> implProvider = new ArrayList<>();

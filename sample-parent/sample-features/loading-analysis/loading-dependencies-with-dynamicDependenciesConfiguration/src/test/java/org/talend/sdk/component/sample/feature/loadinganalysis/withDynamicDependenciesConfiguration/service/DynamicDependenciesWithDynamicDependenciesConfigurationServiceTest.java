@@ -30,12 +30,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @WithComponents(
         value = "org.talend.sdk.component.sample.feature.loadinganalysis.withDynamicDependenciesConfiguration")
-public class DynamicDependenciesWithDynamicependenciesConfigurationServiceTest
+public class DynamicDependenciesWithDynamicDependenciesConfigurationServiceTest
         extends
-        AbstractDynamicDependenciesServiceTest<Config, DynamicDependenciesWithDynamicependenciesConfigurationService> {
+        AbstractDynamicDependenciesServiceTest<Config, DynamicDependenciesWithDynamicDependenciesConfigurationService> {
 
     @Service
-    DynamicDependenciesWithDynamicependenciesConfigurationService dynamicDependenciesServiceService;
+    DynamicDependenciesWithDynamicDependenciesConfigurationService dynamicDependenciesServiceService;
 
     @Override
     protected Config buildConfig() {
@@ -51,7 +51,7 @@ public class DynamicDependenciesWithDynamicependenciesConfigurationServiceTest
     }
 
     @Override
-    protected DynamicDependenciesWithDynamicependenciesConfigurationService getService() {
+    protected DynamicDependenciesWithDynamicDependenciesConfigurationService getService() {
         return dynamicDependenciesServiceService;
     }
 }

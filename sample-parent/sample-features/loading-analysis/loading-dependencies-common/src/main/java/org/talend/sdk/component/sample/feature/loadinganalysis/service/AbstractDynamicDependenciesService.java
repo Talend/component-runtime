@@ -79,7 +79,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
 
     public static final String ENTRY_RUNTIME_CLASSPATH = "runtime_classpath";
 
-    public static final String ENTRY_WORKING_DIRECTORY = "Working_directory";
+    public static final String ENTRY_WORKING_DIRECTORY = "working_directory";
 
     public static final String ENTRY_COMMENT = "comment";
 

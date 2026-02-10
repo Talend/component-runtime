@@ -66,10 +66,10 @@ public class DynamicDependenciesWithSPIService implements Serializable {
 
     @DynamicDependencies
     public List<String> getDynamicDependencies(@Option("theDataset") final Dataset dataset) {
-        String dep = "org.talend.sdk.samplefeature.dynamicdependencies:service-provider-from-dynamic-dependency:"
+        String dep = "org.talend.sdk.component.loading-analysis:service-provider-from-dynamic-dependency:"
                 + loadVersion();
         List<String> strings = Collections.singletonList(dep);
-        log.info("Dynamic dependencies with SPI: {}", strings.stream().collect(Collectors.joining(";")));
+        log.info("Loading SPI: {}", strings.stream().collect(Collectors.joining(";")));
         return strings;
     }
 
@@ -231,6 +231,9 @@ public class DynamicDependenciesWithSPIService implements Serializable {
         if (version == null) {
             try (InputStream is = DynamicDependenciesWithSPIService.class.getClassLoader()
                     .getResourceAsStream("version.properties")) {
+                if (is == null) {
+                    throw new ComponentException("Can't retrieve version.properties resource.");
+                }
                 Properties props = new Properties();
                 props.load(is);
                 version = props.getProperty("version");
@@ -242,19 +245,15 @@ public class DynamicDependenciesWithSPIService implements Serializable {
     }
 
     private String filterComments(final InputStream stream) {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
-
-        String collect = reader.lines()
-                .filter(line -> !line.trim().startsWith("#"))
-                .filter(line -> !line.trim().isEmpty())
-                .collect(Collectors.joining(System.lineSeparator()));
-        try {
-            reader.close();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+            return reader.lines()
+                    .filter(line -> !line.trim().startsWith("#"))
+                    .filter(line -> !line.trim().isEmpty())
+                    .collect(Collectors.joining(System.lineSeparator()));
         } catch (IOException e) {
             throw new ComponentException("Can't close a resource reader.", e);
         }
 
-        return collect;
     }
 
     private String loadAPropertyFromResource(final String resource, final String property) {
