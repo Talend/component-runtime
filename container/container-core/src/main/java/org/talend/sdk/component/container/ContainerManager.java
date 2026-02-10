@@ -456,8 +456,10 @@ public class ContainerManager implements Lifecycle {
                     });
             // cleanup the classpath from entries that are known as framework artifacts
             final Predicate<String> frameworkFilter = p -> p.matches(".*" + File.separatorChar +
-                    "(container-core|component-api|component-spi|component-runtime-impl|component-runtime-manager|" +
-                    "component-spi|component-runtime-design-extension|component-runtime-di|geronimo|johnzon|xbean|slf4j|log4j|log4j2)"
+                    "(component-api|component-runtime-design-extension|component-runtime-di|component-runtime-impl|" +
+                    "component-runtime-manager|component-spi|container-core|geronimo-annotation_1.3_spec|" +
+                    "geronimo-json_1.1_spec|geronimo-jsonb_1.0_spec|johnzon-core|johnzon-jsonb|johnzon-mapper|" +
+                    "slf4j-api|slf4j-log4j12|slf4j-reload4j|xbean-asm9-shaded|xbean-finder-shaded|xbean-reflect-)"
                     + "-.*jar$");
             runtimeClasspath.removeIf(p -> frameworkFilter.test(p));
         } catch (Exception e) {
