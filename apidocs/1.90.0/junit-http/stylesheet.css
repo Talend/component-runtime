@@ -1,0 +1,598 @@
+/* Javadoc style sheet */
+/* Based on default one */
+/* @import url('resources/fonts/dejavu.css'); */
+
+body {
+    background-color:#ffffff;
+    color:#353833;
+    font-family:'DejaVu Sans', Arial, Helvetica, sans-serif;
+    font-size:14px;
+    margin:0;
+}
+a:link, a:visited {
+    text-decoration:none;
+    color:#4A6782;
+}
+a:hover, a:focus {
+    text-decoration:none;
+    color:#bb7a2a;
+}
+a:active {
+    text-decoration:none;
+    color:#4A6782;
+}
+a[name] {
+    color:#353833;
+}
+a[name]:hover {
+    text-decoration:none;
+    color:#353833;
+}
+pre {
+    font-family:'DejaVu Sans Mono', monospace;
+    font-size:14px;
+}
+h1 {
+    font-size:20px;
+}
+h2 {
+    font-size:18px;
+}
+h3 {
+    font-size:16px;
+    font-style:italic;
+}
+h4 {
+    font-size:13px;
+}
+h5 {
+    font-size:12px;
+}
+h6 {
+    font-size:11px;
+}
+ul {
+    list-style-type:disc;
+}
+code, tt {
+    font-family:'DejaVu Sans Mono', monospace;
+    font-size:14px;
+    padding-top:4px;
+    margin-top:8px;
+    line-height:1.4em;
+}
+dt code {
+    font-family:'DejaVu Sans Mono', monospace;
+    font-size:14px;
+    padding-top:4px;
+}
+table tr td dt code {
+    font-family:'DejaVu Sans Mono', monospace;
+    font-size:14px;
+    vertical-align:top;
+    padding-top:4px;
+}
+sup {
+    font-size:8px;
+}
+/*
+Document title and Copyright styles
+*/
+.clear {
+    clear:both;
+    height:0px;
+    overflow:hidden;
+}
+.aboutLanguage {
+    float:right;
+    padding:0px 21px;
+    font-size:11px;
+    z-index:200;
+    margin-top:-9px;
+}
+.legalCopy {
+    margin-left:.5em;
+}
+.bar a, .bar a:link, .bar a:visited, .bar a:active {
+    color:#FFFFFF;
+    text-decoration:none;
+}
+.bar a:hover, .bar a:focus {
+    color:#bb7a2a;
+}
+.tab {
+    background-color:#0066FF;
+    color:#ffffff;
+    padding:8px;
+    width:5em;
+    font-weight:bold;
+}
+/*
+Navigation bar styles
+*/
+.bar {
+    background-color:#005695;
+    color:#FFFFFF;
+    padding:.8em .5em .4em .8em;
+    height:auto;/*height:1.8em;*/
+    font-size:11px;
+    margin:0;
+}
+.topNav {
+    background-color:#005695;
+    color:#FFFFFF;
+    float:left;
+    padding:0;
+    width:100%;
+    clear:right;
+    height:2.8em;
+    padding-top:10px;
+    overflow:hidden;
+    font-size:12px;
+}
+.bottomNav {
+    margin-top:10px;
+    background-color:#005695;
+    color:#FFFFFF;
+    float:left;
+    padding:0;
+    width:100%;
+    clear:right;
+    height:2.8em;
+    padding-top:10px;
+    overflow:hidden;
+    font-size:12px;
+}
+.subNav {
+    background-color:#dee3e9;
+    float:left;
+    width:100%;
+    overflow:hidden;
+    font-size:12px;
+}
+.subNav div {
+    clear:left;
+    float:left;
+    padding:0 0 5px 6px;
+    text-transform:uppercase;
+}
+ul.navList, ul.subNavList {
+    float:left;
+    margin:0 25px 0 0;
+    padding:0;
+}
+ul.navList li{
+    list-style:none;
+    float:left;
+    padding: 5px 6px;
+    text-transform:uppercase;
+}
+ul.subNavList li{
+    list-style:none;
+    float:left;
+}
+.topNav a:link, .topNav a:active, .topNav a:visited, .bottomNav a:link, .bottomNav a:active, .bottomNav a:visited {
+    color:#FFFFFF;
+    text-decoration:none;
+    text-transform:uppercase;
+}
+.topNav a:hover, .bottomNav a:hover {
+    text-decoration:none;
+    color:#bb7a2a;
+    text-transform:uppercase;
+}
+.navBarCell1Rev {
+    background-color:#B6CC1F;
+    color:#253441;
+    margin: auto 5px;
+}
+.skipNav {
+    position:absolute;
+    top:auto;
+    left:-9999px;
+    overflow:hidden;
+}
+/*
+Page header and footer styles
+*/
+.header, .footer {
+    clear:both;
+    margin:0 20px;
+    padding:5px 0 0 0;
+}
+.indexHeader {
+    margin:10px;
+    position:relative;
+}
+.indexHeader span{
+    margin-right:15px;
+}
+.indexHeader h1 {
+    font-size:13px;
+}
+.title {
+    color:#2c4557;
+    margin:10px 0;
+}
+.subTitle {
+    margin:5px 0 0 0;
+}
+.header ul {
+    margin:0 0 15px 0;
+    padding:0;
+}
+.footer ul {
+    margin:20px 0 5px 0;
+}
+.header ul li, .footer ul li {
+    list-style:none;
+    font-size:13px;
+}
+/*
+Heading styles
+*/
+div.details ul.blockList ul.blockList ul.blockList li.blockList h4, div.details ul.blockList ul.blockList ul.blockListLast li.blockList h4 {
+    background-color:#dee3e9;
+    border:1px solid #d0d9e0;
+    margin:0 0 6px -8px;
+    padding:7px 5px;
+}
+ul.blockList ul.blockList ul.blockList li.blockList h3 {
+    background-color:#dee3e9;
+    border:1px solid #d0d9e0;
+    margin:0 0 6px -8px;
+    padding:7px 5px;
+}
+ul.blockList ul.blockList li.blockList h3 {
+    padding:0;
+    margin:15px 0;
+}
+ul.blockList li.blockList h2 {
+    padding:0px 0 20px 0;
+}
+/*
+Page layout container styles
+*/
+.contentContainer, .sourceContainer, .classUseContainer, .serializedFormContainer, .constantValuesContainer {
+    clear:both;
+    padding:10px 20px;
+    position:relative;
+}
+.indexContainer {
+    margin:10px;
+    position:relative;
+    font-size:12px;
+}
+.indexContainer h2 {
+    font-size:13px;
+    padding:0 0 3px 0;
+}
+.indexContainer ul {
+    margin:0;
+    padding:0;
+}
+.indexContainer ul li {
+    list-style:none;
+    padding-top:2px;
+}
+.contentContainer .description dl dt, .contentContainer .details dl dt, .serializedFormContainer dl dt {
+    font-size:12px;
+    font-weight:bold;
+    margin:10px 0 0 0;
+    color:#4E4E4E;
+}
+.contentContainer .description dl dd, .contentContainer .details dl dd, .serializedFormContainer dl dd {
+    margin:5px 0 10px 0px;
+    font-size:14px;
+    font-family:'DejaVu Sans Mono',monospace;
+}
+.serializedFormContainer dl.nameValue dt {
+    margin-left:1px;
+    font-size:1.1em;
+    display:inline;
+    font-weight:bold;
+}
+.serializedFormContainer dl.nameValue dd {
+    margin:0 0 0 1px;
+    font-size:1.1em;
+    display:inline;
+}
+/*
+List styles
+*/
+ul.horizontal li {
+    display:inline;
+    font-size:0.9em;
+}
+ul.inheritance {
+    margin:0;
+    padding:0;
+}
+ul.inheritance li {
+    display:inline;
+    list-style:none;
+}
+ul.inheritance li ul.inheritance {
+    margin-left:15px;
+    padding-left:15px;
+    padding-top:1px;
+}
+ul.blockList, ul.blockListLast {
+    margin:10px 0 10px 0;
+    padding:0;
+}
+ul.blockList li.blockList, ul.blockListLast li.blockList {
+    list-style:none;
+    margin-bottom:15px;
+    line-height:1.4;
+}
+ul.blockList ul.blockList li.blockList, ul.blockList ul.blockListLast li.blockList {
+    padding:0px 20px 5px 10px;
+    border:1px solid #ededed;
+    background-color:#f8f8f8;
+}
+ul.blockList ul.blockList ul.blockList li.blockList, ul.blockList ul.blockList ul.blockListLast li.blockList {
+    padding:0 0 5px 8px;
+    background-color:#ffffff;
+    border:none;
+}
+ul.blockList ul.blockList ul.blockList ul.blockList li.blockList {
+    margin-left:0;
+    padding-left:0;
+    padding-bottom:15px;
+    border:none;
+}
+ul.blockList ul.blockList ul.blockList ul.blockList li.blockListLast {
+    list-style:none;
+    border-bottom:none;
+    padding-bottom:0;
+}
+table tr td dl, table tr td dl dt, table tr td dl dd {
+    margin-top:0;
+    margin-bottom:1px;
+}
+/*
+Table styles
+*/
+.overviewSummary, .memberSummary, .typeSummary, .useSummary, .constantsSummary, .deprecatedSummary {
+    width:100%;
+    border-left:1px solid #EEE;
+    border-right:1px solid #EEE;
+    border-bottom:1px solid #EEE;
+}
+.overviewSummary, .memberSummary  {
+    padding:0px;
+}
+.overviewSummary caption, .memberSummary caption, .typeSummary caption,
+.useSummary caption, .constantsSummary caption, .deprecatedSummary caption {
+    position:relative;
+    text-align:left;
+    background-repeat:no-repeat;
+    color:#253441;
+    font-weight:bold;
+    clear:none;
+    overflow:hidden;
+    padding:0px;
+    padding-top:10px;
+    padding-left:1px;
+    margin:0px;
+    white-space:pre;
+}
+.overviewSummary caption a:link, .memberSummary caption a:link, .typeSummary caption a:link,
+.useSummary caption a:link, .constantsSummary caption a:link, .deprecatedSummary caption a:link,
+.overviewSummary caption a:hover, .memberSummary caption a:hover, .typeSummary caption a:hover,
+.useSummary caption a:hover, .constantsSummary caption a:hover, .deprecatedSummary caption a:hover,
+.overviewSummary caption a:active, .memberSummary caption a:active, .typeSummary caption a:active,
+.useSummary caption a:active, .constantsSummary caption a:active, .deprecatedSummary caption a:active,
+.overviewSummary caption a:visited, .memberSummary caption a:visited, .typeSummary caption a:visited,
+.useSummary caption a:visited, .constantsSummary caption a:visited, .deprecatedSummary caption a:visited {
+    color:#FFFFFF;
+}
+.overviewSummary caption span, .memberSummary caption span, .typeSummary caption span,
+.useSummary caption span, .constantsSummary caption span, .deprecatedSummary caption span {
+    white-space:nowrap;
+    padding-top:5px;
+    padding-left:12px;
+    padding-right:12px;
+    padding-bottom:7px;
+    display:inline-block;
+    float:left;
+    background-color:#B6CC1F;
+    border: none;
+    height:16px;
+}
+.memberSummary caption span.activeTableTab span {
+    white-space:nowrap;
+    padding-top:5px;
+    padding-left:12px;
+    padding-right:12px;
+    margin-right:3px;
+    display:inline-block;
+    float:left;
+    background-color:#B6CC1F;
+    height:16px;
+}
+.memberSummary caption span.tableTab span {
+    white-space:nowrap;
+    padding-top:5px;
+    padding-left:12px;
+    padding-right:12px;
+    margin-right:3px;
+    display:inline-block;
+    float:left;
+    background-color:#005695;
+    height:16px;
+}
+.memberSummary caption span.tableTab, .memberSummary caption span.activeTableTab {
+    padding-top:0px;
+    padding-left:0px;
+    padding-right:0px;
+    background-image:none;
+    float:none;
+    display:inline;
+}
+.overviewSummary .tabEnd, .memberSummary .tabEnd, .typeSummary .tabEnd,
+.useSummary .tabEnd, .constantsSummary .tabEnd, .deprecatedSummary .tabEnd {
+    display:none;
+    width:5px;
+    position:relative;
+    float:left;
+    background-color:#B6CC1F;
+}
+.memberSummary .activeTableTab .tabEnd {
+    display:none;
+    width:5px;
+    margin-right:3px;
+    position:relative;
+    float:left;
+    background-color:#B6CC1F;
+}
+.memberSummary .tableTab .tabEnd {
+    display:none;
+    width:5px;
+    margin-right:3px;
+    position:relative;
+    background-color:#005695;
+    float:left;
+
+}
+.overviewSummary td, .memberSummary td, .typeSummary td,
+.useSummary td, .constantsSummary td, .deprecatedSummary td {
+    text-align:left;
+    padding:0px 0px 12px 10px;
+}
+th.colOne, th.colFirst, th.colLast, .useSummary th, .constantsSummary th,
+td.colOne, td.colFirst, td.colLast, .useSummary td, .constantsSummary td{
+    vertical-align:top;
+    padding-right:0px;
+    padding-top:8px;
+    padding-bottom:3px;
+}
+th.colFirst, th.colLast, th.colOne, .constantsSummary th {
+    background:#dee3e9;
+    text-align:left;
+    padding:8px 3px 3px 7px;
+}
+td.colFirst, th.colFirst {
+    white-space:nowrap;
+    font-size:13px;
+}
+td.colLast, th.colLast {
+    font-size:13px;
+}
+td.colOne, th.colOne {
+    font-size:13px;
+}
+.overviewSummary td.colFirst, .overviewSummary th.colFirst,
+.useSummary td.colFirst, .useSummary th.colFirst,
+.overviewSummary td.colOne, .overviewSummary th.colOne,
+.memberSummary td.colFirst, .memberSummary th.colFirst,
+.memberSummary td.colOne, .memberSummary th.colOne,
+.typeSummary td.colFirst{
+    width:25%;
+    vertical-align:top;
+}
+td.colOne a:link, td.colOne a:active, td.colOne a:visited, td.colOne a:hover, td.colFirst a:link, td.colFirst a:active, td.colFirst a:visited, td.colFirst a:hover, td.colLast a:link, td.colLast a:active, td.colLast a:visited, td.colLast a:hover, .constantValuesContainer td a:link, .constantValuesContainer td a:active, .constantValuesContainer td a:visited, .constantValuesContainer td a:hover {
+    font-weight:bold;
+}
+.tableSubHeadingColor {
+    background-color:#EEEEFF;
+}
+.altColor {
+    background-color:#FFFFFF;
+}
+.rowColor {
+    background-color:#EEEEEF;
+}
+/*
+Content styles
+*/
+.description pre {
+    margin-top:0;
+}
+.deprecatedContent {
+    margin:0;
+    padding:10px 0;
+}
+.docSummary {
+    padding:0;
+}
+
+ul.blockList ul.blockList ul.blockList li.blockList h3 {
+    font-style:normal;
+}
+
+div.block {
+    font-size:14px;
+    font-family:'DejaVu Serif', Georgia, "Times New Roman", Times, serif;
+}
+
+td.colLast div {
+    padding-top:0px;
+}
+
+
+td.colLast a {
+    padding-bottom:3px;
+}
+/*
+Formatting effect styles
+*/
+.sourceLineNo {
+    color:green;
+    padding:0 30px 0 0;
+}
+h1.hidden {
+    visibility:hidden;
+    overflow:hidden;
+    font-size:10px;
+}
+.block {
+    display:block;
+    margin:3px 10px 2px 0px;
+    color:#474747;
+}
+.deprecatedLabel, .descfrmTypeLabel, .memberNameLabel, .memberNameLink,
+.overrideSpecifyLabel, .packageHierarchyLabel, .paramLabel, .returnLabel,
+.seeLabel, .simpleTagLabel, .throwsLabel, .typeNameLabel, .typeNameLink {
+    font-weight:bold;
+}
+.deprecationComment, .emphasizedPhrase, .interfaceName {
+    font-style:italic;
+}
+
+div.block div.block span.deprecationComment, div.block div.block span.emphasizedPhrase,
+div.block div.block span.interfaceName {
+    font-style:normal;
+}
+
+div.contentContainer ul.blockList li.blockList h2{
+    padding-bottom:0px;
+}
+
+/* additions */
+h1:before {
+    margin-top:6px;
+    height:34px;
+    width:26px;
+    float:left;
+    content:"";
+    margin-right:10px;
+    background:url('data:image/png;base64,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') no-repeat 0 0;
+    font-size:28px;
+    color:#007c00;
+    padding: 0.1em;
+    background-size:contain;
+}
+
+.bar:after {
+    content:'';
+    display:table;
+    clear:both;
+}
+
+h1 {
+    height: 44px !important;
+    display: flex;
+    align-items: center;
+}
