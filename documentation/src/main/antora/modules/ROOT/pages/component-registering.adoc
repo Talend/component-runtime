@@ -76,7 +76,7 @@ The component type is declared in the component class. When you import your proj
 
 *Processor*/*Output* components can be:
 
-- A processor. `@Processor` is the default for output components. A method decorated with `@Processor` is considered as a producer factory.
+- A processor. `@Processor` is the default for output components.
 - Combiners are not supported by the framework. Combiners allow to aggregate results in a single partition.
 
 *Standalone* component can be only a driver runner.
