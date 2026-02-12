@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.container;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.list;
 import static java.util.Optional.of;
@@ -29,6 +30,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -100,9 +104,8 @@ public class ContainerManager implements Lifecycle {
 
     private final boolean hasNestedRepository;
 
-    private final Pattern versionWithJiraIssue = Pattern.compile("-[A-Z]{2,}-\\d+$");
-
-    private final Pattern versionWithMilestone = Pattern.compile("M\\d+$");
+    @Getter
+    private final List<String> runtimeClasspath = new ArrayList<>();
 
     public ContainerManager(final DependenciesResolutionConfiguration dependenciesResolutionConfiguration,
             final ClassLoaderConfiguration classLoaderConfiguration, final Consumer<Container> containerInitializer,
@@ -111,19 +114,29 @@ public class ContainerManager implements Lifecycle {
         this.containerInitializer = containerInitializer;
         this.resolver = dependenciesResolutionConfiguration.getResolver();
         this.rootRepositoryLocation = dependenciesResolutionConfiguration.getRootRepositoryLocation();
-
         info("Using root repository: " + this.rootRepositoryLocation.toAbsolutePath());
+        if (log.isDebugEnabled()) {
+            getSystemInformations();
+        }
+        readRuntimeClasspath();
         final String nestedPluginMappingResource = ofNullable(classLoaderConfiguration.getNestedPluginMappingResource())
                 .orElse("TALEND-INF/plugins.properties");
         this.classLoaderConfiguration = new ClassLoaderConfiguration(
                 ofNullable(classLoaderConfiguration.getParent()).orElseGet(ContainerManager.class::getClassLoader),
                 ofNullable(classLoaderConfiguration.getClassesFilter()).orElseGet(() -> name -> true),
                 ofNullable(classLoaderConfiguration.getParentClassesFilter()).orElseGet(() -> name -> true),
+                ofNullable(classLoaderConfiguration.getParentResourcesFilter()).orElseGet(() -> name -> true),
                 classLoaderConfiguration.isSupportsResourceDependencies(), nestedPluginMappingResource);
         if (classLoaderConfiguration.isSupportsResourceDependencies()) {
             try (final InputStream mappingStream =
                     classLoaderConfiguration.getParent().getResourceAsStream(nestedPluginMappingResource)) {
                 if (mappingStream != null) {
+                    if (log.isDebugEnabled()) {
+                        final URL plug = classLoaderConfiguration.getParent().getResource(nestedPluginMappingResource);
+                        if (plug != null) {
+                            log.debug("[sysinfo] plugins mapping " + plug.toString());
+                        }
+                    }
                     final Properties properties = new Properties() {
 
                         {
@@ -150,10 +163,13 @@ public class ContainerManager implements Lifecycle {
         this.jvmMarkers = Stream
                 .concat(Stream.concat(Stream.of(getJre()), getComponentModules()), getCustomJvmMarkers())
                 .toArray(String[]::new);
-        this.hasNestedRepository =
-                this.classLoaderConfiguration.isSupportsResourceDependencies() && this.classLoaderConfiguration
-                        .getParent()
-                        .getResource(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY) != null;
+        final URL nestedMvn = this.classLoaderConfiguration
+                .getParent()
+                .getResource(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY);
+        this.hasNestedRepository = this.classLoaderConfiguration.isSupportsResourceDependencies() && nestedMvn != null;
+        if (log.isDebugEnabled() && hasNestedRepository) {
+            log.debug("[sysinfo] nested maven repository: " + nestedMvn);
+        }
     }
 
     public File getRootRepositoryLocation() {
@@ -235,10 +251,22 @@ public class ContainerManager implements Lifecycle {
             return file;
         }
 
+        final String artifactName = path.substring(path.lastIndexOf('/') + 1);
         // from job lib folder
-        final Path libFile = rootRepositoryLocation.resolve(path.substring(path.lastIndexOf('/') + 1));
+        final Path libFile = rootRepositoryLocation.resolve(artifactName);
         if (Files.exists(libFile)) {
             return libFile;
+        }
+
+        // try to find it in the runtime classpath
+        final Optional<String> rtcpFile = runtimeClasspath.stream()
+                .filter(p -> p.endsWith(artifactName) && p.contains(File.separator + artifactName))
+                .findFirst();
+        if (rtcpFile.isPresent()) {
+            final Path cpFile = PathFactory.get(rtcpFile.get());
+            if (Files.exists(cpFile)) {
+                return cpFile;
+            }
         }
 
         // will be filtered later
@@ -249,7 +277,7 @@ public class ContainerManager implements Lifecycle {
         return builder(buildAutoIdFromName(module), module);
     }
 
-    public String buildAutoIdFromName(final String module) {
+    public static String buildAutoIdFromName(final String module) {
         final String[] segments = module.split(":");
         if (segments.length > 2) { // == 2 can be a windows path so enforce > 2 but then
             // assume it is mvn GAV
@@ -265,11 +293,11 @@ public class ContainerManager implements Lifecycle {
             if (autoId.endsWith("-SNAPSHOT")) {
                 autoId = autoId.substring(0, autoId.length() - "-SNAPSHOT".length());
             }
-            final Matcher jiraTicket = versionWithJiraIssue.matcher(autoId);
+            final Matcher jiraTicket = Pattern.compile("-[A-Z]{2,}-\\d+$").matcher(autoId);
             if (jiraTicket.find()) {
                 autoId = autoId.substring(0, jiraTicket.start());
             }
-            final Matcher milestone = versionWithMilestone.matcher(autoId);
+            final Matcher milestone = Pattern.compile("M\\d+$").matcher(autoId);
             if (milestone.find()) {
                 autoId = autoId.substring(0, milestone.start());
             }
@@ -389,6 +417,87 @@ public class ContainerManager implements Lifecycle {
                 .orElseThrow(IllegalArgumentException::new);
     }
 
+    private void getSystemInformations() {
+        try {
+            final RuntimeMXBean rt = ManagementFactory.getRuntimeMXBean();
+            log.debug("[sysinfo] JVM arguments: " + rt.getInputArguments());
+            try {
+                log.debug("[sysinfo] Boot classpath: " + rt.getBootClassPath());
+            } catch (Exception e) {
+            }
+            log.debug("[sysinfo] Runtime classpath: " + rt.getClassPath());
+            log.debug("[sysinfo] Runtime arguments: " + System.getProperty("sun.java.command"));
+        } catch (Exception e) {
+            log.debug("Unable to get JVM information: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Catch the runtime classpath to be able to resolve plugins from it if needed.
+     * This may be useful in case of running in an environment like jobServer where
+     * the classpath is not linked to a single directory like `../lib` but scattered
+     * through cache dirs.
+     */
+    private void readRuntimeClasspath() {
+        try {
+            final RuntimeMXBean rt = ManagementFactory.getRuntimeMXBean();
+            final String classpath = rt.getClassPath();
+            Stream.of(classpath.split(File.pathSeparator))
+                    .filter(p -> p.endsWith(".jar"))
+                    .map(PathFactory::get)
+                    .filter(Files::exists)
+                    .forEach(p -> {
+                        if ("classpath.jar".equals(p.getFileName().toString())) {
+                            runtimeClasspath.addAll(getClasspathFromJar(p));
+                        } else {
+                            runtimeClasspath.add(p.toAbsolutePath().toString());
+                            log.debug("[sysinfo] Runtime classpath entry: " + p.toAbsolutePath());
+                        }
+                    });
+            // cleanup the classpath from entries that are known as framework artifacts
+            final Predicate<String> frameworkFilter = p -> p.matches(".*" + File.separatorChar +
+                    "(component-api|component-runtime-design-extension|component-runtime-di|component-runtime-impl|" +
+                    "component-runtime-manager|component-spi|container-core|geronimo-annotation_1.3_spec|" +
+                    "geronimo-json_1.1_spec|geronimo-jsonb_1.0_spec|johnzon-core|johnzon-jsonb|johnzon-mapper|" +
+                    "rhino|slf4j-api|slf4j-log4j12|slf4j-reload4j|xbean-asm9-shaded|xbean-finder-shaded|xbean-reflect)"
+                    + "-.*jar$");
+            runtimeClasspath.removeIf(p -> frameworkFilter.test(p));
+        } catch (Exception e) {
+            info("Unable to get runtime classpath: " + e.getMessage());
+        }
+    }
+
+    /**
+     * In some environments like jobServer, the classpath can be set to a single "classpath.jar" file containing in its
+     * manifest the list of real classpath entries.
+     * In this case we need to read MANIFEST.MF in "classpath.jar" to get classpath jars' list
+     *
+     * @param jar
+     * @return classpath entries defined in the manifest of the given jar, or an empty list if the manifest can't be
+     * read or doesn't contain a Class-Path entry
+     */
+    private List<String> getClasspathFromJar(final Path jar) {
+        try (final java.util.jar.JarFile jarFile = new java.util.jar.JarFile(jar.toFile())) {
+            final java.util.jar.Manifest manifest = jarFile.getManifest();
+            if (manifest != null) {
+                final String cp = manifest.getMainAttributes().getValue("Class-Path");
+                if (cp != null) {
+                    return Stream.of(cp.split(" "))
+                            .filter(c -> !c.equals(".") || !c.trim().isEmpty())
+                            .filter(c -> c.endsWith(".jar"))
+                            .map(PathFactory::get)
+                            .filter(Files::exists)
+                            .map(p -> p.toAbsolutePath().toString())
+                            .peek(p -> log.debug("[sysinfo] Runtime classpath entry from manifest: " + p))
+                            .collect(toList());
+                }
+            }
+        } catch (IOException e) {
+            info("Unable to read " + jar + " manifest: " + e.getMessage());
+        }
+        return emptyList();
+    }
+
     @Override
     public void close() {
         lifecycle.closeIfNeeded(() -> {
@@ -420,6 +529,8 @@ public class ContainerManager implements Lifecycle {
         private final Predicate<String> classesFilter;
 
         private final Predicate<String> parentClassesFilter;
+
+        private final Predicate<String> parentResourcesFilter;
 
         // is nested jar in jar supported (1 level only)
         private final boolean supportsResourceDependencies;
@@ -472,8 +583,8 @@ public class ContainerManager implements Lifecycle {
                     ? nestedContainerMapping.getOrDefault(module, module)
                     : module;
             final Path resolved = resolve(moduleLocation);
-            info("Creating module " + moduleLocation + " (from " + module
-                    + (Files.exists(resolved) ? ", location=" + resolved.toAbsolutePath().toString() : "") + ")");
+            info(String.format("Creating module %s (from %s, location=%s)", moduleLocation, module,
+                    resolved.toAbsolutePath()));
             final Stream<Artifact> classpath = Stream
                     .concat(getBuiltInClasspath(moduleLocation),
                             additionalClasspath == null ? Stream.empty() : additionalClasspath.stream());
