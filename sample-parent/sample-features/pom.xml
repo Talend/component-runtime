@@ -27,31 +27,32 @@
 
     <name>Component Runtime :: Sample Features</name>
 
-    <modules>
-        <module>fixed-schema</module>
-        <module>aftergroup-lastgroup</module>
-        <module>database-mapping</module>
-        <module>conditional-outputs</module>
-        <module>checkpoint-runner</module>
-        <module>configuration-form</module>
-        <module>entry-with-error</module>
-        <module>actions-in-forms</module>
-    </modules>
+  <modules>
+    <module>fixed-schema</module>
+    <module>aftergroup-lastgroup</module>
+    <module>database-mapping</module>
+    <module>conditional-outputs</module>
+    <module>checkpoint-runner</module>
+    <module>configuration-form</module>
+    <module>actions-in-forms</module>
+    <module>entry-with-error</module>
+    <module>loading-analysis</module>
+  </modules>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.talend.sdk.component</groupId>
-            <artifactId>component-api</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
+  <dependencies>
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-api</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.talend.sdk.component</groupId>
             <artifactId>component-runtime-junit</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
-        </dependency>
-    </dependencies>
+    </dependency>
+  </dependencies>
 
     <build>
         <plugins>
