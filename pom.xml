@@ -210,7 +210,7 @@
     <jackson.version>2.16.0</jackson.version>
     <jackson-databind.version>2.16.0</jackson-databind.version>
     <avro-jackson.version>1.9.13</avro-jackson.version>
-    <avro.version>1.11.4</avro.version>
+    <avro.version>1.11.5</avro.version>
     <jsoup.version>1.15.3</jsoup.version>
     <dom4j.version>2.1.4</dom4j.version>
 
@@ -269,7 +269,7 @@
     <ossindex-maven-plugin.version>3.2.0</ossindex-maven-plugin.version>
 
 
-    <jgit.version>6.7.0.202309050840-r</jgit.version>
+    <jgit.version>6.10.1.202505221210-r</jgit.version>
     <jruby.version>9.2.19.0</jruby.version>
     <node.version>v20.12.0</node.version>
     <npm.version>10.5.0</npm.version>
