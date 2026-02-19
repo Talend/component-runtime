@@ -615,7 +615,7 @@ pipeline {
                   allowMissing         : true,
                   alwaysLinkToLastBuild: false,
                   keepAll              : true,
-                  reportDir            : 'target/site/',
+                  reportDir            : 'target/reports/',
                   reportFiles          : 'dependency-updates-report.html',
                   reportName           : "outdated::dependency"
               ])
@@ -624,7 +624,7 @@ pipeline {
                   allowMissing         : true,
                   alwaysLinkToLastBuild: false,
                   keepAll              : true,
-                  reportDir            : 'target/site/',
+                  reportDir            : 'target/reports/',
                   reportFiles          : 'plugin-updates-report.html',
                   reportName           : "outdated::plugins"
               ])
