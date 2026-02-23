@@ -159,7 +159,7 @@ pipeline {
         defaultValue: false,
         description: '''
             Force DOCKER push stage for development branches. No effect on master and maintenance.
-            INFO: master/maintenance and dev branches are deploying on <artifactory.datapwn.com>''')
+            INFO: master/maintenance and dev branches deploy artefacts on <artifactory.datapwn.com>''')
     choice(
         name: 'DOCKER_CHOICE',
         choices: ['component-server',
@@ -615,7 +615,7 @@ pipeline {
                   allowMissing         : true,
                   alwaysLinkToLastBuild: false,
                   keepAll              : true,
-                  reportDir            : 'target/site/',
+                  reportDir            : 'target/reports/',
                   reportFiles          : 'dependency-updates-report.html',
                   reportName           : "outdated::dependency"
               ])
@@ -624,7 +624,7 @@ pipeline {
                   allowMissing         : true,
                   alwaysLinkToLastBuild: false,
                   keepAll              : true,
-                  reportDir            : 'target/site/',
+                  reportDir            : 'target/reports/',
                   reportFiles          : 'plugin-updates-report.html',
                   reportName           : "outdated::plugins"
               ])
