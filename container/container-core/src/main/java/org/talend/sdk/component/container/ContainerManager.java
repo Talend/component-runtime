@@ -476,7 +476,7 @@ public class ContainerManager implements Lifecycle {
      * @return classpath entries defined in the manifest of the given jar, or an empty list if the manifest can't be
      * read or doesn't contain a Class-Path entry
      */
-    private List<String> getClasspathFromJar(final Path jar) {
+    public List<String> getClasspathFromJar(final Path jar) {
         try (final java.util.jar.JarFile jarFile = new java.util.jar.JarFile(jar.toFile())) {
             final java.util.jar.Manifest manifest = jarFile.getManifest();
             if (manifest != null) {
