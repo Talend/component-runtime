@@ -78,6 +78,10 @@ public class ContainerManager implements Lifecycle {
     private static final Consumer<Container> NOOP_CUSTOMIZER = c -> {
     };
 
+    private static final Pattern JIRA_TICKET_PATTERN = Pattern.compile("-[A-Z]{2,}-\\d+$");
+
+    private static final Pattern MILESTONE_PATTERN = Pattern.compile("M\\d+$");
+
     private final ConcurrentMap<String, Container> containers = new ConcurrentHashMap<>();
 
     private final ClassLoaderConfiguration classLoaderConfiguration;
@@ -293,11 +297,11 @@ public class ContainerManager implements Lifecycle {
             if (autoId.endsWith("-SNAPSHOT")) {
                 autoId = autoId.substring(0, autoId.length() - "-SNAPSHOT".length());
             }
-            final Matcher jiraTicket = Pattern.compile("-[A-Z]{2,}-\\d+$").matcher(autoId);
+            final Matcher jiraTicket = JIRA_TICKET_PATTERN.matcher(autoId);
             if (jiraTicket.find()) {
                 autoId = autoId.substring(0, jiraTicket.start());
             }
-            final Matcher milestone = Pattern.compile("M\\d+$").matcher(autoId);
+            final Matcher milestone = MILESTONE_PATTERN.matcher(autoId);
             if (milestone.find()) {
                 autoId = autoId.substring(0, milestone.start());
             }
