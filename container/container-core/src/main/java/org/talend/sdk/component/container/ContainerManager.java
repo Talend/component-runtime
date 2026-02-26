@@ -487,7 +487,7 @@ public class ContainerManager implements Lifecycle {
                 final String cp = manifest.getMainAttributes().getValue("Class-Path");
                 if (cp != null) {
                     return Stream.of(cp.split(" "))
-                            .filter(c -> !c.equals(".") || !c.trim().isEmpty())
+                            .filter(c -> !c.equals(".") && !c.trim().isEmpty())
                             .filter(c -> c.endsWith(".jar"))
                             .map(PathFactory::get)
                             .filter(Files::exists)
