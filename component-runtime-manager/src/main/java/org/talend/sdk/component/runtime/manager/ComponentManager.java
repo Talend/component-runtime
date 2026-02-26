@@ -2246,7 +2246,8 @@ public class ComponentManager implements AutoCloseable {
         Stream<String> containerClassesAndPackages();
 
         /**
-         * @return
+         * @return a stream of string representing resources. They will be considered
+         * as loaded from the "container" (ComponentManager loader) and not the components classloaders.
          */
         default Stream<String> parentResources() {
             return Stream.empty();
