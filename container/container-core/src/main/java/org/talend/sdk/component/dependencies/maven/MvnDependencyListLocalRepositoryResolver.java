@@ -121,7 +121,7 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
             };
             final String module = ContainerManager.buildAutoIdFromName(artifact);
             final String dyndeps = properties.getProperty(module, "");
-            return dyndeps.replaceAll(",", System.lineSeparator());
+            return dyndeps.replace(",", System.lineSeparator());
         } catch (final IOException e) {
             log.debug(e.getMessage(), e);
             return "";

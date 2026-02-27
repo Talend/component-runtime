@@ -78,6 +78,13 @@ public class ContainerManager implements Lifecycle {
     private static final Consumer<Container> NOOP_CUSTOMIZER = c -> {
     };
 
+    private static final Pattern FRAMEWORK_JAR_PATTERN = Pattern.compile(".*" + File.separatorChar +
+            "(component-api|component-runtime-design-extension|component-runtime-di|component-runtime-impl|" +
+            "component-runtime-manager|component-spi|container-core|geronimo-annotation_1.3_spec|" +
+            "geronimo-json_1.1_spec|geronimo-jsonb_1.0_spec|johnzon-core|johnzon-jsonb|johnzon-mapper|" +
+            "rhino|slf4j-api|slf4j-log4j12|slf4j-reload4j|xbean-asm9-shaded|xbean-finder-shaded|xbean-reflect)" +
+            "-.*jar$");
+
     private static final Pattern JIRA_TICKET_PATTERN = Pattern.compile("-[A-Z]{2,}-\\d+$");
 
     private static final Pattern MILESTONE_PATTERN = Pattern.compile("M\\d+$");
@@ -108,7 +115,6 @@ public class ContainerManager implements Lifecycle {
 
     private final boolean hasNestedRepository;
 
-    @Getter
     private final List<String> runtimeClasspath = new ArrayList<>();
 
     public ContainerManager(final DependenciesResolutionConfiguration dependenciesResolutionConfiguration,
@@ -421,6 +427,10 @@ public class ContainerManager implements Lifecycle {
                 .orElseThrow(IllegalArgumentException::new);
     }
 
+    public List<String> getRuntimeClasspath() {
+        return Collections.unmodifiableList(runtimeClasspath);
+    }
+
     private void getSystemInformations() {
         try {
             final RuntimeMXBean rt = ManagementFactory.getRuntimeMXBean();
@@ -459,12 +469,7 @@ public class ContainerManager implements Lifecycle {
                         }
                     });
             // cleanup the classpath from entries that are known as framework artifacts
-            final Predicate<String> frameworkFilter = p -> p.matches(".*" + File.separatorChar +
-                    "(component-api|component-runtime-design-extension|component-runtime-di|component-runtime-impl|" +
-                    "component-runtime-manager|component-spi|container-core|geronimo-annotation_1.3_spec|" +
-                    "geronimo-json_1.1_spec|geronimo-jsonb_1.0_spec|johnzon-core|johnzon-jsonb|johnzon-mapper|" +
-                    "rhino|slf4j-api|slf4j-log4j12|slf4j-reload4j|xbean-asm9-shaded|xbean-finder-shaded|xbean-reflect)"
-                    + "-.*jar$");
+            final Predicate<String> frameworkFilter = p -> FRAMEWORK_JAR_PATTERN.matcher(p).matches();
             runtimeClasspath.removeIf(p -> frameworkFilter.test(p));
         } catch (Exception e) {
             info("Unable to get runtime classpath: " + e.getMessage());

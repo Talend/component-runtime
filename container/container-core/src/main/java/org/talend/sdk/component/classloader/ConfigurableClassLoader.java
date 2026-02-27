@@ -490,7 +490,6 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     private boolean isInJvm(final URL resource) {
         // Services and parent allowed resources that should always be found by top level classloader.
-        // By default, META-INF/services/ is always allowed otherwise SPI won't work properly in nested environments.
         // Warning: selection shouldn't be too generic! Use very specific paths only like jndi.properties.
         if (resourcesFilter.test(resource.getFile())) {
             return true;

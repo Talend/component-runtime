@@ -930,7 +930,7 @@ public class ComponentManager implements AutoCloseable {
                                 && file.getParentFile().getName().equals("TALEND-INF")) {
                             file = file.getParentFile().getParentFile();
                         }
-                        if (!hasPlugin(container.buildAutoIdFromName(file.getName()))) {
+                        if (!hasPlugin(ContainerManager.buildAutoIdFromName(file.getName()))) {
                             addPlugin(file.getAbsolutePath());
                         }
                     } else {
@@ -939,7 +939,7 @@ public class ComponentManager implements AutoCloseable {
                             final String urlFile = marker.getFile();
                             final String jarPath = urlFile.substring(0, urlFile.lastIndexOf("!"));
                             final String jarFilePath = jarPath.substring(jarPath.lastIndexOf("/") + 1);
-                            if (!hasPlugin(container.buildAutoIdFromName(jarFilePath))) {
+                            if (!hasPlugin(ContainerManager.buildAutoIdFromName(jarFilePath))) {
                                 addPlugin(jarPath);
                             }
                         }
