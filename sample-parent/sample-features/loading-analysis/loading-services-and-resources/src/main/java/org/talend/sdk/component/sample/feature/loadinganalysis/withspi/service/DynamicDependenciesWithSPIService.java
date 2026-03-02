@@ -42,12 +42,14 @@ import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.dependency.DynamicDependencies;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
+import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestlibrary.serviceInterfaces.StringProviderFromExternalSPI;
 import org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDependency;
 import org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDynamicDependency;
 import org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestlibrary.spiConsumers.DependencySPIConsumer;
 import org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestlibrary.spiConsumers.DynamicDependencySPIConsumer;
 import org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestlibrary.spiConsumers.ExternalDependencySPIConsumer;
+import org.talend.sdk.component.sample.feature.loadinganalysis.withspi.config.Config;
 import org.talend.sdk.component.sample.feature.loadinganalysis.withspi.config.Dataset;
 
 import lombok.extern.slf4j.Slf4j;
@@ -100,7 +102,8 @@ public class DynamicDependenciesWithSPIService implements Serializable {
     }
 
     public Iterator<Record> getRecordIterator() {
-        String rootRepository = System.getProperty("talend.component.manager.m2.repository");
+        String rootRepository =
+                String.valueOf(ComponentManager.instance().getContainer().getRootRepositoryLocationPath());
         String runtimeClasspath = System.getProperty("java.class.path");
         String workDirectory = System.getProperty("user.dir");
 

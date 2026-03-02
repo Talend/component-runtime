@@ -51,6 +51,7 @@ import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.dependency.Resolver;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.source.ProducerFinder;
+import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.sample.feature.loadinganalysis.config.Connector;
 import org.talend.sdk.component.sample.feature.loadinganalysis.config.Dependency;
 import org.talend.sdk.component.sample.feature.loadinganalysis.config.DynamicDependencyConfig;
@@ -234,7 +235,8 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
 
         firstRecord.ifPresent(record -> builder.withRecord(ENTRY_FIRST_RECORD, record));
 
-        String rootRepository = System.getProperty("talend.component.manager.m2.repository");
+        String rootRepository =
+                String.valueOf(ComponentManager.instance().getContainer().getRootRepositoryLocationPath());
         String runtimeClasspath = System.getProperty("java.class.path");
         String workDirectory = System.getProperty("user.dir");
 
