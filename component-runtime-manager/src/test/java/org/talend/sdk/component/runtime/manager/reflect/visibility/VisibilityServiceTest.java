@@ -23,14 +23,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.json.Json;
-import javax.json.spi.JsonProvider;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.service.JsonProviderCache;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 
 class VisibilityServiceTest {
 
-    private final VisibilityService service = new VisibilityService(JsonProvider.provider());
+    private final VisibilityService service = new VisibilityService(JsonProviderCache.JSON_PROVIDER);
 
     @Test
     void one() {

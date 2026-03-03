@@ -38,6 +38,7 @@ import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
+import org.talend.sdk.component.api.service.JsonProviderCache;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.record.json.PojoJsonbProvider;
 import org.talend.sdk.component.runtime.record.json.RecordJsonGenerator;
@@ -46,7 +47,7 @@ public class PluralRecordExtension implements ParameterResolver, AfterEachCallba
 
     private final RecordConverters converter = new RecordConverters();
 
-    private final JsonProvider jsonProvider = JsonProvider.provider();
+    private final JsonProvider jsonProvider = JsonProviderCache.JSON_PROVIDER;
 
     private final JsonBuilderFactory jsonBuilderFactory = Json.createBuilderFactory(emptyMap());
 

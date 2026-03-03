@@ -30,7 +30,6 @@ import java.util.stream.IntStream;
 import javax.inject.Inject;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
-import javax.json.spi.JsonProvider;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 
@@ -38,6 +37,7 @@ import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.service.JsonProviderCache;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
@@ -128,7 +128,7 @@ class ConfigurationTypeResourceImplTest {
 
     @Test
     void migrateWithEncrypted() {
-        final JsonBuilderFactory factory = JsonProvider.provider().createBuilderFactory(emptyMap());
+        final JsonBuilderFactory factory = JsonProviderCache.JSON_PROVIDER.createBuilderFactory(emptyMap());
         final JsonObject json = factory
                 .createObjectBuilder()
                 .add("configuration.url", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==")
@@ -163,7 +163,7 @@ class ConfigurationTypeResourceImplTest {
         final String fakeString = IntStream.range(0, 8196 * 2).mapToObj(String::valueOf).collect(Collectors.joining());
         final String fakeUrl = "https://somefakeurl.ua";
 
-        final JsonBuilderFactory factory = JsonProvider.provider().createBuilderFactory(emptyMap());
+        final JsonBuilderFactory factory = JsonProviderCache.JSON_PROVIDER.createBuilderFactory(emptyMap());
         final JsonObject json = factory
                 .createObjectBuilder()
                 .add("configuration.url", fakeUrl)

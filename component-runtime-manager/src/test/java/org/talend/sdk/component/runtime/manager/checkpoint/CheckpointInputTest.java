@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.talend.sdk.component.api.service.JsonProviderCache.JSONB_PROVIDER;
+import static org.talend.sdk.component.api.service.JsonProviderCache.JSON_PROVIDER;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -35,7 +37,6 @@ import java.util.function.Supplier;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
-import javax.json.bind.spi.JsonbProvider;
 import javax.json.spi.JsonProvider;
 
 import org.junit.jupiter.api.AfterEach;
@@ -61,11 +62,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 class CheckpointInputTest {
 
-    private final JsonProvider jsonp = JsonProvider.provider();
+    private final JsonProvider jsonp = JSON_PROVIDER;
 
     private final JsonBuilderFactory jsonFactory = jsonp.createBuilderFactory(emptyMap());
 
-    private final Jsonb jsonb = JsonbProvider.provider().create().build();
+    private final Jsonb jsonb = JSONB_PROVIDER.create().withProvider(JSON_PROVIDER).build();
 
     private final PluginGenerator pluginGenerator = new PluginGenerator();
 

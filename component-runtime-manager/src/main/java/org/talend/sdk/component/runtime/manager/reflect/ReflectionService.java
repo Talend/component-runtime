@@ -63,7 +63,6 @@ import javax.json.JsonReader;
 import javax.json.JsonReaderFactory;
 import javax.json.JsonString;
 import javax.json.JsonValue;
-import javax.json.spi.JsonProvider;
 
 import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.apache.xbean.recipe.ObjectRecipe;
@@ -71,6 +70,7 @@ import org.apache.xbean.recipe.UnsetPropertiesRecipe;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.service.JsonProviderCache;
 import org.talend.sdk.component.api.service.configuration.Configuration;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.runtime.internationalization.InternationalizationServiceFactory;
@@ -892,7 +892,8 @@ public class ReflectionService {
     @RequiredArgsConstructor
     private static class PayloadValidator implements PayloadMapper.OnParameter {
 
-        private static final VisibilityService VISIBILITY_SERVICE = new VisibilityService(JsonProvider.provider());
+        private static final VisibilityService VISIBILITY_SERVICE =
+                new VisibilityService(JsonProviderCache.JSON_PROVIDER);
 
         private static final Messages MESSAGES = new InternationalizationServiceFactory(Locale::getDefault)
                 .create(Messages.class, PayloadValidator.class.getClassLoader());

@@ -19,6 +19,8 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.talend.sdk.component.api.service.JsonProviderCache.JSONB_PROVIDER;
+import static org.talend.sdk.component.api.service.JsonProviderCache.JSON_PROVIDER;
 
 import java.io.IOException;
 import java.net.URI;
@@ -30,7 +32,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.bind.Jsonb;
-import javax.json.bind.spi.JsonbProvider;
 import javax.websocket.ClientEndpointConfig;
 import javax.websocket.CloseReason;
 import javax.websocket.ContainerProvider;
@@ -136,7 +137,7 @@ public class WebsocketClient {
             if (String.class == response) {
                 return response.cast(index.substring(startJson, endJson));
             }
-            try (final Jsonb jsonb = JsonbProvider.provider().create().build()) {
+            try (final Jsonb jsonb = JSONB_PROVIDER.create().withProvider(JSON_PROVIDER).build()) {
                 final T ci = jsonb.fromJson(index.substring(startJson, endJson), response);
                 assertNotNull(ci);
                 return ci;

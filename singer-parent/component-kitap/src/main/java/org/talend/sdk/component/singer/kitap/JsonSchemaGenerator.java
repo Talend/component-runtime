@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.singer.kitap;
 
-import static javax.json.stream.JsonCollectors.toJsonObject;
-
 import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Map;
@@ -29,6 +27,7 @@ import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.service.JsonProviderCache;
 
 import lombok.RequiredArgsConstructor;
 
@@ -44,7 +43,7 @@ public class JsonSchemaGenerator implements Supplier<JsonObject> {
         final JsonObjectBuilder json = jsonBuilderFactory.createObjectBuilder();
         json.add("type", jsonBuilderFactory.createArrayBuilder().add("null").add("object").build());
         json.add("additionalProperties", false);
-        json.add("properties", properties.stream().map(this::toJson).collect(toJsonObject()));
+        json.add("properties", properties.stream().map(this::toJson).collect(JsonProviderCache.JSON_OBJECT_COLLECTOR));
         return json.build();
     }
 

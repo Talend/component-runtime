@@ -43,6 +43,11 @@
       <artifactId>component-runtime-manager</artifactId>
       <version>${project.version}</version>
     </dependency>
+      <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>component-api</artifactId>
+          <version>${project.version}</version>
+      </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>

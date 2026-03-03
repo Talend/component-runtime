@@ -17,6 +17,8 @@ package org.talend.sdk.component.singer.kitap;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static org.talend.sdk.component.api.service.JsonProviderCache.JSONB_PROVIDER;
+import static org.talend.sdk.component.api.service.JsonProviderCache.JSON_PROVIDER;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -38,8 +40,6 @@ import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.bind.JsonbConfig;
-import javax.json.bind.spi.JsonbProvider;
-import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
@@ -59,10 +59,11 @@ public class RecordJsonMapper implements Function<Record, JsonObject> {
     private final Singer singer;
 
     private final RecordService service = RecordService.class
-            .cast(new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
+            .cast(new DefaultServiceProvider(null, JSON_PROVIDER,
+                    Json.createGeneratorFactory(emptyMap()),
                     Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
                     Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
-                    JsonbProvider.provider(), null, null, emptyList(), t -> new RecordBuilderFactoryImpl("kitap"), null)
+                    JSONB_PROVIDER, null, null, emptyList(), t -> new RecordBuilderFactoryImpl("kitap"), null)
                     .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
                             RecordService.class, null, null));
 

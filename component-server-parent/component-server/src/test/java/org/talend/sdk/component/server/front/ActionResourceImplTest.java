@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.talend.sdk.component.api.record.Schema.Type.LONG;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
+import static org.talend.sdk.component.api.service.JsonProviderCache.JSONB_PROVIDER;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -33,7 +34,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.json.JsonObject;
-import javax.json.bind.spi.JsonbProvider;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
@@ -235,7 +235,7 @@ class ActionResourceImplTest {
                         put("configuration.driver", "jdbc://localhost/mydb");
                         put("configuration.description", "local database");
                         put("branch", "V1");
-                        put("incoming", JsonbProvider.provider().create().build().toJson(incoming));
+                        put("incoming", JSONB_PROVIDER.create().build().toJson(incoming));
                     }
                 }, APPLICATION_JSON_TYPE), JsonObject.class);
         assertNotNull(guessed);

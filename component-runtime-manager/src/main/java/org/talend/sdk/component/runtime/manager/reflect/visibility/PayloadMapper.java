@@ -18,7 +18,6 @@ package org.talend.sdk.component.runtime.manager.reflect.visibility;
 import static java.util.Collections.emptyMap;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
-import static javax.json.stream.JsonCollectors.toJsonArray;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -32,6 +31,7 @@ import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 import javax.json.spi.JsonProvider;
 
+import org.talend.sdk.component.api.service.JsonProviderCache;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 
 import lombok.RequiredArgsConstructor;
@@ -40,9 +40,9 @@ import lombok.RequiredArgsConstructor;
 public class PayloadMapper {
 
     // we don't need the runtime one here
-    private final JsonProvider jsonp = JsonProvider.provider();
+    private final JsonProvider jsonp = JsonProviderCache.JSON_PROVIDER;
 
-    private static final VisibilityService VISIBILITY_SERVICE = new VisibilityService(JsonProvider.provider());
+    private static final VisibilityService VISIBILITY_SERVICE = new VisibilityService(JsonProviderCache.JSON_PROVIDER);
 
     private final JsonBuilderFactory factory = jsonp.createBuilderFactory(emptyMap());
 
@@ -157,7 +157,7 @@ public class PayloadMapper {
                     // sort by index
                     .sorted(comparing(it -> it.index))
                     .map(entry -> onArrayPrimitive(primitiveMeta, entry))
-                    .collect(toJsonArray());
+                    .collect(JsonProviderCache.JSON_ARRAY_COLLECTOR);
         } else {
             array = config
                     .entrySet()
@@ -168,7 +168,7 @@ public class PayloadMapper {
                     // sort by index
                     .sorted(comparing(it -> it))
                     .map(index -> unflatten(currentPrefix + '[' + index + ']', definitions, config))
-                    .collect(toJsonArray());
+                    .collect(JsonProviderCache.JSON_ARRAY_COLLECTOR);
         }
         if (!array.isEmpty()) {
             json.add(name, array);

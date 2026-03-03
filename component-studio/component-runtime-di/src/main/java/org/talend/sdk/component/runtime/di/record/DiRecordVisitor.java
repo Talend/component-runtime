@@ -27,6 +27,8 @@ import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
 import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
 import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
+import static org.talend.sdk.component.api.service.JsonProviderCache.JSONB_PROVIDER;
+import static org.talend.sdk.component.api.service.JsonProviderCache.JSON_PROVIDER;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -49,8 +51,6 @@ import java.util.stream.Collectors;
 
 import javax.json.Json;
 import javax.json.bind.JsonbConfig;
-import javax.json.bind.spi.JsonbProvider;
-import javax.json.spi.JsonProvider;
 
 import org.dom4j.DocumentException;
 import org.talend.sdk.component.api.record.Record;
@@ -108,10 +108,10 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     private Map<String, Integer> nameToIndex;
 
     private static final RecordService RECORD_SERVICE =
-            new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
+            new DefaultServiceProvider(null, JSON_PROVIDER, Json.createGeneratorFactory(emptyMap()),
                     Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
                     Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
-                    JsonbProvider.provider(), null, null, emptyList(), t -> new RecordBuilderFactoryImpl("di"), null)
+                    JSONB_PROVIDER, null, null, emptyList(), t -> new RecordBuilderFactoryImpl("di"), null)
                     .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
                             RecordService.class, null, null);
 

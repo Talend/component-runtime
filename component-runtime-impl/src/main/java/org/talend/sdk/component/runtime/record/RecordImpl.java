@@ -54,7 +54,6 @@ import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 import javax.json.bind.annotation.JsonbTransient;
 import javax.json.bind.config.PropertyOrderStrategy;
-import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.OrderedMap;
 import org.talend.sdk.component.api.record.Record;
@@ -63,6 +62,7 @@ import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.SchemaCompanionUtil;
 import org.talend.sdk.component.api.record.SchemaProperty;
+import org.talend.sdk.component.api.service.JsonProviderCache;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -103,7 +103,8 @@ public final class RecordImpl implements Record {
                         .setProperty("johnzon.cdi.activated", false))) {
             return new RecordConverters()
                     .toType(new RecordConverters.MappingMetaRegistry(), this, JsonObject.class,
-                            () -> Json.createBuilderFactory(emptyMap()), JsonProvider::provider, () -> jsonb,
+                            () -> Json.createBuilderFactory(emptyMap()), () -> JsonProviderCache.JSON_PROVIDER,
+                            () -> jsonb,
                             () -> new RecordBuilderFactoryImpl("tostring"))
                     .toString();
         } catch (final Exception e) {

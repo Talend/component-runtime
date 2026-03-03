@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.talend.sdk.component.api.record.Schema.Type.INT;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
+import static org.talend.sdk.component.api.service.JsonProviderCache.JSONB_PROVIDER;
 
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -37,12 +38,11 @@ import java.util.stream.Stream;
 
 import javax.json.Json;
 import javax.json.bind.JsonbConfig;
-import javax.json.bind.spi.JsonbProvider;
-import javax.json.spi.JsonProvider;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.service.JsonProviderCache;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.record.RecordService;
 import org.talend.sdk.component.api.service.record.RecordVisitor;
@@ -53,10 +53,11 @@ class RecordServiceImplTest {
     private final RecordBuilderFactory factory = new RecordBuilderFactoryImpl(null);
 
     private final RecordService service = RecordService.class
-            .cast(new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
+            .cast(new DefaultServiceProvider(null, JsonProviderCache.JSON_PROVIDER,
+                    Json.createGeneratorFactory(emptyMap()),
                     Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
                     Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
-                    JsonbProvider.provider(), null, null, emptyList(), t -> factory, null)
+                    JSONB_PROVIDER, null, null, emptyList(), t -> factory, null)
                     .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
                             RecordService.class, null, null));
 

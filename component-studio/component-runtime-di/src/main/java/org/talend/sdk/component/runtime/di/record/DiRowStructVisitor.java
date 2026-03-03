@@ -35,6 +35,8 @@ import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
 import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
 import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
+import static org.talend.sdk.component.api.service.JsonProviderCache.JSONB_PROVIDER;
+import static org.talend.sdk.component.api.service.JsonProviderCache.JSON_PROVIDER;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -53,7 +55,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.json.bind.Jsonb;
-import javax.json.bind.spi.JsonbProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Record.Builder;
@@ -79,7 +80,7 @@ public class DiRowStructVisitor {
 
     private Schema rowStructSchema;
 
-    private final Jsonb jsonb = JsonbProvider.provider().create().build();
+    private final Jsonb jsonb = JSONB_PROVIDER.create().withProvider(JSON_PROVIDER).build();
 
     private Set<String> allowedFields;
 

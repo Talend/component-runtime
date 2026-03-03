@@ -29,6 +29,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.xbean.finder.archive.FileArchive.decode;
+import static org.talend.sdk.component.api.service.JsonProviderCache.JSONB_PROVIDER;
 import static org.talend.sdk.component.classloader.ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY;
 import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
 import static org.talend.sdk.component.runtime.manager.ComponentManager.ComponentType.DRIVER_RUNNER;
@@ -129,6 +130,7 @@ import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.service.ActionType;
+import org.talend.sdk.component.api.service.JsonProviderCache;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.api.service.http.HttpClient;
@@ -530,7 +532,7 @@ public class ComponentManager implements AutoCloseable {
         try {
             return new org.apache.johnzon.jsonb.JohnzonProvider();
         } catch (final RuntimeException re) {
-            return JsonbProvider.provider();
+            return JSONB_PROVIDER;
         }
     }
 
@@ -538,7 +540,7 @@ public class ComponentManager implements AutoCloseable {
         try {
             return new org.apache.johnzon.core.JsonProviderImpl();
         } catch (final RuntimeException re) {
-            return JsonProvider.provider();
+            return JsonProviderCache.JSON_PROVIDER;
         }
     }
 

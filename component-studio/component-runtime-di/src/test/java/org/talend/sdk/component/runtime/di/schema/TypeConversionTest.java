@@ -23,10 +23,11 @@ import javax.json.JsonValue;
 import javax.json.spi.JsonProvider;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.service.JsonProviderCache;
 
 class TypeConversionTest {
 
-    private final JsonProvider jsonProvider = JsonProvider.provider();
+    private final JsonProvider jsonProvider = JsonProviderCache.JSON_PROVIDER;
 
     @Test
     void jsonValueToTalendType() {

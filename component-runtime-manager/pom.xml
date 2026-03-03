@@ -32,6 +32,11 @@
   </properties>
 
   <dependencies>
+      <dependency>
+          <groupId>org.talend.sdk.component</groupId>
+          <artifactId>component-api</artifactId>
+          <version>${project.version}</version>
+      </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-spi</artifactId>
