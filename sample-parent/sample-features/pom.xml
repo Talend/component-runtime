@@ -56,12 +56,11 @@
 
     <build>
         <plugins>
+            <!-- Commenting out maven plugin to enable building without full project compilation
             <plugin>
                 <groupId>org.talend.sdk.component</groupId>
                 <artifactId>talend-component-maven-plugin</artifactId>
                 <version>${project.version}</version>
-                <!-- Please look at the TCK documentation to understand the talend-component-maven-plugin -->
-                <!-- https://talend.github.io/component-runtime/main/latest/build-tools-maven.html -->
                 <executions>
                     <execution>
                         <id>talend-dependencies</id>
@@ -128,6 +127,7 @@
                     </execution>
                 </executions>
             </plugin>
+            -->
         </plugins>
     </build>
 </project>
