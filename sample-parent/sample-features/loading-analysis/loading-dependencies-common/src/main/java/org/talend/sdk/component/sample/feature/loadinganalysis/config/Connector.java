@@ -21,13 +21,17 @@ import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.meta.Documentation;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @GridLayout(value = {
         @GridLayout.Row({ "groupId", "artifactId", "version", "connectorFamily", "connectorName", "connectorVersion",
                 "loadTransitiveDependencies", "connectorConfiguration" })
 })
+@NoArgsConstructor
+@AllArgsConstructor
 public class Connector implements Serializable {
 
     @Option

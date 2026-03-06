@@ -23,7 +23,7 @@
     </parent>
 
     <!-- All artifacts with group starting by 'org.talend.sdk.component' are automatically excluded -->
-    <!-- So we changed the group to org.talend.sdk.sample -->
+    <!-- So we changed the group to org.talend.sdk.component.loading-analysis -->
     <artifactId>loading-dependencies-common</artifactId>
     <packaging>jar</packaging>
     <name>Component Runtime :: Sample Feature loading dependencies common</name>
@@ -37,6 +37,12 @@
         </dependency>
         <dependency>
             <groupId>org.talend.sdk.component</groupId>
+            <artifactId>sample-connector</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.sdk.component</groupId>
             <artifactId>component-runtime-manager</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
@@ -44,6 +50,13 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <!-- This is to parse the test/resources/version.properties file -->
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

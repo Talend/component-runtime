@@ -22,17 +22,20 @@ import static org.talend.sdk.component.sample.feature.loadinganalysis.service.Ab
 import static org.talend.sdk.component.sample.feature.loadinganalysis.service.AbstractDynamicDependenciesService.ENTRY_IS_LOADED;
 import static org.talend.sdk.component.sample.feature.loadinganalysis.service.AbstractDynamicDependenciesService.ENTRY_IS_TCK_CONTAINER;
 import static org.talend.sdk.component.sample.feature.loadinganalysis.service.AbstractDynamicDependenciesService.ENTRY_MAVEN;
-import static org.talend.sdk.component.sample.feature.loadinganalysis.service.AbstractDynamicDependenciesService.ENTRY_ROOT_REPOSITORY;
 import static org.talend.sdk.component.sample.feature.loadinganalysis.service.AbstractDynamicDependenciesService.ENTRY_RUNTIME_CLASSPATH;
 import static org.talend.sdk.component.sample.feature.loadinganalysis.service.AbstractDynamicDependenciesService.ENTRY_WORKING_DIRECTORY;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.exception.ComponentException;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.sample.feature.loadinganalysis.config.Dependency;
 import org.talend.sdk.component.sample.feature.loadinganalysis.config.DynamicDependencyConfig;
@@ -56,8 +59,6 @@ public abstract class AbstractDynamicDependenciesServiceTest<C extends DynamicDe
 
     @Test
     void testLoadIterator() {
-        System.setProperty("talend.component.manager.m2.repository", "./lib/");
-
         final Iterator<Record> result = getService().loadIterator(config);
 
         List<Record> records = new ArrayList<>();
@@ -67,7 +68,6 @@ public abstract class AbstractDynamicDependenciesServiceTest<C extends DynamicDe
         Record fourth = records.get(3);
         ResultDetails expected = new ResultDetails(
                 false,
-                "./lib/",
                 "jdk.internal.loader.ClassLoaders$AppClassLoader",
                 "jdk.internal.loader.ClassLoaders$AppClassLoader",
                 "org.apache.commons:commons-numbers-primes:1.2",
@@ -80,7 +80,7 @@ public abstract class AbstractDynamicDependenciesServiceTest<C extends DynamicDe
         this.assertRecord(fourth, expected);
     }
 
-    protected List<Dependency> getDependList() {
+    protected List<Dependency> getDynamicDependenciesConfigurationList() {
         List<Dependency> depends = new ArrayList<>();
         Dependency depend = new Dependency();
         depend.setArtifactId("commons-numbers-primes");
@@ -95,7 +95,6 @@ public abstract class AbstractDynamicDependenciesServiceTest<C extends DynamicDe
         Assertions.assertNotNull(record);
 
         Assertions.assertEquals(expected.isTckContainer(), record.getBoolean(ENTRY_IS_TCK_CONTAINER));
-        Assertions.assertEquals(expected.rootRepository(), record.getString(ENTRY_ROOT_REPOSITORY));
         Assertions.assertTrue(record.getString(ENTRY_CONNECTOR_CLASSLOADER)
                 .startsWith(expected.connectorClassloader()));
         Assertions.assertTrue(record.getString(ENTRY_CLAZZ_CLASSLOADER).startsWith(expected.clazzClassloader()));
@@ -108,9 +107,13 @@ public abstract class AbstractDynamicDependenciesServiceTest<C extends DynamicDe
 
     }
 
+    /**
+     * rootRepository is present for debugging information, there is no need to check its value in unit test.
+     * Moreover, its value can be different on different machines, so it is not possible to set a fixed value for it in
+     * the expected result.
+     */
     public record ResultDetails(
             boolean isTckContainer,
-            String rootRepository,
             String connectorClassloader,
             String clazzClassloader,
             String maven,
@@ -121,5 +124,21 @@ public abstract class AbstractDynamicDependenciesServiceTest<C extends DynamicDe
             String clazz,
             String runtimeClasspath
     ) {
+    }
+
+    protected static String getVersion() {
+        String version;
+        try (InputStream is = AbstractDynamicDependenciesServiceTest.class.getClassLoader()
+                .getResourceAsStream("version.properties")) {
+            if (is == null) {
+                throw new ComponentException("Can't retrieve version.properties resource.");
+            }
+            Properties props = new Properties();
+            props.load(is);
+            version = props.getProperty("version");
+        } catch (IOException e) {
+            throw new ComponentException("Unable to load project version", e);
+        }
+        return version;
     }
 }

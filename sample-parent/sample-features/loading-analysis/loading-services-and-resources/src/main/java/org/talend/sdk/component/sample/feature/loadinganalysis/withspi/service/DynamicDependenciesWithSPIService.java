@@ -49,7 +49,6 @@ import org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestli
 import org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestlibrary.spiConsumers.DependencySPIConsumer;
 import org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestlibrary.spiConsumers.DynamicDependencySPIConsumer;
 import org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestlibrary.spiConsumers.ExternalDependencySPIConsumer;
-import org.talend.sdk.component.sample.feature.loadinganalysis.withspi.config.Config;
 import org.talend.sdk.component.sample.feature.loadinganalysis.withspi.config.Dataset;
 
 import lombok.extern.slf4j.Slf4j;

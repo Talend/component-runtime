@@ -42,7 +42,7 @@ public class DynamicDependenciesWithDynamicDependenciesConfigurationServiceTest
         Config config = new Config();
         Dataset dse = new Dataset();
         Datastore dso = new Datastore();
-        List<Dependency> depends = this.getDependList();
+        List<Dependency> depends = this.getDynamicDependenciesConfigurationList();
         config.getSubConfig().setDependencies(depends);
         dse.setDso(dso);
         config.setDse(dse);
