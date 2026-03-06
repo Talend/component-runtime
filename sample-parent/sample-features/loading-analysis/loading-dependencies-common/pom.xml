@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.talend.sdk.component.loading-analysis</groupId>
         <artifactId>loading-analysis</artifactId>
-        <version>1.89.0-SNAPSHOT</version>
+        <version>1.90.0-SNAPSHOT</version>
     </parent>
 
     <!-- All artifacts with group starting by 'org.talend.sdk.component' are automatically excluded -->
