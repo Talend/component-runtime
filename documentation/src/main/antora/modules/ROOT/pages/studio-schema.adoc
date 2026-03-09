@@ -240,8 +240,8 @@ Example:
 ==== For inputs
 
 . Try to find an action in declared Service class
-.. search an action of type `@DiscoverSchema` named like the input dataset.
 .. search an action of type `@DiscoverSchemaExtended` named like the input dataset.
+.. search an action of type `@DiscoverSchema` named like the input dataset.
 .. search an action of type `@DiscoverSchema`.
 . Execute a fake job with component to retrieve output schema.
 
