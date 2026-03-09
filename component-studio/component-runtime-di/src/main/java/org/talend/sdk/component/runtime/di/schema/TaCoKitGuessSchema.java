@@ -447,7 +447,12 @@ public class TaCoKitGuessSchema {
                     .stream()
                     .flatMap(s -> s.getActions().stream())
                     .filter(a -> a.getFamily().equals(family) && a.getAction().equals(action)
-                            && a.getType().equals(SCHEMA_TYPE))
+                            && (a.getType().equals(SCHEMA_EXTENDED_TYPE) || a.getType().equals(SCHEMA_TYPE)))
+                    .sorted((action1, action2) -> {
+                        boolean action1IsExtended = action1.getType().equals(SCHEMA_EXTENDED_TYPE);
+                        boolean action2IsExtended = action2.getType().equals(SCHEMA_EXTENDED_TYPE);
+                        return Boolean.compare(!action1IsExtended, !action2IsExtended);
+                    })
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException(
                             "No action " + family + "#" + SCHEMA_TYPE + "#" + action));
