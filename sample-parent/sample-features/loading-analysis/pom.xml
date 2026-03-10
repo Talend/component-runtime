@@ -41,4 +41,16 @@
         <module>service-provider-from-external-dependency</module>
     </modules>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <suppressionsLocation>suppressions.xml</suppressionsLocation>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
