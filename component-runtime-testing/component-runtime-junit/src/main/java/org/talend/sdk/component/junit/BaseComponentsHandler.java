@@ -201,7 +201,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
      * mapper, it will create as many threads as mappers, otherwise it will use the
      * caller thread.
      *
-     * IMPORTANT: don't forget to consume all the streams to ensure the underlying
+     * IMPORTANT: don't forget to consume the stream entirely to ensure the underlying
      * { @see org.talend.sdk.component.runtime.input.Input} is closed.
      *
      * @param recordType the record type to use to type the returned type.
