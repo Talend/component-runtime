@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
-public class BaseComponentHandlerTest {
+class BaseComponentHandlerTest {
 
     @Test
     void canCloseTheEmbeddedManagerTwice() {
