@@ -38,7 +38,11 @@ public class DynamicDependenciesWithDynamicDependenciesConfigurationService exte
 
     @DynamicDependencies()
     public List<String> getDynamicDependencies(@Option("theSubConfig") final SubConfig subConfig) {
-        return super.getDynamicDependencies(subConfig.getDependencies(), subConfig.getConnectors());
+        List<String> dynamicDependencies = super.getDynamicDependencies(subConfig.getDependencies(),
+                subConfig.getConnectors());
+        log.info("Dynamic dependencies with DynamicDependenciesConfiguration: {}",
+                String.join(";", dynamicDependencies));
+        return dynamicDependencies;
     }
 
     @DiscoverSchemaExtended(DEPENDENCY_WITHDYNDEPSCONFIG_ACTION)

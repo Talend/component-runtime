@@ -38,7 +38,10 @@ public class DynamicDependenciesWithDatastoreService extends AbstractDynamicDepe
 
     @DynamicDependencies()
     public List<String> getDynamicDependencies(@Option("theDatastore") final Datastore datastore) {
-        return super.getDynamicDependencies(datastore.getDependencies(), datastore.getConnectors());
+        List<String> dynamicDependencies =
+                super.getDynamicDependencies(datastore.getDependencies(), datastore.getConnectors());
+        log.info("Dynamic dependencies with datastore: {}", String.join(";", dynamicDependencies));
+        return dynamicDependencies;
     }
 
     @DiscoverSchemaExtended(DEPENDENCY_WITHDATASTORE_ACTION)
