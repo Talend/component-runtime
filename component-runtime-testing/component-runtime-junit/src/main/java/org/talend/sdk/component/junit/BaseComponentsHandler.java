@@ -87,12 +87,10 @@ public class BaseComponentsHandler implements ComponentsHandler {
     protected static final Local<State> STATE = loadStateHolder();
 
     private static Local<State> loadStateHolder() {
-        switch (System.getProperty("talend.component.junit.handler.state", "thread").toLowerCase(ROOT)) {
-            case "static":
-                return new Local.StaticImpl<>();
-            default:
-                return new Local.ThreadLocalImpl<>();
-        }
+        final String handlerState = System.getProperty("talend.component.junit.handler.state", "thread");
+        return "static".equals(handlerState.toLowerCase(ROOT))
+                ? new Local.StaticImpl<>()
+                : new Local.ThreadLocalImpl<>();
     }
 
     private final ThreadLocal<PreState> initState = ThreadLocal.withInitial(PreState::new);
@@ -111,13 +109,14 @@ public class BaseComponentsHandler implements ComponentsHandler {
                 .orElseThrow(() -> new IllegalArgumentException("cant find plugin '" + plugin + "'"))
                 .get(ComponentManager.AllServices.class)
                 .getServices();
-        Injector.class.cast(services.get(Injector.class)).inject(instance);
+        ((Injector) services.get(Injector.class)).inject(instance);
         return instance;
     }
 
     public BaseComponentsHandler withIsolatedPackage(final String packageName, final String... packages) {
-        isolatedPackages =
-                Stream.concat(Stream.of(packageName), Stream.of(packages)).filter(Objects::nonNull).collect(toList());
+        isolatedPackages = Stream.concat(Stream.of(packageName), Stream.of(packages))
+                .filter(Objects::nonNull)
+                .collect(toList());
         if (isolatedPackages.isEmpty()) {
             isolatedPackages = null;
         }
@@ -140,14 +139,10 @@ public class BaseComponentsHandler implements ComponentsHandler {
             public void close() {
                 try {
                     final State state = STATE.get();
-                    if (state.jsonb != null) {
-                        try {
-                            state.jsonb.close();
-                        } catch (final Exception e) {
-                            // no-op: not important
-                        }
+                    if (state != null) {
+                        state.cleanUp();
+                        STATE.remove();
                     }
-                    STATE.remove();
                     initState.remove();
                 } finally {
                     super.close();
@@ -170,7 +165,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
      * Collects all outputs of a processor.
      *
      * @param processor the processor to run while there are inputs.
-     * @param inputs the input factory, when an input will return null it will stop the
+     * @param inputs The input factory, when an input returns null, it will stop the
      * processing.
      * @param bundleSize the bundle size to use.
      * @return a map where the key is the output name and the value a stream of the
@@ -203,10 +198,10 @@ public class BaseComponentsHandler implements ComponentsHandler {
 
     /**
      * Collects data emitted from this mapper. If the split creates more than one
-     * mapper, it will create as much threads as mappers otherwise it will use the
+     * mapper, it will create as many threads as mappers, otherwise it will use the
      * caller thread.
      *
-     * IMPORTANT: don't forget to consume all the stream to ensure the underlying
+     * IMPORTANT: don't forget to consume all the streams to ensure the underlying
      * { @see org.talend.sdk.component.runtime.input.Input} is closed.
      *
      * @param recordType the record type to use to type the returned type.
@@ -268,7 +263,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
                                 latch.countDown();
                             }
                         }))
-                        .collect(toList());
+                        .toList();
                 es.shutdown();
 
                 final int timeout = Integer.getInteger("talend.component.junit.timeout", 5);
@@ -601,6 +596,16 @@ public class BaseComponentsHandler implements ComponentsHandler {
             }
             return recordBuilderFactory;
         }
+
+        synchronized void cleanUp() {
+            if (jsonb != null) {
+                try {
+                    jsonb.close();
+                } catch (final Exception e) {
+                    // no-op: not important
+                }
+            }
+        }
     }
 
     public static class EmbeddedComponentManager extends ComponentManager {
@@ -653,7 +658,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
         }
     }
 
-    interface Local<T> {
+    protected interface Local<T> {
 
         void set(T value);
 
