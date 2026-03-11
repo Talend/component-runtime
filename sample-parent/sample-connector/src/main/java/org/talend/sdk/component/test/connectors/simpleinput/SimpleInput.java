@@ -24,7 +24,6 @@ import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.record.Record;
-import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.test.connectors.config.SimpleInputConfiguration;
 
@@ -34,15 +33,16 @@ import org.talend.sdk.component.test.connectors.config.SimpleInputConfiguration;
 @Documentation("A simple emitter that doesn't expect dynamic dependencies and generated few records.")
 public class SimpleInput implements Serializable {
 
-    @Service
     private RecordBuilderFactory recordBuilderFactory;
 
     private final SimpleInputConfiguration configuration;
 
     private boolean done = false;
 
-    public SimpleInput(@Option("configuration") final SimpleInputConfiguration configuration) {
+    public SimpleInput(@Option("configuration") final SimpleInputConfiguration configuration,
+            final RecordBuilderFactory recordBuilderFactory) {
         this.configuration = configuration;
+        this.recordBuilderFactory = recordBuilderFactory;
     }
 
     @Producer
