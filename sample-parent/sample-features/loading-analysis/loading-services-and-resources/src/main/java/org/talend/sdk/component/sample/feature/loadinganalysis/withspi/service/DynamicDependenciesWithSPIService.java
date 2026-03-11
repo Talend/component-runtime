@@ -70,7 +70,7 @@ public class DynamicDependenciesWithSPIService implements Serializable {
         String dep = "org.talend.sdk.component.loading-analysis:service-provider-from-dynamic-dependency:"
                 + loadVersion();
         List<String> strings = Collections.singletonList(dep);
-        log.info("Loading SPI: {}", strings.stream().collect(Collectors.joining(";")));
+        log.info("Dynamic dependencies for SPI: {}", String.join(";", strings));
         return strings;
     }
 

@@ -17,7 +17,6 @@ package org.talend.sdk.component.sample.feature.loadinganalysis.withdataset.serv
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.record.Schema;
@@ -40,8 +39,7 @@ public class DynamicDependenciesWithDatasetService extends AbstractDynamicDepend
     public List<String> getDynamicDependencies(@Option("theDataset") final Dataset dataset) {
         List<String> dynamicDependencies =
                 super.getDynamicDependencies(dataset.getDependencies(), dataset.getConnectors());
-        log.info("Dynamic dependencies with dataset: {}",
-                dynamicDependencies.stream().collect(Collectors.joining(";")));
+        log.info("Dynamic dependencies with dataset: {}", String.join(";", dynamicDependencies));
         return dynamicDependencies;
     }
 
