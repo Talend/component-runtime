@@ -26,12 +26,15 @@ class BaseComponentHandlerTest {
     void canCloseTheEmbeddedManagerTwice() {
         final MyBaseComponentsHandler myBaseComponentsHandler = new MyBaseComponentsHandler("org.talend.sdk.component.junit");
         final BaseComponentsHandler.EmbeddedComponentManager start = myBaseComponentsHandler.start();
-
-        assertNotNull(BaseComponentsHandler.STATE.get());
-        start.close();
-        assertNull(BaseComponentsHandler.STATE.get());
-        start.close();
-        assertNull(BaseComponentsHandler.STATE.get());
+        try {
+            assertNotNull(BaseComponentsHandler.STATE.get());
+            start.close();
+            assertNull(BaseComponentsHandler.STATE.get());
+            start.close();
+            assertNull(BaseComponentsHandler.STATE.get());
+        } finally {
+            start.close();
+        }
     }
 
     private static class MyBaseComponentsHandler extends BaseComponentsHandler {
