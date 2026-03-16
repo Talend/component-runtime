@@ -79,7 +79,7 @@ public class ContainerManager implements Lifecycle {
     };
 
     private static final Pattern FRAMEWORK_JAR_PATTERN = Pattern.compile(".*" +
-            Matcher.quoteReplacement(File.separator)  +
+            Matcher.quoteReplacement(File.separator) +
             "(component-api|component-runtime-design-extension|component-runtime-di|component-runtime-impl|" +
             "component-runtime-manager|component-spi|container-core|geronimo-annotation_1.3_spec|" +
             "geronimo-json_1.1_spec|geronimo-jsonb_1.0_spec|johnzon-core|johnzon-jsonb|johnzon-mapper|" +
