@@ -455,7 +455,8 @@ public class TaCoKitGuessSchema {
                     })
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException(
-                            "No action " + family + "#" + SCHEMA_TYPE + "#" + action));
+                            "No action " + family + "#(" + SCHEMA_TYPE + " or " + SCHEMA_EXTENDED_TYPE + ")#"
+                                    + action));
         }
         if (actionRef == null) {
             return false;
