@@ -448,6 +448,8 @@ public class TaCoKitGuessSchema {
                     .flatMap(s -> s.getActions().stream())
                     .filter(a -> a.getFamily().equals(family) && a.getAction().equals(action)
                             && (a.getType().equals(SCHEMA_EXTENDED_TYPE) || a.getType().equals(SCHEMA_TYPE)))
+                    // When both DiscoverSchemaExtended and DiscoverSchema exist for the same action name,
+                    // prefer the extended schema action by ordering it first.
                     .sorted((action1, action2) -> {
                         boolean action1IsExtended = action1.getType().equals(SCHEMA_EXTENDED_TYPE);
                         boolean action2IsExtended = action2.getType().equals(SCHEMA_EXTENDED_TYPE);
