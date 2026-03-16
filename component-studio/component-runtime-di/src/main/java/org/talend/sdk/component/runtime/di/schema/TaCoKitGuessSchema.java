@@ -421,8 +421,8 @@ public class TaCoKitGuessSchema {
 
         ServiceMeta.ActionMeta actionRef;
         if (action == null || action.isEmpty()) {
-            // dataset name should be the same as DiscoverSchema action name so let's try to guess from the component
-            //First find DiscoverSchemaExtended action name
+            // Dataset name should match the DiscoverSchema or DiscoverSchemaExtended action name, so try to
+            // guess it from the component (preferring DiscoverSchemaExtended over DiscoverSchema).
             actionRef = findFirstComponentDataSetName()
                     .flatMap(datasetName -> services
                             .stream()
