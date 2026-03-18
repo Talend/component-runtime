@@ -57,6 +57,8 @@ import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.LastGroup;
 import org.talend.sdk.component.api.processor.Output;
+import org.talend.sdk.component.api.processor.OutputEmitter;
+import org.talend.sdk.component.api.processor.OutputIterator;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.LifecycleImpl;
@@ -153,6 +155,16 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
     private BiFunction<InputFactory, OutputFactory, Object> buildProcessParamBuilder(final Parameter parameter) {
         if (parameter.isAnnotationPresent(Output.class)) {
+            final Output annotation = parameter.getAnnotation(Output.class);
+            if (annotation.iterator()) {
+                return (inputs, outputs) -> {
+                    final String name = parameter.getAnnotation(Output.class).value();
+                    final OutputEmitter outputEmitter = outputs.create(name);
+                    return (OutputIterator) iterator -> {
+                        outputEmitter.setIterator(iterator);
+                    };
+                };
+            }
             return (inputs, outputs) -> {
                 final String name = parameter.getAnnotation(Output.class).value();
                 return outputs.create(name);

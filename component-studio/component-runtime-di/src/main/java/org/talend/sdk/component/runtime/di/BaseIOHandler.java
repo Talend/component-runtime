@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
+import java.util.function.Supplier;
 
 import javax.json.bind.Jsonb;
 
@@ -29,6 +30,7 @@ import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.record.RecordConverters;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 public abstract class BaseIOHandler {
 
@@ -77,7 +79,7 @@ public abstract class BaseIOHandler {
     }
 
     public boolean hasMoreData() {
-        return connections.entrySet().stream().anyMatch(e -> e.getValue().hasNext());
+        return connections.values().stream().anyMatch(IO::hasNext);
     }
 
     protected String getActualName(final String name) {
@@ -88,20 +90,24 @@ public abstract class BaseIOHandler {
     static class IO<T> {
 
         private final Queue<T> values = new LinkedList<>();
-
         private final Class<T> type;
+        @Setter
+        private Iterator<T> source;
 
         private void reset() {
             values.clear();
         }
 
         boolean hasNext() {
-            return values.size() != 0;
+            return !values.isEmpty()
+                    || (source != null && source.hasNext());
         }
 
         T next() {
-            if (hasNext()) {
+            if (!values.isEmpty()) {
                 return type.cast(values.poll());
+            } else if (source != null && source.hasNext()) {
+                return type.cast(source.next());
             }
 
             return null;
@@ -114,6 +120,7 @@ public abstract class BaseIOHandler {
         Class<T> getType() {
             return type;
         }
+
     }
 
 }

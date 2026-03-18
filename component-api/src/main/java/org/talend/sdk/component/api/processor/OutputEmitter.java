@@ -15,7 +15,16 @@
  */
 package org.talend.sdk.component.api.processor;
 
+import java.util.Iterator;
+
 public interface OutputEmitter<T> {
 
     void emit(T value);
+
+    default void setIterator(Iterator<T> iterator) {
+    };
+
+    default Iterator<T> getIterator() {
+        return null;
+    };
 }

@@ -15,12 +15,14 @@
  */
 package org.talend.sdk.component.runtime.di;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.json.JsonBuilderFactory;
 import javax.json.bind.Jsonb;
 import javax.json.spi.JsonProvider;
 
+import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.output.OutputFactory;
@@ -41,15 +43,26 @@ public class OutputsHandler extends BaseIOHandler {
     }
 
     public OutputFactory asOutputFactory() {
-        return name -> value -> {
-            final BaseIOHandler.IO ref = connections.get(getActualName(name));
-            if (ref != null && value != null) {
-                if (value instanceof javax.json.JsonValue) {
-                    ref.add(jsonb.fromJson(value.toString(), ref.getType()));
-                } else if (value instanceof Record) {
-                    ref.add(registry.find(ref.getType()).newInstance(Record.class.cast(value)));
-                } else {
-                    ref.add(jsonb.fromJson(jsonb.toJson(value), ref.getType()));
+        return name -> new OutputEmitter() {
+            @Override
+            public void emit(final Object value) {
+                final BaseIOHandler.IO ref = connections.get(getActualName(name));
+                if (ref != null && value != null) {
+                    if (value instanceof javax.json.JsonValue) {
+                        ref.add(jsonb.fromJson(value.toString(), ref.getType()));
+                    } else if (value instanceof Record) {
+                        ref.add(registry.find(ref.getType()).newInstance(Record.class.cast(value)));
+                    } else {
+                        ref.add(jsonb.fromJson(jsonb.toJson(value), ref.getType()));
+                    }
+                }
+            }
+
+            @Override
+            public void setIterator(final Iterator iterator) {
+                final BaseIOHandler.IO ref = connections.get(getActualName(name));
+                if (ref != null) {
+                    ref.setSource(iterator);
                 }
             }
         };

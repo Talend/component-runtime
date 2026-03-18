@@ -15,17 +15,9 @@
  */
 package org.talend.sdk.component.api.processor;
 
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import java.util.Iterator;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+public interface OutputIterator<T> {
 
-@Target(PARAMETER)
-@Retention(RUNTIME)
-public @interface Output {
-
-    String value() default "__default__";
-
-    boolean iterator() default false;
+    void setIterator(Iterator<T> iterator);
 }
