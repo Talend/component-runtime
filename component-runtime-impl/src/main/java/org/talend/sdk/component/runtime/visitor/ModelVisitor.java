@@ -48,6 +48,7 @@ import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.LastGroup;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
+import org.talend.sdk.component.api.processor.OutputIterator;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.standalone.DriverRunner;
 import org.talend.sdk.component.api.standalone.RunAtDriver;
@@ -258,7 +259,7 @@ public class ModelVisitor {
             return false;
         }
         final ParameterizedType pt = ParameterizedType.class.cast(p.getParameterizedType());
-        return OutputEmitter.class == pt.getRawType();
+        return OutputEmitter.class == pt.getRawType() || OutputIterator.class == pt.getRawType();
     }
 
     private Stream<Class<? extends Annotation>> getPartitionMapperMethods(final boolean infinite) {

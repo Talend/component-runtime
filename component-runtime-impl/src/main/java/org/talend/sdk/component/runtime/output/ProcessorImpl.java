@@ -160,15 +160,14 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
                 return (inputs, outputs) -> {
                     final String name = parameter.getAnnotation(Output.class).value();
                     final OutputEmitter outputEmitter = outputs.create(name);
-                    return (OutputIterator) iterator -> {
-                        outputEmitter.setIterator(iterator);
-                    };
+                    return (OutputIterator<Object>) outputEmitter::setIterator;
+                };
+            } else {
+                return (inputs, outputs) -> {
+                    final String name = parameter.getAnnotation(Output.class).value();
+                    return outputs.create(name);
                 };
             }
-            return (inputs, outputs) -> {
-                final String name = parameter.getAnnotation(Output.class).value();
-                return outputs.create(name);
-            };
         }
 
         final Class<?> parameterType = parameter.getType();

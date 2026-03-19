@@ -22,7 +22,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
-import java.util.function.Supplier;
 
 import javax.json.bind.Jsonb;
 
@@ -90,7 +89,9 @@ public abstract class BaseIOHandler {
     static class IO<T> {
 
         private final Queue<T> values = new LinkedList<>();
+
         private final Class<T> type;
+
         @Setter
         private Iterator<T> source;
 
@@ -109,7 +110,6 @@ public abstract class BaseIOHandler {
             } else if (source != null && source.hasNext()) {
                 return type.cast(source.next());
             }
-
             return null;
         }
 
@@ -120,7 +120,6 @@ public abstract class BaseIOHandler {
         Class<T> getType() {
             return type;
         }
-
     }
 
 }
