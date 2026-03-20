@@ -389,10 +389,10 @@ public class ConfigurableClassLoader extends URLClassLoader {
             return selfResources;
         }
         if (!selfResources.hasMoreElements()) {
-            return new FilteringUrlEnum(parentResources, this::isInJvm);
+            return new FilteringUrlEnum(parentResources, this::shouldLoadFromParent);
         }
         return new ChainedEnumerations(
-                asList(selfResources, new FilteringUrlEnum(parentResources, this::isInJvm)).iterator());
+                asList(selfResources, new FilteringUrlEnum(parentResources, this::shouldLoadFromParent)).iterator());
     }
 
     @Override
@@ -403,7 +403,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
         }
         if (!isBlacklistedFromParent(name)) {
             resource = getParent().getResource(name);
-            if (resource != null && (isNestedDependencyResource(name) || isInJvm(resource))) {
+            if (resource != null && (isNestedDependencyResource(name) || shouldLoadFromParent(resource))) {
                 return resource;
             }
         }
@@ -488,7 +488,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
         return name != null && name.startsWith(NESTED_MAVEN_REPOSITORY);
     }
 
-    private boolean isInJvm(final URL resource) {
+    private boolean shouldLoadFromParent(final URL resource) {
         // Services and parent allowed resources that should always be found by top level classloader.
         // Warning: selection shouldn't be too generic! Use very specific paths only like jndi.properties.
         if (resourcesFilter.test(resource.getFile())) {
