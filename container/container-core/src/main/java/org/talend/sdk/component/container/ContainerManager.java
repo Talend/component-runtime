@@ -466,7 +466,7 @@ public class ContainerManager implements Lifecycle {
                             runtimeClasspath.addAll(getClasspathFromJar(p));
                         } else {
                             runtimeClasspath.add(p.toAbsolutePath().toString());
-                            log.debug("[sysinfo] Runtime classpath entry: " + p.toAbsolutePath());
+                            log.debug("[sysinfo] Runtime classpath entry: {}", p.toAbsolutePath());
                         }
                     });
             // cleanup the classpath from entries that are known as framework artifacts
