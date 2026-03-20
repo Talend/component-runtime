@@ -41,8 +41,11 @@ public interface ClassLoaderDefinition {
 
     /**
      *
-     * @return a filter to apply on the resources to load from the parent classloader. If the filter returns false for a
-     * resource, the classloader to create will try to load it by itself instead of delegating to its parent.
+     * @return a filter to apply on the resources to load from the parent classloader. The {@link String} argument of
+     * the predicate is the path of the resource as obtained from {@code URL#getFile()} (i.e. the full URL/file path),
+     * not the logical resource name used in {@link ClassLoader#getResource(String)}. If the filter returns
+     * {@code false} for a resource, the classloader to create will try to load it by itself instead of delegating to
+     * its parent.
      */
     Predicate<String> getParentResourcesFilter();
 
