@@ -47,6 +47,24 @@ public interface Resolver {
     }
 
     /**
+     * Creates a classloader from the passed classloader configuration and descriptor (dependencies.txt).
+     *
+     * WARNING: note it is very important to close the descriptor once no more used otherwise
+     * you can leak memory.
+     *
+     * @param descriptor the dependencies.txt InputStream.
+     * @param configuration
+     * @return the classloader initialized with the configuration provided and the resolved dependencies.
+     */
+    ClassLoaderDescriptor mapDescriptorToClassLoader(InputStream descriptor, final ClassLoaderDefinition configuration);
+
+    default ClassLoaderDescriptor mapDescriptorToClassLoader(final List<String> gavs,
+            final ClassLoaderDefinition configuration) {
+        return mapDescriptorToClassLoader(
+                new ByteArrayInputStream(String.join("\n", gavs).getBytes(StandardCharsets.UTF_8)), configuration);
+    }
+
+    /**
      * Resolves the dependencies from the descriptor passed as an InputStream.
      *
      * IMPORTANT: this is to use when you are sure the file is resolvable if you don't have a fallback.

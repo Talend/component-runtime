@@ -59,6 +59,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import org.talend.sdk.component.api.service.dependency.ClassLoaderDefinition;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.dependencies.Resolver;
 import org.talend.sdk.component.dependencies.maven.Artifact;
@@ -532,7 +533,7 @@ public class ContainerManager implements Lifecycle {
 
     @Getter
     @Builder(buildMethodName = "create")
-    public static class ClassLoaderConfiguration {
+    public static class ClassLoaderConfiguration implements ClassLoaderDefinition {
 
         private final ClassLoader parent;
 
