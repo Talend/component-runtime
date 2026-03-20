@@ -70,9 +70,9 @@ public class ResolverImpl implements Resolver, Serializable {
         final Collection<URL> urls = new ArrayList<>();
         final Collection<String> nested = new ArrayList<>();
         final Collection<String> resolved = new ArrayList<>();
-        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        final ClassLoader loader =
-                ofNullable(classLoader).map(ClassLoader::getParent).orElseGet(ClassLoader::getSystemClassLoader);
+        final ClassLoader parent = configuration.getParent() != null ? configuration.getParent()
+                : ofNullable(Thread.currentThread().getContextClassLoader()).map(ClassLoader::getParent)
+                        .orElseGet(ClassLoader::getSystemClassLoader);
         try {
             new MvnDependencyListLocalRepositoryResolver(null, fileResolver)
                     .resolveFromDescriptor(descriptor)
@@ -86,12 +86,11 @@ public class ResolverImpl implements Resolver, Serializable {
                             } catch (final MalformedURLException e) {
                                 throw new IllegalStateException(e);
                             }
-                        } else if (loader.getResource("MAVEN-INF/repository/" + path) != null) {
+                        } else if (parent.getResource("MAVEN-INF/repository/" + path) != null) {
                             nested.add(path);
                             resolved.add(artifact.toCoordinate());
                         } // else will be missing
                     });
-            final ClassLoader parent = configuration.getParent();
             final ConfigurableClassLoader volatileLoader = new ConfigurableClassLoader(plugin + "#volatile-resolver",
                     urls.toArray(new URL[0]),
                     parent,
