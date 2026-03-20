@@ -219,6 +219,7 @@ public class ComponentManager implements AutoCloseable {
                         info("Components: " + availablePlugins());
                     } catch (Exception e) {
                         info("Failed to load plugins from plugins.properties: " + e.getMessage());
+                        log.debug("Failed to load plugins from plugins.properties.", e);
                     }
                 }
 
