@@ -31,8 +31,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Function;
 
+import org.talend.sdk.component.api.service.dependency.ClassLoaderDefinition;
 import org.talend.sdk.component.api.service.dependency.Resolver;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
+import org.talend.sdk.component.container.ContainerManager.ClassLoaderConfiguration;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnDependencyListLocalRepositoryResolver;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
@@ -48,12 +50,29 @@ public class ResolverImpl implements Resolver, Serializable {
 
     @Override
     public ClassLoaderDescriptor mapDescriptorToClassLoader(final InputStream descriptor) {
-        final Collection<URL> urls = new ArrayList<>();
-        final Collection<String> nested = new ArrayList<>();
-        final Collection<String> resolved = new ArrayList<>();
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         final ClassLoader loader =
                 ofNullable(classLoader).map(ClassLoader::getParent).orElseGet(ClassLoader::getSystemClassLoader);
+
+        return mapDescriptorToClassLoader(descriptor,
+                ClassLoaderConfiguration.builder()
+                        .parent(loader)
+                        .classesFilter(it -> true)
+                        .parentClassesFilter(it -> false)
+                        .supportsResourceDependencies(true)
+                        .parentResourcesFilter(it -> true)
+                        .create());
+    }
+
+    @Override
+    public ClassLoaderDescriptor mapDescriptorToClassLoader(final InputStream descriptor,
+            final ClassLoaderDefinition configuration) {
+        final Collection<URL> urls = new ArrayList<>();
+        final Collection<String> nested = new ArrayList<>();
+        final Collection<String> resolved = new ArrayList<>();
+        final ClassLoader parent = configuration.getParent() != null ? configuration.getParent()
+                : ofNullable(Thread.currentThread().getContextClassLoader()).map(ClassLoader::getParent)
+                        .orElseGet(ClassLoader::getSystemClassLoader);
         try {
             new MvnDependencyListLocalRepositoryResolver(null, fileResolver)
                     .resolveFromDescriptor(descriptor)
@@ -67,16 +86,21 @@ public class ResolverImpl implements Resolver, Serializable {
                             } catch (final MalformedURLException e) {
                                 throw new IllegalStateException(e);
                             }
-                        } else if (loader.getResource("MAVEN-INF/repository/" + path) != null) {
+                        } else if (parent.getResource("MAVEN-INF/repository/" + path) != null) {
                             nested.add(path);
                             resolved.add(artifact.toCoordinate());
                         } // else will be missing
                     });
             final ConfigurableClassLoader volatileLoader = new ConfigurableClassLoader(plugin + "#volatile-resolver",
-                    urls.toArray(new URL[0]), classLoader, it -> false, it -> true, nested.toArray(new String[0]),
-                    ConfigurableClassLoader.class.isInstance(classLoader)
-                            ? ConfigurableClassLoader.class.cast(classLoader).getJvmMarkers()
-                            : new String[] { "" });
+                    urls.toArray(new URL[0]),
+                    parent,
+                    configuration.getParentClassesFilter(),
+                    configuration.getClassesFilter(),
+                    nested.toArray(new String[0]),
+                    ConfigurableClassLoader.class.isInstance(parent)
+                            ? ConfigurableClassLoader.class.cast(parent).getJvmMarkers()
+                            : new String[] { "" },
+                    configuration.getParentResourcesFilter());
             return new ClassLoaderDescriptorImpl(volatileLoader, resolved);
         } catch (final IOException e) {
             throw new IllegalArgumentException(e);
