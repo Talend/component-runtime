@@ -17,7 +17,7 @@
     "@talend/react-containers": "11.0.4",
     "@talend/react-forms": "15.0.2",
     "asciidoctor": "3.0.4",
-    "body-parser": "1.20.3",
+    "body-parser": "1.20.4",
     "brace-expansion": "2.0.2",
     "classnames": "^2.5.1",
     "form-data": ">=4.0.4",
@@ -39,11 +39,11 @@
     "@talend/scripts-config-react-webpack": "^16.8.0",
     "@talend/scripts-core": "^16.5.1",
     "atob": "^2.1.2",
-    "body-parser": "^1.18.3",
+    "body-parser": "^1.20.4",
     "cross-env": "^7.0.3",
     "form-data": ">=4.0.4",
     "path-to-regexp": "0.1.12",
-    "webpack": "5.94.0",
+    "webpack": "5.104.1",
     "webpack-dev-server": "5.2.1"
   },
   "overrides": {
