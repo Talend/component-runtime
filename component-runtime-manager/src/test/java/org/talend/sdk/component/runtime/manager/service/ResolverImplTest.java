@@ -51,21 +51,23 @@ import org.talend.sdk.component.path.PathFactory;
 
 class ResolverImplTest {
 
-    public final String ARTIFACT_ID = "artifactId";
+    private static final String ARTIFACT_ID = "artifactId";
 
-    public final String EXPECTED_ARTIFACT_ID = "arquillian-tomee-codi-tests";
+    private static final String EXPECTED_ARTIFACT_ID = "arquillian-tomee-codi-tests";
 
-    public final String GAV_CODI_TESTS = "org.apache.tomee:arquillian-tomee-codi-tests:jar:8.0.9";
+    private static final String GAV_CODI_TESTS = "org.apache.tomee:arquillian-tomee-codi-tests:jar:8.0.9";
 
-    public final String GAV_OPENEJB = "org.apache.tomee:openejb-itests-beans:jar:8.0.14";
+    private static final String GAV_OPENEJB = "org.apache.tomee:openejb-itests-beans:jar:8.0.14";
 
-    public final String POM_PROPS_TOMEE = "META-INF/maven/org.apache.tomee/arquillian-tomee-codi-tests/pom.properties";
+    private static final String POM_PROPS_TOMEE =
+            "META-INF/maven/org.apache.tomee/arquillian-tomee-codi-tests/pom.properties";
 
-    public final String CLASS_OPENEJB = "org.apache.openejb.test.ApplicationException";
+    private static final String CLASS_OPENEJB = "org.apache.openejb.test.ApplicationException";
 
-    public final String CLASS_POIXML = "org.apache.poi.ooxml.POIXMLException";
+    private static final String CLASS_POIXML = "org.apache.poi.ooxml.POIXMLException";
 
-    public final String POI_PATH = "target/test-dependencies/org/apache/poi/poi-ooxml/5.4.1/poi-ooxml-5.4.1.jar";
+    private static final String POI_PATH =
+            "target/test-dependencies/org/apache/poi/poi-ooxml/5.4.1/poi-ooxml-5.4.1.jar";
 
     @Test
     void createClassLoader(@TempDir final Path temporaryFolder) throws Exception {
