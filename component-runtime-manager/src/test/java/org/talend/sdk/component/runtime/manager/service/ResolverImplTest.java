@@ -173,8 +173,8 @@ class ResolverImplTest {
             assertNotNull(desc);
             final ClassLoader dumbCl = desc.asClassLoader();
             assertNotNull(dumbCl);
+            assertTrue(dumbCl.getParent() == (bare ? appLoader : componentLoader));
             // the classloader should be a child of the component loader and a ConfigurableClassLoader
-            assertTrue(dumbCl.getParent() == componentLoader);
             assertTrue(dumbCl instanceof ConfigurableClassLoader);
             final ConfigurableClassLoader ccl = (ConfigurableClassLoader) dumbCl;
             // class loading should work and be done by the created classloader
