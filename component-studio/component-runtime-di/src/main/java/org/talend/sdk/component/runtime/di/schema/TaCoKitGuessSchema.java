@@ -421,22 +421,23 @@ public class TaCoKitGuessSchema {
 
         ServiceMeta.ActionMeta actionRef;
         if (action == null || action.isEmpty()) {
-            // dataset name should be the same as DiscoverSchema action name so let's try to guess from the component
+            // Dataset name should match the DiscoverSchema or DiscoverSchemaExtended action name, so try to
+            // guess it from the component (preferring DiscoverSchemaExtended over DiscoverSchema).
             actionRef = findFirstComponentDataSetName()
                     .flatMap(datasetName -> services
                             .stream()
                             .flatMap(s -> s.getActions().stream())
-                            .filter(a -> a.getFamily().equals(family) && a.getType().equals(SCHEMA_TYPE))
+                            .filter(a -> a.getFamily().equals(family) && a.getType().equals(SCHEMA_EXTENDED_TYPE))
                             .filter(a -> a.getAction().equals(datasetName))
                             .findFirst())
                     .orElse(null);
             if (actionRef == null) {
-                // let's try DiscoverSchemaExtended action name
+                // second find DiscoverSchema action name
                 actionRef = findFirstComponentDataSetName()
                         .flatMap(datasetName -> services
                                 .stream()
                                 .flatMap(s -> s.getActions().stream())
-                                .filter(a -> a.getFamily().equals(family) && a.getType().equals(SCHEMA_EXTENDED_TYPE))
+                                .filter(a -> a.getFamily().equals(family) && a.getType().equals(SCHEMA_TYPE))
                                 .filter(a -> a.getAction().equals(datasetName))
                                 .findFirst())
                         .orElse(null);
@@ -446,10 +447,18 @@ public class TaCoKitGuessSchema {
                     .stream()
                     .flatMap(s -> s.getActions().stream())
                     .filter(a -> a.getFamily().equals(family) && a.getAction().equals(action)
-                            && a.getType().equals(SCHEMA_TYPE))
+                            && (a.getType().equals(SCHEMA_EXTENDED_TYPE) || a.getType().equals(SCHEMA_TYPE)))
+                    // When both DiscoverSchemaExtended and DiscoverSchema exist for the same action name,
+                    // prefer the extended schema action by ordering it first.
+                    .sorted((action1, action2) -> {
+                        boolean action1IsExtended = action1.getType().equals(SCHEMA_EXTENDED_TYPE);
+                        boolean action2IsExtended = action2.getType().equals(SCHEMA_EXTENDED_TYPE);
+                        return Boolean.compare(!action1IsExtended, !action2IsExtended);
+                    })
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException(
-                            "No action " + family + "#" + SCHEMA_TYPE + "#" + action));
+                            "No action " + family + "#(" + SCHEMA_TYPE + " or " + SCHEMA_EXTENDED_TYPE + ")#"
+                                    + action));
         }
         if (actionRef == null) {
             return false;
