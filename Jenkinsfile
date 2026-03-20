@@ -25,6 +25,10 @@ final def ossrhCredentials = usernamePassword(
 final def nexusCredentials = usernamePassword(
     credentialsId: 'nexus-artifact-zl-credentials',
     usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')
+final def githubPackagesCredentials = usernamePassword(
+    credentialsId: 'github-packages-ci-runner-connectors-pat',
+    usernameVariable: 'GITHUB_PACKAGES_LOGIN',
+    passwordVariable: 'GITHUB_PACKAGES_TOKEN')
 final def jetbrainsCredentials = usernamePassword(
     credentialsId: 'jetbrains-credentials',
     usernameVariable: 'JETBRAINS_USER',
@@ -457,13 +461,14 @@ pipeline {
         script {
           withCredentials([ossrhCredentials,
                            gpgCredentials,
-                           nexusCredentials]) {
+                           nexusCredentials,
+                           githubPackagesCredentials]) {
             sh """\
               #!/usr/bin/env bash
               set -xe
               bash mvn deploy $deployOptions \
                               $extraBuildParams \
-                              --settings .jenkins/settings.xml
+                  --settings .jenkins/settings.xml
               """.stripIndent()
           }
         }
@@ -471,8 +476,8 @@ pipeline {
         script {
           def repo
           if (devBranch_mavenDeploy) {
-            repo = ['artifacts-zl.talend.com',
-                    'https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/org/talend/sdk/component']
+            repo = ['global-artifacts',
+                    'https://github.com/orgs/Talend/packages?repo_name=global-artifacts']
           } else {
             repo = ['oss.sonatype.org',
                     'https://central.sonatype.com/repository/maven-snapshots/org/talend/sdk/component/']
