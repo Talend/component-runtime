@@ -113,12 +113,8 @@ public class MvnDependencyListLocalRepositoryResolver implements Resolver {
             if (stream == null) {
                 return "";
             }
-            final Properties properties = new Properties() {
-
-                {
-                    load(stream);
-                }
-            };
+            final Properties properties = new Properties();
+            properties.load(stream);
             final String module = ContainerManager.buildAutoIdFromName(artifact);
             final String dyndeps = properties.getProperty(module, "");
             return dyndeps.replace(",", System.lineSeparator());

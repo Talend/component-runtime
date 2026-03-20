@@ -18,9 +18,11 @@ package org.talend.sdk.component;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.talend.sdk.component.container.ContainerManager.FRAMEWORK_JAR_PATTERN;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -158,6 +160,31 @@ class ContainerManagerTest {
             manager.close();
             manager.builder("foo", createZiplockJar(jars).getAbsolutePath()).create();
         });
+    }
+
+    @Test
+    void frameworkJarPatternShouldMatchBothUnixAndWindowsPaths() {
+        // Basic filename tests
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("component-api-1.2.3.jar").matches());
+        assertFalse(FRAMEWORK_JAR_PATTERN.matcher("component-api-1.2.3.txt").matches());
+        // Unix-style paths
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("/usr/lib/component-api-1.2.3.jar").matches());
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("/opt/talend/lib/slf4j-api-1.7.30.jar").matches());
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("lib/johnzon-mapper-1.2.18.jar").matches());
+        // Windows-style paths
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("lib\\component-api-1.2.3.jar").matches());
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("C:\\Program Files\\Talend\\lib\\component-api-1.2.3.jar").matches());
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("D:\\workspace\\lib\\slf4j-api-1.7.30.jar").matches());
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("lib\\johnzon-mapper-1.2.18.jar").matches());
+        // Edge cases: paths with multiple separators
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("foo/bar/baz/component-spi-2.0.0.jar").matches());
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("foo\\bar\\baz\\container-core-1.0.0.jar").matches());
+        // Should NOT match non-framework jars
+        assertFalse(FRAMEWORK_JAR_PATTERN.matcher("/usr/lib/my-custom-component-1.0.0.jar").matches());
+        assertFalse(FRAMEWORK_JAR_PATTERN.matcher("C:\\libs\\other-library-2.0.jar").matches());
+        // Edge case: filename that starts with framework name but isn't a framework jar
+        assertFalse(FRAMEWORK_JAR_PATTERN.matcher("/usr/lib/component-api.txt").matches());
+        assertFalse(FRAMEWORK_JAR_PATTERN.matcher("/usr/lib/component-api").matches());
     }
 
     @Test

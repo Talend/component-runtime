@@ -50,9 +50,13 @@ public class ResolverImpl implements Resolver, Serializable {
 
     @Override
     public ClassLoaderDescriptor mapDescriptorToClassLoader(final InputStream descriptor) {
+        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        final ClassLoader loader =
+                ofNullable(classLoader).map(ClassLoader::getParent).orElseGet(ClassLoader::getSystemClassLoader);
+
         return mapDescriptorToClassLoader(descriptor,
                 ClassLoaderConfiguration.builder()
-                        .parent(Thread.currentThread().getContextClassLoader())
+                        .parent(loader)
                         .classesFilter(it -> true)
                         .parentClassesFilter(it -> false)
                         .supportsResourceDependencies(true)
@@ -96,7 +100,8 @@ public class ResolverImpl implements Resolver, Serializable {
                     nested.toArray(new String[0]),
                     ConfigurableClassLoader.class.isInstance(parent)
                             ? ConfigurableClassLoader.class.cast(parent).getJvmMarkers()
-                            : new String[] { "" });
+                            : new String[] { "" },
+                    configuration.getParentResourcesFilter());
             return new ClassLoaderDescriptorImpl(volatileLoader, resolved);
         } catch (final IOException e) {
             throw new IllegalArgumentException(e);

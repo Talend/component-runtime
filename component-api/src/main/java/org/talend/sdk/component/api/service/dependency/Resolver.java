@@ -56,7 +56,11 @@ public interface Resolver {
      * @param configuration
      * @return the classloader initialized with the configuration provided and the resolved dependencies.
      */
-    ClassLoaderDescriptor mapDescriptorToClassLoader(InputStream descriptor, final ClassLoaderDefinition configuration);
+    default ClassLoaderDescriptor mapDescriptorToClassLoader(InputStream descriptor,
+            final ClassLoaderDefinition configuration) {
+        throw new UnsupportedOperationException(
+                "This method is not implemented yet, please use the mapDescriptorToClassLoader(InputStream) method instead");
+    }
 
     default ClassLoaderDescriptor mapDescriptorToClassLoader(final List<String> gavs,
             final ClassLoaderDefinition configuration) {
