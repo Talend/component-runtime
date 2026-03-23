@@ -24,18 +24,18 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class MapCache {
 
-    // simple - but enough - protection against too much entries in the cache
-    // this mainly targets ?query king of parameters
+    // simple - but enough - protection against too many entries in the cache
+    // this mainly targets ?query kind of parameters
     public <A, B> void evictIfNeeded(final ConcurrentMap<A, B> cache, final int maxSize) {
-        if (maxSize < 0) {
+        if (maxSize <= 0) {
             cache.clear();
             return;
         }
-        while (cache.size() > maxSize) {
-            final Iterator<Map.Entry<A, B>> iterator = cache.entrySet().iterator();
-            if (iterator.hasNext()) {
-                iterator.remove();
-            }
+        final Iterator<A> it = cache.keySet().iterator();
+        int excess = cache.size() - maxSize;
+        while (excess-- > 0 && it.hasNext()) {
+            it.next();
+            it.remove();
         }
     }
 }
