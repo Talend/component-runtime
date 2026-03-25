@@ -94,13 +94,13 @@ public class ResolverImpl implements Resolver, Serializable {
             final ConfigurableClassLoader volatileLoader = new ConfigurableClassLoader(plugin + "#volatile-resolver",
                     urls.toArray(new URL[0]),
                     parent,
-                    configuration.getParentClassesFilter(),
-                    configuration.getClassesFilter(),
+                    ofNullable(configuration.getParentClassesFilter()).orElse(it -> false),
+                    ofNullable(configuration.getClassesFilter()).orElse(it -> true),
                     nested.toArray(new String[0]),
                     ConfigurableClassLoader.class.isInstance(parent)
                             ? ConfigurableClassLoader.class.cast(parent).getJvmMarkers()
                             : new String[] { "" },
-                    configuration.getParentResourcesFilter());
+                    ofNullable(configuration.getParentResourcesFilter()).orElse(it -> true));
             return new ClassLoaderDescriptorImpl(volatileLoader, resolved);
         } catch (final IOException e) {
             throw new IllegalArgumentException(e);
