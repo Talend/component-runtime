@@ -1826,8 +1826,9 @@
       -->
       <distributionManagement>
         <snapshotRepository>
-          <id>talend.snapshots</id>
-          <url>https://artifacts-zl.talend.com/nexus/content/repositories/snapshots</url>
+            <id>github_package_snapshots</id>
+            <name>GitHub Maven Packages (snapshots)</name>
+            <url>https://maven.pkg.github.com/Talend/global-artifacts</url>
         </snapshotRepository>
       </distributionManagement>
     </profile>
