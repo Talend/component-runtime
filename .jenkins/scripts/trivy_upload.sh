@@ -35,7 +35,7 @@ main() {
       -F 'verified=true' \
       -F 'product_type_name=Talend' \
       -F 'scan_type=Trivy Scan' \
-      -F 'file=@output/trivy-results.json'
+      -F 'file=@output/defectdojo-upload.json'
 }
 
 main "$@"
