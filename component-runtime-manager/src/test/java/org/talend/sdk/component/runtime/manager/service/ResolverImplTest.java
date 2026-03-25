@@ -18,6 +18,8 @@ package org.talend.sdk.component.runtime.manager.service;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
@@ -30,25 +32,48 @@ import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.talend.sdk.component.api.service.dependency.ClassLoaderDefinition;
 import org.talend.sdk.component.api.service.dependency.Resolver;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
+import org.talend.sdk.component.container.ContainerManager;
 import org.talend.sdk.component.path.PathFactory;
 
 class ResolverImplTest {
+
+    private static final String ARTIFACT_ID = "artifactId";
+
+    private static final String EXPECTED_ARTIFACT_ID = "arquillian-tomee-codi-tests";
+
+    private static final String GAV_CODI_TESTS = "org.apache.tomee:arquillian-tomee-codi-tests:jar:8.0.9";
+
+    private static final String GAV_OPENEJB = "org.apache.tomee:openejb-itests-beans:jar:8.0.14";
+
+    private static final String POM_PROPS_TOMEE =
+            "META-INF/maven/org.apache.tomee/arquillian-tomee-codi-tests/pom.properties";
+
+    private static final String CLASS_OPENEJB = "org.apache.openejb.test.ApplicationException";
+
+    private static final String CLASS_POIXML = "org.apache.poi.ooxml.POIXMLException";
+
+    private static final String POI_PATH =
+            "target/test-dependencies/org/apache/poi/poi-ooxml/5.4.1/poi-ooxml-5.4.1.jar";
 
     @Test
     void createClassLoader(@TempDir final Path temporaryFolder) throws Exception {
         final File root = temporaryFolder.toFile();
         root.mkdirs();
-        final String dep = "org.apache.tomee:arquillian-tomee-codi-tests:jar:8.0.9";
+        final String dep = GAV_CODI_TESTS;
         final File nestedJar = new File(root, UUID.randomUUID().toString() + ".jar");
         try (final JarOutputStream out = new JarOutputStream(new FileOutputStream(nestedJar))) {
             addDepToJar(dep, out);
@@ -70,14 +95,11 @@ class ResolverImplTest {
             assertNotNull(desc.asClassLoader());
             assertEquals(singletonList(dep), desc.resolvedDependencies());
             final Properties props = new Properties();
-            try (final InputStream in = desc
-                    .asClassLoader()
-                    .getResourceAsStream(
-                            "META-INF/maven/org.apache.tomee/arquillian-tomee-codi-tests/pom.properties")) {
+            try (final InputStream in = desc.asClassLoader().getResourceAsStream(POM_PROPS_TOMEE)) {
                 assertNotNull(in);
                 props.load(in);
             }
-            assertEquals("arquillian-tomee-codi-tests", props.getProperty("artifactId"));
+            assertEquals(EXPECTED_ARTIFACT_ID, props.getProperty(ARTIFACT_ID));
         } finally {
             thread.setContextClassLoader(contextClassLoader);
             appLoader.close();
@@ -97,6 +119,95 @@ class ResolverImplTest {
         }
     }
 
+    @Test
+    void createBareConfigurableClassLoader(@TempDir final Path temporaryFolder) throws Exception {
+        createConfigurableClassLoader(temporaryFolder, true, false);
+    }
+
+    @Test
+    void createConfigurableClassLoaderWithParentLoading(@TempDir final Path temporaryFolder) throws Exception {
+        createConfigurableClassLoader(temporaryFolder, false, true);
+    }
+
+    @Test
+    void createConfigurableClassLoaderWithoutParentLoading(@TempDir final Path temporaryFolder) throws Exception {
+        createConfigurableClassLoader(temporaryFolder, false, false);
+    }
+
+    private void createConfigurableClassLoader(final Path temporaryFolder, final boolean bare,
+            final boolean parentLoading)
+            throws Exception {
+        final File root = temporaryFolder.toFile();
+        root.mkdirs();
+        final List<String> deps = Arrays.asList(GAV_CODI_TESTS, GAV_OPENEJB);
+        final File nestedJar = new File(root, UUID.randomUUID().toString() + ".jar");
+        try (final JarOutputStream out = new JarOutputStream(new FileOutputStream(nestedJar))) {
+            deps.forEach(d -> addDepToJar(d, out));
+        }
+
+        final Thread thread = Thread.currentThread();
+        final ClassLoader contextCl = thread.getContextClassLoader();
+        // component loader simulation which is always the parent of that
+        // here the parent of the component is the jar containing the nested repo
+        final URLClassLoader appLoader = new URLClassLoader(new URL[] { nestedJar.toURI().toURL() }, contextCl);
+        final File poiJar = new File(POI_PATH);
+        assertTrue(Files.exists(poiJar.toPath()));
+        final ConfigurableClassLoader componentLoader =
+                new ConfigurableClassLoader("test", new URL[] { poiJar.toURI().toURL() }, appLoader,
+                        it -> true, it -> true, new String[0], new String[0]);
+        // force loading of a class from the future parent for the created classloader with no parent loading allowed.
+        final Class poiClazz = componentLoader.loadClass(CLASS_POIXML, true);
+        assertEquals(componentLoader, poiClazz.getClassLoader());
+
+        thread.setContextClassLoader(componentLoader);
+        final ClassLoaderDefinition classLoaderDefinition = ContainerManager.ClassLoaderConfiguration.builder()
+                .parent(componentLoader)
+                .classesFilter(it -> true)
+                .parentClassesFilter(it -> parentLoading)
+                .supportsResourceDependencies(true)
+                .parentResourcesFilter(it -> true)
+                .create();
+
+        final Function<String, Path> fileResolver = coord -> PathFactory.get("maven2").resolve(coord);
+        try (final Resolver.ClassLoaderDescriptor desc = bare
+                ? new ResolverImpl(null, fileResolver).mapDescriptorToClassLoader(deps)
+                : new ResolverImpl(null, fileResolver).mapDescriptorToClassLoader(deps, classLoaderDefinition)) {
+            assertNotNull(desc);
+            final ClassLoader dumbCl = desc.asClassLoader();
+            assertNotNull(dumbCl);
+            assertTrue(dumbCl.getParent() == (bare ? appLoader : componentLoader));
+            // the classloader should be a child of the component loader and a ConfigurableClassLoader
+            assertTrue(dumbCl instanceof ConfigurableClassLoader);
+            final ConfigurableClassLoader ccl = (ConfigurableClassLoader) dumbCl;
+            // class loading should work and be done by the created classloader
+            Class clazz = ccl.loadClass(CLASS_OPENEJB, true);
+            assertNotNull(clazz);
+            assertEquals(ccl, clazz.getClassLoader());
+            // check that parent loading is or not allowed
+            if (parentLoading) {
+                Class clzz = ccl.loadClass(CLASS_POIXML, true);
+                assertNotNull(clzz);
+                assertEquals(poiClazz, clzz);
+            } else {
+                assertThrows(ClassNotFoundException.class, () -> ccl.loadClass(CLASS_POIXML, true));
+            }
+            // checks dependencies and resources
+            assertEquals(deps, desc.resolvedDependencies());
+            final Properties props = new Properties();
+            try (final InputStream in = desc.asClassLoader().getResourceAsStream(POM_PROPS_TOMEE)) {
+                assertNotNull(in);
+                props.load(in);
+            }
+            assertEquals(EXPECTED_ARTIFACT_ID, props.getProperty(ARTIFACT_ID));
+            //
+            // TODO: check parent loading of resources is allowed or not depending on the configuration.
+            //
+        } finally {
+            thread.setContextClassLoader(contextCl);
+            appLoader.close(); // cascade close the classloaders
+        }
+    }
+
     private void addDepToJar(final String dep, final JarOutputStream out) {
         final String[] segments = dep.split(":");
         final String path = "MAVEN-INF/repository/" + segments[0].replace(".", "/") + "/" + segments[1] + "/"
@@ -110,7 +221,9 @@ class ResolverImplTest {
             try {
                 out.putNextEntry(new ZipEntry(current.toString()));
             } catch (final IOException e) {
-                fail(e.getMessage());
+                if (!e.getMessage().contains("duplicate entry")) {
+                    fail(e.getMessage());
+                }
             }
         }
         // add the dep
