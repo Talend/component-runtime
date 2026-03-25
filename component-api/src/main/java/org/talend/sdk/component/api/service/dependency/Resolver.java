@@ -52,9 +52,11 @@ public interface Resolver {
      * WARNING: note it is very important to close the descriptor once no more used otherwise
      * you can leak memory.
      *
-     * <p>The default implementation of this method is unsupported and will always throw
+     * <p>
+     * The default implementation of this method is unsupported and will always throw
      * {@link UnsupportedOperationException}. Implementations that support configurable
-     * classloader creation must override this method.</p>
+     * classloader creation must override this method.
+     * </p>
      *
      * @param descriptor the dependencies.txt InputStream.
      * @param configuration the classloader configuration to apply when creating the classloader.
