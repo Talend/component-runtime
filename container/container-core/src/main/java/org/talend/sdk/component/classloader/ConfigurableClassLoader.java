@@ -429,7 +429,10 @@ public class ConfigurableClassLoader extends URLClassLoader {
         try {
             if (resource == null && !isBlacklistedFromParent(name)) {
                 final URL url = getParent().getResource(name);
-                return url != null ? getInputStream(url) : null;
+                if (url != null && shouldLoadFromParent(url)) {
+                    return getInputStream(url);
+                }
+                return null;
             }
             if (resource == null) {
                 return null;
