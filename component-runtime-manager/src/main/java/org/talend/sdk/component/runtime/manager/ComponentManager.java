@@ -1765,7 +1765,7 @@ public class ComponentManager implements AutoCloseable {
                         JarInputStream jarStream = null;
                         try {
                             jarStream = new JarInputStream(nested.openStream());
-                            log.debug("Found a nested resource for " + nested);
+                            log.debug("Found a nested resource for {}", nested);
                             return new NestedJarArchive(nested, jarStream, loader);
                         } catch (final IOException e) {
                             if (jarStream != null) {
