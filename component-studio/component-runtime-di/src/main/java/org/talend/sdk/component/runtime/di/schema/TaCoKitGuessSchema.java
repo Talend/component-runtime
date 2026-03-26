@@ -432,7 +432,7 @@ public class TaCoKitGuessSchema {
                             .findFirst())
                     .orElse(null);
             if (actionRef == null) {
-                // second find DiscoverSchema action name
+                // Then try the DiscoverSchema action name.
                 actionRef = findFirstComponentDataSetName()
                         .flatMap(datasetName -> services
                                 .stream()
