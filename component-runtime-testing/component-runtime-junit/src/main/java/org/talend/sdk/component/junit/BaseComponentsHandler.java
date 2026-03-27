@@ -109,7 +109,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
                 .orElseThrow(() -> new IllegalArgumentException("cant find plugin '" + plugin + "'"))
                 .get(ComponentManager.AllServices.class)
                 .getServices();
-        ((Injector) services.get(Injector.class)).inject(instance);
+        Injector.class.cast(services.get(Injector.class)).inject(instance);
         return instance;
     }
 
