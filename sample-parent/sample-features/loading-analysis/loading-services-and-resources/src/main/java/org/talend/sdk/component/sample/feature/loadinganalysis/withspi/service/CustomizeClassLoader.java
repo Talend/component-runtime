@@ -21,33 +21,84 @@ import org.talend.sdk.component.runtime.manager.ComponentManager;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Custom class loader customizer for component runtime.
+ * <p>
+ * This customizer allows specific classes and resources to be loaded from the parent classloader
+ * instead of the component's isolated classloader.
+ * </p>
+ */
 @Slf4j
 public class CustomizeClassLoader implements ComponentManager.Customizer {
 
     private static final String DISABLE_CUSTOMIZE_PROPERTY =
             "org.talend.sdk.component.sample.feature.loadinganalysis.withspi.service.CustomizeClassLoader.disabled";
 
-    private static final boolean DISABLE_CUSTOMIZE = Boolean.parseBoolean(
-            System.getProperty(DISABLE_CUSTOMIZE_PROPERTY, "true"));
+    private static final boolean DISABLE_CUSTOMIZE =
+            Boolean.parseBoolean(System.getProperty(DISABLE_CUSTOMIZE_PROPERTY, "false"));
 
+    private static final String EXTERNAL_SPI_CLASS =
+            "org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestlibrary.serviceInterfaces.StringProviderFromExternalSPI";
+
+    private static final String MULTIPLE_RESOURCE_PATH = "MULTIPLE_RESOURCE/content.txt";
+
+    private static final String SPI_SERVICE_PATH =
+            "META-INF/services/org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestlibrary.serviceInterfaces.StringProviderFromExternalSPI";
+
+    /**
+     * Specifies which classes and packages should be loaded from the container classloader.
+     * <p>
+     * When disabled (default), returns an empty stream.
+     * When enabled, returns the list of classes that should be shared across components.
+     * </p>
+     *
+     * @return A stream of class/package names to be loaded from the parent classloader
+     */
     @Override
     public Stream<String> containerClassesAndPackages() {
         if (DISABLE_CUSTOMIZE) {
-            log.info(
-                    "org.talend.sdk.component.sample.feature.loadinganalysis.withspi.service.CustomizeClassLoader is disabled.\n"
-                            + "use \"" + DISABLE_CUSTOMIZE_PROPERTY + "=false\""
-                            + " property to enable it.");
+            logDisabledState();
             return Stream.empty();
         }
 
-        log.info(
-                "org.talend.sdk.component.sample.feature.loadinganalysis.withspi.service.CustomizeClassLoader is enabled,\n"
-                        + "use \"" + DISABLE_CUSTOMIZE_PROPERTY + "=true\""
-                        + " property to disable it.");
-        return Stream.of(
-                // Implementation should come from a dynamic dependency
-                "org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDependency",
-                // Implementation should come from runtime
-                "org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestlibrary.serviceInterfaces.StringProviderSPIAsDynamicDependency");
+        logEnabledState();
+        return Stream.of(EXTERNAL_SPI_CLASS);
+    }
+
+    /**
+     * Specifies which resources should be loaded from the parent classloader.
+     * <p>
+     * This includes resource files and service provider configuration files.
+     * </p>
+     *
+     * @return A stream of resource paths to be loaded from the parent classloader
+     */
+    @Override
+    public Stream<String> parentResources() {
+        if (DISABLE_CUSTOMIZE) {
+            logDisabledState();
+            return Stream.empty();
+        }
+
+        logEnabledState();
+        return Stream.of(MULTIPLE_RESOURCE_PATH, SPI_SERVICE_PATH);
+    }
+
+    /**
+     * Logs a message indicating that the customizer is disabled.
+     */
+    private void logDisabledState() {
+        log.info("{} is disabled.\nUse \"{}=false\" property to enable it.",
+                CustomizeClassLoader.class.getName(),
+                DISABLE_CUSTOMIZE_PROPERTY);
+    }
+
+    /**
+     * Logs a message indicating that the customizer is enabled.
+     */
+    private void logEnabledState() {
+        log.info("{} is enabled.\nUse \"{}=true\" property to disable it.",
+                CustomizeClassLoader.class.getName(),
+                DISABLE_CUSTOMIZE_PROPERTY);
     }
 }

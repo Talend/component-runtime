@@ -46,7 +46,7 @@ public class DynamicDependenciesWithDatastoreService extends AbstractDynamicDepe
 
     @DiscoverSchemaExtended(DEPENDENCY_WITHDATASTORE_ACTION)
     public Schema guessSchema4Input(final @Option("configuration") Config config) {
-        return super.buildSchema(config);
+        return super.buildSchema();
     }
 
 }

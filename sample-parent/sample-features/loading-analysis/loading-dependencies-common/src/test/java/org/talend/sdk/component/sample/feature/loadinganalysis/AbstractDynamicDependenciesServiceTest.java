@@ -28,15 +28,22 @@ import static org.talend.sdk.component.sample.feature.loadinganalysis.service.Ab
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.exception.ComponentException;
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Entry;
+import org.talend.sdk.component.api.record.Schema.Type;
+import org.talend.sdk.component.sample.feature.loadinganalysis.config.Connector;
 import org.talend.sdk.component.sample.feature.loadinganalysis.config.Dependency;
 import org.talend.sdk.component.sample.feature.loadinganalysis.config.DynamicDependencyConfig;
 import org.talend.sdk.component.sample.feature.loadinganalysis.service.AbstractDynamicDependenciesService;
@@ -65,8 +72,50 @@ public abstract class AbstractDynamicDependenciesServiceTest<C extends DynamicDe
         result.forEachRemaining(records::add);
         Assertions.assertEquals(4, records.size());
 
-        Record fourth = records.get(3);
+        Record record = records.get(0);
         ResultDetails expected = new ResultDetails(
+                false,
+                "jdk.internal.loader.ClassLoaders$AppClassLoader",
+                "jdk.internal.loader.ClassLoaders$AppClassLoader",
+                "org.talend.sdk.component.loading-analysis:loading-dependencies-common:N/A",
+                System.getProperty("user.dir"),
+                true,
+                "org/talend/sdk/component/sample/feature/loadinganalysis/config/Dependency.class",
+                "Hardcoded 'static' dependency test.",
+                "org.talend.sdk.component.sample.feature.loadinganalysis.config.Dependency",
+                "commons-numbers-primes-1.2.jar");
+        this.assertRecord(record, expected);
+
+        record = records.get(1);
+        expected = new ResultDetails(
+                false,
+                "jdk.internal.loader.ClassLoaders$AppClassLoader",
+                "jdk.internal.loader.ClassLoaders$AppClassLoader",
+                "org.talend.sdk.component:component-runtime:N/A",
+                System.getProperty("user.dir"),
+                true,
+                "org/talend/sdk/component/api/service/asyncvalidation/ValidationResult.class",
+                "Hardcoded provided dependency test.",
+                "org.talend.sdk.component.api.service.asyncvalidation.ValidationResult",
+                "component-runtime-impl");
+        this.assertRecord(record, expected);
+
+        record = records.get(2);
+        expected = new ResultDetails(
+                false,
+                "jdk.internal.loader.ClassLoaders$AppClassLoader",
+                "jdk.internal.loader.ClassLoaders$AppClassLoader",
+                "org.apache.maven.resolver:maven-resolver-api:2.0.14",
+                System.getProperty("user.dir"),
+                true,
+                "org/eclipse/aether/artifact/DefaultArtifact.class",
+                "Hardcoded dynamic dependency test. The instantiated object has been assigned.",
+                "org.eclipse.aether.artifact.DefaultArtifact",
+                "maven-resolver-api-2.0.14.jar");
+        this.assertRecord(record, expected);
+
+        record = records.get(3);
+        expected = new ResultDetails(
                 false,
                 "jdk.internal.loader.ClassLoaders$AppClassLoader",
                 "jdk.internal.loader.ClassLoaders$AppClassLoader",
@@ -77,10 +126,30 @@ public abstract class AbstractDynamicDependenciesServiceTest<C extends DynamicDe
                 null,
                 "org.apache.commons.numbers.primes.SmallPrimes",
                 "commons-numbers-primes-1.2.jar");
-        this.assertRecord(fourth, expected);
+        this.assertRecord(record, expected);
+    }
+
+    @Test
+    void testGuessSchema4Input() {
+        Schema schema = this.getService().buildSchema();
+        Map<String, Entry> entries = schema.getAllEntries().collect(Collectors.toMap(Entry::getName, e -> e));
+        Assertions.assertEquals(12, entries.size());
+        Assertions.assertEquals(Type.BOOLEAN, entries.get("is_tck_container").getType());
+        Assertions.assertEquals(Type.STRING, entries.get("root_repository").getType());
+        Assertions.assertEquals(Type.STRING, entries.get("clazz_classloader").getType());
+        Assertions.assertEquals(Type.STRING, entries.get("maven").getType());
+        Assertions.assertEquals(Type.RECORD, entries.get("first_record").getType());
+        Assertions.assertEquals(Type.BOOLEAN, entries.get("is_loaded").getType());
+        Assertions.assertEquals(Type.STRING, entries.get("from_location").getType());
+        Assertions.assertEquals(Type.STRING, entries.get("working_directory").getType());
+        Assertions.assertEquals(Type.STRING, entries.get("comment").getType());
+        Assertions.assertEquals(Type.STRING, entries.get("connector_classloader").getType());
+        Assertions.assertEquals(Type.STRING, entries.get("clazz").getType());
+        Assertions.assertEquals(Type.STRING, entries.get("runtime_classpath").getType());
     }
 
     protected List<Dependency> getDynamicDependenciesConfigurationList() {
+        // This dependency is added in dynamic dependencies list
         List<Dependency> depends = new ArrayList<>();
         Dependency depend = new Dependency();
         depend.setArtifactId("commons-numbers-primes");
@@ -89,6 +158,12 @@ public abstract class AbstractDynamicDependenciesServiceTest<C extends DynamicDe
         depend.setClazz("org.apache.commons.numbers.primes.SmallPrimes");
         depends.add(depend);
         return depends;
+    }
+
+    protected List<Connector> getDynamicDependenciesConnectorsConfigurationList() {
+        // Return an empty list since currently this is not supported at unit test time.
+        // It is not possible to load another connector in unit test.
+        return Collections.emptyList();
     }
 
     private void assertRecord(Record record, ResultDetails expected) {

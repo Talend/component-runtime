@@ -45,7 +45,7 @@ public class DynamicDependenciesWithDatasetService extends AbstractDynamicDepend
 
     @DiscoverSchemaExtended(DEPENDENCY_WITHDATASET_ACTION)
     public Schema guessSchema4Input(final @Option("configuration") Config config) {
-        return super.buildSchema(config);
+        return super.buildSchema();
     }
 
 }

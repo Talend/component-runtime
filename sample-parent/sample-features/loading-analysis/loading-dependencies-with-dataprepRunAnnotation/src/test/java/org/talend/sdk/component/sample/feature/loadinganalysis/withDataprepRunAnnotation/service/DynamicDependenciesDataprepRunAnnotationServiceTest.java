@@ -16,15 +16,12 @@
 package org.talend.sdk.component.sample.feature.loadinganalysis.withDataprepRunAnnotation.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.junit5.WithComponents;
 import org.talend.sdk.component.sample.feature.loadinganalysis.AbstractDynamicDependenciesServiceTest;
-import org.talend.sdk.component.sample.feature.loadinganalysis.config.Connector;
-import org.talend.sdk.component.sample.feature.loadinganalysis.config.Dependency;
 import org.talend.sdk.component.sample.feature.loadinganalysis.withDataprepRunAnnotation.config.Config;
 import org.talend.sdk.component.sample.feature.loadinganalysis.withDataprepRunAnnotation.config.Dataset;
 import org.talend.sdk.component.sample.feature.loadinganalysis.withDataprepRunAnnotation.config.Datastore;
@@ -44,31 +41,12 @@ public class DynamicDependenciesDataprepRunAnnotationServiceTest
         Config config = new Config();
         Dataset dse = new Dataset();
         Datastore dso = new Datastore();
-        List<Dependency> dynamicDependencies = this.getDynamicDependenciesConfigurationList();
-        config.getSubConfig().setDependencies(dynamicDependencies);
-        List<Connector> dynamicDependenciesOfConnectors = Collections.singletonList(
-                new Connector("org.talend.sdk.component", "sample-connector", getVersion(), "the_family",
-                        "simple-input",
-                        1, true,
-                        "{\" configuration.debug\": \"false\",\" configuration.dataset.resource\": \"Account\",\" configuration.dataset.datastore.url\": \"http://localhost\",\" configuration.dataset.datastore.token\": \"123456\"}"));
-        config.getSubConfig().setConnectors(dynamicDependenciesOfConnectors);
+        config.getSubConfig().setDependencies(this.getDynamicDependenciesConfigurationList());
+        config.getSubConfig().setConnectors(this.getDynamicDependenciesConnectorsConfigurationList());
         dse.setDso(dso);
         config.setDse(dse);
 
         return config;
-    }
-
-    // use tck connector as dependency
-    protected List<Dependency> getDynamicDependenciesConfigurationList() {
-        List<Dependency> depends = new ArrayList<>();
-        Dependency depend = new Dependency();
-        depend.setArtifactId("commons-numbers-primes");
-        depend.setVersion("1.2");
-        depend.setGroupId("org.apache.commons");
-        depend.setClazz("org.apache.commons.numbers.primes.SmallPrimes");
-        depends.add(depend);
-
-        return depends;
     }
 
     @Override

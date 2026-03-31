@@ -17,6 +17,8 @@ package org.talend.sdk.component.sample.feature.loadinganalysis.withdataset.serv
 
 import java.util.List;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.junit5.WithComponents;
 import org.talend.sdk.component.sample.feature.loadinganalysis.AbstractDynamicDependenciesServiceTest;
@@ -52,4 +54,14 @@ public class DynamicDependenciesWithDatasetServiceTest
     protected DynamicDependenciesWithDatasetService getService() {
         return dynamicDependenciesServiceService;
     }
+
+    @Test
+    void testDynamicDependencies() {
+        List<String> dynamicDependencies = this.getService().getDynamicDependencies(this.getConfig().getDse());
+        Assertions.assertEquals(2, dynamicDependencies.size());
+        Assertions.assertEquals("org.apache.commons:commons-numbers-primes:1.2", dynamicDependencies.get(0));
+        Assertions.assertEquals("org.apache.maven.resolver:maven-resolver-api:2.0.14",
+                dynamicDependencies.get(1));
+    }
+
 }

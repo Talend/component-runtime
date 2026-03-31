@@ -95,7 +95,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
     private Resolver resolver;
 
     public Iterator<Record> loadIterator(final DynamicDependencyConfig dynamicDependencyConfig) {
-        Schema schema = buildSchema(dynamicDependencyConfig);
+        Schema schema = buildSchema();
 
         List<Record> standardDependencies = loadStandardDependencies(dynamicDependencyConfig, schema);
         List<Record> additionalConnectors = loadConnectors(dynamicDependencyConfig, schema);
@@ -108,16 +108,14 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
         List<Record> records = new ArrayList<>();
 
         List<Dependency> dependencies = new ArrayList<>();
-        // Add a class that should be imported by a 'standard' dependency (not a dynamic one)
-        // to have an example from which classloaded it is loaded
-        // In that case the version doesn't matter.
+
+        // Hardcoded dependency to check that 'static' dependencies from configuration are well loaded and assigned
         dependencies.add(new Dependency("org.talend.sdk.component.loading-analysis",
                 "loading-dependencies-common",
                 "N/A",
                 "org.talend.sdk.component.sample.feature.loadinganalysis.config.Dependency"));
 
-        // This is a hardcoded dependency to check how are loaded dependencies
-        // provided by the runtime
+        // Hardcoded dependency to check that 'provided' dependencies are well loaded and assigned
         dependencies.add(new Dependency("org.talend.sdk.component",
                 "component-runtime",
                 "N/A",
@@ -149,11 +147,11 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
                 if ("maven-resolver-api".equals(dependency.getArtifactId())) {
                     // This dependency is automatically added by additionalDependencies()
                     checkAssignmentFromDynamicDependency();
-                    comment = "An instance has been instantiated and assigned.";
-                } else if ("dynamic-dependencies-common".equals(dependency.getArtifactId())) {
-                    comment = "Check static dependency.";
+                    comment = "Hardcoded dynamic dependency test. The instantiated object has been assigned.";
+                } else if ("loading-dependencies-common".equals(dependency.getArtifactId())) {
+                    comment = "Hardcoded 'static' dependency test.";
                 } else if ("component-runtime".equals(dependency.getArtifactId())) {
-                    comment = "Check provided dependency.";
+                    comment = "Hardcoded provided dependency test.";
                 }
 
             } catch (ClassNotFoundException e) {
@@ -274,7 +272,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
         }
     }
 
-    protected Schema buildSchema(final DynamicDependencyConfig dynamicDependencyConfig) {
+    public Schema buildSchema() {
         Schema.Builder builder = factory.newSchemaBuilder(Type.RECORD)
                 .withEntry(factory.newEntryBuilder().withName(ENTRY_MAVEN).withType(Type.STRING).build())
                 .withEntry(factory.newEntryBuilder().withName(ENTRY_CLASS).withType(Type.STRING).build())

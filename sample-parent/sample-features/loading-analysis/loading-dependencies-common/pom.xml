@@ -30,33 +30,29 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.maven.resolver</groupId>
-            <artifactId>maven-resolver-api</artifactId>
-            <version>2.0.14</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.talend.sdk.component</groupId>
-            <artifactId>sample-connector</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.talend.sdk.component</groupId>
             <artifactId>component-runtime-manager</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-api</artifactId>
+            <version>2.0.14</version>
+            <!-- This one is provided since there is an explicit import -->
+            <scope>provided</scope>
+        </dependency>
+        <!-- End of explicit dynamic dependencies because of an issue. -->
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
+        <testResources>
+            <testResource>
                 <!-- This is to parse the test/resources/version.properties file -->
                 <directory>src/test/resources</directory>
                 <filtering>true</filtering>
-            </resource>
-        </resources>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

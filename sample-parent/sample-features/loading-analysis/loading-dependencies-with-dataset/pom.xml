@@ -40,10 +40,15 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <!-- The dependency that simulate a dynamic one. -->
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-numbers-primes</artifactId>
             <version>1.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-api</artifactId>
+            <version>2.0.14</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
