@@ -658,7 +658,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
         }
     }
 
-    protected interface Local<T> {
+    interface Local<T> {
 
         void set(T value);
 
