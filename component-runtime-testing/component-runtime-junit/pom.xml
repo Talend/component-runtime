@@ -147,6 +147,16 @@
               <method>*get*</method>
               <justification>we don't need this method</justification>
             </difference>
+            <difference>
+              <className>org/talend/sdk/component/junit5/ComponentExtension</className>
+              <differenceType>4001</differenceType>
+              <justification>org.junit.jupiter.api.extension.TestInstantiationAwareExtension has been removed by junit5, not by our code</justification>
+            </difference>
+            <difference>
+              <className>org/talend/sdk/component/junit5/MavenDecrypterExtension</className>
+              <differenceType>4001</differenceType>
+              <justification>org.junit.jupiter.api.extension.TestInstantiationAwareExtension has been removed by junit5, not by our code</justification>
+            </difference>
           </ignored>
         </configuration>
         <executions>
