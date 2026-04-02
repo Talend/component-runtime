@@ -150,11 +150,13 @@
             <difference>
               <className>org/talend/sdk/component/junit5/ComponentExtension</className>
               <differenceType>4001</differenceType>
+              <to>org/junit/jupiter/api/extension/TestInstantiationAwareExtension</to>
               <justification>org.junit.jupiter.api.extension.TestInstantiationAwareExtension has been removed by junit5, not by our code</justification>
             </difference>
             <difference>
               <className>org/talend/sdk/component/junit5/MavenDecrypterExtension</className>
               <differenceType>4001</differenceType>
+              <to>org/junit/jupiter/api/extension/TestInstantiationAwareExtension</to>
               <justification>org.junit.jupiter.api.extension.TestInstantiationAwareExtension has been removed by junit5, not by our code</justification>
             </difference>
           </ignored>
