@@ -20,13 +20,13 @@
     <parent>
         <groupId>org.talend.sdk.component.loading-analysis</groupId>
         <artifactId>loading-analysis</artifactId>
-        <version>1.90.0-SNAPSHOT</version>
+        <version>1.91.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>service-provider-from-dependency</artifactId>
 
     <packaging>jar</packaging>
-    <name>Component Runtime :: Sample Feature @DynamicDependency :: a service provider that should be part of dependencies</name>
+    <name>Component Runtime :: Sample Features :: Loading Analysis :: Service Provider from Dependency</name>
 
     <properties>
         <talend.car.skip>true</talend.car.skip>

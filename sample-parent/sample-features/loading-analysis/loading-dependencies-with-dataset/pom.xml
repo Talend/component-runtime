@@ -18,12 +18,12 @@
     <parent>
         <groupId>org.talend.sdk.component.loading-analysis</groupId>
         <artifactId>loading-analysis</artifactId>
-        <version>1.90.0-SNAPSHOT</version>
+        <version>1.91.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>loading-dependencies-with-dataset</artifactId>
     <packaging>jar</packaging>
-    <name>Component Runtime :: Sample Feature @DynamicDependency with Dataset</name>
+    <name>Component Runtime :: Sample Features :: Loading Analysis :: Loading Dependencies with Dataset</name>
 
     <dependencies>
         <dependency>

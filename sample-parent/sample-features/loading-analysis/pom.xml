@@ -20,14 +20,14 @@
     <parent>
         <groupId>org.talend.sdk.component</groupId>
         <artifactId>sample-features</artifactId>
-        <version>1.90.0-SNAPSHOT</version>
+        <version>1.91.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.talend.sdk.component.loading-analysis</groupId>
     <artifactId>loading-analysis</artifactId>
     <packaging>pom</packaging>
 
-    <name>Component Runtime :: Sample Feature @DynamicDependency</name>
+    <name>Component Runtime :: Sample Features :: Loading Analysis</name>
     <modules>
         <module>loading-dependencies-common</module>
         <module>loading-dependencies-with-dataset</module>
@@ -39,6 +39,7 @@
         <module>service-provider-from-dependency</module>
         <module>service-provider-from-dynamic-dependency</module>
         <module>service-provider-from-external-dependency</module>
+        <module>loading-with-specific-isolation</module>
     </modules>
 
     <build>

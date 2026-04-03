@@ -20,13 +20,13 @@
     <parent>
         <groupId>org.talend.sdk.component.loading-analysis</groupId>
         <artifactId>loading-analysis</artifactId>
-        <version>1.90.0-SNAPSHOT</version>
+        <version>1.91.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>loading-services-and-resources-lib</artifactId>
 
     <packaging>jar</packaging>
-    <name>Component Runtime :: Sample Feature @DynamicDependency :: a classloader test library</name>
+    <name>Component Runtime :: Sample Features :: Loading Analysis :: Loading Services and Resources Lib</name>
 
     <properties>
         <talend.car.skip>true</talend.car.skip>

@@ -19,14 +19,14 @@
     <parent>
         <groupId>org.talend.sdk.component.loading-analysis</groupId>
         <artifactId>loading-analysis</artifactId>
-        <version>1.90.0-SNAPSHOT</version>
+        <version>1.91.0-SNAPSHOT</version>
     </parent>
 
     <!-- All artifacts with group starting by 'org.talend.sdk.component' are automatically excluded -->
     <!-- So we changed the group to org.talend.sdk.component.loading-analysis -->
     <artifactId>loading-dependencies-common</artifactId>
     <packaging>jar</packaging>
-    <name>Component Runtime :: Sample Feature loading dependencies common</name>
+    <name>Component Runtime :: Sample Features :: Loading Analysis :: Loading Dependencies Common</name>
 
     <dependencies>
         <dependency>

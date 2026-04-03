@@ -22,9 +22,9 @@
         <version>1.91.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>loading-services-and-resources</artifactId>
+    <artifactId>loading-with-specific-isolation</artifactId>
     <packaging>jar</packaging>
-    <name>Component Runtime :: Sample Features :: Loading Analysis :: Loading Services and Resources</name>
+    <name>Component Runtime :: Sample Features :: Loading Analysis :: Loading with Specific Isolation</name>
 
     <dependencies>
         <dependency>
@@ -33,37 +33,9 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.talend.sdk.component.loading-analysis</groupId>
-            <artifactId>loading-services-and-resources-lib</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.talend.sdk.component.loading-analysis</groupId>
-            <artifactId>service-provider-from-dependency</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.talend.sdk.component.loading-analysis</groupId>
-            <artifactId>service-provider-from-dynamic-dependency</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.talend.sdk.component.loading-analysis</groupId>
-            <artifactId>service-provider-from-external-dependency</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -71,7 +43,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>loading.services.and.resources</Automatic-Module-Name>
+                            <Automatic-Module-Name>loading.with.specific.isolation</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
