@@ -25,7 +25,7 @@ import org.talend.sdk.component.api.meta.Documentation;
 import lombok.Data;
 
 @Data
-@DataSet("dyndepsdse")
+@DataSet("specificisolationdse")
 @AutoLayout
 public class Dataset implements Serializable {
 

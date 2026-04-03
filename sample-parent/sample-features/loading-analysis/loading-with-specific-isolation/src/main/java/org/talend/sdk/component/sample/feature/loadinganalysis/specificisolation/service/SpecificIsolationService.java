@@ -35,6 +35,7 @@ import org.talend.sdk.component.sample.feature.loadinganalysis.specificisolation
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Service
 public class SpecificIsolationService {
 
     @Service

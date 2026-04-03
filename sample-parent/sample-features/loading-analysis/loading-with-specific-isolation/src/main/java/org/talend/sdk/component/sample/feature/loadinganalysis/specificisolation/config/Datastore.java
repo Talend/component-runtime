@@ -27,7 +27,7 @@ import org.talend.sdk.component.api.meta.Documentation;
 import lombok.Data;
 
 @Data
-@DataStore("dyndepsdso")
+@DataStore("specificisolationdso")
 @GridLayout({
         @GridLayout.Row("noDynamicDependency"),
         @GridLayout.Row("group"),
@@ -37,13 +37,13 @@ import lombok.Data;
         @GridLayout.Row("resource")
 })
 @GridLayout(names = GridLayout.FormType.ADVANCED, value = {
-        @GridLayout.Row("classFilterAcceptAll"),
-        @GridLayout.Row("classFilterOption"),
+        @GridLayout.Row("classesFilterAcceptAll"),
+        @GridLayout.Row("classesFilterOption"),
         @GridLayout.Row("parentClassesFilterAcceptAll"),
         @GridLayout.Row("parentClassesFilterOption"),
         @GridLayout.Row("jarAsResource"),
-        @GridLayout.Row("parentResourceFilterAcceptAll"),
-        @GridLayout.Row("parentResourceFilterOption")
+        @GridLayout.Row("parentResourcesFilterAcceptAll"),
+        @GridLayout.Row("parentResourcesFilterOption")
 })
 public class Datastore implements Serializable {
 
@@ -79,9 +79,9 @@ public class Datastore implements Serializable {
     private boolean classesFilterAcceptAll;
 
     @Option
-    @Documentation("Child classloader class filter. One filter by line. Can be empty/")
+    @Documentation("Child classloader class filter. One filter by line. Can be empty.")
     @TextArea
-    @ActiveIf(target = "classFilterAcceptAll", value = "false")
+    @ActiveIf(target = "classesFilterAcceptAll", value = "false")
     private String classesFilterOption;
 
     @Option
@@ -89,7 +89,7 @@ public class Datastore implements Serializable {
     private boolean parentClassesFilterAcceptAll;
 
     @Option
-    @Documentation("Child classloader parent class filter. One filter by line. Can be empty/")
+    @Documentation("Child classloader parent class filter. One filter by line. Can be empty.")
     @TextArea
     @ActiveIf(target = "parentClassesFilterAcceptAll", value = "false")
     private String parentClassesFilterOption;
@@ -103,9 +103,9 @@ public class Datastore implements Serializable {
     private boolean parentResourcesFilterAcceptAll;
 
     @Option
-    @Documentation("Child classloader parent resource filter. One filter by line. Can be empty/")
+    @Documentation("Child classloader parent resource filter. One filter by line. Can be empty.")
     @TextArea
-    @ActiveIf(target = "parentResourceFilterAcceptAll", value = "false")
+    @ActiveIf(target = "parentResourcesFilterAcceptAll", value = "false")
     private String parentResourcesFilterOption;
 
 }
