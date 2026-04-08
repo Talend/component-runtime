@@ -266,6 +266,7 @@
     <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
     <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
     <ossindex-maven-plugin.version>3.2.0</ossindex-maven-plugin.version>
+    <plexus-utils.version>4.0.3</plexus-utils.version>
 
 
     <jgit.version>6.7.0.202309050840-r</jgit.version>
@@ -605,6 +606,11 @@
             <artifactId>cdi-api</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-utils</artifactId>
+        <version>${plexus-utils.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.tomcat</groupId>
