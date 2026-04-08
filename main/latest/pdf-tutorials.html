@@ -11,7 +11,7 @@
     <title>Tutorials :: Talend Component Kit Developer Reference Guide</title>
     <link rel="canonical" href="https://talend.github.io/component-runtime/main/latest/pdf-tutorials.html">
     <meta name="generator" content="Antora 3.0.3">
-<meta name="date" content="2026-04-08T01:08:15.447Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<meta name="date" content="2026-04-08T14:50:38.978Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
@@ -1429,9 +1429,15 @@ Import the project to your favorite IDE to start the implementation.</p>
 <li>
 <p>Go to <a href="https://starter-toolkit.talend.io/" class="bare">starter-toolkit.talend.io/</a> and fill in the project information as shown
 in the screenshots below, then click <strong>Finish</strong> and <strong>Download as ZIP</strong>.<br></p>
-<div class="paragraph">
-<p>image::tutorial_hazelcast_generateproject_1.png[]<br>
-image::tutorial_hazelcast_generateproject_2.png[]<br></p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/tutorial_hazelcast_generateproject_1.png" alt="tutorial hazelcast generateproject 1">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/tutorial_hazelcast_generateproject_2.png" alt="tutorial hazelcast generateproject 2">
+</div>
 </div>
 </li>
 <li>
@@ -1686,7 +1692,7 @@ Hazelcast._displayName=Hazelcast</code></pre>
 <p>Create the <code>icons</code> folder and add an icon image for the Hazelcast family.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">$ mkdir -p /src/main/resources/icons</code></pre>
+<pre class="highlightjs highlight"><code class="language-none hljs">$ mkdir -p src/main/resources/icons</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -4502,8 +4508,7 @@ to generate random data for our output. Then, we use the output component to fil
 
     @Request(path = "api/v2/search.json", method = "GET") <i class="conum" data-value="2"></i><b>(2)</b>
     Response&lt;JsonObject&gt; search(@Header("Authorization") String auth,<i class="conum" data-value="3"></i><b>(3)</b> <i class="conum" data-value="4"></i><b>(4)</b>
-            @Header("Content-Type") String contentType, <i class="conum" data-value="5"></i><b>(5)</b>
-            @Query("query") String query, <i class="conum" data-value="6"></i><b>(6)</b>
+            @Query("query") String query, <i class="conum" data-value="5"></i><b>(5)</b>
             @Query("sort_by") String sortBy,
             @Query("sort_order") String sortOrder,
             @Query("page") Integer page
@@ -4535,10 +4540,6 @@ If you want to consume specific content types, you need to specify your custom c
 </tr>
 <tr>
 <td><i class="conum" data-value="5"></i><b>5</b></td>
-<td>Another HTTP request header defined to provide the content type.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="6"></i><b>6</b></td>
 <td>Query parameters are defined using the <code>@Query</code> annotation that provides the parameter name.</td>
 </tr>
 </table>
@@ -4829,8 +4830,7 @@ public class SearchMapper implements Serializable {
 
     <i class="conum" data-value="6"></i><b>(6)</b>
     private JsonObject search(String auth, String query, String sortBy, String sortOrder, Integer page) {
-        final Response&lt;JsonObject&gt; response = searchClient.search(auth, "application/json",
-                query, sortBy, sortOrder, page);
+        final Response&lt;JsonObject&gt; response = searchClient.search(auth, query, sortBy, sortOrder, page);
         if (response.status() == 200 &amp;&amp; response.body().getInt("count") != 0) {
             return response.body();
         }

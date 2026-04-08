@@ -15,7 +15,7 @@
     <meta name="description" content="How to develop a processor component with Talend Component Kit">
     <meta name="keywords" content="component type, processor, output">
     <meta name="generator" content="Antora 3.0.3">
-<meta name="date" content="2026-04-08T01:08:15.245Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<meta name="date" content="2026-04-08T14:50:38.784Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
@@ -492,7 +492,7 @@ public MyNewData map(final MyData data) {
 <div class="paragraph">
 <p>If you just need to access data on a map-based ruleset, you can use <code>Record</code> or <code>JsonObject</code> as parameter type.<br>
 From there, Talend Component Kit wraps the data to allow you to access it as a map. The parameter type is not enforced.<br>
-This means that if you know you will get a <code>SuperCustomDto</code>, then you can use it as parameter type. But for generic components that are reusable in any chain, it is highly encouraged to use <code>Record</code> until you have an evaluation language-based processor that has its own way to access components.</p>
+This means that if you know that you will get a <code>SuperCustomDto</code> bean, then you can use it as parameter type. But for generic components that are reusable in any chain, it is highly encouraged to use <code>Record</code> until you have an evaluation language-based processor that has its own way to access components.</p>
 </div>
 <div class="paragraph">
 <p>For example:</p>
@@ -564,7 +564,7 @@ public void endBatch() {
 <h2 id="_defining_output_connections"><a class="anchor" href="#_defining_output_connections"></a>Defining output connections</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>In some cases, you may need to split the output of a processor in two or more connections. A common example is to have "main" and "reject" output connections where part of the incoming data are passed to a specific bucket and processed later.</p>
+<p>In some cases, you may need to split the output of a processor in two or more connections. A common example is to have "main" and "reject" output connections where parts of the incoming data are passed to a specific bucket for later processing.</p>
 </div>
 <div class="paragraph">
 <p>Talend Component Kit supports two types of output connections: Flow and Reject.</p>
@@ -637,16 +637,16 @@ public MyNewData map(final MyData data,
 <h2 id="_defining_conditional_outputs_flows"><a class="anchor" href="#_defining_conditional_outputs_flows"></a>Defining conditional outputs flows</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Processors @ElementListerner methods can declare several output flows.
-At design time, usually, all output flows are available, but, in certain cases,
-we want disabled some of them according to the configuration the user has already set.
-In that case, a service will be call that will return available output flows.
-(Currently only Studio supports this feature)</p>
+<p>Processors @ElementListener methods can declare several output flows.
+During the design phase, all output flows are typically available.
+However, in some cases, we may want to disable certain flows based on the user&#8217;s configuration settings.
+In such instances, a service will be called to determine the available output flows.
+(Currently, only Studio supports this feature.)</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>A processor without @ConditionalOutputFlows keep the current behavior. All declated flows are visible at design time</p>
+<p>A processor without @ConditionalOutputFlows keep the current behavior. All declared flows are visible at design time</p>
 </li>
 <li>
 <p>A processor with @ConditionalOutputFlows has its output flows list conditioned by its configuration</p>
@@ -913,7 +913,7 @@ When writing tests for components, you can force the <code>maxBatchSize</code> p
 <h2 id="_shortcut_syntax_for_bulk_output_processors"><a class="anchor" href="#_shortcut_syntax_for_bulk_output_processors"></a>Shortcut syntax for bulk output processors</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>For the case of output components (not emitting any data) using bulking you can pass the list of records to the after group method:</p>
+<p>For the case of output components (not emitting any data) using bulking you can pass the list of records to the <code>@AfterGroup</code> method:</p>
 </div>
 <div class="listingblock">
 <div class="content">
