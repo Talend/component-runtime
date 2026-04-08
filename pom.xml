@@ -898,7 +898,7 @@
         <artifactId>guava</artifactId>
         <version>${guava.version}</version>
       </dependency>
-      <!-- TODO: move those deps to component-runtime-testing-spark after singer removal -->
+      <!-- TODO: move those deps to correct modules (component-runtime-testing-spark, beam) after singer removal -->
       <dependency>
         <groupId>org.apache.zookeeper</groupId>
         <artifactId>zookeeper</artifactId>
@@ -908,6 +908,16 @@
         <groupId>org.lz4</groupId>
         <artifactId>lz4-java</artifactId>
         <version>1.10.1</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java</artifactId>
+        <version>3.25.8</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java-util</artifactId>
+        <version>3.25.8</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
