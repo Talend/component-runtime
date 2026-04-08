@@ -225,9 +225,8 @@
     <beam.version>2.46.0</beam.version>
     <snappy.version>1.1.10.5</snappy.version>
     <!-- should follow beam-sdk-java-core version -->
-    <joda.time.version>2.10.10</joda.time.version>
-
-    <spark.version>3.2.2</spark.version>
+    <joda.time.version>2.12.5</joda.time.version>
+    <spark.version>3.5.7</spark.version>
     <spark-scala.version>2.12</spark-scala.version>
 
     <groovy.version>3.0.18</groovy.version>
@@ -1756,22 +1755,6 @@
                 <requireMavenVersion>
                   <version>${mvn-minimal.version}</version>
                 </requireMavenVersion>
-              </rules>
-              <fail>true</fail>
-            </configuration>
-          </execution>
-          <execution>
-            <id>enforce-banned-joda-time-dependency</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <bannedDependencies>
-                  <excludes>
-                    <exclude>joda-time:joda-time</exclude>
-                  </excludes>
-                </bannedDependencies>
               </rules>
               <fail>true</fail>
             </configuration>

@@ -840,15 +840,6 @@
           <webapp>${project.build.directory}/${project.build.finalName}</webapp>
         </configuration>
       </plugin>
-      <plugin>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>enforce-banned-joda-time-dependency</id>
-            <phase>none</phase>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
 
