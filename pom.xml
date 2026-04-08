@@ -898,6 +898,17 @@
         <artifactId>guava</artifactId>
         <version>${guava.version}</version>
       </dependency>
+      <!-- TODO: move those deps to component-runtime-testing-spark after singer removal -->
+      <dependency>
+        <groupId>org.apache.zookeeper</groupId>
+        <artifactId>zookeeper</artifactId>
+        <version>3.7.2</version>
+      </dependency>
+      <dependency>
+        <groupId>org.lz4</groupId>
+        <artifactId>lz4-java</artifactId>
+        <version>1.10.1</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
