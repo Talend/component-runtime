@@ -29,6 +29,8 @@
 
   <properties>
     <talend.build.name>${talend.build.name.base}.junit</talend.build.name>
+    <!-- 4.0.1 breaks tests -->
+    <plexus-utils.version>3.6.1</plexus-utils.version>
   </properties>
 
   <dependencies>
@@ -54,6 +56,11 @@
           <artifactId>plexus-utils</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-utils</artifactId>
+      <version>${plexus-utils.version}</version>
     </dependency>
 
     <dependency>
