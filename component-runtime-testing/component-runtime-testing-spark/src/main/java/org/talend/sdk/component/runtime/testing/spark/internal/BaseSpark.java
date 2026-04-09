@@ -87,6 +87,9 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
     private String sparkVersion =
             org.talend.sdk.component.runtime.testing.spark.internal.SparkVersions.SPARK_VERSION.getValue();
 
+    private String log4j2Version =
+            org.talend.sdk.component.runtime.testing.spark.internal.SparkVersions.LOG4J2_VERSION.getValue();
+
     private String hadoopBase = "https://github.com/steveloughran/winutils/blob/master";
 
     private String hadoopVersion = "2.6.4";
@@ -242,9 +245,9 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
 
         // Add logging dependencies separately to ensure they are included
         Stream
-                .of("org.apache.logging.log4j:log4j-slf4j-impl:2.17.2",
-                        "org.apache.logging.log4j:log4j-api:2.17.2",
-                        "org.apache.logging.log4j:log4j-core:2.17.2")
+                .of("org.apache.logging.log4j:log4j-slf4j-impl:" + log4j2Version,
+                        "org.apache.logging.log4j:log4j-api:" + log4j2Version,
+                        "org.apache.logging.log4j:log4j-core:" + log4j2Version)
                 .peek(dep -> LOGGER.info("Resolving logging " + dep + "..."))
                 .flatMap(dep -> Stream.of(resolver.resolve(dep).using(resolutionStrategy).asFile()))
                 .distinct()
@@ -266,7 +269,13 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
                     if (conflictingJars != null) {
                         for (final File jar : conflictingJars) {
                             LOGGER.info("Removing conflicting logging jar: " + jar.getName());
-                            jar.delete();
+                            final boolean deleted = jar.delete();
+                            if (!deleted && jar.exists()) {
+                                final String message =
+                                        "Could not remove conflicting logging jar: " + jar.getAbsolutePath();
+                                LOGGER.error(message);
+                                fail(message);
+                            }
                         }
                     }
                 });
