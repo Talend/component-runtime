@@ -10,7 +10,8 @@
     "convict": "6.2.4",
     "braces": "3.0.3",
     "brace-expansion": "1.1.12",
-    "json5": "2.2.2"
+    "json5": "2.2.2",
+    "minimatch": "3.1.5"
   },
   "scripts": {
     "antora:build": "antora --stacktrace --log-level=error ../antora/site.yml",
