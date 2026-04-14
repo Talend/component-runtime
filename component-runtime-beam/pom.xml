@@ -31,6 +31,16 @@
     <talend.build.name>${talend.build.name.base}.beam</talend.build.name>
   </properties>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.github.classgraph</groupId>
+        <artifactId>classgraph</artifactId>
+        <version>4.8.112</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
@@ -253,15 +263,6 @@
                 <script>${project.basedir}/src/main/build/ClassesIndices.groovy</script>
               </scripts>
             </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>enforce-banned-joda-time-dependency</id>
-            <phase>none</phase>
           </execution>
         </executions>
       </plugin>

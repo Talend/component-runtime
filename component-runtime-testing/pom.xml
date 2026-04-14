@@ -38,7 +38,7 @@
 
   <properties>
     <wagon.version>3.4.0</wagon.version>
-    <shrinkwrap.version>3.3.1</shrinkwrap.version>
+    <shrinkwrap.version>3.3.5</shrinkwrap.version>
   </properties>
 
   <dependencyManagement>
@@ -77,7 +77,7 @@
       <dependency>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-utils</artifactId>
-        <version>3.3.0</version>
+        <version>${plexus-utils.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.tomee</groupId>
