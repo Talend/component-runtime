@@ -86,7 +86,7 @@ String deployOptions = "$skipOptions -Possrh -Prelease -Pgpg2 -Denforcer.skip=tr
 
 pipeline {
   libraries {
-    lib("connectors-lib@1.2.4") // https://github.com/Talend/tdi-jenkins-shared-libraries
+    lib("connectors-lib@1.2.5") // https://github.com/Talend/tdi-jenkins-shared-libraries
     lib("tqa-e2e-tests-tool@v2.4.2-ttp2")  // https://github.com/Talend/tqa-e2e-testing-tool
   }
   agent {
