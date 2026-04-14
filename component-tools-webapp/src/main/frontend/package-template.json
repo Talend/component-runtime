@@ -18,7 +18,6 @@
     "@talend/react-forms": "15.0.2",
     "asciidoctor": "3.0.4",
     "body-parser": "1.20.3",
-    "brace-expansion": "2.0.2",
     "classnames": "^2.5.1",
     "form-data": ">=4.0.4",
     "formidable": "2.1.3",
@@ -27,7 +26,6 @@
     "lodash": "^4.17.21",
     "micromatch": "4.0.8",
     "minimatch": "9.0.9",
-    "path-to-regexp": "^3.3.0",
     "postcss": "8.4.31",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
@@ -46,13 +44,24 @@
     "form-data": ">=4.0.4",
     "jsonpath": "1.3.0",
     "minimatch": "9.0.9",
-    "path-to-regexp": "0.1.13",
     "webpack": "5.105.4",
     "webpack-dev-server": "5.2.3"
   },
   "overrides": {
-    "qs": ">=6.14.1",
-    "minimatch@3": "3.1.5",
-    "minimatch@5": "5.1.8"
+    "@tootallnate/once": "^3.0.1",
+    "ajv": "^6.14.0",
+    "brace-expansion": "^2.0.3",
+    "flatted": "^3.4.2",
+    "immutable@3": "^3.8.3",
+    "immutable@5": "^5.1.5",
+    "jsonpath": "^1.3.0",
+    "minimatch": "^9.0.7",
+    "minimatch@3": "^3.1.5",
+    "minimatch@5": "^5.1.8",
+    "path-to-regexp@0": "^0.1.13",
+    "path-to-regexp@3": "^3.3.0",
+    "qs": "^6.14.2",
+    "serialize-javascript": "^7.0.5",
+    "underscore": "^1.13.8"
   }
 }
