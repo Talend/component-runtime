@@ -30,7 +30,7 @@
   <properties>
     <talend.build.name>${talend.build.name.base}.junit</talend.build.name>
     <!-- 4.0.1 breaks tests -->
-    <plexus-utils.version>3.6.1</plexus-utils.version>
+    <plexus-utils.version>4.0.3</plexus-utils.version>
   </properties>
 
   <dependencies>
