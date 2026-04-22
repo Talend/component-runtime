@@ -30,9 +30,9 @@
   <properties>
     <talend.build.name>${talend.build.name.base}.testing.spark</talend.build.name>
     <!-- need to be aligned with the spark version used in the test scope -->
-    <log4j2.version>2.17.2</log4j2.version>
+    <log4j2.version>2.25.4</log4j2.version>
     <!-- 4.0.1 breaks spark -->
-    <plexus-utils.version>3.6.1</plexus-utils.version>
+    <plexus-utils.version>4.0.3</plexus-utils.version>
   </properties>
 
   <dependencies>
