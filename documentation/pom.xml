@@ -193,7 +193,6 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-text</artifactId>
-      <version>${commons-text.version}</version>
       <scope>provided</scope>
     </dependency>
 
@@ -840,15 +839,6 @@
           <useClasspathDeployment>true</useClasspathDeployment>
           <webapp>${project.build.directory}/${project.build.finalName}</webapp>
         </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>enforce-banned-joda-time-dependency</id>
-            <phase>none</phase>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
