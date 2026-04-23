@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -378,6 +379,11 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
         }
 
         File jarFile = jarFiles.iterator().next();
+
+        if (!Files.exists(jarFile.toPath())) {
+            log.warn("Can't find the dynamic loaded connector jar {}.", jarFile.getAbsolutePath());
+            return Stream.empty();
+        }
 
         try (JarFile jar = new JarFile(jarFile)) {
             JarEntry entry = jar.getJarEntry("TALEND-INF/dependencies.txt");

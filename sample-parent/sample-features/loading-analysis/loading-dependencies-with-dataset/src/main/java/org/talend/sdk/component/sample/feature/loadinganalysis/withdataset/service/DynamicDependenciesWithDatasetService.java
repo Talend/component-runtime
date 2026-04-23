@@ -35,7 +35,7 @@ public class DynamicDependenciesWithDatasetService extends AbstractDynamicDepend
 
     public final static String DEPENDENCY_WITHDATASET_ACTION = "DEPENDENCY_WITHDATASET_ACTION";
 
-    @DynamicDependencies()
+    @DynamicDependencies
     public List<String> getDynamicDependencies(@Option("theDataset") final Dataset dataset) {
         List<String> dynamicDependencies =
                 super.getDynamicDependencies(dataset.getDependencies(), dataset.getConnectors());

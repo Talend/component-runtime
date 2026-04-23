@@ -36,7 +36,7 @@ public class DynamicDependenciesWithDynamicDependenciesConfigurationService exte
 
     public final static String DEPENDENCY_WITHDYNDEPSCONFIG_ACTION = "DEPENDENCY_WITHDYNDEPSCONFIG_ACTION";
 
-    @DynamicDependencies()
+    @DynamicDependencies
     public List<String> getDynamicDependencies(@Option("theSubConfig") final SubConfig subConfig) {
         List<String> dynamicDependencies = super.getDynamicDependencies(subConfig.getDependencies(),
                 subConfig.getConnectors());

@@ -35,9 +35,7 @@ public class DynamicDependenciesDataprepRunAnnotationService extends AbstractDyn
 
     public final static String DEPENDENCY_WITHDATAPREPRUN_ACTION = "DEPENDENCY_WITHDATAPREPRUN_ACTION";
 
-    public static final String DEPENDENCY_ACTION = "dataprep-dependencies";
-
-    @DynamicDependencies(DEPENDENCY_ACTION)
+    @DynamicDependencies
     public List<String> getDynamicDependencies(@Option("theConfig") final Config config) {
         List<String> dynamicDependencies = super.getDynamicDependencies(config.getDependencies(),
                 config.getConnectors());

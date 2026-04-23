@@ -36,7 +36,8 @@ import lombok.Data;
 @DynamicDependencySupported
 @GridLayout({
         @GridLayout.Row({ "dse" }),
-        @GridLayout.Row({ "subConfig" })
+        @GridLayout.Row({ "subConfig" }),
+        @GridLayout.Row({ "notUsed" })
 })
 public class Config implements DynamicDependencyConfig, Serializable {
 
@@ -47,6 +48,10 @@ public class Config implements DynamicDependencyConfig, Serializable {
     @Option
     @Documentation("Sub-configuration that contains the DynamicDependenciesConfiguration.")
     private SubConfig subConfig = new SubConfig();
+
+    @Option
+    @Documentation("Unused configuration field required as a workaround for the DynamicDependency service.")
+    private String notUsed;
 
     @Override
     public List<Dependency> getDependencies() {

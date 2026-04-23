@@ -36,7 +36,7 @@ public class DynamicDependenciesWithDatastoreService extends AbstractDynamicDepe
 
     public final static String DEPENDENCY_WITHDATASTORE_ACTION = "DEPENDENCY_WITHDATASTORE_ACTION";
 
-    @DynamicDependencies()
+    @DynamicDependencies
     public List<String> getDynamicDependencies(@Option("theDatastore") final Datastore datastore) {
         List<String> dynamicDependencies =
                 super.getDynamicDependencies(datastore.getDependencies(), datastore.getConnectors());
