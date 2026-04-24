@@ -40,8 +40,7 @@ public class MapCacheTest {
         return Stream.of(
                 Arguments.of(newMapWithNEntries(1), 0),
                 Arguments.of(newMapWithNEntries(1), -1),
-                Arguments.of(newMapWithNEntries(2), 0)
-        );
+                Arguments.of(newMapWithNEntries(2), 0));
     }
 
     @ParameterizedTest
@@ -54,8 +53,7 @@ public class MapCacheTest {
     public static Stream<Arguments> updatedCacheTestCases() {
         return Stream.of(
                 Arguments.of(newMapWithNEntries(6), 1),
-                Arguments.of(newMapWithNEntries(6), 2)
-        );
+                Arguments.of(newMapWithNEntries(6), 2));
     }
 
     @ParameterizedTest
@@ -70,8 +68,7 @@ public class MapCacheTest {
         return Stream.of(
                 Arguments.of(newMapWithNEntries(2), 3),
                 Arguments.of(newMapWithNEntries(20), 21),
-                Arguments.of(newMapWithNEntries(1), 4)
-        );
+                Arguments.of(newMapWithNEntries(1), 4));
     }
 
     private static @NonNull ConcurrentHashMap<String, String> newMapWithNEntries(int nbEntries) {

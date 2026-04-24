@@ -24,7 +24,8 @@ class BaseComponentHandlerTest {
 
     @Test
     void canCloseTheEmbeddedManagerTwice() {
-        final MyBaseComponentsHandler myBaseComponentsHandler = new MyBaseComponentsHandler("org.talend.sdk.component.junit");
+        final MyBaseComponentsHandler myBaseComponentsHandler =
+                new MyBaseComponentsHandler("org.talend.sdk.component.junit");
         final BaseComponentsHandler.EmbeddedComponentManager start = myBaseComponentsHandler.start();
         try {
             assertNotNull(BaseComponentsHandler.STATE.get());
@@ -38,6 +39,7 @@ class BaseComponentHandlerTest {
     }
 
     private static class MyBaseComponentsHandler extends BaseComponentsHandler {
+
         public MyBaseComponentsHandler(final String packageName) {
             this.packageName = packageName;
         }
