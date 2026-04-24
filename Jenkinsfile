@@ -109,6 +109,7 @@ pipeline {
     buildDiscarder(logRotator(artifactNumToKeepStr: '10', numToKeepStr: branch_name == 'master' ? '15' : '10'))
     timeout(time: 180, unit: 'MINUTES')
     skipStagesAfterUnstable()
+    disableConcurrentBuilds()
   }
 
   triggers {
@@ -243,6 +244,21 @@ pipeline {
   }
 
   stages {
+    stage('Check skip build') {
+      steps {
+        script {
+          // Skip builds triggered by maven-release-plugin commits (e.g. "prepare release") to avoid infinite loop of builds during the release process.
+          // These commits are part of the release process and should not trigger a new CI build
+          def lastCommitMsg = sh(script: 'git --no-pager log -1 --pretty=%s', returnStdout: true).trim()
+          if (lastCommitMsg.startsWith('[maven-release-plugin] prepare release')) {
+            echo "Skipping build triggered by release commit: ${lastCommitMsg}"
+            currentBuild.description = "Skipped: release commit"
+            currentBuild.result = 'NOT_BUILT'
+            error("Build skipped - triggered by release process commit: ${lastCommitMsg}")
+          }
+        }
+      }
+    }
     stage('Preliminary steps') {
       steps {
 
