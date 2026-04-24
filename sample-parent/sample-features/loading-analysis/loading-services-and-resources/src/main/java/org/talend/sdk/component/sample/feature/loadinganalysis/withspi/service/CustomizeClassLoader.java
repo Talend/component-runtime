@@ -45,6 +45,9 @@ public class CustomizeClassLoader implements ComponentManager.Customizer {
     private static final String SPI_SERVICE_PATH =
             "META-INF/services/org.talend.sdk.component.sample.feature.loadinganalysis.classloadertestlibrary.serviceInterfaces.StringProviderFromExternalSPI";
 
+    private static final String RESOURCE_LOADED_FROM_EXTERNAL_DEPENDENCY =
+            "FROM_EXTERNAL_DEPENDENCY/resource.properties";
+
     /**
      * Specifies which classes and packages should be loaded from the container classloader.
      * <p>
@@ -81,7 +84,7 @@ public class CustomizeClassLoader implements ComponentManager.Customizer {
         }
 
         logEnabledState();
-        return Stream.of(MULTIPLE_RESOURCE_PATH, SPI_SERVICE_PATH);
+        return Stream.of(MULTIPLE_RESOURCE_PATH, SPI_SERVICE_PATH, RESOURCE_LOADED_FROM_EXTERNAL_DEPENDENCY);
     }
 
     /**
