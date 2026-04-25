@@ -47,6 +47,37 @@ public interface Resolver {
     }
 
     /**
+     * Creates a classloader from the passed classloader configuration and descriptor (dependencies.txt).
+     *
+     * WARNING: note it is very important to close the descriptor once no more used otherwise
+     * you can leak memory.
+     *
+     * <p>
+     * The default implementation of this method is unsupported and will always throw
+     * {@link UnsupportedOperationException}. Implementations that support configurable
+     * classloader creation must override this method.
+     * </p>
+     *
+     * @param descriptor the dependencies.txt InputStream.
+     * @param configuration the classloader configuration to apply when creating the classloader.
+     * @return the classloader initialized with the configuration provided and the resolved dependencies.
+     * @throws UnsupportedOperationException if this implementation does not support configurable
+     * classloader creation.
+     */
+    default ClassLoaderDescriptor mapDescriptorToClassLoader(InputStream descriptor,
+            final ClassLoaderDefinition configuration) {
+        throw new UnsupportedOperationException(
+                "ClassLoader configuration is not supported by this implementation; "
+                        + "override mapDescriptorToClassLoader(InputStream, ClassLoaderDefinition) to provide an implementation");
+    }
+
+    default ClassLoaderDescriptor mapDescriptorToClassLoader(final List<String> gavs,
+            final ClassLoaderDefinition configuration) {
+        return mapDescriptorToClassLoader(
+                new ByteArrayInputStream(String.join("\n", gavs).getBytes(StandardCharsets.UTF_8)), configuration);
+    }
+
+    /**
      * Resolves the dependencies from the descriptor passed as an InputStream.
      *
      * IMPORTANT: this is to use when you are sure the file is resolvable if you don't have a fallback.

@@ -20,6 +20,7 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -341,6 +342,36 @@ class ConfigurableClassLoaderTest {
             assertEquals(asList("org/apache/ziplock/JarLocation", "com/ctc/wstx/stax"), loader.getCacheableClasses());
         } catch (final IOException | ClassNotFoundException e) {
             fail(e.getMessage(), e);
+        }
+    }
+
+    @Test
+    void parentResourceFiltering(@TempDir final File temporaryFolder) throws IOException {
+        final File parentJar = new File(temporaryFolder, "multipleResourceFiltering.jar");
+        temporaryFolder.mkdirs();
+        try (final JarOutputStream outputStream = new JarOutputStream(new FileOutputStream(parentJar))) {
+            outputStream.putNextEntry(new JarEntry("META-INF/services/allowed.Service"));
+            outputStream.write("impl.AllowedService".getBytes(StandardCharsets.UTF_8));
+            outputStream.closeEntry();
+
+            outputStream.putNextEntry(new JarEntry("META-INF/services/filtered.Service"));
+            outputStream.write("impl.FilteredService".getBytes(StandardCharsets.UTF_8));
+            outputStream.closeEntry();
+        }
+
+        try (final URLClassLoader parent =
+                new URLClassLoader(new URL[] { parentJar.toURI().toURL() },
+                        Thread.currentThread().getContextClassLoader());
+                final ConfigurableClassLoader loader =
+                        new ConfigurableClassLoader("", new URL[0], parent,
+                                name -> true, name -> false, new String[0], new String[0],
+                                name -> name.contains("allowed"))) {
+            // Allowed service should be found via getResources
+            final Enumeration<URL> allowedResources = loader.getResources("META-INF/services/allowed.Service");
+            assertTrue(allowedResources.hasMoreElements());
+            // Filtered service is NOT accessible via getResources (filtered out by resourcesFilter)
+            final Enumeration<URL> filteredResources = loader.getResources("META-INF/services/filtered.Service");
+            assertFalse(filteredResources.hasMoreElements());
         }
     }
 
