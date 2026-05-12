@@ -21,7 +21,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum SparkVersions {
     SPARK_SCALA_VERSION("${spark-scala.version}"),
-    SPARK_VERSION("${spark.version}");
+    SPARK_VERSION("${spark.version}"),
+    LOG4J2_VERSION("${log4j2.version}");
 
     @Getter
     private final String value;

@@ -86,7 +86,7 @@ String deployOptions = "$skipOptions -Possrh -Prelease -Pgpg2 -Denforcer.skip=tr
 
 pipeline {
   libraries {
-    lib("connectors-lib@1.2.3") // https://github.com/Talend/tdi-jenkins-shared-libraries
+    lib("connectors-lib@1.2.0") // https://github.com/Talend/tdi-jenkins-shared-libraries
     lib("tqa-e2e-tests-tool@v2.4.2-ttp2")  // https://github.com/Talend/tqa-e2e-testing-tool
   }
   agent {
@@ -670,60 +670,24 @@ pipeline {
         }
       }
     }
-    stage('Extract Shaded Dependencies') {
-      when {
-          expression { params.ACTION == 'STANDARD' && params.TRIVY_SCAN == true }
-      }
-      steps {
-          sh 'mkdir -p .jenkins_tmp'
-          script {
-              trivyShadedTools.extractShadedDeps()
-          }
-      }
-      post {
-          always {
-              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                  archiveArtifacts artifacts: 'output/shaded_poms/**',
-                          allowEmptyArchive: true,
-                          onlyIfSuccessful: false
-              }
-          }
-      }
-    }
     stage('Trivy scan') {
       when {
         expression { params.ACTION == 'STANDARD' && params.TRIVY_SCAN == true }
       }
       steps {
         script {
-            sh 'mkdir -p output'
-
-            // Scan 1: source tree declared dependencies
-            trivyTools.generateTrivyReport(
-                    "output/trivy-results.json",
-                    "output/trivy-results.html"
-            )
-
-            // Scan 2 (shaded) + Merge
-            trivyShadedTools.scanAndMerge()
-
-            // HTML report
-            trivyShadedTools.generateHtmlReport()
-
-            publishHtmlReportTools.publishHtmlReport(
-                    "output/merged-report.html",
-                    "CVE Trivy Vulnerability Report"
-            )
+          trivyTools.generateTrivyReport('output/trivy-results.json',
+                                         'output/trivy-results.html')
+          publishHtmlReportTools.publishHtmlReport('output/trivy-results.html',
+                                                   'CVE Trivy Vulnerability Report')
         }
       }
       post {
-          always {
-              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                  archiveArtifacts artifacts: 'output/trivy-results.json, output/trivy-results.html, output/trivy-shaded-results.json, output/merged-results.json, output/merged-report.html',
-                          allowEmptyArchive: true,
-                          onlyIfSuccessful: false
-              }
+        always {
+          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+            archiveArtifacts artifacts: "output/trivy-results.*", allowEmptyArchive: true, onlyIfSuccessful: false
           }
+        }
       }
     }
     stage('Mvn dependency:tree') {
@@ -731,28 +695,18 @@ pipeline {
         expression { params.ACTION == 'STANDARD' && params.TRIVY_SCAN == true }
       }
       steps {
-          script {
-              mvnDependencyTreeTools.generateScopeOfImpactReport(
-                    "output/${repository}.txt",
-                    params.PACKAGE_FILTER_NAME,
-                    "output/${repository}--ScopeOfImpact.txt",
-                    repository)
-              publishHtmlReportTools.publishHtmlReport(
-                    "output/${repository}.html",
-                    'CVE mvn dependency:tree Report')
-              publishHtmlReportTools.publishHtmlReport(
-                    "output/${repository}--ScopeOfImpact.html",
-                    'CVE Scope Of Impact Report')
-          }
+        script {
+          mvnDependencyTreeTools.generateScopeOfImpactReport("output/${repository}.txt", params.PACKAGE_FILTER_NAME, "output/${repository}--ScopeOfImpact.txt", repository)
+          publishHtmlReportTools.publishHtmlReport("output/${repository}.html", 'CVE mvn dependency:tree Report')
+          publishHtmlReportTools.publishHtmlReport("output/${repository}--ScopeOfImpact.html", 'CVE Scope Of Impact Report')
+        }
       }
       post {
-          always {
-              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                  archiveArtifacts artifacts: "output/${repository}.txt, output/${repository}--ScopeOfImpact.txt",
-                          allowEmptyArchive: true,
-                          onlyIfSuccessful: false
-              }
+        always {
+          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+            archiveArtifacts artifacts: "output/${repository}.txt, output/${repository}--ScopeOfImpact.txt", allowEmptyArchive: true, onlyIfSuccessful: false
           }
+        }
       }
     }
   }

@@ -30,8 +30,7 @@ public interface SearchClient extends HttpClient { <1>
 
     @Request(path = "api/v2/search.json", method = "GET") <2>
     Response<JsonObject> search(@Header("Authorization") String auth,<3> <4>
-            @Header("Content-Type") String contentType, <5>
-            @Query("query") String query, <6>
+            @Query("query") String query, <5>
             @Query("sort_by") String sortBy,
             @Query("sort_order") String sortOrder,
             @Query("page") Integer page
@@ -47,8 +46,7 @@ The method return type is a JSON object: `Response<JsonObject>`. The `Response` 
 The response body is decoded according to the content type returned by the API. The component framework provides the codec to decode JSON content. +
 If you want to consume specific content types, you need to specify your custom codec using the `@Codec` annotation.
 <4> The `Authorization` HTTP request header allows to provide the authorization token.
-<5> Another HTTP request header defined to provide the content type.
-<6> Query parameters are defined using the `@Query` annotation that provides the parameter name.
+<5> Query parameters are defined using the `@Query` annotation that provides the parameter name.
 
 No additional implementation is needed for the interface, as it is provided by the component framework, according to what is defined above.
 
@@ -249,8 +247,7 @@ public class SearchSource implements Serializable {
 
     <6>
     private JsonObject search(String auth, String query, String sortBy, String sortOrder, Integer page) {
-        final Response<JsonObject> response = searchClient.search(auth, "application/json",
-                query, sortBy, sortOrder, page);
+        final Response<JsonObject> response = searchClient.search(auth, query, sortBy, sortOrder, page);
         if (response.status() == 200 && response.body().getInt("count") != 0) {
             return response.body();
         }

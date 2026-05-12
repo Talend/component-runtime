@@ -11,8 +11,9 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-log4j:log4j:jar:${log4j.version}
+ch.qos.reload4j:reload4j:jar:${reload4j.version}
 org.apache.logging.log4j:log4j-core:jar:${log4j2.version}
 org.apache.logging.log4j:log4j-api:jar:${log4j2.version}
+org.slf4j:slf4j-api:jar:${slf4j.version}
 ch.qos.logback:logback-classic:jar:${logback.version}
 ch.qos.logback:logback-core:jar:${logback.version}
