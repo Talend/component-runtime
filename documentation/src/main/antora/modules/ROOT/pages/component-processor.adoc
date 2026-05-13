@@ -22,7 +22,7 @@ Processors must be *Serializable* because they are distributed components.
 
 If you just need to access data on a map-based ruleset, you can use `Record` or `JsonObject` as parameter type. +
 From there, Talend Component Kit wraps the data to allow you to access it as a map. The parameter type is not enforced. +
-This means that if you know you will get a `SuperCustomDto`, then you can use it as parameter type. But for generic components that are reusable in any chain, it is highly encouraged to use `Record` until you have an evaluation language-based processor that has its own way to access components.
+This means that if you know that you will get a `SuperCustomDto` bean, then you can use it as parameter type. But for generic components that are reusable in any chain, it is highly encouraged to use `Record` until you have an evaluation language-based processor that has its own way to access components.
 
 For example:
 
@@ -77,7 +77,7 @@ You can optimize the data batch processing by using the `maxBatchSize` parameter
 
 == Defining output connections
 
-In some cases, you may need to split the output of a processor in two or more connections. A common example is to have "main" and "reject" output connections where part of the incoming data are passed to a specific bucket and processed later.
+In some cases, you may need to split the output of a processor in two or more connections. A common example is to have "main" and "reject" output connections where parts of the incoming data are passed to a specific bucket for later processing.
 
 Talend Component Kit supports two types of output connections: Flow and Reject.
 
@@ -125,13 +125,13 @@ public MyNewData map(final MyData data,
 ----
 == Defining conditional outputs flows
 
-Processors @ElementListerner methods can declare several output flows.
-At design time, usually, all output flows are available, but, in certain cases,
-we want disabled some of them according to the configuration the user has already set.
-In that case, a service will be call that will return available output flows.
-(Currently only Studio supports this feature)
+Processors @ElementListener methods can declare several output flows.
+During the design phase, all output flows are typically available.
+However, in some cases, we may want to disable certain flows based on the user's configuration settings.
+In such instances, a service will be called to determine the available output flows.
+(Currently, only Studio supports this feature.)
 
-* A processor without @ConditionalOutputFlows keep the current behavior. All declated flows are visible at design time
+* A processor without @ConditionalOutputFlows keep the current behavior. All declared flows are visible at design time
 
 * A processor with @ConditionalOutputFlows has its output flows list conditioned by its configuration
 
@@ -190,7 +190,7 @@ include::concept-processor-and-batch-processing.adoc[leveloffset=+1]
 
 == Shortcut syntax for bulk output processors
 
-For the case of output components (not emitting any data) using bulking you can pass the list of records to the after group method:
+For the case of output components (not emitting any data) using bulking you can pass the list of records to the `@AfterGroup` method:
 
 [source,java]
 ----

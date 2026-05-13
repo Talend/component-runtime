@@ -81,9 +81,14 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
 
     private int slaves = 1;
 
-    private String scalaVersion = SparkVersions.SPARK_SCALA_VERSION.getValue();
+    private String scalaVersion =
+            org.talend.sdk.component.runtime.testing.spark.internal.SparkVersions.SPARK_SCALA_VERSION.getValue();
 
-    private String sparkVersion = SparkVersions.SPARK_VERSION.getValue();
+    private String sparkVersion =
+            org.talend.sdk.component.runtime.testing.spark.internal.SparkVersions.SPARK_VERSION.getValue();
+
+    private String log4j2Version =
+            org.talend.sdk.component.runtime.testing.spark.internal.SparkVersions.LOG4J2_VERSION.getValue();
 
     private String hadoopBase = "https://github.com/steveloughran/winutils/blob/master";
 
@@ -141,12 +146,24 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
         final File sparkHome = buildSparkHome(version);
         LOGGER.info("Copied spark libraries in " + sparkHome);
 
+        // Try to resolve to a bindable IP address, fallback to 127.0.0.1
+        // Using the IP address (not hostname) avoids Netty hostname-resolution issues
+        // that cause "Can't assign requested address" for services like 'driverClient'
         String masterHost;
         try {
-            masterHost = InetAddress.getLocalHost().getHostName();
+            final InetAddress localAddress = InetAddress.getLocalHost();
+            final String candidateIp = localAddress.getHostAddress();
+            if (canBindOnHost(candidateIp)) {
+                masterHost = candidateIp;
+            } else {
+                LOGGER.warn("Cannot bind on IP '{}', falling back to 127.0.0.1", candidateIp);
+                masterHost = "127.0.0.1";
+            }
         } catch (final UnknownHostException e) {
-            masterHost = "localhost";
+            LOGGER.warn("Cannot resolve local host, using 127.0.0.1: {}", e.getMessage());
+            masterHost = "127.0.0.1";
         }
+        LOGGER.info("MasterHost: {}", masterHost);
 
         final int masterPort = newPort();
         final int webMasterPort = newPort();
@@ -225,6 +242,58 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
                         fail(e.getMessage());
                     }
                 });
+
+        // Add logging dependencies separately to ensure they are included
+        Stream
+                .of("org.apache.logging.log4j:log4j-slf4j-impl:" + log4j2Version,
+                        "org.apache.logging.log4j:log4j-api:" + log4j2Version,
+                        "org.apache.logging.log4j:log4j-core:" + log4j2Version)
+                .peek(dep -> LOGGER.info("Resolving logging " + dep + "..."))
+                .flatMap(dep -> Stream.of(resolver.resolve(dep).using(resolutionStrategy).asFile()))
+                .distinct()
+                .forEach(dep -> {
+                    try {
+                        LOGGER.debug("Copying " + dep.getName() + " logging dependency");
+                        Files
+                                .copy(dep.toPath(), new File(libFolder, dep.getName()).toPath(),
+                                        StandardCopyOption.REPLACE_EXISTING);
+                    } catch (final IOException e) {
+                        fail(e.getMessage());
+                    }
+                });
+
+        // Remove old/incompatible SLF4J bindings from Spark dependencies
+        Stream.of("slf4j-log4j12", "log4j-1.2", "jul-to-slf4j", "log4j-slf4j2-impl")
+                .forEach(pattern -> {
+                    final File[] conflictingJars = libFolder.listFiles((dir, name) -> name.contains(pattern));
+                    if (conflictingJars != null) {
+                        for (final File jar : conflictingJars) {
+                            LOGGER.info("Removing conflicting logging jar: " + jar.getName());
+                            final boolean deleted = jar.delete();
+                            if (!deleted && jar.exists()) {
+                                final String message =
+                                        "Could not remove conflicting logging jar: " + jar.getAbsolutePath();
+                                LOGGER.error(message);
+                                fail(message);
+                            }
+                        }
+                    }
+                });
+
+        // Copy log4j2 configuration
+        try {
+            final File log4j2Conf = new File(sparkHome, "conf/log4j2.xml");
+            try (final InputStream is = Thread.currentThread()
+                    .getContextClassLoader()
+                    .getResourceAsStream("log4j2.xml")) {
+                if (is != null) {
+                    Files.copy(is, log4j2Conf.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    LOGGER.debug("Copied log4j2.xml to " + log4j2Conf);
+                }
+            }
+        } catch (final IOException e) {
+            LOGGER.warn("Could not copy log4j2.xml: " + e.getMessage());
+        }
 
         if (version == Version.SPARK_1) {
             try {
@@ -360,7 +429,10 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
         final String[] submitArgs = Stream
                 .concat(Stream
                         .concat(Stream
-                                .concat(Stream.of("org.apache.spark.deploy.SparkSubmit", "--verbose"),
+                                .concat(Stream
+                                        .concat(Stream.of("org.apache.spark.deploy.SparkSubmit", "--verbose"),
+                                                Stream.of("--conf", "spark.driver.bindAddress=0.0.0.0",
+                                                        "--conf", "spark.driver.host=" + config.get().masterHost)),
                                         new HashMap<String, String>() {
 
                                             { // overridable by args, it is just defaults
@@ -465,6 +537,14 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
         }
     }
 
+    private static boolean canBindOnHost(final String host) {
+        try (final ServerSocket serverSocket = new ServerSocket(0, 1, InetAddress.getByName(host))) {
+            return true;
+        } catch (final IOException e) {
+            return false;
+        }
+    }
+
     private int newPort() { // we can enhance it to preallocate N ports at once if needed and store
         // previously allocated
         // port
@@ -559,6 +639,10 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
                 }
                 environment.put("SPARK_HOME", sparkHome.getAbsolutePath());
                 environment.put("SPARK_SCALA_VERSION", scalaVersion); // using jarLocation we can determine it if needed
+                // Force Spark/Netty to bind on the resolved master host IP.
+                // This prevents "Can't assign requested address" errors for services
+                // like 'driverClient' that use SPARK_LOCAL_IP for their bind address.
+                environment.put("SPARK_LOCAL_IP", config.masterHost);
                 if (config.version == Version.SPARK_1) { // classpath is relying on assemblies not on maven so force the
                     // right
                     // classpath - todo: move to --driver-class-path

@@ -33,7 +33,7 @@ import org.talend.sdk.component.junit.environment.Environment;
 
 /**
  * Extension allowing the test to use a {@link org.talend.sdk.component.junit.ComponentsHandler}
- * and auto register components from current project.
+ * and auto register components from the current project.
  */
 public class ComponentExtension extends BaseComponentsHandler
         implements BeforeAllCallback, AfterAllCallback, JUnit5InjectionSupport, BeforeEachCallback, AfterEachCallback {

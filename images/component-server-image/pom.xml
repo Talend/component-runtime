@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>images</artifactId>
-    <version>1.91.0-SNAPSHOT</version>
+    <version>1.92.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-server-image</artifactId>
@@ -225,15 +225,6 @@
                 </labels>
               </container>
             </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>enforce-banned-joda-time-dependency</id>
-            <phase>none</phase>
           </execution>
         </executions>
       </plugin>
