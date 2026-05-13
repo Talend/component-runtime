@@ -2262,7 +2262,7 @@ public class ComponentManager implements AutoCloseable {
         }
 
         /**
-         * Disable default built-in component classpath building mecanism. This is useful when relying on
+         * Disable default built-in component classpath building mechanism. This is useful when relying on
          * a custom {@link ContainerClasspathContributor} handling it.
          *
          * @return true if the default dependencies descriptor (TALEND-INF/dependencies.txt) must be ignored.
