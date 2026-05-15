@@ -927,8 +927,10 @@ public class ComponentManager implements AutoCloseable {
                     final URL marker = componentMarkers.nextElement();
                     File file = Files.toFile(marker);
                     if (file != null) {
-                        if (file.getName().equals("dependencies.txt") && file.getParentFile() != null
-                                && file.getParentFile().getName().equals("TALEND-INF")) {
+                        if (file.getName().equals("dependencies.txt")
+                                && file.getParentFile() != null
+                                && file.getParentFile().getName().equals("TALEND-INF")
+                                && file.getParentFile().getParentFile() != null) {
                             file = file.getParentFile().getParentFile();
                         }
                         if (!hasPlugin(ContainerManager.buildAutoIdFromName(file.getName()))) {

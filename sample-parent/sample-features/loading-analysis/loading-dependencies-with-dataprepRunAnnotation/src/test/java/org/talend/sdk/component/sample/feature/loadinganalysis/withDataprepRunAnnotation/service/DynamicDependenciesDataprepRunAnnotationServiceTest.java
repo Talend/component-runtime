@@ -15,7 +15,9 @@
  */
 package org.talend.sdk.component.sample.feature.loadinganalysis.withDataprepRunAnnotation.service;
 
-import java.util.ArrayList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -57,6 +59,8 @@ public class DynamicDependenciesDataprepRunAnnotationServiceTest
     @Test
     void getDynamicDependenciesTest() {
         List<String> dynamicDependencies = this.dynamicDependenciesServiceService.getDynamicDependencies(buildConfig());
-        List<String> expectedDynamicDependencies = new ArrayList<>();
+        List<String> expectedDynamicDependencies = Arrays.asList("org.apache.commons:commons-numbers-primes:1.2",
+                "org.apache.maven.resolver:maven-resolver-api:2.0.14");
+        assertEquals(expectedDynamicDependencies, dynamicDependencies);
     }
 }

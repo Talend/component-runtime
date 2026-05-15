@@ -54,6 +54,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -487,7 +488,7 @@ public class ContainerManager implements Lifecycle {
      * read or doesn't contain a Class-Path entry
      */
     public List<String> getClasspathFromJar(final Path jar) {
-        try (final java.util.jar.JarFile jarFile = new java.util.jar.JarFile(jar.toFile())) {
+        try (final JarFile jarFile = new JarFile(jar.toFile())) {
             final java.util.jar.Manifest manifest = jarFile.getManifest();
             if (manifest != null) {
                 final String cp = manifest.getMainAttributes().getValue("Class-Path");
