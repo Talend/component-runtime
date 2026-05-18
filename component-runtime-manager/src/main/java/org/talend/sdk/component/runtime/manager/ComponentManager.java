@@ -199,6 +199,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ComponentManager implements AutoCloseable {
 
+    public static final String PROPERTY_CLASSES_AND_PACKAGES =
+            "talend.component.manager.classloader.container.classesAndPackages";
+
+    public static final String PROPERTY_PARENT_RESOURCES =
+            "talend.component.manager.classloader.container.parentResources";
+
+    public static final String[] KNOWN_PARENT_RESOURCES = { "/xmlMappings/" };
+
     private static class SingletonHolder {
 
         protected static final AtomicReference<ComponentManager> CONTEXTUAL_INSTANCE = new AtomicReference<>();
@@ -617,20 +625,21 @@ public class ComponentManager implements AutoCloseable {
         return Stream
                 .concat(customizers.stream().flatMap(Customizer::containerClassesAndPackages),
                         ofNullable(
-                                System.getProperty("talend.component.manager.classloader.container.classesAndPackages"))
+                                System.getProperty(PROPERTY_CLASSES_AND_PACKAGES))
                                 .map(s -> s.split(","))
                                 .map(Stream::of)
                                 .orElseGet(Stream::empty));
     }
 
     private Stream<String> additionalParentResources() {
-        return Stream
-                .concat(customizers.stream().flatMap(Customizer::parentResources),
+        return Stream.concat(
+                Stream.of(KNOWN_PARENT_RESOURCES),
+                Stream.concat(customizers.stream().flatMap(Customizer::parentResources),
                         ofNullable(
-                                System.getProperty("talend.component.manager.classloader.container.parentResources"))
+                                System.getProperty(PROPERTY_PARENT_RESOURCES))
                                 .map(s -> s.split(","))
                                 .map(Stream::of)
-                                .orElseGet(Stream::empty));
+                                .orElseGet(Stream::empty)));
     }
 
     public static Path findM2() {
