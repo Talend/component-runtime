@@ -162,7 +162,6 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
             }
 
             Record rcd = buildRecord(schema,
-                    dynamicDependencyConfig,
                     maven,
                     dependency.getClazz(),
                     isLoaded,
