@@ -34,7 +34,7 @@ class DynamicDependenciesWithSPIInputTest {
     protected BaseComponentsHandler handler;
 
     @Test
-    public void testGeneratedRecord() {
+    void testGeneratedRecord() {
         Config config = new Config();
         String queryString = SimpleFactory.configurationByExample().forInstance(config).configured().toQueryString();
 

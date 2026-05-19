@@ -440,6 +440,7 @@ public class ContainerManager implements Lifecycle {
             try {
                 log.debug("[sysinfo] Boot classpath: " + rt.getBootClassPath());
             } catch (Exception e) {
+                // nop
             }
             log.debug("[sysinfo] Runtime classpath: " + rt.getClassPath());
             log.debug("[sysinfo] Runtime arguments: " + System.getProperty("sun.java.command"));
@@ -472,7 +473,7 @@ public class ContainerManager implements Lifecycle {
                     });
             // cleanup the classpath from entries that are known as framework artifacts
             final Predicate<String> frameworkFilter = p -> FRAMEWORK_JAR_PATTERN.matcher(p).matches();
-            runtimeClasspath.removeIf(p -> frameworkFilter.test(p));
+            runtimeClasspath.removeIf(frameworkFilter::test);
         } catch (Exception e) {
             info("Unable to get runtime classpath: " + e.getMessage());
         }

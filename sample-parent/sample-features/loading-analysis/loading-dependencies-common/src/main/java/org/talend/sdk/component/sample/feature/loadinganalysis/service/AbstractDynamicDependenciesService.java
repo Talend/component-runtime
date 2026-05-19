@@ -86,6 +86,8 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
 
     public static final String ENTRY_COMMENT = "comment";
 
+    public static final String GAV = "%s:%s:%s";
+
     @Service
     private RecordBuilderFactory factory;
 
@@ -93,7 +95,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
     private ProducerFinder finder;
 
     @Service
-    private Resolver resolver;
+    private transient Resolver resolver;
 
     public Iterator<Record> loadIterator(final DynamicDependencyConfig dynamicDependencyConfig) {
         Schema schema = buildSchema();
@@ -127,7 +129,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
         dependencies.addAll(dynamicDependencyConfig.getDependencies());
         for (Dependency dependency : dependencies) {
             String comment = "";
-            String maven = String.format("%s:%s:%s", dependency.getGroupId(), dependency.getArtifactId(),
+            String maven = String.format(GAV, dependency.getGroupId(), dependency.getArtifactId(),
                     dependency.getVersion());
 
             boolean isLoaded = false;
@@ -159,7 +161,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
                 logError("Cannot load class %s from system classloader".formatted(dependency.getClazz()), e);
             }
 
-            Record record = buildRecord(schema,
+            Record rcd = buildRecord(schema,
                     dynamicDependencyConfig,
                     maven,
                     dependency.getClazz(),
@@ -170,7 +172,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
                     false,
                     Optional.empty(),
                     comment);
-            records.add(record);
+            records.add(rcd);
         }
 
         return records;
@@ -180,7 +182,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
         List<Record> records = new ArrayList<>();
         for (Connector connector : dynamicDependencyConfig.getConnectors()) {
 
-            String maven = String.format("%s:%s:%s", connector.getGroupId(), connector.getArtifactId(),
+            String maven = String.format(GAV, connector.getGroupId(), connector.getArtifactId(),
                     connector.getVersion());
 
             String connectorClassLoaderId = this.getClass().getClassLoader().toString();
@@ -189,8 +191,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
             Optional<Record> optionalRecord = testLoadingData(connector);
             boolean isLoaded = optionalRecord.isPresent();
 
-            Record record = buildRecord(schema,
-                    dynamicDependencyConfig,
+            Record rcd = buildRecord(schema,
                     maven,
                     "N/A",
                     isLoaded,
@@ -200,7 +201,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
                     true,
                     optionalRecord,
                     "");
-            records.add(record);
+            records.add(rcd);
         }
 
         return records;
@@ -210,7 +211,6 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
     // Checkstyle off to let have 11 parameters to this method (normally 10 max)
     // CHECKSTYLE:OFF
     private Record buildRecord(final Schema schema,
-            final DynamicDependencyConfig dynamicDependencyConfig,
             final String maven,
             final String clazz,
             final boolean isLoaded,
@@ -232,7 +232,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
                 .withBoolean(ENTRY_IS_TCK_CONTAINER, isTckContainer)
                 .withString(ENTRY_COMMENT, comment);
 
-        firstRecord.ifPresent(record -> builder.withRecord(ENTRY_FIRST_RECORD, record));
+        firstRecord.ifPresent(rcd -> builder.withRecord(ENTRY_FIRST_RECORD, rcd));
 
         String rootRepository =
                 String.valueOf(ComponentManager.instance().getContainer().getRootRepositoryLocationPath());
@@ -333,12 +333,12 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
 
         List<String> standardDependencies = dependencies
                 .stream()
-                .map(d -> String.format("%s:%s:%s", d.getGroupId(), d.getArtifactId(), d.getVersion()))
+                .map(d -> String.format(GAV, d.getGroupId(), d.getArtifactId(), d.getVersion()))
                 .toList();
 
         List<String> additionalConnectors = connectors
                 .stream()
-                .map(c -> String.format("%s:%s:%s", c.getGroupId(), c.getArtifactId(), c.getVersion()))
+                .map(c -> String.format(GAV, c.getGroupId(), c.getArtifactId(), c.getVersion()))
                 .toList();
 
         List<String> connectorsDependencies = connectors
@@ -364,13 +364,13 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
 
         List<String> result;
 
-        String gav = String.format("%s:%s:%s", connector.getGroupId(),
+        String gav = String.format(GAV, connector.getGroupId(),
                 connector.getArtifactId(),
                 connector.getVersion());
         Collection<File> jarFiles = resolver.resolveFromDescriptor(
                 Collections.singletonList(gav));
 
-        if (jarFiles == null || jarFiles.size() <= 0) {
+        if (jarFiles == null || jarFiles.isEmpty()) {
             throw new ComponentException("Can't find additional connector '%s'.".formatted(gav));
         }
         if (jarFiles.size() > 1) {

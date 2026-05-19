@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.manager.service;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -175,7 +176,7 @@ class ResolverImplTest {
             assertNotNull(desc);
             final ClassLoader dumbCl = desc.asClassLoader();
             assertNotNull(dumbCl);
-            assertTrue(dumbCl.getParent() == (bare ? appLoader : componentLoader));
+            assertSame(dumbCl.getParent(), (bare ? appLoader : componentLoader));
             // the classloader should be a child of the component loader and a ConfigurableClassLoader
             assertTrue(dumbCl instanceof ConfigurableClassLoader);
             final ConfigurableClassLoader ccl = (ConfigurableClassLoader) dumbCl;
@@ -199,9 +200,6 @@ class ResolverImplTest {
                 props.load(in);
             }
             assertEquals(EXPECTED_ARTIFACT_ID, props.getProperty(ARTIFACT_ID));
-            //
-            // TODO: check parent loading of resources is allowed or not depending on the configuration.
-            //
         } finally {
             thread.setContextClassLoader(contextCl);
             appLoader.close(); // cascade close the classloaders

@@ -205,7 +205,7 @@ public class ComponentManager implements AutoCloseable {
     public static final String PROPERTY_PARENT_RESOURCES =
             "talend.component.manager.classloader.container.parentResources";
 
-    public static final String[] KNOWN_PARENT_RESOURCES = { "/xmlMappings/" };
+    protected static final String[] KNOWN_PARENT_RESOURCES = { "/xmlMappings/" };
 
     private static class SingletonHolder {
 

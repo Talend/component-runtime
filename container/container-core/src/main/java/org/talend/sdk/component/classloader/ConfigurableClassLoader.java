@@ -119,7 +119,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
     public ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
             final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
             final String[] nestedDependencies, final String[] jvmPrefixes) {
-        this(id, urls, parent, parentFilter, childFirstFilter, emptyMap(), jvmPrefixes, (name) -> false);
+        this(id, urls, parent, parentFilter, childFirstFilter, emptyMap(), jvmPrefixes, name -> false);
         if (nestedDependencies != null) {
             loadNestedDependencies(parent, nestedDependencies);
         }
