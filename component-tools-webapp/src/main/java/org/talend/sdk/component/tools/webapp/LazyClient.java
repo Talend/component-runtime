@@ -100,7 +100,7 @@ public class LazyClient implements Client<Object> {
         public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
                 throws IOException, ServletException {
             lazyClient.lazyInit(() -> {
-                final HttpServletRequest servletRequest = HttpServletRequest.class.cast(request);
+                final HttpServletRequest servletRequest = (HttpServletRequest) request;
                 return String
                         .format("%s://%s:%d/%s", servletRequest.getScheme(), servletRequest.getServerName(),
                                 servletRequest.getServerPort(), "api/v1");

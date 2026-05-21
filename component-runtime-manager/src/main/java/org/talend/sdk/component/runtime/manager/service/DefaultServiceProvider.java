@@ -145,9 +145,8 @@ public class DefaultServiceProvider {
         if (Jsonb.class == api) {
             final JsonbBuilder jsonbBuilder = createPojoJsonbBuilder(id,
                     Lazy
-                            .lazy(() -> Jsonb.class
-                                    .cast(doLookup(id, loader, localConfigLookup, resolver, Jsonb.class, services,
-                                            instantiators))));
+                            .lazy(() -> (Jsonb) doLookup(id, loader, localConfigLookup, resolver, Jsonb.class, services,
+                                    instantiators)));
             return new GenericOrPojoJsonb(id, jsonbProvider
                     .create()
                     .withProvider(jsonpProvider) // reuses the same memory buffering
@@ -174,14 +173,14 @@ public class DefaultServiceProvider {
         if (LocalCache.class == api) {
             final LocalCacheService service =
                     new LocalCacheService(id, System::currentTimeMillis, this.executorService);
-            Injector.class.cast(services.get().get(Injector.class)).inject(service);
+            ((Injector) services.get().get(Injector.class)).inject(service);
             return service;
         }
         if (Injector.class == api) {
             return new InjectorImpl(id, reflections, proxyGenerator, services.get());
         }
         if (HttpClientFactory.class == api) {
-            return new HttpClientFactoryImpl(id, reflections, Jsonb.class.cast(services.get().get(Jsonb.class)),
+            return new HttpClientFactoryImpl(id, reflections, (Jsonb) services.get().get(Jsonb.class),
                     services.get());
         }
         if (Resolver.class == api) {
@@ -215,9 +214,8 @@ public class DefaultServiceProvider {
             return new RecordServiceImpl(id, recordBuilderFactoryProvider.apply(id), () -> jsonpBuilderFactory,
                     () -> jsonpProvider,
                     Lazy
-                            .lazy(() -> Jsonb.class
-                                    .cast(doLookup(id, loader, localConfigLookup, resolver, Jsonb.class, services,
-                                            instantiators))));
+                            .lazy(() -> (Jsonb) doLookup(id, loader, localConfigLookup, resolver, Jsonb.class, services,
+                                    instantiators)));
         }
         return null;
     }
@@ -236,7 +234,7 @@ public class DefaultServiceProvider {
             if (!mapper.isAccessible()) {
                 mapper.setAccessible(true);
             }
-            MapperBuilder.class.cast(mapper.get(jsonbBuilder)).setDoCloseOnStreams(true);
+            ((MapperBuilder) mapper.get(jsonbBuilder)).setDoCloseOnStreams(true);
         } catch (final Exception e) {
             throw new IllegalStateException(e);
         }

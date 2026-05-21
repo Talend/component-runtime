@@ -67,7 +67,7 @@ public class ComponentActionDao {
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-            final ActionKey other = ActionKey.class.cast(o);
+            final ActionKey other = (ActionKey) o;
             return Objects.equals(component, other.component) && Objects.equals(type, other.type)
                     && Objects.equals(name, other.name);
         }

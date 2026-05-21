@@ -28,6 +28,6 @@ final class StringCompatibleTypes {
 
     static boolean isKnown(final Type type, final PropertyEditorRegistry registry) {
         return String.class == type || char.class == type || Character.class == type
-                || (Class.class.isInstance(type) && registry.findConverter(Class.class.cast(type)) != null);
+                || (type instanceof Class && registry.findConverter((Class) type) != null);
     }
 }

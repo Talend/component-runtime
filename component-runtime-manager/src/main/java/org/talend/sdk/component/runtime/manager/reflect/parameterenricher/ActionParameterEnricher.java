@@ -105,8 +105,7 @@ public class ActionParameterEnricher extends BaseParameterEnricher {
     private String getParametersString(final Annotation annotation) {
         try {
             return String
-                    .join(",", String[].class
-                            .cast(annotation.annotationType().getMethod("parameters").invoke(annotation)));
+                    .join(",", (String[]) annotation.annotationType().getMethod("parameters").invoke(annotation));
         } catch (final IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             return null;
         }

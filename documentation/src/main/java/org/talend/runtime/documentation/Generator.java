@@ -247,9 +247,9 @@ public class Generator {
         }
         switch (oldValue.getValueType()) {
             case STRING:
-                return JsonString.class.cast(oldValue).getString().equals(JsonString.class.cast(newValue).getString());
+                return ((JsonString) oldValue).getString().equals(((JsonString) newValue).getString());
             case NUMBER:
-                return JsonNumber.class.cast(oldValue).doubleValue() == JsonNumber.class.cast(newValue).doubleValue();
+                return ((JsonNumber) oldValue).doubleValue() == ((JsonNumber) newValue).doubleValue();
             case OBJECT:
                 final JsonObject oldObject = oldValue.asJsonObject();
                 final JsonObject newObject = newValue.asJsonObject();
@@ -373,8 +373,7 @@ public class Generator {
             stream.println("Therefore, the following packages are ignored:");
             stream.println();
             stream.println("[.talend-filterlist]");
-            KnownClassesFilter.OptimizedExclusionFilter.class
-                    .cast(KnownClassesFilter.class.cast(KnownClassesFilter.INSTANCE).getDelegateSkip())
+            ((KnownClassesFilter.OptimizedExclusionFilter) ((KnownClassesFilter) KnownClassesFilter.INSTANCE).getDelegateSkip())
                     .getIncluded()
                     .stream()
                     .sorted()
@@ -411,7 +410,7 @@ public class Generator {
                     .forEach(type -> {
                         final BaseEnvironmentProvider environment;
                         try {
-                            environment = BaseEnvironmentProvider.class.cast(type.getConstructor().newInstance());
+                            environment = (BaseEnvironmentProvider) type.getConstructor().newInstance();
                         } catch (final InstantiationException | IllegalAccessException | NoSuchMethodException
                                 | InvocationTargetException e) {
                             throw new IllegalStateException(e);
@@ -901,7 +900,7 @@ public class Generator {
         if (type.isEnum()) {
             return Stream
                     .of(type.getEnumConstants())
-                    .map(e -> Enum.class.cast(e).name())
+                    .map(e -> ((Enum) e).name())
                     .collect(joining("\"|\"", "\"", "\""));
         }
         return "\"...\"";

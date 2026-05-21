@@ -134,7 +134,7 @@ class ComponentValidatorTest {
 
         @Override
         public void afterAll(final ExtensionContext context) {
-            TemporaryFolder.class.cast(context.getStore(NAMESPACE).get(TemporaryFolder.class.getName())).delete();
+            ((TemporaryFolder) context.getStore(NAMESPACE).get(TemporaryFolder.class.getName())).delete();
         }
 
         @Override
@@ -142,7 +142,7 @@ class ComponentValidatorTest {
             final ComponentPackage config = context.getElement().get().getAnnotation(ComponentPackage.class);
             final ExtensionContext.Store store = context.getStore(NAMESPACE);
             final File pluginDir =
-                    new File(TemporaryFolder.class.cast(store.get(TemporaryFolder.class.getName())).getRoot() + "/"
+                    new File(((TemporaryFolder) store.get(TemporaryFolder.class.getName())).getRoot() + "/"
                             + context.getRequiredTestMethod().getName());
             final ComponentValidator.Configuration cfg = new ComponentValidator.Configuration();
             cfg.setValidateFamily(true);
@@ -181,17 +181,16 @@ class ComponentValidatorTest {
         @Override
         public void afterEach(final ExtensionContext context) {
             final ExtensionContext.Store store = context.getStore(NAMESPACE);
-            final boolean fails = !ComponentPackage.class.cast(store.get(ComponentPackage.class.getName())).success();
-            final String expectedMessage = ExceptionSpec.class
-                    .cast(context.getStore(NAMESPACE).get(ExceptionSpec.class.getName()))
+            final boolean fails = !((ComponentPackage) store.get(ComponentPackage.class.getName())).success();
+            final String expectedMessage = ((ExceptionSpec) context.getStore(NAMESPACE).get(ExceptionSpec.class.getName()))
                     .getMessage();
             try {
-                ComponentValidator.class.cast(store.get(ComponentValidator.class.getName())).run();
+                ((ComponentValidator) store.get(ComponentValidator.class.getName())).run();
                 if (fails) {
                     fail("should have failed");
                 }
                 if (expectedMessage != null) {
-                    final Collection<String> messages = TestLog.class.cast(store.get(TestLog.class.getName())).messages;
+                    final Collection<String> messages = ((TestLog) store.get(TestLog.class.getName())).messages;
                     assertTrue(messages.stream().anyMatch(it -> it.contains(expectedMessage)),
                             expectedMessage + "\n\n> " + messages);
                 }

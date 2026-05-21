@@ -126,7 +126,7 @@ public class ProducerFinderEnvironmentTest implements Serializable {
         Mapper mapper =
                 manager.findMapper("BeamFamily", "from", 1, singletonMap("count", recordCount.toString())).get();
         assertNotNull(mapper);
-        final Object delegate = Delegated.class.cast(mapper).getDelegate();
+        final Object delegate = ((Delegated) mapper).getDelegate();
         assertNotNull(delegate);
         runPipeline((PTransform<PBegin, PCollection<Record>>) delegate);
     }

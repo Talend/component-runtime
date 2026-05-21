@@ -113,7 +113,7 @@ class ReflectionServiceTest {
     void jsonObject() throws NoSuchMethodException {
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(JsonObject.class, new HashMap<>());
         final Object[] objects = factory.apply(singletonMap("root", "{\"set\":true}"));
-        assertEquals(Json.createObjectBuilder().add("set", true).build(), JsonObject.class.cast(objects[0]));
+        assertEquals(Json.createObjectBuilder().add("set", true).build(), (JsonObject) objects[0]);
     }
 
     @Test
@@ -122,7 +122,7 @@ class ReflectionServiceTest {
                 getComponentFactory(ConfigWithDate.class, new HashMap<>());
         final ZonedDateTime expected = ZonedDateTime.now();
         final Object[] objects = factory.apply(singletonMap("root.date", expected.toString()));
-        assertEquals(expected, ConfigWithDate.class.cast(objects[0]).date);
+        assertEquals(expected, ((ConfigWithDate) objects[0]).date);
     }
 
     @Test
@@ -158,12 +158,12 @@ class ReflectionServiceTest {
                                 new LocalCacheService("test", System::currentTimeMillis, executor));
                     }
                 });
-        final MyConfig myConfig = MyConfig.class.cast(factory.apply(new HashMap<String, String>() {
+        final MyConfig myConfig = (MyConfig) factory.apply(new HashMap<String, String>() {
 
             {
                 put("myconfig.url", "ignored");
             }
-        })[0]);
+        })[0];
         assertEquals("http://foo", myConfig.url);
         assertEquals("set", myConfig.user);
     }
@@ -180,7 +180,7 @@ class ReflectionServiceTest {
     void validationRequiredStringOk() throws NoSuchMethodException {
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig.class);
         {
-            SomeConfig.class.cast(factory.apply(new HashMap<String, String>() {
+            ((SomeConfig) factory.apply(new HashMap<String, String>() {
 
                 {
                     put("root.requiredString", "set");
@@ -189,7 +189,7 @@ class ReflectionServiceTest {
             })[0]).isSet("set", 5);
         }
         {
-            SomeConfig.class.cast(factory.apply(new HashMap<String, String>() {
+            ((SomeConfig) factory.apply(new HashMap<String, String>() {
 
                 {
                     put("root.requiredString", "set2");
@@ -202,7 +202,7 @@ class ReflectionServiceTest {
     @Test
     void instantiateEvenWithBadNumberType() throws NoSuchMethodException {
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig.class);
-        SomeConfig.class.cast(factory.apply(new HashMap<String, String>() {
+        ((SomeConfig) factory.apply(new HashMap<String, String>() {
 
             {
                 put("root.requiredString", "set");
@@ -214,7 +214,7 @@ class ReflectionServiceTest {
     @Test
     void validationRequiredNotVisiblePrimitive() throws NoSuchMethodException {
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredVisibilityPrimitive.class);
-        assertNull(RequiredVisibilityPrimitive.class.cast(factory.apply(new HashMap<String, String>() {
+        assertNull(((RequiredVisibilityPrimitive) factory.apply(new HashMap<String, String>() {
 
             {
                 put("root.toggle", "false");
@@ -237,7 +237,7 @@ class ReflectionServiceTest {
     @Test
     void validationRequiredVisiblePrimitiveValid() throws NoSuchMethodException {
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredVisibilityPrimitive.class);
-        assertEquals("sthg", RequiredVisibilityPrimitive.class.cast(factory.apply(new HashMap<String, String>() {
+        assertEquals("sthg", ((RequiredVisibilityPrimitive) factory.apply(new HashMap<String, String>() {
 
             {
                 put("root.toggle", "true");
@@ -249,7 +249,7 @@ class ReflectionServiceTest {
     @Test
     void validationRequiredNotVisibleArray() throws NoSuchMethodException {
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredVisibilityArray.class);
-        assertNull(RequiredVisibilityArray.class.cast(factory.apply(new HashMap<String, String>() {
+        assertNull(((RequiredVisibilityArray) factory.apply(new HashMap<String, String>() {
 
             {
                 put("root.toggle", "false");
@@ -272,7 +272,7 @@ class ReflectionServiceTest {
     void validationRequiredVisibleArrayValid() throws NoSuchMethodException {
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredVisibilityArray.class);
         assertEquals(singletonList("sthg"),
-                RequiredVisibilityArray.class.cast(factory.apply(new HashMap<String, String>() {
+                ((RequiredVisibilityArray) factory.apply(new HashMap<String, String>() {
 
                     {
                         put("root.toggle", "true");
@@ -335,14 +335,14 @@ class ReflectionServiceTest {
     void validationMinListOk() throws NoSuchMethodException {
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig2.class);
         assertEquals(1,
-                SomeConfig2.class.cast(factory.apply(singletonMap("root.integers[0]", "1"))[0]).integers.size());
+                ((SomeConfig2) factory.apply(singletonMap("root.integers[0]", "1"))[0]).integers.size());
     }
 
     @Test
     void validationNestedObjectOk() throws NoSuchMethodException {
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig3.class);
         assertEquals("somevalue",
-                SomeConfig3.class.cast(factory.apply(singletonMap("root.nested.value", "somevalue"))[0]).nested.value);
+                ((SomeConfig3) factory.apply(singletonMap("root.nested.value", "somevalue"))[0]).nested.value);
     }
 
     @Test
@@ -355,7 +355,7 @@ class ReflectionServiceTest {
     void validationRegexOk() throws NoSuchMethodException {
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig5.class);
         assertEquals("somevalue",
-                SomeConfig5.class.cast(factory.apply(singletonMap("root.regex", "somevalue"))[0]).regex);
+                ((SomeConfig5) factory.apply(singletonMap("root.regex", "somevalue"))[0]).regex);
     }
 
     @Test
@@ -369,15 +369,13 @@ class ReflectionServiceTest {
     void validationUrlRegexOk() throws NoSuchMethodException {
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig6.class);
         assertEquals("pulsar://localhost:12345",
-                SomeConfig6.class
-                        .cast(factory.apply(singletonMap("root.pulsar", "pulsar://localhost:12345"))[0]).pulsar);
+                ((SomeConfig6) factory.apply(singletonMap("root.pulsar", "pulsar://localhost:12345"))[0]).pulsar);
         assertEquals("pulsar+ssl://localhost:12345",
-                SomeConfig6.class
-                        .cast(factory.apply(singletonMap("root.pulsar", "pulsar+ssl://localhost:12345"))[0]).pulsar);
+                ((SomeConfig6) factory.apply(singletonMap("root.pulsar", "pulsar+ssl://localhost:12345"))[0]).pulsar);
         assertEquals("http://localhost:12345",
-                SomeConfig6.class.cast(factory.apply(singletonMap("root.url", "http://localhost:12345"))[0]).url);
+                ((SomeConfig6) factory.apply(singletonMap("root.url", "http://localhost:12345"))[0]).url);
         assertEquals("https://localhost:12345",
-                SomeConfig6.class.cast(factory.apply(singletonMap("root.url", "https://localhost:12345"))[0]).url);
+                ((SomeConfig6) factory.apply(singletonMap("root.url", "https://localhost:12345"))[0]).url);
     }
 
     @Test
@@ -397,7 +395,7 @@ class ReflectionServiceTest {
     void validationNestedListOk() throws NoSuchMethodException {
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig4.class);
         assertEquals("somevalue",
-                SomeConfig4.class.cast(factory.apply(singletonMap("root.nesteds[0].value", "somevalue"))[0]).nesteds
+                ((SomeConfig4) factory.apply(singletonMap("root.nesteds[0].value", "somevalue"))[0]).nesteds
                         .iterator()
                         .next().value);
     }
@@ -452,10 +450,8 @@ class ReflectionServiceTest {
                         new HttpClientFactoryImpl("test", reflectionService, JsonbBuilder.create(), emptyMap())
                                 .create(UserHttpClient.class, "http://foo"));
         final Method httpMtd = TableOwner.class.getMethod("http", UserHttpClient.class);
-        final HttpClient client1 = HttpClient.class
-                .cast(reflectionService.parameterFactory(httpMtd, precomputed, null).apply(emptyMap())[0]);
-        final HttpClient client2 = HttpClient.class
-                .cast(reflectionService.parameterFactory(httpMtd, precomputed, null).apply(emptyMap())[0]);
+        final HttpClient client1 = (HttpClient) reflectionService.parameterFactory(httpMtd, precomputed, null).apply(emptyMap())[0];
+        final HttpClient client2 = (HttpClient) reflectionService.parameterFactory(httpMtd, precomputed, null).apply(emptyMap())[0];
         assertNotSame(client1, client2);
         final InvocationHandler handler1 = Proxy.getInvocationHandler(client1);
         final InvocationHandler handler2 = Proxy.getInvocationHandler(client2);
@@ -553,9 +549,9 @@ class ReflectionServiceTest {
                     }
                 });
         assertEquals(1, params.length);
-        assertTrue(MethodsHolder.Array.class.isInstance(params[0]));
+        assertTrue(params[0] instanceof MethodsHolder.Array);
         assertArrayEquals(new String[] { "http://foo", "https://bar" },
-                MethodsHolder.Array.class.cast(params[0]).getUrls());
+                ((MethodsHolder.Array) params[0]).getUrls());
     }
 
     @Test
@@ -571,8 +567,8 @@ class ReflectionServiceTest {
                     }
                 });
         assertEquals(1, params.length);
-        assertTrue(MethodsHolder.Array.class.isInstance(params[0]));
-        assertArrayEquals(new String[] { "http://foo" }, MethodsHolder.Array.class.cast(params[0]).getUrls());
+        assertTrue(params[0] instanceof MethodsHolder.Array);
+        assertArrayEquals(new String[] { "http://foo" }, ((MethodsHolder.Array) params[0]).getUrls());
     }
 
     @Test
@@ -597,7 +593,7 @@ class ReflectionServiceTest {
                                 put("implicit.mapping.value[1]", "val2");
                             }
                         });
-        Stream.of(params).forEach(p -> assertTrue(MethodsHolder.Config.class.isInstance(p)));
+        Stream.of(params).forEach(p -> assertTrue(p instanceof MethodsHolder.Config));
         final MethodsHolder.Config[] configs =
                 Stream.of(params).map(MethodsHolder.Config.class::cast).toArray(MethodsHolder.Config[]::new);
         assertEquals(asList("http://foo", "https://bar"), configs[0].getUrls());
@@ -635,8 +631,8 @@ class ReflectionServiceTest {
                         put("value.passthrough", "ok");
                     }
                 });
-        assertTrue(MethodsHolder.ConfigOfConfig.class.isInstance(params[0]));
-        final MethodsHolder.ConfigOfConfig value = MethodsHolder.ConfigOfConfig.class.cast(params[0]);
+        assertTrue(params[0] instanceof MethodsHolder.ConfigOfConfig);
+        final MethodsHolder.ConfigOfConfig value = (MethodsHolder.ConfigOfConfig) params[0];
         assertEquals("ok", value.getPassthrough());
         assertNotNull(value.getDirect());
         assertEquals(asList("http://foo", "https://bar"), value.getDirect().getUrls());
@@ -673,9 +669,9 @@ class ReflectionServiceTest {
                             }
                         });
         assertEquals(1, tests.length);
-        assertTrue(TableOwner.class.isInstance(tests[0]));
+        assertTrue(tests[0] instanceof TableOwner);
 
-        final TableOwner tableOwner = TableOwner.class.cast(tests[0]);
+        final TableOwner tableOwner = (TableOwner) tests[0];
         {
             assertNotNull(tableOwner.table);
             assertEquals(2, tableOwner.table.size());
@@ -717,9 +713,9 @@ class ReflectionServiceTest {
                             }
                         });
         assertEquals(1, tests.length);
-        assertTrue(TableOwner.class.isInstance(tests[0]));
+        assertTrue(tests[0] instanceof TableOwner);
 
-        final TableOwner tableOwner = TableOwner.class.cast(tests[0]);
+        final TableOwner tableOwner = (TableOwner) tests[0];
         assertNotNull(tableOwner.table);
         assertEquals(1, tableOwner.table.size());
         assertEquals(singletonList("test1"), tableOwner.table.stream().map(Column::getValue1).collect(toList()));
@@ -745,8 +741,8 @@ class ReflectionServiceTest {
                     }
                 });
 
-        assertTrue(MethodsHolder.MyDatastore.class.isInstance(params[0]));
-        final MethodsHolder.MyDatastore value = MethodsHolder.MyDatastore.class.cast(params[0]);
+        assertTrue(params[0] instanceof MethodsHolder.MyDatastore);
+        final MethodsHolder.MyDatastore value = (MethodsHolder.MyDatastore) params[0];
         assertEquals("foo", value.getAString());
         assertFalse(value.isComplexConfig());
     }
@@ -769,8 +765,8 @@ class ReflectionServiceTest {
                     }
                 });
 
-        assertTrue(MethodsHolder.MyDatastore.class.isInstance(params[0]));
-        final MethodsHolder.MyDatastore value = MethodsHolder.MyDatastore.class.cast(params[0]);
+        assertTrue(params[0] instanceof MethodsHolder.MyDatastore);
+        final MethodsHolder.MyDatastore value = (MethodsHolder.MyDatastore) params[0];
         assertEquals("foo", value.getAString());
         assertTrue(value.isComplexConfig());
         assertEquals("https://talend.com", value.getComplexConfiguration().getUrl());
@@ -813,7 +809,7 @@ class ReflectionServiceTest {
                     }
                 });
 
-        assertTrue(MethodsHolder.RestDatastore.class.isInstance(params[0]));
+        assertTrue(params[0] instanceof MethodsHolder.RestDatastore);
     }
 
     @Test
@@ -833,8 +829,8 @@ class ReflectionServiceTest {
                     }
                 });
 
-        assertTrue(MethodsHolder.RestDatastore.class.isInstance(params[0]));
-        final MethodsHolder.RestDatastore value = MethodsHolder.RestDatastore.class.cast(params[0]);
+        assertTrue(params[0] instanceof MethodsHolder.RestDatastore);
+        final MethodsHolder.RestDatastore value = (MethodsHolder.RestDatastore) params[0];
         assertTrue(value.getApiDesc().isLoadAPI());
         assertEquals("https://talend.com", value.getComplexConfiguration().getUrl());
     }

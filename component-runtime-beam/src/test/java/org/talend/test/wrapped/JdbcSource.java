@@ -159,7 +159,7 @@ public class JdbcSource extends PTransform<PBegin, PCollection<JsonObject>> {
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-            return Objects.equals(delegate(), WorkAroundCoder.class.cast(o).delegate());
+            return Objects.equals(delegate(), ((WorkAroundCoder) o).delegate());
         }
 
         @Override

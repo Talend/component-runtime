@@ -127,7 +127,7 @@ class InjectorImplTest {
         final Class<?> proxyClass = proxyGenerator
                 .generateProxy(Thread.currentThread().getContextClassLoader(), InjectedCache.class, "injector",
                         InjectedCache.class.getName());
-        final InjectedCache proxy = InjectedCache.class.cast(proxyClass.getConstructor().newInstance());
+        final InjectedCache proxy = (InjectedCache) proxyClass.getConstructor().newInstance();
         proxyGenerator.initialize(proxy, new InterceptorHandlerFacade(instance, services));
         injector.inject(proxy);
         assertEquals("false", proxy.getString());

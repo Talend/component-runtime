@@ -504,7 +504,7 @@ class AvroRecordBuilderTest {
 
         assertEquals("true", rSchema.getEntry("ADDRESS_ID").getProp(SchemaProperty.IS_FOREIGN_KEY));
 
-        IndexedRecord avroRecord = AvroRecord.class.cast(record).unwrap(IndexedRecord.class);
+        IndexedRecord avroRecord = ((AvroRecord) record).unwrap(IndexedRecord.class);
         org.apache.avro.Schema avroSchema = avroRecord.getSchema();
         assertEquals("THE ID", avroSchema.getField("ID").getProp(KeysForAvroProperty.LABEL));
         assertEquals("true", avroSchema.getField("ID").getProp(SchemaProperty.IS_KEY));
@@ -551,7 +551,7 @@ class AvroRecordBuilderTest {
                 .before("_30")
                 .withString("_53", "53")
                 .build();
-        assertTrue(AvroRecord.class.isInstance(record));
+        assertTrue(record instanceof AvroRecord);
         assertEquals("_00,_10,_20,_25,_53,_30,_40,_50,_55", getSchemaFields(record.getSchema()));
         assertEquals("_00,_10,_20,_25,_53,_30,_40,_50,_55", record.getSchema().naturalOrder().toFields());
         assertEquals("0,10,20,25,53,30,40,50,55", getRecordValues(record));
@@ -586,7 +586,7 @@ class AvroRecordBuilderTest {
         assertEquals("_55,_53,_50,_40,_56,_60,_30,_25", newRecord.getSchema().naturalOrder().toFields());
         assertEquals("55,53,50,40,56,60,30,25", getRecordValues(newRecord));
         //
-        IndexedRecord idx = AvroRecord.class.cast(newRecord).unwrap(IndexedRecord.class);
+        IndexedRecord idx = ((AvroRecord) newRecord).unwrap(IndexedRecord.class);
         assertNotNull(idx);
         assertEquals("_55,_53,_50,_40,_56,_60,_30,_25", idx.getSchema().getProp(ENTRIES_ORDER_PROP));
     }
