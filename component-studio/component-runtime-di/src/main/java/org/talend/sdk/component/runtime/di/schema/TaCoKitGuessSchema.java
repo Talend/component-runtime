@@ -673,8 +673,8 @@ public class TaCoKitGuessSchema {
             if (rowObject == null) {
                 return false;
             }
-            if (rowObject instanceof Record record) {
-                return fromSchema(record.getSchema());
+            if (rowObject instanceof Record rcd) {
+                return fromSchema(rcd.getSchema());
             } else if (rowObject instanceof java.util.Map map) {
                 return guessInputSchemaThroughResults(input, map);
             } else if (rowObject instanceof java.util.Collection) {
@@ -709,8 +709,8 @@ public class TaCoKitGuessSchema {
             return guessSchemaThroughResult(map);
         } else if (rowObject instanceof Schema schema) {
             return fromSchema(schema);
-        } else if (rowObject instanceof Record record) {
-            return fromSchema(record.getSchema());
+        } else if (rowObject instanceof Record rcd) {
+            return fromSchema(rcd.getSchema());
         } else if (rowObject instanceof java.util.Collection) {
             throw new Exception("Can't guess schema from a Collection");
         } else {
