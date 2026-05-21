@@ -781,14 +781,12 @@ public class ComponentManager implements AutoCloseable {
      */
     public static Map<String, String> jsonToMap(final JsonValue jsonValue, final String path) {
         final Map<String, String> result = new HashMap<>();
-        if (jsonValue instanceof JsonObject) {
-            JsonObject jsonObj = (JsonObject) jsonValue;
+        if (jsonValue instanceof JsonObject jsonObj) {
             for (String key : jsonObj.keySet()) {
                 String newPath = path.isEmpty() ? key : path + "." + key;
                 result.putAll(jsonToMap(jsonObj.get(key), newPath));
             }
-        } else if (jsonValue instanceof JsonArray) {
-            JsonArray jsonArray = (JsonArray) jsonValue;
+        } else if (jsonValue instanceof JsonArray jsonArray) {
             for (int i = 0; i < jsonArray.size(); i++) {
                 String newPath = path + "[" + i + "]";
                 result.putAll(jsonToMap(jsonArray.get(i), newPath));

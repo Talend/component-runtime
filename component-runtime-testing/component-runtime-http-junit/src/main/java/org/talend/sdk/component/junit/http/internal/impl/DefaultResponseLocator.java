@@ -254,8 +254,7 @@ public class DefaultResponseLocator implements ResponseLocator, AutoCloseable {
         public boolean equals(final Object obj) {
             if (this == obj) {
                 return true;
-            } else if (obj instanceof ParameterizedType) {
-                final ParameterizedType that = (ParameterizedType) obj;
+            } else if (obj instanceof ParameterizedType that) {
                 final Type thatRawType = that.getRawType();
                 return that.getOwnerType() == null
                         && (rawType == null ? thatRawType == null : rawType.equals(thatRawType))

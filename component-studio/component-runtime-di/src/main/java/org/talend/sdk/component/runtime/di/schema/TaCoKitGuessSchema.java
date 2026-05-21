@@ -174,10 +174,10 @@ public class TaCoKitGuessSchema {
 
     private DiscoverSchemaException transformException(final Exception e) {
         DiscoverSchemaException discoverSchemaException;
-        if (e instanceof DiscoverSchemaException) {
-            discoverSchemaException = DiscoverSchemaException.class.cast(e);
-        } else if (e instanceof ComponentException) {
-            discoverSchemaException = new DiscoverSchemaException((ComponentException) e);
+        if (e instanceof DiscoverSchemaException dse) {
+            discoverSchemaException = dse;
+        } else if (e instanceof ComponentException ce) {
+            discoverSchemaException = new DiscoverSchemaException(ce);
         } else {
             discoverSchemaException = new DiscoverSchemaException(e.getMessage(), e.getStackTrace(), EXCEPTION);
         }
@@ -253,12 +253,11 @@ public class TaCoKitGuessSchema {
         }
         final Object schemaResult =
                 actionRef.getInvoker().apply(buildActionConfig(actionRef, configuration, schema, branch));
-        if (schemaResult instanceof Schema) {
-            final Schema result = (Schema) schemaResult;
+        if (schemaResult instanceof Schema result) {
             if (result.getEntries().isEmpty()) {
                 throw new DiscoverSchemaException(ERROR_NO_AVAILABLE_SCHEMA_FOUND, EXCEPTION);
             } else {
-                fromSchema(Schema.class.cast(schemaResult));
+                fromSchema(result);
             }
         }
     }
@@ -468,8 +467,8 @@ public class TaCoKitGuessSchema {
                         : buildActionConfig(actionRef, configuration, schema, "INPUT");
         final Object schemaResult = actionRef.getInvoker().apply(actionConfiguration);
 
-        if (schemaResult instanceof Schema) {
-            return fromSchema(Schema.class.cast(schemaResult));
+        if (schemaResult instanceof Schema resultSchema) {
+            return fromSchema(resultSchema);
 
         } else {
             log.error(ERROR_INSTANCE_SCHEMA);
@@ -501,8 +500,7 @@ public class TaCoKitGuessSchema {
     public Collection<Column> getFixedSchema(final String execute) {
         SchemaConverter sc = new SchemaConverter();
         Object o = sc.toObjectImpl(execute);
-        if (o instanceof Schema) {
-            final Schema schema = Schema.class.cast(o);
+        if (o instanceof Schema schema) {
             final Collection<Schema.Entry> entries = schema.getEntries();
             if (entries == null || entries.isEmpty()) {
                 log.info(NO_COLUMN_FOUND_BY_GUESS_SCHEMA);
@@ -675,10 +673,10 @@ public class TaCoKitGuessSchema {
             if (rowObject == null) {
                 return false;
             }
-            if (rowObject instanceof Record) {
-                return fromSchema(Record.class.cast(rowObject).getSchema());
-            } else if (rowObject instanceof java.util.Map) {
-                return guessInputSchemaThroughResults(input, (java.util.Map) rowObject);
+            if (rowObject instanceof Record record) {
+                return fromSchema(record.getSchema());
+            } else if (rowObject instanceof java.util.Map map) {
+                return guessInputSchemaThroughResults(input, map);
             } else if (rowObject instanceof java.util.Collection) {
                 throw new Exception("Can't guess schema from a Collection");
             } else {
@@ -707,12 +705,12 @@ public class TaCoKitGuessSchema {
      * @return true if completed; false if one more result row is needed.
      */
     public boolean guessSchemaThroughResult(final Object rowObject) throws Exception {
-        if (rowObject instanceof java.util.Map) {
-            return guessSchemaThroughResult((java.util.Map) rowObject);
-        } else if (rowObject instanceof Schema) {
-            return fromSchema(Schema.class.cast(rowObject));
-        } else if (rowObject instanceof Record) {
-            return fromSchema(Record.class.cast(rowObject).getSchema());
+        if (rowObject instanceof java.util.Map map) {
+            return guessSchemaThroughResult(map);
+        } else if (rowObject instanceof Schema schema) {
+            return fromSchema(schema);
+        } else if (rowObject instanceof Record record) {
+            return fromSchema(record.getSchema());
         } else if (rowObject instanceof java.util.Collection) {
             throw new Exception("Can't guess schema from a Collection");
         } else {

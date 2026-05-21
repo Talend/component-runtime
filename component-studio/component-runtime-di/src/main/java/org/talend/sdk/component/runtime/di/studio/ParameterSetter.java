@@ -92,8 +92,8 @@ public class ParameterSetter {
                 try {
                     target = field.get(target);
                     if (arrayLocation > -1) {
-                        if (target instanceof List) {
-                            target = List.class.cast(target).get(arrayLocation);
+                        if (target instanceof List list) {
+                            target = list.get(arrayLocation);
                         } else {
                             log.warn("expect a list, but not");
                             return;
