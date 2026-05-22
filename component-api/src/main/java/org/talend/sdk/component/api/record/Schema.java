@@ -104,7 +104,7 @@ public interface Schema {
      */
     @JsonbTransient
     default List<Entry> getEntriesOrdered(final Comparator<Entry> comparator) {
-        return getAllEntries().sorted(comparator).toList();
+        return getAllEntries().sorted(comparator).collect(Collectors.toList());
     }
 
     /**
