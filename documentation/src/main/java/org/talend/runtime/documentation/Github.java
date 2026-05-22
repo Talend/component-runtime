@@ -20,7 +20,6 @@ import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.CompletableFuture.allOf;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
@@ -109,7 +108,7 @@ public class Github {
                                     .map(this::getResult)
                                     .filter(Objects::nonNull)
                                     .sorted(comparing(Contributor::getCommits).reversed())
-                                    .collect(toList())))
+                                    .toList()))
                     .get();
         } catch (final ExecutionException ee) {
             if (WebApplicationException.class.isInstance(ee.getCause())) {

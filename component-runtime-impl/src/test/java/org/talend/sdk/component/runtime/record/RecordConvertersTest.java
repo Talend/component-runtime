@@ -57,12 +57,13 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry;
 
+import routines.system.IPersistableRow;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import routines.system.IPersistableRow;
 
 class RecordConvertersTest {
 

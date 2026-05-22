@@ -239,7 +239,7 @@ public class ProjectGenerator {
                             versionSnapshot)
                     .peek(file -> files.put(file.getPath(), file.getContent()))
                     .map(FacetGenerator.InMemoryFile::getPath)
-                    .collect(toList());
+                    .toList();
         }));
     }
 

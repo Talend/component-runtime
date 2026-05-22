@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.beam;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
@@ -126,7 +125,7 @@ public class BeamIOWrappingTest implements Serializable {
     public static class BeamSource extends DelegatingTransform<PBegin, PCollection<Sample>> {
 
         public BeamSource(@Option("values") final Collection<String> values) {
-            super(Create.of(values.stream().map(Sample::new).collect(toList())).withCoder(new SampleCoder()));
+            super(Create.of(values.stream().map(Sample::new).toList()).withCoder(new SampleCoder()));
         }
 
         private static class SampleCoder extends Coder<Sample> {

@@ -20,7 +20,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
@@ -226,7 +225,7 @@ public class ProjectResource {
                                                 .getStructure(),
                                         toStructure(i.isGenericOutput(), i.getOutputStructure(), false,
                                                 reusableConfigs)))
-                                .collect(toList()))
+                                .toList())
                         .orElse(emptyList()),
                 ofNullable(model.getProcessors())
                         .map(s -> s
@@ -236,7 +235,7 @@ public class ProjectResource {
                                                 .getStructure(),
                                         mapStructures(i.getInputStructures(), reusableConfigs),
                                         mapStructures(i.getOutputStructures(), reusableConfigs)))
-                                .collect(toList()))
+                                .toList())
                         .orElse(emptyList()),
                 reusableConfigs.values(), model.getFamily(), model.getCategory(), model.getOpenapi());
     }
@@ -303,6 +302,6 @@ public class ProjectResource {
                             e.getModel() != null
                                     ? toStructure(false, e.getModel(), false, reusableConfigs).getStructure()
                                     : null);
-                }).filter(Objects::nonNull).collect(toList())), generic);
+                }).filter(Objects::nonNull).toList()), generic);
     }
 }

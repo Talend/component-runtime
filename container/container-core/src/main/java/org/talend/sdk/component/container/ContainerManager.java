@@ -326,7 +326,7 @@ public class ContainerManager implements Lifecycle {
                 .stream()
                 .map(Container::getId)
                 .sorted()
-                .collect(toList());
+                .toList();
     }
 
     public String getPluginsHash() {
