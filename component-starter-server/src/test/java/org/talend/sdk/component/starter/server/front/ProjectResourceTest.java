@@ -158,7 +158,7 @@ class ProjectResourceTest {
                         "application/README.adoc")
                 .collect(toSet()), files.keySet());
         Stream
-                .of("component-api", "<source>1.8</source>", "<trimStackTrace>false</trimStackTrace>")
+                .of("component-api", "<source>17</source>", "<trimStackTrace>false</trimStackTrace>")
                 .forEach(token -> assertTrue(files.get("application/pom.xml").contains(token), token));
         assertEquals("= A Talend generated Component Starter Project\n", files.get("application/README.adoc"));
         final ServerInfo.Snapshot snapshot = versions.getSnapshot();
@@ -333,7 +333,7 @@ class ProjectResourceTest {
                         "application/README.adoc")
                 .collect(toSet()), files.keySet());
         Stream
-                .of("component-api", "<source>1.8</source>", "<trimStackTrace>false</trimStackTrace>")
+                .of("component-api", "<trimStackTrace>false</trimStackTrace>")
                 .forEach(token -> assertTrue(files.get("application/pom.xml").contains(token), token));
         assertEquals("= A Talend generated Component Starter Project\n" + "\n" + "== Test\n" + "\n"
                 + "=== Talend Component Kit Testing\n" + "\n"
