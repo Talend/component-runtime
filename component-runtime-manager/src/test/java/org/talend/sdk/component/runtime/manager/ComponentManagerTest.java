@@ -19,7 +19,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -465,9 +464,9 @@ class ComponentManagerTest {
                 .map(ContainerComponentRegistry::getComponents)
                 .flatMap(comps -> comps.values().stream())
                 .flatMap(family -> family.getProcessors().values().stream())
-                .collect(toList());
+                .toList();
         assertEquals(asList("proc", "second"),
-                processors.stream().map(ComponentFamilyMeta.ProcessorMeta::getName).sorted().collect(toList()));
+                processors.stream().map(ComponentFamilyMeta.ProcessorMeta::getName).sorted().toList());
         return container;
     }
 
@@ -500,7 +499,7 @@ class ComponentManagerTest {
             throws Exception {
         Stream.of(plugin1, plugin2).map(File::getAbsolutePath).forEach(manager::addPlugin);
         final List<ContainerComponentRegistry> registries =
-                manager.find(c -> Stream.of(c.get(ContainerComponentRegistry.class))).collect(toList());
+                manager.find(c -> Stream.of(c.get(ContainerComponentRegistry.class))).toList();
         assertEquals(2, registries.size()); // we saw both plugin
 
         registries.forEach(registry -> {

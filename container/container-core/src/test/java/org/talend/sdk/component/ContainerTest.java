@@ -16,7 +16,6 @@
 package org.talend.sdk.component;
 
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -54,7 +53,7 @@ public class ContainerTest {
     void findDependencies(
             @ContainerProviderRule.Instance("org.apache.xbean:xbean-finder:jar:4.9:runtime") final Container xbeanFinder) {
         assertEquals(singletonList("org.apache.xbean:xbean-finder:jar:4.9"),
-                xbeanFinder.findDependencies().map(Artifact::toCoordinate).collect(toList()));
+                xbeanFinder.findDependencies().map(Artifact::toCoordinate).toList());
     }
 
     @Test

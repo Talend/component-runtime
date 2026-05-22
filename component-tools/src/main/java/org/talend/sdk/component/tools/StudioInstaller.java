@@ -16,7 +16,6 @@
 package org.talend.sdk.component.tools;
 
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -73,7 +72,7 @@ public class StudioInstaller implements Runnable {
     public void run() {
         log.info("Installing development version of " + mainGav + " in " + studioHome);
 
-        final List<String> artifacts = this.artifacts.values().stream().map(File::getName).collect(toList());
+        final List<String> artifacts = this.artifacts.values().stream().map(File::getName).toList();
         final String mvnMeta[] = mainGav.split(":");
         final String artifact = mvnMeta[1];
         final String version = mvnMeta[2];

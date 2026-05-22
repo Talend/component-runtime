@@ -20,7 +20,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.list;
 import static java.util.Locale.ENGLISH;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
 
 import java.io.BufferedInputStream;
@@ -86,7 +85,7 @@ public class AsciidoctorExecutor implements AutoCloseable {
         final Path adoc = PathFactory.get(args[0]).toAbsolutePath();
         final File output =
                 adoc.getParent().resolve(args.length > 1 ? args[1] : args[0].replace(".adoc", ".pdf")).toFile();
-        final List<String> lines = Files.lines(adoc).collect(toList());
+        final List<String> lines = Files.lines(adoc).toList();
         final String version = lines
                 .stream()
                 .filter(it -> it.startsWith("v"))

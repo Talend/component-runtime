@@ -246,7 +246,7 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
                                     return !delegate.include(artifact);
                                 }
                             } : newScopeFilter(singleScope))
-                            .collect(toList()));
+                            .toList());
         }
         return new AndArtifactFilter(filters);
     }

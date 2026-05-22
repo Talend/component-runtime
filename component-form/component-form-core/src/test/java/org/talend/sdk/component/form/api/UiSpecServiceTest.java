@@ -23,7 +23,6 @@ import static java.util.Collections.singletonMap;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -48,7 +47,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.json.bind.Jsonb;
@@ -288,7 +286,7 @@ class UiSpecServiceTest {
                         .getItems()
                         .stream()
                         .map(UiSchema::getTitle)
-                        .collect(toList()));
+                        .toList());
     }
 
     @Test
@@ -327,7 +325,7 @@ class UiSpecServiceTest {
                 .map(UiSchema::getKey)
                 .filter(Objects::nonNull)
                 .map(s -> s.substring(s.lastIndexOf('.') + 1))
-                .collect(toList());
+                .toList();
         assertEquals(asList("region", "unknownRegion", "bucket", "object", "encryptDataAtRest", "kmsForDataAtRest",
                 "format", "recordDelimiter", "specificRecordDelimiter", "fieldDelimiter", "specificFieldDelimiter",
                 "limit"), actualOrder);
@@ -462,7 +460,7 @@ class UiSpecServiceTest {
 
         assertEquals(5, tableDataSetMain.getItems().size());
         assertEquals(asList("dataStore", "commonConfig", "Query", "Ordered", "Order"),
-                tableDataSetMain.getItems().stream().map(UiSchema::getTitle).collect(toList()));
+                tableDataSetMain.getItems().stream().map(UiSchema::getTitle).toList());
 
         final Iterator<UiSchema> mainIt = tableDataSetMain.getItems().iterator();
         final UiSchema dataStore = mainIt.next();
@@ -471,7 +469,7 @@ class UiSpecServiceTest {
         final UiSchema credentials = dataStoreIt.next();
         assertEquals("columns", credentials.getWidget());
         assertEquals(asList("Username", "Password"),
-                credentials.getItems().stream().map(UiSchema::getTitle).collect(toList()));
+                credentials.getItems().stream().map(UiSchema::getTitle).toList());
 
         final UiSchema tableDataSetAdvanced = tableDataSetIt.next();
         assertEquals("Advanced", tableDataSetAdvanced.getTitle());
@@ -539,7 +537,7 @@ class UiSpecServiceTest {
         assertEquals("SuggestionForJdbcDrivers", driverTrigger.getAction());
         assertNull(driverTrigger.getRemote());
         assertEquals(singletonList("currentValue/configuration.driver"),
-                driverTrigger.getParameters().stream().map(it -> it.getKey() + '/' + it.getPath()).collect(toList()));
+                driverTrigger.getParameters().stream().map(it -> it.getKey() + '/' + it.getPath()).toList());
 
         assertEquals("change", triggers.next().getOnEvent());
     }
@@ -658,7 +656,7 @@ class UiSpecServiceTest {
                                     .getTitleMap()
                                     .stream()
                                     .map(UiSchema.NameValue.class::cast)
-                                    .collect(Collectors.toList());
+                                    .toList();
                             assertEquals(1, titleMap.size());
                             final UiSchema.NameValue firstTitleMap = titleMap.iterator().next();
                             assertEquals("some.driver.Jdbc", firstTitleMap.getValue());

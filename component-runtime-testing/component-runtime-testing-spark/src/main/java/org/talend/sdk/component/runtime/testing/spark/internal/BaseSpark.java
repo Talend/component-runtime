@@ -21,7 +21,6 @@ import static java.util.Locale.ENGLISH;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.ziplock.JarLocation.jarLocation;
 
@@ -196,7 +195,7 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
                         () -> isOpen(host, slavePort), "org.apache.spark.deploy.worker.Worker", "--host", host,
                         "--port", Integer.toString(slavePort), "--webui-port", Integer.toString(slavePort + 1),
                         getSparkMaster());
-            }).collect(toList());
+            }).toList();
             slaves.stream().peek(s -> closingTasks.add(s::close)).map(m -> new Thread(m::close)).forEach(t -> {
                 Runtime.getRuntime().addShutdownHook(t);
                 closingTasks.add(() -> Runtime.getRuntime().removeShutdownHook(t));
@@ -629,7 +628,7 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
                                         .of(new File(System.getProperty("java.home"), "bin/java").getAbsolutePath(),
                                                 "-cp", classpath),
                                         Stream.of(mainAndArgs))
-                                .collect(toList()));
+                                .toList());
                 final Map<String, String> environment = builder.environment();
                 final String jvmVersion = System.getProperty("java.version", "1.8");
                 // poor check - suppose using at least jvm 8...

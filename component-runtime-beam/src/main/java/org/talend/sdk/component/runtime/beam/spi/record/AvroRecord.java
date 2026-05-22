@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static org.talend.sdk.component.api.record.SchemaCompanionUtil.sanitizeName;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
 
@@ -31,7 +30,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.json.bind.annotation.JsonbTransient;
 
@@ -110,7 +108,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         }
 
         if (value instanceof Collection) {
-            return Collection.class.cast(value).stream().map(v -> this.directMapping(v, entry)).collect(toList());
+            return Collection.class.cast(value).stream().map(v -> this.directMapping(v, entry)).toList();
         }
         if (value instanceof RecordImpl) {
             return new AvroRecord((Record) value).delegate;
@@ -225,7 +223,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     private <T> Collection<T> doMapCollection(final Class<T> type, final Collection<?> collection,
             final org.apache.avro.Schema elementType) {
         return ofNullable(collection)
-                .map(c -> c.stream().map(item -> doMap(type, elementType, item)).collect(toList()))
+                .map(c -> c.stream().map(item -> doMap(type, elementType, item)).toList())
                 .orElse(null);
     }
 
@@ -297,12 +295,12 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
         if (value instanceof GenericArray && !GenericArray.class.isAssignableFrom(expectedType)) {
             if (ZonedDateTime.class == expectedType) {
-                List<Long> longs = (List) Collection.class.cast(value).stream().collect(Collectors.toList());
+                List<Long> longs = (List) Collection.class.cast(value).stream().toList();
                 final Instant instant = Instant.ofEpochSecond(longs.get(0), longs.get(1));
                 return expectedType.cast(ZonedDateTime.ofInstant(instant, UTC));
             }
             if (Instant.class == expectedType) {
-                List<Long> longs = (List) Collection.class.cast(value).stream().collect(Collectors.toList());
+                List<Long> longs = (List) Collection.class.cast(value).stream().toList();
                 final Instant instant = Instant.ofEpochSecond(longs.get(0), longs.get(1));
                 return expectedType.cast(instant);
             }
