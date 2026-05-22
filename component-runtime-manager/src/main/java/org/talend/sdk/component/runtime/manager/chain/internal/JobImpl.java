@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.manager.chain.internal;
 
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
@@ -148,7 +149,7 @@ public class JobImpl implements Job {
                     .filter(n -> edges
                             .stream()
                             .noneMatch(l -> l.getFrom().getNode().equals(n) || l.getTo().getNode().equals(n)))
-                    .toList();
+                    .collect(toList());
             orphans.forEach(o -> log.warn("component '" + o + "' is orphan in this graph. it will be ignored."));
             nodes.removeAll(orphans);
 
@@ -181,7 +182,7 @@ public class JobImpl implements Job {
                             .filter(others -> edge.getTo().getNode().equals(others.getTo().getNode()))
                             .map(others -> others.getFrom().getNode())
                             .allMatch(startingNodes::contains))
-                    .toList();
+                    .collect(toList());
             if (level.isEmpty()) {
                 throw new IllegalStateException("the job pipeline has cyclic connection");
             }
@@ -533,7 +534,7 @@ public class JobImpl implements Job {
 
         private List<Job.Edge> getConnections(final List<Job.Edge> edges, final Job.Component step,
                 final Function<Edge, Component> direction) {
-            return edges.stream().filter(edge -> direction.apply(edge).equals(step)).toList();
+            return edges.stream().filter(edge -> direction.apply(edge).equals(step)).collect(toList());
         }
 
         public GroupKeyProvider getKeyProvider(final String componentId) {

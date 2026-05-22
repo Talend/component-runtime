@@ -17,6 +17,7 @@ package org.talend.sdk.component.test.connectors.service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.service.Service;
@@ -65,7 +66,7 @@ public class ActionsServices {
                 .stream()
                 .map(i -> String.valueOf(i))
                 .map(i -> new Item(i, i18n.entityName(i)))
-                .toList();
+                .collect(Collectors.toList());
 
         return new SuggestionValues(true, entities);
     }

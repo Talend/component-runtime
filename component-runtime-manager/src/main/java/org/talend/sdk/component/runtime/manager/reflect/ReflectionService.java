@@ -204,7 +204,7 @@ public class ReflectionService {
                     }
 
                     throw new IllegalArgumentException("Unsupported type: " + parameterizedType);
-                }).toList();
+                }).collect(toList());
 
         return config -> {
             final Map<String, String> notNullConfig = ofNullable(config).orElseGet(Collections::emptyMap);

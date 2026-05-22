@@ -22,6 +22,7 @@ import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.PACKAGE;
 
@@ -420,7 +421,7 @@ public class VirtualDependenciesService {
         @Override
         public Collection<Artifact> findContributions(final String pluginId) {
             delegate.onDeploy(pluginId);
-            return delegate.userArtifactsFor(pluginId).toList();
+            return delegate.userArtifactsFor(pluginId).collect(toList());
         }
 
         @Override

@@ -17,6 +17,7 @@ package org.talend.sdk.component.starter.server.service.facet.component;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.talend.sdk.component.starter.server.service.Strings.capitalize;
 
@@ -117,7 +118,7 @@ class ComponentGeneratorConfigurationTest {
                                         .stream()
                                         .map(e -> new ComponentGenerator.Property(e.getName(), capitalize(e.getName()),
                                                 e.getType(), false))
-                                        .toList());
+                                        .collect(toList()));
                     }
                 });
         assertEquals(scenario.expectedOutput, result);

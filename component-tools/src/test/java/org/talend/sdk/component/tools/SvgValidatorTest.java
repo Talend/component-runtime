@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.tools;
 
+import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -80,7 +81,7 @@ class SvgValidatorTest {
     }
 
     private List<String> doValidate(final String name, final int count, final Boolean legacyMode) {
-        final List<String> errors = new SvgValidator(legacyMode).validate(icon(name)).toList();
+        final List<String> errors = new SvgValidator(legacyMode).validate(icon(name)).collect(toList());
         assertEquals(count, errors.size());
         return errors;
     }

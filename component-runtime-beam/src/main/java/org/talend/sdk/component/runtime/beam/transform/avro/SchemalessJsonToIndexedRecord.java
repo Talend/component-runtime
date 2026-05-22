@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.beam.transform.avro;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 
 import javax.json.JsonArray;
 import javax.json.JsonNumber;
@@ -97,7 +98,7 @@ public class SchemalessJsonToIndexedRecord extends PTransform<PCollection<JsonOb
                             .stream()
                             .map(it -> new Schema.Field(it.getKey(),
                                     guessSchema(buildNextName(recordName, it.getKey()), it.getValue()), null, null))
-                            .toList());
+                            .collect(toList()));
                     return record;
                 case ARRAY:
                     final JsonArray array = element.asJsonArray();

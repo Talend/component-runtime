@@ -401,13 +401,13 @@ public class ComponentManager implements AutoCloseable {
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 
         internationalizationServiceFactory = new InternationalizationServiceFactory(getLocalSupplier());
-        customizers = toStream(loadServiceProviders(Customizer.class, tccl)).toList(); // must stay first
+        customizers = toStream(loadServiceProviders(Customizer.class, tccl)).collect(toList()); // must stay first
         if (!customizers.isEmpty()) {
             customizers.forEach(c -> c.setCustomizers(customizers));
         }
         if (!Boolean.getBoolean("talend.component.manager.classpathcontributor.skip")) {
             classpathContributors =
-                    toStream(loadServiceProviders(ContainerClasspathContributor.class, tccl)).toList();
+                    toStream(loadServiceProviders(ContainerClasspathContributor.class, tccl)).collect(toList());
         } else {
             classpathContributors = emptyList();
         }
@@ -504,8 +504,8 @@ public class ComponentManager implements AutoCloseable {
         this.extensions = toStream(loadServiceProviders(ComponentExtension.class, tccl))
                 .filter(ComponentExtension::isActive)
                 .sorted(comparing(ComponentExtension::priority))
-                .toList();
-        this.transformers = extensions.stream().flatMap(e -> e.getTransformers().stream()).toList();
+                .collect(toList());
+        this.transformers = extensions.stream().flatMap(e -> e.getTransformers().stream()).collect(toList());
 
         final Iterator<RecordBuilderFactoryProvider> recordBuilderFactoryIterator =
                 ServiceLoader.load(RecordBuilderFactoryProvider.class, tccl).iterator();
@@ -711,7 +711,7 @@ public class ComponentManager implements AutoCloseable {
                         return id;
                     })
                     .filter(Objects::nonNull)
-                    .toList();
+                    .collect(toList());
         }
         return emptyList();
     }
@@ -1033,7 +1033,7 @@ public class ComponentManager implements AutoCloseable {
                 .stream()
                 .flatMap(it -> it.findContributions(pluginId).stream())
                 .distinct()
-                .toList()/* keep order */;
+                .collect(toList())/* keep order */;
     }
 
     public void removePlugin(final String id) {
@@ -1111,7 +1111,7 @@ public class ComponentManager implements AutoCloseable {
             configurations
                     .addAll(toStream(
                             loadServiceProviders(LocalConfiguration.class, LocalConfiguration.class.getClassLoader()))
-                            .toList());
+                            .collect(toList()));
         }
         configurations.addAll(asList(new LocalConfiguration() {
 
@@ -1324,7 +1324,7 @@ public class ComponentManager implements AutoCloseable {
                                 } catch (final ClassNotFoundException e) {
                                     throw new IllegalArgumentException(e);
                                 }
-                            }).toList();
+                            }).collect(toList());
                     if (KnownClassesFilter.INSTANCE == filter) {
                         archive = new ClassesArchive(/* empty */);
                         optimizedFinder = new AnnotationFinder(archive) {
@@ -1343,7 +1343,7 @@ public class ComponentManager implements AutoCloseable {
                                             .flatMap(client -> Stream
                                                     .of(client.getMethods())
                                                     .filter(m -> m.isAnnotationPresent(annotation)))
-                                            .toList();
+                                            .collect(toList());
                                 }
                                 return super.findAnnotatedMethods(annotation);
                             }
@@ -1481,7 +1481,7 @@ public class ComponentManager implements AutoCloseable {
                                         .anyMatch(a -> a.annotationType().isAnnotationPresent(ActionType.class)))
                                 .map(serviceMethod -> createServiceMeta(container, services, componentDefaults, service,
                                         instance, serviceMethod, service))
-                                .toList()));
+                                .collect(toList())));
                 info("Added @Service " + service + " for container-id=" + container.getId());
             });
 
@@ -1744,7 +1744,7 @@ public class ComponentManager implements AutoCloseable {
                     } catch (final MalformedURLException e) {
                         throw new IllegalStateException(e);
                     }
-                }).toList());
+                }).collect(toList()));
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Error scanning " + module, e);
             }

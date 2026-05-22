@@ -16,6 +16,7 @@
 package org.talend.sdk.component.server.service;
 
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
 import java.util.Map;
@@ -47,7 +48,7 @@ public class PropertyValidationService {
                     } else if (Boolean.class == f.getType()) {
                         valueConverter = Boolean::parseBoolean;
                     } else if (Collection.class == f.getType()) {
-                        valueConverter = s -> Stream.of(s.split(",")).toList();
+                        valueConverter = s -> Stream.of(s.split(",")).collect(toList());
                     } else {
                         valueConverter = s -> s;
                     }
@@ -66,7 +67,7 @@ public class PropertyValidationService {
                                         return true;
                                     })
                                     .orElse(false);
-                }).toList();
+                }).collect(toList());
         propertyValidationCreator = config -> {
             final PropertyValidation validation = new PropertyValidation();
             if (validationSetters.stream().filter(s -> s.apply(validation, config)).count() == 0) {

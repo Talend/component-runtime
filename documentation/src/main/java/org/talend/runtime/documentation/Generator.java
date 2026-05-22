@@ -475,7 +475,7 @@ public class Generator {
             final List<JiraVersion> jiraLoggedVersions = versions
                     .stream()
                     .filter(v -> (v.isReleased() || jiraVersionMatches(version, v.getName())))
-                    .toList();
+                    .collect(toList());
             if (jiraLoggedVersions.isEmpty()) {
                 try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
                     stream.println("No version found.");
@@ -536,7 +536,7 @@ public class Generator {
             final List<JiraVersion> queriedVersion = jiraLoggedVersions
                     .stream()
                     .filter(it -> !changelogPerVersion.containsKey(it.getName()) || version.equals(it.getName()))
-                    .toList();
+                    .collect(toList());
             final Map<String, TreeMap<String, List<JiraIssue>>> issues = IntStream
                     .range(0, (queriedVersion.size() + maxVersionPerQuery - 1) / maxVersionPerQuery)
                     .mapToObj(pageIdx -> queriedVersion

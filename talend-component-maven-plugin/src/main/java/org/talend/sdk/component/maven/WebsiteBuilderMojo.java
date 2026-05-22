@@ -19,6 +19,7 @@ import static java.util.Collections.singleton;
 import static java.util.Collections.singletonMap;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
 import static org.talend.sdk.component.maven.api.Audience.Type.TALEND_INTERNAL;
 
@@ -408,7 +409,7 @@ public class WebsiteBuilderMojo extends ComponentDependenciesBase {
                 .filter(it -> "jar".equals(it.getPackaging()))
                 .map(project -> new Project(project, toCarPath(project)))
                 .filter(p -> Files.exists(p.car))
-                .toList();
+                .collect(toList());
     }
 
     private Path mkdirs(final Path root) {

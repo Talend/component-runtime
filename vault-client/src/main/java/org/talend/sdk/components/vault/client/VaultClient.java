@@ -216,7 +216,7 @@ public class VaultClient {
                 .stream()
                 .filter(entry -> compiledPassthroughRegex.matcher(entry.getValue()).matches())
                 .map(cyphered -> cyphered.getKey())
-                .toList();
+                .collect(toList());
         if (cipheredKeys.isEmpty()) {
             return values;
         }
@@ -226,7 +226,7 @@ public class VaultClient {
 
     private CompletableFuture<Map<String, String>> prepareRequest(final Map<String, String> values,
             final List<String> cipheredKeys, final String tenantId) {
-        return get(cipheredKeys.stream().map(values::get).toList(), clock.millis(), tenantId)
+        return get(cipheredKeys.stream().map(values::get).collect(toList()), clock.millis(), tenantId)
                 .thenApply(decrypted -> values
                         .entrySet()
                         .stream()
@@ -245,13 +245,13 @@ public class VaultClient {
                 .stream()
                 .map(it -> new EntryWithIndex<>(index.getAndIncrement(), it))
                 .filter(it -> it.entry != null && !compiledPassthroughRegex.matcher(it.entry).matches())
-                .toList();
+                .collect(toList());
         if (clearValues.isEmpty()) {
             return doDecipher(values, currentTime, tenantId).toCompletableFuture();
         }
         if (clearValues.size() == values.size()) {
             final long now = clock.millis();
-            return completedFuture(values.stream().map(it -> new DecryptedValue(it, now)).toList());
+            return completedFuture(values.stream().map(it -> new DecryptedValue(it, now)).collect(toList()));
         }
         return doDecipher(values, currentTime, tenantId).thenApply(deciphered -> {
             final long now = clock.millis();
@@ -269,9 +269,9 @@ public class VaultClient {
                 .stream()
                 .filter(it -> !it.getValue().isPresent())
                 .map(Map.Entry::getKey)
-                .toList();
+                .collect(toList());
         if (missing.isEmpty()) { // no remote call, yeah
-            return completedFuture(values.stream().map(alreadyCached::get).map(Optional::get).toList());
+            return completedFuture(values.stream().map(alreadyCached::get).map(Optional::get).collect(toList()));
         }
         // do request
         return getOrRequestAuth()

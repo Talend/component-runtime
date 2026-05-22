@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.json.Json;
@@ -114,7 +115,7 @@ class RecordServiceImplTest {
                                                                                     .of(args)
                                                                                     .filter(it -> !Schema.Entry.class
                                                                                             .isInstance(it))
-                                                                                    .toList()));
+                                                                                    .collect(Collectors.toList())));
                                                     switch (method.getName()) {
                                                         case "get":
                                                             return out.incrementAndGet();

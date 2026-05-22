@@ -414,7 +414,7 @@ public class ComponentManagerService {
                     .stream()
                     .flatMap(c -> c.getActions().stream())
                     .map(actionDao::createOrUpdate)
-                    .toList();
+                    .collect(toList());
 
             final Collection<String> families = plugin
                     .get(ContainerComponentRegistry.class)
@@ -422,18 +422,18 @@ public class ComponentManagerService {
                     .values()
                     .stream()
                     .map(componentFamilyDao::createOrUpdate)
-                    .toList();
+                    .collect(toList());
 
             final Collection<String> configs = ofNullable(plugin.get(RepositoryModel.class))
                     .map(r -> r
                             .getFamilies()
                             .stream()
                             .flatMap(f -> configAsStream(f.getConfigs().get().stream()))
-                            .toList())
+                            .collect(toList()))
                     .orElse(emptyList())
                     .stream()
                     .map(configurationDao::createOrUpdate)
-                    .toList();
+                    .collect(toList());
 
             return () -> {
                 virtualDependenciesService.onUnDeploy(plugin);

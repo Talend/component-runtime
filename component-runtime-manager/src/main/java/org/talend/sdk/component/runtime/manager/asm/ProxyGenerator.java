@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager.asm;
 
+import static java.util.stream.Collectors.toList;
 import static org.apache.xbean.asm9.ClassReader.SKIP_CODE;
 import static org.apache.xbean.asm9.ClassReader.SKIP_DEBUG;
 import static org.apache.xbean.asm9.ClassReader.SKIP_FRAMES;
@@ -581,7 +582,7 @@ public class ProxyGenerator implements Serializable {
         final Method[] interceptedMethods;
         if (hasInterceptors) {
             final Collection<Annotation> globalInterceptors =
-                    Stream.of(classToProxy.getAnnotations()).filter(this::isInterceptor).toList();
+                    Stream.of(classToProxy.getAnnotations()).filter(this::isInterceptor).collect(toList());
             final AtomicInteger methodIndex = new AtomicInteger();
             interceptedMethods = Stream
                     .of(classToProxy.getMethods())

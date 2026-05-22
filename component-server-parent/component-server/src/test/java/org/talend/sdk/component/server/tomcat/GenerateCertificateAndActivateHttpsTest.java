@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.server.tomcat;
 
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -54,7 +55,7 @@ class GenerateCertificateAndActivateHttpsTest {
                 return (Runnable) () -> System.clearProperty(it.getKey());
             }
             return (Runnable) () -> System.setProperty(it.getKey(), property);
-        }).toList();
+        }).collect(toList());
         try {
             final Meecrowave.Builder builder = new Meecrowave.Builder();
             assertTrue(cert.exists());

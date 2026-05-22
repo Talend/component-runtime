@@ -16,6 +16,7 @@
 package org.talend.sdk.component.form.internal.converter.impl.widget;
 
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
 import java.util.List;
@@ -68,7 +69,7 @@ public class MultiSelectWidgetConverter extends AbstractWidgetConverter {
                         loadDynamicValues(client, family, actionName, context.getRootContext());
                 return pairs.thenApply(namedValues -> {
                     schema.setTitleMap(namedValues);
-                    jsonSchema.setEnumValues(namedValues.stream().map(UiSchema.NameValue::getValue).toList());
+                    jsonSchema.setEnumValues(namedValues.stream().map(UiSchema.NameValue::getValue).collect(toList()));
                     return context;
                 });
             } else {

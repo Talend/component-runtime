@@ -16,6 +16,7 @@
 package org.talend.sdk.component.form.internal.converter.impl.schema;
 
 import static java.util.Locale.ROOT;
+import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
 import java.util.List;
@@ -49,7 +50,7 @@ public class ArrayPropertyConverter implements PropertyConverter {
             jsonSchema.setType(context.getProperty().getType().toLowerCase(ROOT));
             final String prefix = context.getProperty().getPath() + "[]";
             final List<SimplePropertyDefinition> arrayElements =
-                    properties.stream().filter(child -> child.getPath().startsWith(prefix)).toList();
+                    properties.stream().filter(child -> child.getPath().startsWith(prefix)).collect(toList());
 
             if (arrayElements.stream().anyMatch(e -> e.getPath().startsWith(prefix + '.'))) { // complex object
                 final JsonSchema items = new JsonSchema();

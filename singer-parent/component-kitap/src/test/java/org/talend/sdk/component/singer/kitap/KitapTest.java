@@ -16,6 +16,7 @@
 package org.talend.sdk.component.singer.kitap;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
@@ -132,7 +133,7 @@ class KitapTest {
 
         try (final BufferedReader reader =
                 new BufferedReader(new StringReader(stdout.toString(StandardCharsets.UTF_8)))) {
-            final List<String> actuals = reader.lines().toList();
+            final List<String> actuals = reader.lines().collect(toList());
             assertLinesMatch(asList(
                     "{\"type\":\"SCHEMA\",\"stream\":\"default\",\"schema\":{\"type\":[\"null\",\"object\"],\"additionalProperties\":false,\"properties\":{\"record_number\":{\"type\":[\"integer\"]}}},\"key_properties\":[],\"bookmark_properties\":[]}",
                     "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000000Z\",\"record\":{\"record_number\":1}}",
@@ -150,7 +151,7 @@ class KitapTest {
         try (final BufferedReader reader =
                 new BufferedReader(new StringReader(stderr.toString(StandardCharsets.UTF_8)))) {
             List<String> expected = Arrays.asList("log4j error", "logback error", "jul error");
-            final List<String> actuals = reader.lines().toList();
+            final List<String> actuals = reader.lines().collect(toList());
             for (String end : expected) {
                 Optional<String> any = actuals.stream().filter(l -> l.endsWith(end)).findAny();
                 Assertions.assertTrue(any.isPresent(), String.format("Can't find '%s' in error logs.", end));

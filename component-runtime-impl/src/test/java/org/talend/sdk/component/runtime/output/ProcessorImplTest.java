@@ -19,6 +19,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -63,7 +64,7 @@ class ProcessorImplTest {
             final Collection<Record> data = IntStream
                     .rangeClosed(1, 3)
                     .mapToObj(idx -> new RecordImpl.BuilderImpl().withInt("value", idx).build())
-                    .toList();
+                    .collect(toList());
             processor.beforeGroup();
             data.forEach(it -> processor.onNext(n -> it, null));
             assertNull(Bufferized.RECORDS);

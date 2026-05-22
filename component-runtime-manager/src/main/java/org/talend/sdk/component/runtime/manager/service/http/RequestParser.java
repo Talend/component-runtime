@@ -422,7 +422,7 @@ public class RequestParser {
                     case MULTI:
                         return collection.map(q -> new AbstractMap.SimpleEntry<>(key, q));
                     case CSV:
-                        return of(new AbstractMap.SimpleEntry<>(key, String.join(",", collection.toList())));
+                        return of(new AbstractMap.SimpleEntry<>(key, String.join(",", collection.collect(toList()))));
                     default:
                         throw new IllegalArgumentException("Unsupported formatting: " + config);
                 }

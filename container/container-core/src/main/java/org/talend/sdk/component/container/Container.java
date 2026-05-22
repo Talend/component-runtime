@@ -19,6 +19,7 @@ import static java.lang.reflect.Proxy.newProxyInstance;
 import static java.util.Collections.list;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.talend.sdk.component.container.Container.State.CREATED;
 
@@ -104,7 +105,7 @@ public class Container implements Lifecycle {
         ofNullable(initializer).ifPresent(i -> i.accept(this));
 
         this.classloaderProvider = () -> {
-            final List<Path> existingClasspathFiles = findExistingClasspathFiles().toList();
+            final List<Path> existingClasspathFiles = findExistingClasspathFiles().collect(toList());
             final URL[] urls = existingClasspathFiles.stream().peek(this::visitLastModified).map(f -> {
                 try {
                     return f.toUri().toURL();

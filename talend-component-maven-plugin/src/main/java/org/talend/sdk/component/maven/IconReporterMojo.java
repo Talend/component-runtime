@@ -18,6 +18,7 @@ package org.talend.sdk.component.maven;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
@@ -163,7 +164,7 @@ public class IconReporterMojo extends ClasspathMojoBase {
                 final boolean isCustom = iconFinder.isCustom(iconFinder.extractIcon(elt));
                 final String name = iconFinder.findIcon(elt);
                 return new IconModel(project.getArtifactId(), name, findIcon(name), isCustom);
-            }).toList();
+            }).collect(toList());
             final GlobalReporter reporter = getReporter();
             synchronized (reporter) {
                 reporter.icons.addAll(foundIcons);

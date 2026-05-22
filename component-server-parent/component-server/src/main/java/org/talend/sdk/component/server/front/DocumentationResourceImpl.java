@@ -253,7 +253,7 @@ public class DocumentationResourceImpl implements DocumentationResource {
     String selectById(final String name, final String value, final DocumentationSegment segment) {
         final List<String> lines;
         try (final BufferedReader reader = new BufferedReader(new StringReader(value))) {
-            lines = reader.lines().toList();
+            lines = reader.lines().collect(toList());
         } catch (final IOException e) {
             throw new IllegalArgumentException(e);
         }

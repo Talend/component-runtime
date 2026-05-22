@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
@@ -42,7 +43,7 @@ public class FixedSchemaValidator implements Validator {
                 .filter(e -> e.getValue().isEmpty())
                 .map(e -> String.format("Empty @FixedSchema annotation's value in class %s.",
                         e.getKey().getSimpleName()))
-                .toList());
+                .collect(Collectors.toList()));
         // search for missing methods
         final List<String> methods = Stream
                 .concat(finder.findAnnotatedMethods(DiscoverSchema.class)
@@ -51,14 +52,14 @@ public class FixedSchemaValidator implements Validator {
                         finder.findAnnotatedMethods(DiscoverSchemaExtended.class)
                                 .stream()
                                 .map(m -> m.getDeclaredAnnotation(DiscoverSchemaExtended.class).value()))
-                .toList();
+                .collect(Collectors.toList());
         errors.addAll(classes.entrySet()
                 .stream()
                 .filter(e -> !e.getValue().isEmpty())
                 .filter(e -> !methods.contains(e.getValue()))
                 .map(e -> String.format("@FixedSchema '%s' in class %s is not declared anywhere as DiscoverSchema*.",
                         e.getValue(), e.getKey().getSimpleName()))
-                .toList());
+                .collect(Collectors.toList()));
 
         return errors.stream();
     }

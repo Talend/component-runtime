@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.di.beam;
 
+import static java.util.stream.Collectors.toList;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -45,7 +47,7 @@ public class DelegatingBoundedSource<T> extends BoundedSource<T> implements Sett
         final List<? extends BoundedSource<T>> sources = delegate.split(desiredBundleSizeBytes, options);
         listener.onSplit(sources.size());
         log.debug("Split {} in {} sources ({})", delegate, sources.size(), sources);
-        return sources.stream().map(s -> new DelegatingBoundedSource<>(s, listener)).toList();
+        return sources.stream().map(s -> new DelegatingBoundedSource<>(s, listener)).collect(toList());
     }
 
     @Override

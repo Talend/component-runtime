@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.maven;
 
+import static java.util.stream.Collectors.toList;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
 import static org.talend.sdk.component.maven.api.Audience.Type.PUBLIC;
@@ -61,7 +62,7 @@ public class ScanDescriptorMojo extends ClasspathMojoBase {
 
     @Override
     public void doExecute() {
-        new ScanTask(Stream.concat(getDirectoriesToScan(), getJarToScan(scannedDependencies)).toList(),
+        new ScanTask(Stream.concat(getDirectoriesToScan(), getJarToScan(scannedDependencies)).collect(toList()),
                 getExcludes(excludes, sharedExcludes), includes, filterStrategy, output).run();
     }
 

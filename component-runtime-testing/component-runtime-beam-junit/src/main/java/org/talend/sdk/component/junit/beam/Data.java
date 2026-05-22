@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.junit.beam;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
@@ -110,7 +111,7 @@ public class Data {
                                                 .cast(converters
                                                         .toRecord(REGISTRY, it, () -> jsonb,
                                                                 () -> recordBuilderFactory)))
-                                        .toList();
+                                        .collect(toList());
                                 aggregator
                                         .withArray(recordBuilderFactory
                                                 .newEntryBuilder()

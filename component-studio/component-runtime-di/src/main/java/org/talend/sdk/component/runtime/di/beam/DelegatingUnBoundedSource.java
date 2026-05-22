@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.di.beam;
 
+import static java.util.stream.Collectors.toList;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -42,7 +44,7 @@ public class DelegatingUnBoundedSource<A, B extends UnboundedSource.CheckpointMa
             throws Exception {
         final List<? extends UnboundedSource<A, B>> sources = delegate.split(desiredNumSplits, options);
         listener.onSplit(sources.size());
-        return sources.stream().map(s -> new DelegatingUnBoundedSource<>(s, listener)).toList();
+        return sources.stream().map(s -> new DelegatingUnBoundedSource<>(s, listener)).collect(toList());
     }
 
     @Override

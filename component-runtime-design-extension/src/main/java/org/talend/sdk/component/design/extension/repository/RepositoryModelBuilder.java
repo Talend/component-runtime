@@ -17,6 +17,7 @@ package org.talend.sdk.component.design.extension.repository;
 
 import static java.util.Collections.singletonList;
 import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.runtime.manager.util.Lazy.lazy;
 
@@ -59,7 +60,7 @@ public class RepositoryModelBuilder {
         final List<Family> families = familyMetas
                 .stream()
                 .map(familyMeta -> createConfigForFamily(services, migrationHandlerFactory, familyMeta))
-                .toList();
+                .collect(toList());
         return new RepositoryModel(families);
     }
 
@@ -168,7 +169,7 @@ public class RepositoryModelBuilder {
                         .getNestedParameters()
                         .stream()
                         .map(it -> translate(it, replacedPrefixLen, newPrefix))
-                        .toList(),
+                        .collect(toList()),
                 config.getProposals(), config.getMetadata(), config.isLogMissingResourceBundle());
     }
 }

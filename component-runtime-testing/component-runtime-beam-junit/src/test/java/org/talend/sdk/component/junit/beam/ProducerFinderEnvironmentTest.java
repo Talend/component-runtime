@@ -17,6 +17,7 @@ package org.talend.sdk.component.junit.beam;
 
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -145,7 +146,7 @@ public class ProducerFinderEnvironmentTest implements Serializable {
                 .mapToObj(i -> factory.newRecordBuilder()
                         .withString("id", "id_" + i)
                         .build())
-                .toList();
+                .collect(toList());
         PAssert.that(out).containsInAnyOrder(records);
         Assertions.assertEquals(PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
     }
@@ -213,7 +214,7 @@ public class ProducerFinderEnvironmentTest implements Serializable {
                     .mapToObj(i -> recordBuilderFactory.newRecordBuilder()
                             .withString("id", "id_" + i)
                             .build())
-                    .toList())
+                    .collect(toList()))
                     .withCoder(SchemaRegistryCoder.of()));
         }
     }

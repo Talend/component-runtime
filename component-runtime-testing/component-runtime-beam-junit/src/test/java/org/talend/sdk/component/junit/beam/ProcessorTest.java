@@ -16,6 +16,7 @@
 package org.talend.sdk.component.junit.beam;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -66,7 +67,7 @@ public class ProcessorTest {
                 inputs.apply(TalendFn.asFn(processor)).apply(Data.map(processor.plugin(), Record.class));
 
         PAssert.that(outputs).satisfies((SerializableFunction<Iterable<Map<String, Record>>, Void>) input -> {
-            final List<Map<String, Record>> result = StreamSupport.stream(input.spliterator(), false).toList();
+            final List<Map<String, Record>> result = StreamSupport.stream(input.spliterator(), false).collect(toList());
 
             assertEquals(2, result.size());
             result.forEach(e -> assertTrue(e.containsKey("__default__") && e.containsKey("reject")));

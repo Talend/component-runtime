@@ -18,6 +18,7 @@ package org.talend.sdk.component.tools.validator;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class DataStoreValidator implements Validator {
         final List<Class<?>> datastoreClasses = finder.findAnnotatedClasses(DataStore.class);
 
         final List<String> datastores =
-                datastoreClasses.stream().map(d -> d.getAnnotation(DataStore.class).value()).toList();
+                datastoreClasses.stream().map(d -> d.getAnnotation(DataStore.class).value()).collect(toList());
 
         Set<String> uniqueDatastores = new HashSet<>(datastores);
         if (datastores.size() != uniqueDatastores.size()) {
@@ -72,7 +73,7 @@ public class DataStoreValidator implements Validator {
                         .filter(d -> !d.isAnnotationPresent(DataStore.class))
                         .map(c -> c.getName() + " has @Checkable but is not a @DataStore")
                         .sorted()
-                        .toList());
+                        .collect(Collectors.toList()));
 
         final Map<String, String> checkableDataStoresMap = checkableClasses
                 .stream()
@@ -94,7 +95,7 @@ public class DataStoreValidator implements Validator {
                         .map(e -> "No @HealthCheck for dataStore: '" + e.getKey() + "' with checkable: '" + e.getValue()
                                 + "'")
                         .sorted()
-                        .toList());
+                        .collect(Collectors.toList()));
 
         errors
                 .addAll(datastoreClasses
@@ -104,7 +105,7 @@ public class DataStoreValidator implements Validator {
                                         "${family}.datastore." + clazz.getAnnotation(DataStore.class).value()
                                                 + "._displayName"))
                         .filter(Objects::nonNull)
-                        .toList());
+                        .collect(toList()));
 
         return errors.stream();
 

@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.sample.other;
 
+import static java.util.stream.Collectors.toList;
+
 import java.io.Serializable;
 import java.util.stream.IntStream;
 
@@ -79,7 +81,7 @@ public class ComplexComponent implements Serializable {
             return new Values(IntStream
                     .range(1, 11)
                     .mapToObj(i -> new Values.Item("file_" + i, "/opt/sample/file_" + i + ".txt"))
-                    .toList());
+                    .collect(toList()));
         }
     }
 }

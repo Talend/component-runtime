@@ -86,7 +86,7 @@ public class ParameterModelService {
                         .spliteratorUnknownSize(ServiceLoader.load(ParameterExtensionEnricher.class).iterator(),
                                 Spliterator.IMMUTABLE),
                         false)
-                .toList(), registry);
+                .collect(toList()), registry);
     }
 
     public boolean isService(final Param parameter) {
@@ -197,7 +197,7 @@ public class ParameterModelService {
                                 .of(((Class<? extends Enum<?>>) genericType).getEnumConstants())
                                 .map(Enum::name)
                                 // sorted() // don't sort, let the dev use the order he wants
-                                .toList());
+                                .collect(toList()));
                 break;
             default:
         }

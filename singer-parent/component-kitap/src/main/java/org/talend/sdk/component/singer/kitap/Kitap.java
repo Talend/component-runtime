@@ -19,6 +19,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static java.util.Spliterators.spliteratorUnknownSize;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.StringReader;
@@ -99,7 +100,7 @@ public final class Kitap implements Runnable {
         final List<String> missingConfigs = Stream
                 .concat(args.getComponentFamily().isPresent() ? Stream.of("family") : Stream.empty(), Stream.of("name"))
                 .filter(key -> !componentConfig.containsKey(key))
-                .toList();
+                .collect(toList());
         if (!missingConfigs.isEmpty()) {
             throw new IllegalArgumentException("Missing component configuration entries: " + missingConfigs);
         }

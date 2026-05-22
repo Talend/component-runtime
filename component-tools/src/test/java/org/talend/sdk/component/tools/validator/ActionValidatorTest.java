@@ -99,7 +99,7 @@ class ActionValidatorTest {
         assertEquals(0, noerrors.count());
         finder = new AnnotationFinder(new ClassesArchive(ActionDatabaseMappingKO.class));
         final List<String> errors = validator.validate(finder, Arrays.asList(ActionDatabaseMappingKO.class))
-                .toList();
+                .collect(Collectors.toList());
         assertEquals(3, errors.size());
         assertAll(() -> assertContains(errors, "should return a String"),
                 () -> assertContains(errors, "should have an Object parameter marked with @Option"),
@@ -129,13 +129,13 @@ class ActionValidatorTest {
                 new AnnotationFinder(new ClassesArchive(ActionClassOK.class, FakeDataSet.class, FakeDataStore.class));
         final Stream<String> errorsStream =
                 validator.validate(finder, Arrays.asList(ActionClassOK.class, FakeDataSet.class, FakeDataStore.class));
-        final List<String> errors = errorsStream.toList();
+        final List<String> errors = errorsStream.collect(Collectors.toList());
         Assertions.assertTrue(errors.isEmpty(), () -> errors.get(0) + " as first error");
 
         AnnotationFinder finderKO = new AnnotationFinder(new ClassesArchive(ActionClassKO.class));
         final Stream<String> errorsStreamKO =
                 validator.validate(finderKO, Collections.singletonList(ActionClassKO.class));
-        final List<String> errorsKO = errorsStreamKO.toList();
+        final List<String> errorsKO = errorsStreamKO.collect(Collectors.toList());
         assertEquals(6, errorsKO.size(), () -> errorsKO.get(0) + " as first error");
 
         assertAll(() -> assertContains(errorsKO,

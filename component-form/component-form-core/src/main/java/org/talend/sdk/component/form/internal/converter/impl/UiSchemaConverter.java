@@ -16,6 +16,7 @@
 package org.talend.sdk.component.form.internal.converter.impl;
 
 import static java.util.Collections.singletonMap;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.Collection;
@@ -114,7 +115,7 @@ public class UiSchemaConverter implements PropertyConverter {
                                             .stream()
                                             .filter(prop -> prop.getPath().startsWith(nestedPrefix)
                                                     && prop.getPath().indexOf('.', from) < 0)
-                                            .toList();
+                                            .collect(toList());
                                     if (!nested.isEmpty()) {
                                         return new ObjectArrayWidgetConverter(schemas, properties, actions, family,
                                                 client, gridLayoutFilter, jsonSchema, lang, customConverters, metadata,

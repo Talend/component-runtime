@@ -17,6 +17,7 @@ package org.talend.sdk.component.tools.webapp.standalone.generator;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toList;
 import static org.talend.sdk.component.tools.webapp.standalone.generator.StaticResourceGenerator.OutputFormatter.JSON;
 
 import java.io.ByteArrayInputStream;
@@ -68,7 +69,7 @@ public class StaticUiSpecGenerator implements Runnable {
     private final Path output;
 
     public StaticUiSpecGenerator(final String[] args) {
-        this(emptyMap(), Stream.of(args[1].split(",")).toList(), PathFactory.get(args[0]));
+        this(emptyMap(), Stream.of(args[1].split(",")).collect(toList()), PathFactory.get(args[0]));
     }
 
     @Override

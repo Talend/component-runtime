@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.json.Json;
@@ -114,7 +115,7 @@ class SchemaImplTest {
         Assertions.assertTrue(entries.contains(this.data2));
 
         Assertions.assertEquals(4, schema.getAllEntries().count());
-        final List<Entry> metaEntries = schema.getAllEntries().filter(Entry::isMetadata).toList();
+        final List<Entry> metaEntries = schema.getAllEntries().filter(Entry::isMetadata).collect(Collectors.toList());
         Assertions.assertEquals(2, metaEntries.size());
         Assertions.assertTrue(metaEntries.contains(this.meta1));
         Assertions.assertTrue(metaEntries.contains(this.meta2));

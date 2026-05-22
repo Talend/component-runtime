@@ -17,6 +17,7 @@ package org.talend.sdk.component.maven;
 
 import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
 import static org.talend.sdk.component.maven.api.Audience.Type.PUBLIC;
@@ -171,7 +172,7 @@ public class AsciidocMojo extends ClasspathMojoBase {
                     }.run();
                     return formats == null || formats.isEmpty() ? Stream.of(output)
                             : Stream.concat(Stream.of(output), formats.values().stream().map(File::new));
-                }).toList();
+                }).collect(toList());
 
         if (attachDocumentations) {
             adocs.forEach(artifact -> {

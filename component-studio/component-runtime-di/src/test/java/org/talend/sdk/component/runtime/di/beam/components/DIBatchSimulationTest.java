@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.di.beam.components;
 
 import static java.util.Collections.singletonMap;
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -342,7 +343,7 @@ class DIBatchSimulationTest {
                             .of(IntStream
                                     .range(0, count)
                                     .mapToObj(i -> new Record("id_" + i, "record_" + i))
-                                    .toList())
+                                    .collect(toList()))
                             .withCoder(SerializableCoder.of(Record.class)));
         }
     }

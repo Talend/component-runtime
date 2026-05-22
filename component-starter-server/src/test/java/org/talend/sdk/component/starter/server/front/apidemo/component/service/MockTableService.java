@@ -99,7 +99,7 @@ public class MockTableService {
         return new Values(Stream
                 .of(QueryBuilder.Fields.values())
                 .map(f -> new Values.Item(f.name(), f.name()))
-                .toList());
+                .collect(toList()));
     }
 
     public interface Client extends HttpClient {

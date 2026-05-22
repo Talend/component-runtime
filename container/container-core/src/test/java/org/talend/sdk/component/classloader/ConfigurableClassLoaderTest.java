@@ -18,6 +18,7 @@ package org.talend.sdk.component.classloader;
 import static java.lang.ClassLoader.getSystemClassLoader;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -270,7 +271,7 @@ class ConfigurableClassLoaderTest {
 
             final List<XMLOutputFactory> factories = StreamSupport
                     .stream(ServiceLoader.load(XMLOutputFactory.class, loader).spliterator(), false)
-                    .toList();
+                    .collect(toList());
             assertEquals(1, factories.size());
             final Class<? extends XMLOutputFactory> firstClass = factories.iterator().next().getClass();
             assertEquals("com.ctc.wstx.stax.WstxOutputFactory", firstClass.getName());
@@ -295,7 +296,7 @@ class ConfigurableClassLoaderTest {
             // this is in the (test) classloader but not available to the classloader
             final List<TestEngine> junitEngines = StreamSupport
                     .stream(ServiceLoader.load(TestEngine.class, loader).spliterator(), false)
-                    .toList();
+                    .collect(toList());
             assertTrue(junitEngines.isEmpty());
         }
     }

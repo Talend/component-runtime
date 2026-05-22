@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
@@ -595,7 +596,7 @@ class DiRecordVisitorTest extends VisitorsTest {
         final List<RowStruct3> rows = records.stream()
                 .map(visitor::visit)
                 .map(RowStruct3.class::cast)
-                .toList();
+                .collect(Collectors.toList());
         Assertions.assertEquals(2, rows.size());
         rows.forEach(Assertions::assertNotNull);
         Assertions.assertEquals(value1, rows.get(0).dyn.getColumnValue(columnName));

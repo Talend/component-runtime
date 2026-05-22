@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.manager.interceptor;
 
 import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -86,17 +87,17 @@ public class InterceptorHandlerFacade implements InterceptorHandler {
                                 }
                                 throw new IllegalArgumentException("No handler for " + a);
                             }))
-                    .toList();
+                    .collect(toList());
             if (handlers.isEmpty()) {
                 return (mtd, arguments) -> doInvoke(method, args);
             }
 
             // init all InvokerHandler
             final List<InvokerHandler> invokerHandlers =
-                    handlers.stream().filter(i -> i.invoker).map(InvokerHandler.class::cast).toList();
+                    handlers.stream().filter(i -> i.invoker).map(InvokerHandler.class::cast).collect(toList());
             if (invokerHandlers.isEmpty() && handlers.size() > 1) {
                 throw new IllegalArgumentException("Interceptors not compatible for " + m + ": "
-                        + handlers.stream().filter(i -> !invokerHandlers.contains(i)).toList());
+                        + handlers.stream().filter(i -> !invokerHandlers.contains(i)).collect(toList()));
             }
             if (invokerHandlers.isEmpty()) {
                 return handlers.iterator().next()::invoke;
@@ -104,7 +105,7 @@ public class InterceptorHandlerFacade implements InterceptorHandler {
 
             if (invokerHandlers.size() != handlers.size()) {
                 throw new IllegalArgumentException("Some handlers don't take an invoker as parameter for method " + m
-                        + ": " + handlers.stream().filter(i -> !invokerHandlers.contains(i)).toList());
+                        + ": " + handlers.stream().filter(i -> !invokerHandlers.contains(i)).collect(toList()));
             }
             for (int i = 0; i < invokerHandlers.size(); i++) {
                 final InvokerHandler invokerHandler = invokerHandlers.get(i);

@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.junit.environment;
 
+import static java.util.stream.Collectors.toList;
+
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.stream.Stream;
@@ -45,7 +47,7 @@ public abstract class BaseEnvironmentProvider implements EnvironmentProvider {
                                             System.clearProperty(p.value());
                                         }
                                     };
-                                }).toList();
+                                }).collect(toList());
                                 return (AutoCloseable) () -> releases.forEach(Runnable::run);
                             })
                             .orElseGet(() -> () -> {

@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.serialization;
 
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static lombok.AccessLevel.PRIVATE;
 
@@ -127,7 +128,7 @@ public class EnhancedObjectInputStream extends ObjectInputStream {
                                 .of(s.split(","))
                                 .map(String::trim)
                                 .filter(it -> !it.isEmpty())
-                                .toList())
+                                .collect(toList()))
                         .map(l -> (Predicate<String>) name -> l.stream().anyMatch(name::startsWith))
                         .orElseGet(() -> {
                             final Collection<String> blacklist = Stream

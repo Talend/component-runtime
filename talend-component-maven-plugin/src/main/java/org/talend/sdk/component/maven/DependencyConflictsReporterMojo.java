@@ -92,7 +92,7 @@ public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
                             blacklist = resolver
                                     .resolveFromDescriptor(stream)
                                     .sorted(comparing(Artifact::toCoordinate))
-                                    .toList();
+                                    .collect(toList());
                             ignoredDependencies = blacklist::contains;
                         } catch (final IOException e) {
                             throw new IllegalStateException(e);
@@ -106,7 +106,7 @@ public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
                                         .resolveFromDescriptor(stream)
                                         .filter(ignoredDependencies.negate())
                                         .sorted(comparing(Artifact::toCoordinate))
-                                        .toList());
+                                        .collect(toList()));
                     } catch (final IOException e) {
                         throw new IllegalStateException(e);
                     }
@@ -114,7 +114,7 @@ public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }
-        }).filter(Objects::nonNull).sorted(comparing(a -> a.componentModule.toCoordinate())).toList();
+        }).filter(Objects::nonNull).sorted(comparing(a -> a.componentModule.toCoordinate())).collect(toList());
 
         output.getParentFile().mkdirs();
 

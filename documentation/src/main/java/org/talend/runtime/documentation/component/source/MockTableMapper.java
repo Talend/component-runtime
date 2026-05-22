@@ -15,6 +15,7 @@
  */
 package org.talend.runtime.documentation.component.source;
 
+import static java.util.stream.Collectors.toList;
 import static org.talend.runtime.documentation.component.configuration.TableDataSet.READ_ALL_RECORD_FROM_SERVER;
 import static org.talend.runtime.documentation.component.service.http.TableApiClient.API_BASE;
 import static org.talend.runtime.documentation.component.service.http.TableApiClient.API_VERSION;
@@ -111,7 +112,7 @@ public class MockTableMapper implements Serializable {
             dataSetChunk.setOffset(from);
             dataSetChunk.setMaxRecords(to);
             return new MockTableMapper(dataSetChunk, service, i18n, tableAPI);
-        }).filter(Objects::nonNull).toList();
+        }).filter(Objects::nonNull).collect(toList());
     }
 
     @Emitter

@@ -21,6 +21,7 @@ import static java.util.Collections.singletonMap;
 import static java.util.Locale.ENGLISH;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.lang.annotation.Annotation;
@@ -129,7 +130,7 @@ public class UiParameterEnricher extends BaseParameterEnricher {
                                                     .of(component.getMethods())
                                                     .filter(mtd -> mtd.getDeclaringClass() == component
                                                             && "value".equals(mtd.getName()))
-                                                    .toList();
+                                                    .collect(toList());
                                             final StringBuilder builder = new StringBuilder("");
                                             for (int i = 0; i < length; i++) {
                                                 final Object annot = Array.get(invoke, i);

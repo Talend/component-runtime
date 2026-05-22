@@ -17,6 +17,7 @@ package org.talend.sdk.component.tools.validator;
 
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.of;
 
 import java.io.BufferedWriter;
@@ -124,7 +125,7 @@ public class InternationalizationValidator implements Validator {
                         .sorted()
                         .distinct(),
                 missingDisplayNameEnum)
-                .toList();
+                .collect(Collectors.toList());
 
         List<String> missingPlaceholderTranslations = Collections.emptyList();
         if (this.validatePlaceholder) {
@@ -143,7 +144,7 @@ public class InternationalizationValidator implements Validator {
                     .map(f -> " " + f.getDeclaringClass().getSimpleName() + "." + f.getName() + "._placeholder = ")
                     .sorted()
                     .distinct()
-                    .toList();
+                    .collect(Collectors.toList());
         }
 
         if (this.autofix && !toFix.isEmpty()) {
@@ -206,7 +207,7 @@ public class InternationalizationValidator implements Validator {
                 .orElseGet(Stream::empty);
 
         if (this.autofix) {
-            List<String> forLogs = result.toList();
+            List<String> forLogs = result.collect(toList());
             String resultAutoFix = forLogs.stream()
                     .collect(Collectors.joining("\n", "Automatically fixed missing labels:\n",
                             "\n\nPlease, check changes and disable '-Dtalend.validation.internationalization.autofix=false' / "
@@ -258,7 +259,7 @@ public class InternationalizationValidator implements Validator {
 
         final String prefix = this.findPrefix(component);
         final Collection<String> missingKeys =
-                of("_displayName").map(n -> prefix + "." + n).filter(k -> !bundle.containsKey(k)).toList();
+                of("_displayName").map(n -> prefix + "." + n).filter(k -> !bundle.containsKey(k)).collect(toList());
         if (!missingKeys.isEmpty()) {
             return baseName + " is missing the key(s): " + String.join("\n", missingKeys);
         }

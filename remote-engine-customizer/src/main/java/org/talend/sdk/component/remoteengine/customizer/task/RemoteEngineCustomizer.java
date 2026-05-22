@@ -18,6 +18,7 @@ package org.talend.sdk.component.remoteengine.customizer.task;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.talend.sdk.component.remoteengine.customizer.lang.Reflects.asAccessible;
 
@@ -99,8 +100,8 @@ public class RemoteEngineCustomizer {
         final Path cacheDir = cacheDirConf.startsWith("${remote.engine.dir}/")
                 ? remoteEngineDir.resolve(cacheDirConf.substring("${remote.engine.dir}/".length()))
                 : PathFactory.get(cacheDirConf);
-        final Collection<Path> cars = carPaths.stream().map(PathFactory::get).toList();
-        final List<Path> missingCars = cars.stream().filter(it -> !Files.exists(it)).toList();
+        final Collection<Path> cars = carPaths.stream().map(PathFactory::get).collect(toList());
+        final List<Path> missingCars = cars.stream().filter(it -> !Files.exists(it)).collect(toList());
         if (!missingCars.isEmpty()) {
             throw new IllegalArgumentException("Missing component archives: " + missingCars);
         }
@@ -131,7 +132,7 @@ public class RemoteEngineCustomizer {
                 final Collection<ConnectorLoader.ConnectorLayer> connectorsLayer = cars
                         .stream()
                         .map(it -> connectorLoader.createConnectorLayer(rootContainerPath, workDir, it))
-                        .toList();
+                        .collect(toList());
 
                 final Path baseCache = cacheDir.resolve("base");
                 final Path appCache = cacheDir.resolve("application");

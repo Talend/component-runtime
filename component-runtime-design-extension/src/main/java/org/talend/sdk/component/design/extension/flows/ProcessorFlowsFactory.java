@@ -16,6 +16,7 @@
 package org.talend.sdk.component.design.extension.flows;
 
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
 import static java.util.stream.Stream.of;
 
@@ -48,7 +49,7 @@ class ProcessorFlowsFactory implements FlowsFactory {
                 .orElseGet(() -> getAfterGroup().map(it -> Stream.of(it.getParameters())).orElseGet(Stream::empty))
                 .filter(this::isInput)
                 .map(this::mapInputName)
-                .toList();
+                .collect(toList());
     }
 
     @Override
@@ -57,7 +58,7 @@ class ProcessorFlowsFactory implements FlowsFactory {
                 getListener()
                         .map(listener -> concat(getReturnedBranches(listener), getOutputParameters(listener)))
                         .orElseGet(Stream::empty),
-                getAfterGroup().map(this::getOutputParameters).orElseGet(Stream::empty)).distinct().toList();
+                getAfterGroup().map(this::getOutputParameters).orElseGet(Stream::empty)).distinct().collect(toList());
     }
 
     private Optional<Method> getAfterGroup() {

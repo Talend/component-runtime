@@ -92,7 +92,7 @@ public class StaticResourceGenerator implements Runnable {
 
     public StaticResourceGenerator(final String[] args) {
         this(emptyMap(), PathFactory.get(args[0]).resolve("repository"),
-                PathFactory.get(args[0]).resolve("routes.json"), Stream.of(args[1].split(",")).toList(),
+                PathFactory.get(args[0]).resolve("routes.json"), Stream.of(args[1].split(",")).collect(toList()),
                 OutputFormatter.JSON, args.length >= 3 && Boolean.parseBoolean(args[2]));
     }
 
@@ -185,7 +185,7 @@ public class StaticResourceGenerator implements Runnable {
                             .map(lang -> route("component_server_action_index_" + lang, "/api/v1/action/index",
                                     MapBuilder.map().with("language", lang).done(), emptyMap(), emptyMap(),
                                     jsonb.toJson(actions.getIndex(emptyStringArray, emptyStringArray, lang))))
-                            .toList());
+                            .collect(toList()));
 
             final ComponentResource components = container.select(ComponentResource.class).get();
             routes
@@ -209,13 +209,13 @@ public class StaticResourceGenerator implements Runnable {
                                                     jsonb.toJson(
                                                             components.getIndex(lang, includeIconContent, "",
                                                                     THEME)))))
-                            .toList());
+                            .collect(toList()));
 
             final List<ComponentIndex> componentIndex = components.getIndex("en", false, "", THEME).getComponents();
             final List<String> componentIds =
-                    componentIndex.stream().map(it -> it.getId().getId()).distinct().toList();
+                    componentIndex.stream().map(it -> it.getId().getId()).distinct().collect(toList());
             final List<String> componentFamilyIds =
-                    componentIndex.stream().map(it -> it.getId().getFamilyId()).distinct().toList();
+                    componentIndex.stream().map(it -> it.getId().getFamilyId()).distinct().collect(toList());
             routes
                     .addAll(componentIds
                             .stream()
@@ -227,7 +227,7 @@ public class StaticResourceGenerator implements Runnable {
                                             MapBuilder.map().with("identifier", componentId).done(), emptyMap(),
                                             emptyMap(),
                                             jsonb.toJson(components.getDependencies(new String[] { componentId })))))
-                            .toList());
+                            .collect(toList()));
             routes
                     .addAll(componentIds
                             .stream()
@@ -242,7 +242,7 @@ public class StaticResourceGenerator implements Runnable {
                                                     .done(),
                                             emptyMap(), emptyMap(),
                                             jsonb.toJson(components.getDetail(lang, new String[] { componentId })))))
-                            .toList());
+                            .collect(toList()));
 
             // this can become huge, maybe we should directly go on the FS for the binary ones
             if (!skipDependencies) {
@@ -264,7 +264,7 @@ public class StaticResourceGenerator implements Runnable {
                                         MapBuilder.map().done(),
                                         singletonMap(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM),
                                         emptyMap(), swallow(() -> components.getDependency(dep))))
-                                .toList());
+                                .collect(toList()));
             }
             routes.addAll(componentIds.stream().map(componentId -> {
                 final Response response = components.icon(componentId, THEME);
@@ -272,14 +272,14 @@ public class StaticResourceGenerator implements Runnable {
                         MapBuilder.map().done(),
                         singletonMap(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM), emptyMap(),
                         response.getStatus(), response::readEntity, jsonb);
-            }).toList());
+            }).collect(toList()));
             routes.addAll(componentFamilyIds.stream().map(familyId -> {
                 final Response response = components.familyIcon(familyId, THEME);
                 return route("component_server_component_family_icon_" + familyId,
                         "/api/v1/component/icon/family/" + familyId, MapBuilder.map().done(),
                         singletonMap(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM), emptyMap(),
                         response.getStatus(), response::readEntity, jsonb);
-            }).toList());
+            }).collect(toList()));
 
             final ConfigurationTypeResource configurations = container.select(ConfigurationTypeResource.class).get();
             final ConfigTypeNodes configurationTypes = configurations.getRepositoryModel("en", true, "");
@@ -299,7 +299,7 @@ public class StaticResourceGenerator implements Runnable {
                                                     .done(),
                                             emptyMap(), emptyMap(),
                                             jsonb.toJson(configurations.getRepositoryModel(lang, lightPayload, "")))))
-                            .toList());
+                            .collect(toList()));
             routes
                     .addAll(configurationTypes
                             .getNodes()
@@ -312,7 +312,7 @@ public class StaticResourceGenerator implements Runnable {
                                             MapBuilder.map().with("language", lang).with("identifiers", id).done(),
                                             emptyMap(), emptyMap(),
                                             jsonb.toJson(configurations.getDetail(lang, new String[] { id })))))
-                            .toList());
+                            .collect(toList()));
 
             final DocumentationResource documentations = container.select(DocumentationResource.class).get();
             routes
@@ -334,7 +334,7 @@ public class StaticResourceGenerator implements Runnable {
                                                     jsonb
                                                             .toJson(documentations
                                                                     .getDocumentation(componentId, lang, segment))))))
-                            .toList());
+                            .collect(toList()));
         } catch (final Exception e) {
             throw new IllegalStateException(e);
         }

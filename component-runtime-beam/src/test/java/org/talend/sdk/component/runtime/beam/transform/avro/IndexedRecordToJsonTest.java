@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.beam.transform.avro;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 
 import java.util.stream.StreamSupport;
@@ -51,7 +52,7 @@ public class IndexedRecordToJsonTest {
                                     .stream(values.spliterator(), false)
                                     .map(k -> k.getString("name"))
                                     .sorted()
-                                    .toList());
+                                    .collect(toList()));
                     return null;
                 });
         assertEquals(PipelineResult.State.DONE, pipeline.run().waitUntilFinish());

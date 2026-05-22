@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.manager.service;
 
+import static java.util.stream.Collectors.toList;
+
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -65,7 +67,7 @@ public class RecordPointerFactoryImpl implements RecordPointerFactory, Serializa
                     return s;
                 }
                 return s.replace("~1", "/").replace("~0", "~");
-            }).toList();
+            }).collect(toList());
         }
 
         @Override

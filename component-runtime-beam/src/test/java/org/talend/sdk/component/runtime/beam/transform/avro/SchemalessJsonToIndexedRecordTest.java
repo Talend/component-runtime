@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.beam.transform.avro;
 
+import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -63,7 +64,7 @@ public class SchemalessJsonToIndexedRecordTest {
                             .setCoder(AvroCoder.of(IndexedRecord.class, createSchema())))
                     .satisfies(values -> {
                         final List<IndexedRecord> records =
-                                StreamSupport.stream(values.spliterator(), false).toList();
+                                StreamSupport.stream(values.spliterator(), false).collect(toList());
                         assertEquals(2, records.size());
                         records.forEach(it -> assertTrue(it.toString().startsWith("{\"name\":")));
                         records.forEach(it -> assertTrue(it.toString().contains("\"foo\": {\"age\":")));

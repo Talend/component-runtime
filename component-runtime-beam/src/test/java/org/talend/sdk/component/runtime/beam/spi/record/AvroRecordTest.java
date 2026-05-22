@@ -54,6 +54,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TimeZone;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -845,7 +846,7 @@ class AvroRecordTest {
         avro.put(4, myMap);
         final Record record = new AvroRecord(avro);
         // check avro schema mappings
-        final List<Entry> entries = record.getSchema().getAllEntries().toList();
+        final List<Entry> entries = record.getSchema().getAllEntries().collect(Collectors.toList());
         assertEquals(Schema.Type.BYTES, entries.get(0).getType());
         assertEquals(Schema.Type.DECIMAL, entries.get(1).getType());
         assertEquals(Schema.Type.STRING, entries.get(2).getType());

@@ -20,6 +20,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.enumeration;
 import static java.util.Collections.list;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static lombok.AccessLevel.PRIVATE;
 import static org.talend.sdk.component.jar.Jars.toPath;
 
@@ -453,7 +454,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
             return delegates;
         }
         final Collection<URL> aggregated = new ArrayList<>(list(delegates));
-        aggregated.addAll(nested.stream().map(r -> nestedResourceToURL(name, r)).toList());
+        aggregated.addAll(nested.stream().map(r -> nestedResourceToURL(name, r)).collect(toList()));
         return enumeration(aggregated);
     }
 
@@ -495,7 +496,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
                                     .map(ByteArrayInputStream::new)
                                     .map(InputStream.class::cast))
                             .orElseGet(Stream::empty))
-                    .toList();
+                    .collect(toList());
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }

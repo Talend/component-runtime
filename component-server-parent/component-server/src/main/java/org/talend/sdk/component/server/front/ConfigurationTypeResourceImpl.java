@@ -18,6 +18,7 @@ package org.talend.sdk.component.server.front;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
@@ -244,7 +245,7 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
                                             forcedPrefix + p.getPath().substring(prefixLen), p.getName(),
                                             p.getDisplayName(), p.getType(), p.getDefaultValue(), p.getValidation(),
                                             p.getMetadata(), p.getPlaceholder(), p.getProposalDisplayNames()))
-                                    .toList());
+                                    .collect(toList()));
                 }
 
                 node.setEdges(c.getChildConfigs().stream().map(Config::getId).collect(toSet()));

@@ -20,6 +20,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.function.UnaryOperator.identity;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION;
@@ -358,7 +359,7 @@ public class ComponentResourceImpl implements ComponentResource {
                                     detail.getLinks(),
                                     detail.getMetadata())))
                     .filter(filter)
-                    .toList());
+                    .collect(toList()));
         });
     }
 
@@ -639,7 +640,7 @@ public class ComponentResourceImpl implements ComponentResource {
                 componentDetail.setDisplayName(bundle.displayName().orElse(meta.getName()));
                 componentDetail.setProperties(propertiesService
                         .buildProperties(meta.getParameterMetas().get(), container.getLoader(), locale, null)
-                        .toList());
+                        .collect(toList()));
                 componentDetail.setActions(actionsService
                         .findActions(meta.getParent().getName(), container, locale, meta,
                                 meta.getParent().findBundle(container.getLoader(), locale)));
@@ -650,7 +651,7 @@ public class ComponentResourceImpl implements ComponentResource {
                 errors.put(id, new ErrorPayload(COMPONENT_MISSING, "No component '" + id + "'"));
                 return null;
             });
-        }).filter(Objects::nonNull).toList();
+        }).filter(Objects::nonNull).collect(toList());
 
         if (!errors.isEmpty()) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(errors).build());
@@ -742,13 +743,13 @@ public class ComponentResourceImpl implements ComponentResource {
             final Stream<Artifact> deps = c.findDependencies();
             final Stream<Artifact> artifacts;
             if (configuration.getAddExtensionDependencies() && extension != null) {
-                final List<Artifact> dependencies = deps.toList();
+                final List<Artifact> dependencies = deps.collect(toList());
                 final Stream<Artifact> addDeps = getExtensionDependencies(extension, dependencies);
                 artifacts = Stream.concat(dependencies.stream(), addDeps);
             } else {
                 artifacts = deps;
             }
-            return artifacts.map(Artifact::toCoordinate).toList();
+            return artifacts.map(Artifact::toCoordinate).collect(toList());
         }).orElseThrow(() -> new IllegalArgumentException("Can't find container '" + meta.getId() + "'")));
     }
 
@@ -793,7 +794,7 @@ public class ComponentResourceImpl implements ComponentResource {
                         .map(category -> parentBundle.category(category)
                                 .orElseGet(() -> category.replace("/" + meta.getParent().getName() + "/",
                                         "/" + familyDisplayName + "/")))
-                        .toList())
+                        .collect(toList()))
                 .orElseGet(Collections::emptyList);
         return new ComponentIndex(
                 new ComponentId(meta.getId(), meta.getParent().getId(), plugin,

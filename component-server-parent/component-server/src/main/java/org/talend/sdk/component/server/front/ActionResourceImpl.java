@@ -18,6 +18,7 @@ package org.talend.sdk.component.server.front;
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.util.Collection;
@@ -123,7 +124,7 @@ public class ActionResourceImpl implements ActionResource {
         return new ActionList(Stream
                 .concat(findDeployedActions(typeMatcher, componentMatcher, locale),
                         findVirtualActions(typeMatcher, componentMatcher, locale))
-                .toList());
+                .collect(toList()));
     }
 
     private CompletableFuture<Response> doExecuteLocalAction(final String family, final String type,
@@ -261,6 +262,6 @@ public class ActionResourceImpl implements ActionResource {
                         .map(s -> new ActionItem(s.getFamily(), s.getType(), s.getAction(),
                                 propertiesService
                                         .buildProperties(s.getParameters().get(), c.getLoader(), locale, null)
-                                        .toList())));
+                                        .collect(toList()))));
     }
 }

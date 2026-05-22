@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.beam.transform.avro;
 
+import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
@@ -59,7 +60,7 @@ public class JsonToIndexedRecordTest {
                         .apply(new JsonToIndexedRecord(createSchema())))
                 .satisfies(values -> {
                     final List<IndexedRecord> records =
-                            StreamSupport.stream(values.spliterator(), false).toList();
+                            StreamSupport.stream(values.spliterator(), false).collect(toList());
                     assertEquals(2, records.size());
                     return null;
                 });

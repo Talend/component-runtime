@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.record.json;
 
+import static java.util.stream.Collectors.toList;
+
 import java.io.OutputStream;
 import java.io.Writer;
 import java.lang.reflect.Field;
@@ -153,7 +155,7 @@ public class RecordJsonGenerator implements JsonGenerator {
                                                     .map(v -> JsonValue.class.cast(v)
                                                             .getValueType()
                                                             .equals(ValueType.TRUE))
-                                                    .toList()));
+                                                    .collect(toList())));
                 } else {
                     objectBuilder
                             .withArray(createEntryForJsonArray(name, Collection.class.cast(value)),
@@ -385,7 +387,7 @@ public class RecordJsonGenerator implements JsonGenerator {
         return ((Collection<?>) array)
                 .stream()
                 .map(it -> Record.Builder.class.isInstance(it) ? Record.Builder.class.cast(it).build() : it)
-                .toList();
+                .collect(toList());
     }
 
     private Schema.Entry createEntryForJsonArray(final String name, final Collection array) {

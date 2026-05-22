@@ -353,7 +353,7 @@ class RecordConvertersTest {
                                     .build(),
                             () -> jsonb, () -> new RecordBuilderFactoryImpl("test"));
             final Collection<Record> list = record.getArray(Record.class, "list");
-            assertEquals(asList("a", "b"), list.stream().map(it -> it.getString("name")).toList());
+            assertEquals(asList("a", "b"), list.stream().map(it -> it.getString("name")).collect(toList()));
         }
     }
 
@@ -377,7 +377,7 @@ class RecordConvertersTest {
             // // FIXME: 7/9/21 : TCOMP-1956
             Assertions.assertNotNull(schema.getEntry("name1"));
             Assertions.assertNotNull(schema.getEntry("name2"));
-            assertEquals(asList("a", "b"), list.stream().map(it -> it.getString("name")).toList());
+            assertEquals(asList("a", "b"), list.stream().map(it -> it.getString("name")).collect(toList()));
         }
     }
 
@@ -424,7 +424,7 @@ class RecordConvertersTest {
                             .stream()
                             .flatMap(a -> a.stream())
                             .flatMap(bd -> Stream.of(bd))
-                            .toList());
+                            .collect(toList()));
         }
     }
 
@@ -462,8 +462,8 @@ class RecordConvertersTest {
         Iterator<Boolean> itBool = record.getArray(Boolean.class, "jsonBoolValue").iterator();
         assertTrue(itBool.next());
         assertFalse(itBool.next());
-        assertEquals(Arrays.stream(intAry).toList(),
-                record.getArray(Integer.class, "intAryValue").stream().toList());
+        assertEquals(Arrays.stream(intAry).collect(toList()),
+                record.getArray(Integer.class, "intAryValue").stream().collect(toList()));
         //
         final PojoWrapper wrapper = PojoWrapper.class
                 .cast(converter
@@ -485,7 +485,7 @@ class RecordConvertersTest {
                 JsonObject.class.cast(wrapper.getJsonAryValue()[0]).getString("string"));
         assertEquals(jsonObj1.getJsonNumber("number").doubleValue(),
                 JsonObject.class.cast(wrapper.getJsonAryValue()[0]).getJsonNumber("number").doubleValue());
-        assertEquals(Arrays.stream(intAry).toList(),
+        assertEquals(Arrays.stream(intAry).collect(toList()),
                 Arrays.stream(wrapper.getIntAryValue()).collect(toList()));
     }
 

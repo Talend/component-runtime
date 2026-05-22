@@ -265,8 +265,8 @@ public class OpenAPIGenerator {
                                                             final String name = it.getString("name");
                                                             return mapParameter(it, type, name);
                                                         }))
-                                        .toList())))
-                .toList();
+                                        .collect(toList()))))
+                .collect(toList());
     }
 
     private Parameter mapParameter(final JsonObject it, final String type, final String name) {

@@ -18,6 +18,7 @@ package org.talend.sdk.component.form.model.uischema;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonMap;
 import static java.util.Collections.unmodifiableMap;
+import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -94,7 +95,7 @@ public class UiSchema {
                 .withWidget(widget)
                 .withItemWidget(itemWidget)
                 .withType(type)
-                .withItems(items == null ? null : items.stream().map(it -> it.copy(frozenStructure)).toList())
+                .withItems(items == null ? null : items.stream().map(it -> it.copy(frozenStructure)).collect(toList()))
                 .withOptions(options)
                 .withAutoFocus(autoFocus)
                 .withDisabled(disabled)

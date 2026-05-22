@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static org.apache.avro.Schema.Type.NULL;
 import static org.apache.avro.Schema.Type.UNION;
 import static org.talend.sdk.component.runtime.beam.spi.record.SchemaIdGenerator.generateRecordName;
@@ -41,7 +42,7 @@ public class AvroSchemaConverter {
             final org.apache.avro.Schema avroSchema = toSchema(entry);
             final org.apache.avro.Schema.Field f = AvroSchemaBuilder.AvroHelper.toField(avroSchema, entry);
             return f;
-        }).toList();
+        }).collect(toList());
         final org.apache.avro.Schema avroSchema =
                 org.apache.avro.Schema.createRecord(generateRecordName(fields), null, null, false);
         schema.getProps().forEach(avroSchema::addProp);
@@ -56,7 +57,7 @@ public class AvroSchemaConverter {
         }
         if (!entry.isNullable() && schema.getType() == UNION) {
             return org.apache.avro.Schema
-                    .createUnion(schema.getTypes().stream().filter(it -> it.getType() != NULL).toList());
+                    .createUnion(schema.getTypes().stream().filter(it -> it.getType() != NULL).collect(toList()));
         }
         return schema;
     }

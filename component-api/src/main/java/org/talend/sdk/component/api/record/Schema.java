@@ -104,7 +104,7 @@ public interface Schema {
      */
     @JsonbTransient
     default List<Entry> getEntriesOrdered(final Comparator<Entry> comparator) {
-        return getAllEntries().sorted(comparator).toList();
+        return getAllEntries().sorted(comparator).collect(Collectors.toList());
     }
 
     /**
@@ -532,7 +532,7 @@ public interface Schema {
             if (fields == null || fields.isEmpty()) {
                 fieldsOrder = new OrderedMap<>(Function.identity());
             } else {
-                final List<String> fieldList = Arrays.stream(fields.split(",")).toList();
+                final List<String> fieldList = Arrays.stream(fields.split(",")).collect(Collectors.toList());
                 fieldsOrder = new OrderedMap<>(Function.identity(), fieldList);
             }
         }

@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.beam.spi.record;
 
+import static java.util.stream.Collectors.toList;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.util.List;
@@ -40,6 +41,6 @@ public class SchemaIdGenerator {
                                 .stream()
                                 .map(it -> new Schema.Field(it.name(), it.schema(), it.doc(), it.defaultVal(),
                                         it.order()))
-                                .toList()));
+                                .collect(toList())));
     }
 }

@@ -514,7 +514,7 @@ public class ContainerManager implements Lifecycle {
                 final Collection<ContainerListener> calledListeners = listeners
                         .stream()
                         .filter(l -> !ofNullable(safeInvoke(() -> l.onCreate(container))).map(re::add).orElse(false))
-                        .toList();
+                        .collect(toList());
                 if (calledListeners.size() == listeners.size()) {
                     if (containers.putIfAbsent(id, container) != null) {
                         container.setState(Container.State.ON_ERROR);

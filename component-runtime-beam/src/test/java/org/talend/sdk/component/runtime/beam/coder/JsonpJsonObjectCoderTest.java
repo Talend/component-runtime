@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.beam.coder;
 
+import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -66,7 +67,7 @@ class JsonpJsonObjectCoderTest {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         coder.encode(() -> iterator, out);
         final Iterable<JsonObject> decode = coder.decode(new ByteArrayInputStream(out.toByteArray()));
-        final Collection<JsonObject> result = StreamSupport.stream(decode.spliterator(), false).toList();
+        final Collection<JsonObject> result = StreamSupport.stream(decode.spliterator(), false).collect(toList());
         assertEquals(1, result.size());
         assertEquals("value", result.iterator().next().getString("test"));
     }

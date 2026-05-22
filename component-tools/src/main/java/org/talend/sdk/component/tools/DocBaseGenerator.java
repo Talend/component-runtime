@@ -20,6 +20,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.io.BufferedReader;
@@ -46,6 +47,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
@@ -151,7 +153,7 @@ public abstract class DocBaseGenerator extends BaseTask {
         final Collection<String> docKeys = Stream
                 .of(getComponentPrefix(component), component.getSimpleName())
                 .map(it -> it + "._documentation")
-                .toList();
+                .collect(toList());
         return ofNullable(findResourceBundle(component))
                 .map(bundle -> docKeys
                         .stream()
@@ -178,7 +180,7 @@ public abstract class DocBaseGenerator extends BaseTask {
     }
 
     private Collection<ParameterMeta> sort(final Collection<ParameterMeta> parameterMetas) {
-        return parameterMetas.stream().sorted(comparing(ParameterMeta::getPath)).toList();
+        return parameterMetas.stream().sorted(comparing(ParameterMeta::getPath)).collect(toList());
     }
 
     protected void write(final File output, final String content) {
@@ -396,7 +398,7 @@ public abstract class DocBaseGenerator extends BaseTask {
                     .keySet()
                     .stream()
                     .filter(k -> k.startsWith("tcomp::ui::gridlayout::"))
-                    .toList();
+                    .collect(Collectors.toList());
             if (definedLayouts.isEmpty()) {
                 // If no layout defined, we take main if exists in parent
                 if (parentLayouts.contains("tcomp::ui::gridlayout::Main::value")) {
@@ -415,7 +417,7 @@ public abstract class DocBaseGenerator extends BaseTask {
                                     .list(new StringTokenizer(layoutConfig, "|"))
                                     .stream()
                                     .flatMap(p -> Collections.list(new StringTokenizer(p.toString(), ",")).stream())
-                                    .toList()
+                                    .collect(Collectors.toList())
                                     .contains(param);
 
                             if (isInThisLayout) {
@@ -586,7 +588,7 @@ public abstract class DocBaseGenerator extends BaseTask {
                                 metadata.get(it.replace("::target", "::value")),
                                 Boolean.parseBoolean(metadata.get(it.replace("::target", "::negate"))),
                                 metadata.get(it.replace("::target", "::evaluationStrategy")));
-                    }).toList();
+                    }).collect(toList());
             return new Conditions(path, globalOperator, conditionEntries);
         }
 

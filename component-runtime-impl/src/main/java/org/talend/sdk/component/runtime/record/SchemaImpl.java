@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.record;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
@@ -70,8 +71,8 @@ public class SchemaImpl implements Schema {
     SchemaImpl(final SchemaImpl.BuilderImpl builder) {
         this.type = builder.type;
         this.elementSchema = builder.elementSchema;
-        this.entries = unmodifiableList(builder.entries.streams().toList());
-        this.metadataEntries = unmodifiableList(builder.metadataEntries.streams().toList());
+        this.entries = unmodifiableList(builder.entries.streams().collect(toList()));
+        this.metadataEntries = unmodifiableList(builder.metadataEntries.streams().collect(toList()));
         this.props = builder.props;
         entriesOrder = EntriesOrder.of(getFieldsOrder());
         getAllEntries().forEach(e -> entryMap.put(e.getName(), e));
@@ -148,7 +149,7 @@ public class SchemaImpl implements Schema {
     @Override
     @JsonbTransient
     public List<Entry> getEntriesOrdered() {
-        return getAllEntries().sorted(entriesOrder).toList();
+        return getAllEntries().sorted(entriesOrder).collect(toList());
     }
 
     @Override

@@ -72,7 +72,7 @@ class PropertiesServiceTest {
                         new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
         final List<SimplePropertyDefinition> props = propertiesService
                 .buildProperties(params, Thread.currentThread().getContextClassLoader(), Locale.ROOT, null)
-                .toList();
+                .collect(toList());
         assertEquals(3, props.size());
 
         final Map<String, String> metadata = props.iterator().next().getMetadata();
@@ -109,7 +109,7 @@ class PropertiesServiceTest {
                                         new BaseParameterEnricher.Context(
                                                 new LocalConfigurationService(emptyList(), "tools"))),
                         Thread.currentThread().getContextClassLoader(), Locale.ROOT, null)
-                .toList();
+                .collect(toList());
         assertEquals("true", props.stream().filter(p -> p.getName().equals("val")).findFirst().get().getDefaultValue());
     }
 
@@ -129,7 +129,7 @@ class PropertiesServiceTest {
         return propertiesService
                 .buildProperties(singletonList(config), getClass().getClassLoader(), Locale.forLanguageTag(locale),
                         null)
-                .toList();
+                .collect(toList());
     }
 
     @Test

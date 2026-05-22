@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":844,
+    "commits":825,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -29,7 +29,7 @@
     "name":"Ivan Gonchar"
   },
   {
-    "commits":99,
+    "commits":78,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7742508?v=4",
     "id":"yyin-talend",
@@ -43,7 +43,7 @@
     "name":"Christophe Le Saec"
   },
   {
-    "commits":68,
+    "commits":59,
     "description":"QA Automation @ Qlik Talend Nantes",
     "gravatar":"https://avatars.githubusercontent.com/u/1255625?v=4",
     "id":"acatoire",
@@ -57,21 +57,14 @@
     "name":"Jean-Michel FRANCOIS"
   },
   {
-    "commits":53,
+    "commits":43,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/29707101?v=4",
     "id":"ypiel-talend",
     "name":"ypiel"
   },
   {
-    "commits":52,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/66320870?v=4",
-    "id":"ozhelezniak-talend",
-    "name":"Oleksandr Zhelezniak"
-  },
-  {
-    "commits":30,
+    "commits":27,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7802267?v=4",
     "id":"wwang-talend",
@@ -85,28 +78,21 @@
     "name":"Chao MENG"
   },
   {
-    "commits":16,
+    "commits":21,
     "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/19920586?v=4",
-    "id":"lxia-talend",
-    "name":"lxia"
+    "gravatar":"https://avatars.githubusercontent.com/u/66320870?v=4",
+    "id":"ozhelezniak-talend",
+    "name":"Oleksandr Zhelezniak"
   },
   {
-    "commits":15,
+    "commits":14,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/52663885?v=4",
     "id":"fdesiles",
     "name":"Fabien Désiles"
   },
   {
-    "commits":14,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/49395568?v=4",
-    "id":"hzhao-talendbj",
-    "name":"hzhao"
-  },
-  {
-    "commits":12,
+    "commits":9,
     "description":"Senior principal product security engineer at Qlik, security contributor at @apache.\n\nBlog: http://coheigea.blogspot.com/",
     "gravatar":"https://avatars.githubusercontent.com/u/472162?v=4",
     "id":"coheigea",
@@ -121,6 +107,13 @@
   },
   {
     "commits":9,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/19920586?v=4",
+    "id":"lxia-talend",
+    "name":"lxia"
+  },
+  {
+    "commits":9,
     "description":"Frontend Architect.\r\nThis is my Talend account. You can check out @jsomsanith for my personal account",
     "gravatar":"https://avatars.githubusercontent.com/u/10761073?v=4",
     "id":"jsomsanith-tlnd",
@@ -132,13 +125,6 @@
     "gravatar":"https://avatars.githubusercontent.com/u/39268?v=4",
     "id":"anicolas",
     "name":"Antoine Nicolas"
-  },
-  {
-    "commits":6,
-    "description":"\n\nBlog: https://restlet.com",
-    "gravatar":"https://avatars.githubusercontent.com/u/1122782?v=4",
-    "id":"thboileau",
-    "name":"Thierry Boileau"
   },
   {
     "commits":4,
@@ -233,7 +219,7 @@
   },
   {
     "commits":1,
-    "description":"Staff Knowledge Engineer",
+    "description":"Staff Documentation Engineer @ Contentsquare",
     "gravatar":"https://avatars.githubusercontent.com/u/19730806?v=4",
     "id":"fviolette",
     "name":"François Violette"

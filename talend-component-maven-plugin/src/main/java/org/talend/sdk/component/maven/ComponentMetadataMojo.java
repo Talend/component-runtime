@@ -17,6 +17,7 @@ package org.talend.sdk.component.maven;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
 
@@ -105,7 +106,7 @@ public class ComponentMetadataMojo extends ComponentManagerBasedMojo {
                                                         .orElse(p.getName()),
                                                 p.getIcon(), emptyList(), emptyList())))
                         .flatMap(t -> t))
-                .toList();
+                .collect(toList());
 
         try (final Jsonb mapper = inPluginContext(JsonbBuilder::newBuilder)
                 .withConfig(new JsonbConfig()

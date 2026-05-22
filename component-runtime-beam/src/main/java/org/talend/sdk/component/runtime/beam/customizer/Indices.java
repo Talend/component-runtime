@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.beam.customizer;
 
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -114,7 +115,7 @@ enum Indices {
                         .lines()
                         .map(String::trim)
                         .filter(it -> !it.startsWith("#") && !it.isEmpty())
-                        .toList()).stream();
+                        .collect(toList())).stream();
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }
