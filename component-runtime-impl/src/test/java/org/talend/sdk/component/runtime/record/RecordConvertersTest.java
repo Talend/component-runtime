@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.record;
 
 import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -58,13 +57,12 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry;
 
-import routines.system.IPersistableRow;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import routines.system.IPersistableRow;
 
 class RecordConvertersTest {
 
@@ -486,7 +484,7 @@ class RecordConvertersTest {
         assertEquals(jsonObj1.getJsonNumber("number").doubleValue(),
                 JsonObject.class.cast(wrapper.getJsonAryValue()[0]).getJsonNumber("number").doubleValue());
         assertEquals(Arrays.stream(intAry).toList(),
-                Arrays.stream(wrapper.getIntAryValue()).collect(toList()));
+                Arrays.stream(wrapper.getIntAryValue()).toList());
     }
 
     @Data

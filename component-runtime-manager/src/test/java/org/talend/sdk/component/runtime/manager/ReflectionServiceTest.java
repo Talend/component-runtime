@@ -680,7 +680,7 @@ class ReflectionServiceTest {
             assertNotNull(tableOwner.table);
             assertEquals(2, tableOwner.table.size());
             assertEquals(Stream.of("test1", "test2").toList(),
-                    tableOwner.table.stream().map(Column::getValue1).collect(toList()));
+                    tableOwner.table.stream().map(Column::getValue1).toList());
             assertArrayEquals(IntStream.of(12, 22).toArray(),
                     tableOwner.table.stream().mapToInt(Column::getValue2).toArray());
             assertNotNull(tableOwner.table.get(1).nestedList);

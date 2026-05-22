@@ -243,7 +243,7 @@ public class TalendIOTest implements Serializable {
                 .apply(UUID.randomUUID().toString(), toSampleLength())
                 .apply(UUID.randomUUID().toString(), toInt());
 
-        final List<Integer> expected = data.stream().map(Sample::getData).map(String::length).collect(toList());
+        final List<Integer> expected = data.stream().map(Sample::getData).map(String::length).toList();
         PAssert.that(out).satisfies((SerializableFunction<Iterable<Integer>, Void>) input -> {
             final List<Integer> actual = StreamSupport.stream(input.spliterator(), false).sorted().toList();
             assertEquals(expected, actual);
