@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.di.schema;
 
 import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.api.exception.DiscoverSchemaException.HandleErrorWith.EXCEPTION;
 import static org.talend.sdk.component.api.exception.DiscoverSchemaException.HandleErrorWith.EXECUTE_LIFECYCLE;
@@ -353,7 +352,7 @@ public class TaCoKitGuessSchema {
         final ComponentFamilyMeta.BaseMeta<?> componentMeta = findComponent(familyMeta);
 
         // dataset name should be the same as DiscoverSchema action name
-        final Collection<ParameterMeta> metas = toStream(componentMeta.getParameterMetas().get()).collect(toList());
+        final Collection<ParameterMeta> metas = toStream(componentMeta.getParameterMetas().get()).toList();
         return ofNullable(metas
                 .stream()
                 .filter(p -> DATASET.equals(p.getMetadata().get(TCOMP_CONFIGURATIONTYPE_TYPE))

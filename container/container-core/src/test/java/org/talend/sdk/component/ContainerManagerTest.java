@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -106,7 +105,7 @@ class ContainerManagerTest {
                 final Container container = manager.builder(j.getAbsolutePath()).create();
                 return container.getId();
             }
-        }).collect(Collectors.toList());
+        }).toList();
         assertEquals(pluginIds, results);
     }
 

@@ -22,7 +22,6 @@ import static java.util.Locale.ROOT;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.Assert.fail;
 import static org.talend.sdk.component.junit.SimpleFactory.configurationByExample;
@@ -116,7 +115,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
     public BaseComponentsHandler withIsolatedPackage(final String packageName, final String... packages) {
         isolatedPackages = Stream.concat(Stream.of(packageName), Stream.of(packages))
                 .filter(Objects::nonNull)
-                .collect(toList());
+                .toList();
         if (isolatedPackages.isEmpty()) {
             isolatedPackages = null;
         }
@@ -371,7 +370,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
 
     @Override
     public <T> List<T> collectAsList(final Class<T> recordType, final Mapper mapper, final int maxRecords) {
-        return collect(recordType, mapper, maxRecords).collect(toList());
+        return collect(recordType, mapper, maxRecords).toList();
     }
 
     @Override
@@ -501,7 +500,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
                 .stream()
                 .filter(r -> recordType.isInstance(r) || JsonObject.class.isInstance(r) || Record.class.isInstance(r))
                 .map(r -> mapRecord(state, recordType, r))
-                .collect(toList());
+                .toList();
     }
 
     public void resetState() {

@@ -154,7 +154,7 @@ public class ComponentGenerator {
         if (sources != null && !sources.isEmpty()) {
             files
                     .addAll(createSourceFiles(tuple, iconResourcesDirectory, sources, mainJava, serviceName)
-                            .collect(toList()));
+                            .toList());
 
             messageProperties.put(tuple + ".source", new TreeMap<String, String>() {
 
@@ -180,7 +180,7 @@ public class ComponentGenerator {
         if (processors != null && !processors.isEmpty()) {
             files
                     .addAll(createProcessorFiles(tuple, iconResourcesDirectory, processors, mainJava, serviceName)
-                            .collect(toList()));
+                            .toList());
             messageProperties.put(tuple + ".output", new TreeMap<String, String>() {
 
                 {

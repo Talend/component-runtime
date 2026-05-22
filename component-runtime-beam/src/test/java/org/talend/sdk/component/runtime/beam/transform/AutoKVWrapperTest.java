@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.beam.transform;
 
 import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.talend.sdk.component.runtime.beam.transform.Pipelines.buildBasePipeline;
 
@@ -52,13 +51,13 @@ public class AutoKVWrapperTest implements Serializable {
                             .stream(values.spliterator(), false)
                             .sorted(comparing(
                                     k -> k.getValue().getArray(Record.class, "b1").iterator().next().getString("foo")))
-                            .collect(toList());
+                            .toList();
                     assertEquals(2, items.size());
                     assertEquals(2, new HashSet<>(items).size()); // ensure we got 2 ids
                     assertEquals(asList("a", "b"), items
                             .stream()
                             .map(k -> k.getValue().getArray(Record.class, "b1").iterator().next().getString("foo"))
-                            .collect(toList()));
+                            .toList());
                     return null;
                 });
         assertEquals(PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
