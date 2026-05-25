@@ -60,43 +60,74 @@
 <span class="source-line-no">047</span><span id="line-47">    }</span>
 <span class="source-line-no">048</span><span id="line-48"></span>
 <span class="source-line-no">049</span><span id="line-49">    /**</span>
-<span class="source-line-no">050</span><span id="line-50">     * Resolves the dependencies from the descriptor passed as an InputStream.</span>
+<span class="source-line-no">050</span><span id="line-50">     * Creates a classloader from the passed classloader configuration and descriptor (dependencies.txt).</span>
 <span class="source-line-no">051</span><span id="line-51">     *</span>
-<span class="source-line-no">052</span><span id="line-52">     * IMPORTANT: this is to use when you are sure the file is resolvable if you don't have a fallback.</span>
-<span class="source-line-no">053</span><span id="line-53">     * In that last case, prefer the &lt;code&gt;mapDescriptorToClassLoader&lt;/code&gt;.</span>
+<span class="source-line-no">052</span><span id="line-52">     * WARNING: note it is very important to close the descriptor once no more used otherwise</span>
+<span class="source-line-no">053</span><span id="line-53">     * you can leak memory.</span>
 <span class="source-line-no">054</span><span id="line-54">     *</span>
-<span class="source-line-no">055</span><span id="line-55">     * @param descriptor the dependencies.txt to use to resolve dependencies.</span>
-<span class="source-line-no">056</span><span id="line-56">     * @return the collection of file representing the available dependencies.</span>
-<span class="source-line-no">057</span><span id="line-57">     */</span>
-<span class="source-line-no">058</span><span id="line-58">    Collection&lt;File&gt; resolveFromDescriptor(InputStream descriptor);</span>
-<span class="source-line-no">059</span><span id="line-59"></span>
-<span class="source-line-no">060</span><span id="line-60">    /**</span>
-<span class="source-line-no">061</span><span id="line-61">     * Alias to load dependencies from a plain list of gav (groupId:artifactId:version).</span>
-<span class="source-line-no">062</span><span id="line-62">     *</span>
-<span class="source-line-no">063</span><span id="line-63">     * @param gavs the dependencies to use to resolve dependencies.</span>
-<span class="source-line-no">064</span><span id="line-64">     * @return the collection of file representing the available dependencies.</span>
-<span class="source-line-no">065</span><span id="line-65">     */</span>
-<span class="source-line-no">066</span><span id="line-66">    default Collection&lt;File&gt; resolveFromDescriptor(final List&lt;String&gt; gavs) {</span>
-<span class="source-line-no">067</span><span id="line-67">        return resolveFromDescriptor(</span>
-<span class="source-line-no">068</span><span id="line-68">                new ByteArrayInputStream(String.join("\n", gavs).getBytes(StandardCharsets.UTF_8)));</span>
-<span class="source-line-no">069</span><span id="line-69">    }</span>
-<span class="source-line-no">070</span><span id="line-70"></span>
-<span class="source-line-no">071</span><span id="line-71">    /**</span>
-<span class="source-line-no">072</span><span id="line-72">     * Abstract a classloader adding the metadata about the resolution done to create it.</span>
-<span class="source-line-no">073</span><span id="line-73">     */</span>
-<span class="source-line-no">074</span><span id="line-74">    interface ClassLoaderDescriptor extends AutoCloseable {</span>
-<span class="source-line-no">075</span><span id="line-75"></span>
-<span class="source-line-no">076</span><span id="line-76">        /**</span>
-<span class="source-line-no">077</span><span id="line-77">         * @return the underlying classloader.</span>
-<span class="source-line-no">078</span><span id="line-78">         */</span>
-<span class="source-line-no">079</span><span id="line-79">        ClassLoader asClassLoader();</span>
-<span class="source-line-no">080</span><span id="line-80"></span>
-<span class="source-line-no">081</span><span id="line-81">        /**</span>
-<span class="source-line-no">082</span><span id="line-82">         * @return the dependencies who matched the resolution and were used to create the classloader.</span>
-<span class="source-line-no">083</span><span id="line-83">         */</span>
-<span class="source-line-no">084</span><span id="line-84">        Collection&lt;String&gt; resolvedDependencies();</span>
-<span class="source-line-no">085</span><span id="line-85">    }</span>
-<span class="source-line-no">086</span><span id="line-86">}</span>
+<span class="source-line-no">055</span><span id="line-55">     * &lt;p&gt;</span>
+<span class="source-line-no">056</span><span id="line-56">     * The default implementation of this method is unsupported and will always throw</span>
+<span class="source-line-no">057</span><span id="line-57">     * {@link UnsupportedOperationException}. Implementations that support configurable</span>
+<span class="source-line-no">058</span><span id="line-58">     * classloader creation must override this method.</span>
+<span class="source-line-no">059</span><span id="line-59">     * &lt;/p&gt;</span>
+<span class="source-line-no">060</span><span id="line-60">     *</span>
+<span class="source-line-no">061</span><span id="line-61">     * @param descriptor the dependencies.txt InputStream.</span>
+<span class="source-line-no">062</span><span id="line-62">     * @param configuration the classloader configuration to apply when creating the classloader.</span>
+<span class="source-line-no">063</span><span id="line-63">     * @return the classloader initialized with the configuration provided and the resolved dependencies.</span>
+<span class="source-line-no">064</span><span id="line-64">     * @throws UnsupportedOperationException if this implementation does not support configurable</span>
+<span class="source-line-no">065</span><span id="line-65">     * classloader creation.</span>
+<span class="source-line-no">066</span><span id="line-66">     */</span>
+<span class="source-line-no">067</span><span id="line-67">    default ClassLoaderDescriptor mapDescriptorToClassLoader(InputStream descriptor,</span>
+<span class="source-line-no">068</span><span id="line-68">            final ClassLoaderDefinition configuration) {</span>
+<span class="source-line-no">069</span><span id="line-69">        throw new UnsupportedOperationException(</span>
+<span class="source-line-no">070</span><span id="line-70">                "ClassLoader configuration is not supported by this implementation; "</span>
+<span class="source-line-no">071</span><span id="line-71">                        + "override mapDescriptorToClassLoader(InputStream, ClassLoaderDefinition) to provide an implementation");</span>
+<span class="source-line-no">072</span><span id="line-72">    }</span>
+<span class="source-line-no">073</span><span id="line-73"></span>
+<span class="source-line-no">074</span><span id="line-74">    default ClassLoaderDescriptor mapDescriptorToClassLoader(final List&lt;String&gt; gavs,</span>
+<span class="source-line-no">075</span><span id="line-75">            final ClassLoaderDefinition configuration) {</span>
+<span class="source-line-no">076</span><span id="line-76">        return mapDescriptorToClassLoader(</span>
+<span class="source-line-no">077</span><span id="line-77">                new ByteArrayInputStream(String.join("\n", gavs).getBytes(StandardCharsets.UTF_8)), configuration);</span>
+<span class="source-line-no">078</span><span id="line-78">    }</span>
+<span class="source-line-no">079</span><span id="line-79"></span>
+<span class="source-line-no">080</span><span id="line-80">    /**</span>
+<span class="source-line-no">081</span><span id="line-81">     * Resolves the dependencies from the descriptor passed as an InputStream.</span>
+<span class="source-line-no">082</span><span id="line-82">     *</span>
+<span class="source-line-no">083</span><span id="line-83">     * IMPORTANT: this is to use when you are sure the file is resolvable if you don't have a fallback.</span>
+<span class="source-line-no">084</span><span id="line-84">     * In that last case, prefer the &lt;code&gt;mapDescriptorToClassLoader&lt;/code&gt;.</span>
+<span class="source-line-no">085</span><span id="line-85">     *</span>
+<span class="source-line-no">086</span><span id="line-86">     * @param descriptor the dependencies.txt to use to resolve dependencies.</span>
+<span class="source-line-no">087</span><span id="line-87">     * @return the collection of file representing the available dependencies.</span>
+<span class="source-line-no">088</span><span id="line-88">     */</span>
+<span class="source-line-no">089</span><span id="line-89">    Collection&lt;File&gt; resolveFromDescriptor(InputStream descriptor);</span>
+<span class="source-line-no">090</span><span id="line-90"></span>
+<span class="source-line-no">091</span><span id="line-91">    /**</span>
+<span class="source-line-no">092</span><span id="line-92">     * Alias to load dependencies from a plain list of gav (groupId:artifactId:version).</span>
+<span class="source-line-no">093</span><span id="line-93">     *</span>
+<span class="source-line-no">094</span><span id="line-94">     * @param gavs the dependencies to use to resolve dependencies.</span>
+<span class="source-line-no">095</span><span id="line-95">     * @return the collection of file representing the available dependencies.</span>
+<span class="source-line-no">096</span><span id="line-96">     */</span>
+<span class="source-line-no">097</span><span id="line-97">    default Collection&lt;File&gt; resolveFromDescriptor(final List&lt;String&gt; gavs) {</span>
+<span class="source-line-no">098</span><span id="line-98">        return resolveFromDescriptor(</span>
+<span class="source-line-no">099</span><span id="line-99">                new ByteArrayInputStream(String.join("\n", gavs).getBytes(StandardCharsets.UTF_8)));</span>
+<span class="source-line-no">100</span><span id="line-100">    }</span>
+<span class="source-line-no">101</span><span id="line-101"></span>
+<span class="source-line-no">102</span><span id="line-102">    /**</span>
+<span class="source-line-no">103</span><span id="line-103">     * Abstract a classloader adding the metadata about the resolution done to create it.</span>
+<span class="source-line-no">104</span><span id="line-104">     */</span>
+<span class="source-line-no">105</span><span id="line-105">    interface ClassLoaderDescriptor extends AutoCloseable {</span>
+<span class="source-line-no">106</span><span id="line-106"></span>
+<span class="source-line-no">107</span><span id="line-107">        /**</span>
+<span class="source-line-no">108</span><span id="line-108">         * @return the underlying classloader.</span>
+<span class="source-line-no">109</span><span id="line-109">         */</span>
+<span class="source-line-no">110</span><span id="line-110">        ClassLoader asClassLoader();</span>
+<span class="source-line-no">111</span><span id="line-111"></span>
+<span class="source-line-no">112</span><span id="line-112">        /**</span>
+<span class="source-line-no">113</span><span id="line-113">         * @return the dependencies who matched the resolution and were used to create the classloader.</span>
+<span class="source-line-no">114</span><span id="line-114">         */</span>
+<span class="source-line-no">115</span><span id="line-115">        Collection&lt;String&gt; resolvedDependencies();</span>
+<span class="source-line-no">116</span><span id="line-116">    }</span>
+<span class="source-line-no">117</span><span id="line-117">}</span>
 
 
 
