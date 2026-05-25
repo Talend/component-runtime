@@ -61,7 +61,7 @@
                 "comparison": "Equals",
                 "subject": "ResponseJsonBody",
                 "path": "$.details[0].properties[?(@.name == \"dynamicDependenciesConf\")].metadata.configurationtype::type",
-                "value": "dynamicDependenciesServiceConfiguration"
+                "value": "dynamicDependenciesConfiguration"
               }
             ]
           }

@@ -18,21 +18,32 @@ package org.talend.sdk.component;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.talend.sdk.component.container.ContainerManager.FRAMEWORK_JAR_PATTERN;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.jar.Attributes;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;
 import org.talend.sdk.component.container.ContainerManager;
@@ -149,6 +160,95 @@ class ContainerManagerTest {
             manager.close();
             manager.builder("foo", createZiplockJar(jars).getAbsolutePath()).create();
         });
+    }
+
+    @Test
+    void frameworkJarPatternShouldMatchBothUnixAndWindowsPaths() {
+        // Basic filename tests
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("component-api-1.2.3.jar").matches());
+        assertFalse(FRAMEWORK_JAR_PATTERN.matcher("component-api-1.2.3.txt").matches());
+        // Unix-style paths
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("/usr/lib/component-api-1.2.3.jar").matches());
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("/opt/talend/lib/slf4j-api-1.7.30.jar").matches());
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("lib/johnzon-mapper-1.2.18.jar").matches());
+        // Windows-style paths
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("lib\\component-api-1.2.3.jar").matches());
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("C:\\Program Files\\Talend\\lib\\component-api-1.2.3.jar").matches());
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("D:\\workspace\\lib\\slf4j-api-1.7.30.jar").matches());
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("lib\\johnzon-mapper-1.2.18.jar").matches());
+        // Edge cases: paths with multiple separators
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("foo/bar/baz/component-spi-2.0.0.jar").matches());
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("foo\\bar\\baz\\container-core-1.0.0.jar").matches());
+        // Should NOT match non-framework jars
+        assertFalse(FRAMEWORK_JAR_PATTERN.matcher("/usr/lib/my-custom-component-1.0.0.jar").matches());
+        assertFalse(FRAMEWORK_JAR_PATTERN.matcher("C:\\libs\\other-library-2.0.jar").matches());
+        // Edge case: filename that starts with framework name but isn't a framework jar
+        assertFalse(FRAMEWORK_JAR_PATTERN.matcher("/usr/lib/component-api.txt").matches());
+        assertFalse(FRAMEWORK_JAR_PATTERN.matcher("/usr/lib/component-api").matches());
+    }
+
+    @Test
+    void getClasspathFromJarWithValidManifestClassPath(@TempDir final Path tempDir) throws Exception {
+        final File jar1 = createJarFile(tempDir, "lib1.jar");
+        final File jar2 = createJarFile(tempDir, "lib2.jar");
+        final File mainJar = createJarWithManifest(tempDir, "main.jar",
+                jar1.getAbsolutePath() + " " + jar2.getAbsolutePath());
+
+        try (final ContainerManager containerManager = createDefaultManager()) {
+            final List<String> result = containerManager.getClasspathFromJar(mainJar.toPath());
+
+            assertEquals(2, result.size());
+            assertTrue(result.contains(jar1.getAbsolutePath()));
+            assertTrue(result.contains(jar2.getAbsolutePath()));
+        }
+    }
+
+    @Test
+    void getClasspathFromJarWithNoManifest(@TempDir final Path tempDir) throws Exception {
+        final File jar = createJarFile(tempDir, "noManifest.jar");
+
+        try (final ContainerManager containerManager = createDefaultManager()) {
+            final List<String> result = containerManager.getClasspathFromJar(jar.toPath());
+
+            assertTrue(result.isEmpty());
+        }
+    }
+
+    @Test
+    void getClasspathFromJarWithEmptyClassPath(@TempDir final Path tempDir) throws Exception {
+        final File jar = createJarWithManifest(tempDir, "emptyCP.jar", "");
+
+        try (final ContainerManager containerManager = createDefaultManager()) {
+            final List<String> result = containerManager.getClasspathFromJar(jar.toPath());
+
+            assertTrue(result.isEmpty());
+        }
+    }
+
+    private static File createJarFile(final Path tempDir, final String fileName) throws IOException {
+        final File jar = new File(tempDir.toFile(), fileName);
+        try (final JarOutputStream jos = new JarOutputStream(new FileOutputStream(jar))) {
+            jos.putNextEntry(new ZipEntry("dummy.txt"));
+            jos.write("dummy content".getBytes(StandardCharsets.UTF_8));
+            jos.closeEntry();
+        }
+        return jar;
+    }
+
+    private static File createJarWithManifest(final Path tempDir, final String fileName, final String classPath)
+            throws IOException {
+        final File jar = new File(tempDir.toFile(), fileName);
+        final Manifest manifest = new Manifest();
+        manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        if (classPath != null && !classPath.isEmpty()) {
+            manifest.getMainAttributes().put(Attributes.Name.CLASS_PATH, classPath);
+        }
+        try (final JarOutputStream jos = new JarOutputStream(new FileOutputStream(jar), manifest)) {
+            jos.putNextEntry(new ZipEntry("dummy.txt"));
+            jos.write("dummy content".getBytes(StandardCharsets.UTF_8));
+            jos.closeEntry();
+        }
+        return jar;
     }
 
     private File createZiplockJar(final TempJars jars) {

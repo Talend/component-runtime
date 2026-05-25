@@ -64,7 +64,7 @@
                 "comparison": "LengthEqual",
                 "subject": "ResponseJsonBody",
                 "path": "$.nodes",
-                "value": "10"
+                "value": "12"
               },
               {
                 "comparison": "Matches",
@@ -94,7 +94,7 @@
                 "comparison": "Less",
                 "subject": "ResponseBody",
                 "path": "length",
-                "value": "3214"
+                "value": "3955"
               }
             ]
           }
@@ -362,7 +362,7 @@
                 "comparison": "Less",
                 "subject": "ResponseBody",
                 "path": "length",
-                "value": "3214"
+                "value": "3955"
               }
             ]
           }

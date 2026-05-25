@@ -145,6 +145,7 @@
                   <outputDirectory>${project.build.directory}/test-dependencies/org/apache/tomee/openejb-itests-beans/${ziplock.test.version}</outputDirectory>
                   <destFileName>openejb-itests-beans-${ziplock.test.version}.jar</destFileName>
                 </artifactItem>
+                <!-- the following deps are hardcoded for tests in this module only, so we don't want to have them in the bom -->
                 <artifactItem>
                   <groupId>org.apache.tomee</groupId>
                   <artifactId>arquillian-tomee-codi-tests</artifactId>
@@ -153,6 +154,15 @@
                   <overWrite>true</overWrite>
                   <outputDirectory>${project.build.directory}/test-dependencies/org/apache/tomee/arquillian-tomee-codi-tests/8.0.9</outputDirectory>
                   <destFileName>arquillian-tomee-codi-tests-8.0.9.jar</destFileName>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.poi</groupId>
+                  <artifactId>poi-ooxml</artifactId>
+                  <version>5.4.1</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${project.build.directory}/test-dependencies/org/apache/poi/poi-ooxml/5.4.1</outputDirectory>
+                  <destFileName>poi-ooxml-5.4.1.jar</destFileName>
                 </artifactItem>
               </artifactItems>
             </configuration>
