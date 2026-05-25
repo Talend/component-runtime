@@ -858,7 +858,7 @@ public class ReflectionService {
             final String script = "new RegExp(regex, indicators).test(text)";
             final Context context = Context.enter();
             try {
-                // Rhino 1.9.0+ (QTDI-2292): RegExp is registered via ServiceLoader<RegExpLoader>.
+                // Rhino 1.9.0+: RegExp is registered via ServiceLoader<RegExpLoader>.
                 // The ServiceLoader uses Thread.currentThread().getContextClassLoader() by default,
                 // which may not find the service in an isolated classloader context.
                 // Explicitly register RegExpProxy using Rhino's own classloader as fallback.
