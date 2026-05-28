@@ -34,6 +34,7 @@ import lombok.Data;
 @Emitter(family = "db", name = "input")
 public class DataInput implements Serializable {
 
+    @SuppressWarnings("java:S1068")
     private final I18nService i18n;
 
     private static final Map<String, List<Object>> data = new HashMap<>();

@@ -560,10 +560,6 @@ class DIBulkAutoChunkTest {
     }
 
     //////////////////////////////////////////
-    private static final OutputFactory NO_OUTPUT = name -> value -> {
-        // no-op
-    };
-
     @Data
     @AllArgsConstructor
     @NoArgsConstructor

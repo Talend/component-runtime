@@ -29,6 +29,7 @@ public class StreamingLongParamBuilder {
 
     private final ParameterMeta root;
 
+    @SuppressWarnings("java:S1068")
     private final String componentClassName;
 
     private final String name;

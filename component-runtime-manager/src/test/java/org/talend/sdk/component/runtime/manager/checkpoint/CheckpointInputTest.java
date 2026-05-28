@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.spi.JsonbProvider;
@@ -61,9 +60,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 class CheckpointInputTest {
 
+    @SuppressWarnings("java:S1068")
     private final JsonProvider jsonp = JsonProvider.provider();
-
-    private final JsonBuilderFactory jsonFactory = jsonp.createBuilderFactory(emptyMap());
 
     private final Jsonb jsonb = JsonbProvider.provider().create().build();
 

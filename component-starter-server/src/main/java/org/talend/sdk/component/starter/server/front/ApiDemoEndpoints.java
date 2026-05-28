@@ -88,6 +88,7 @@ public class ApiDemoEndpoints {
 
     public static final String VALUE_ACCESS_CONTROL_ALLOW_METHODS = "GET, POST, DELETE, PUT, PATCH, OPTIONS";
 
+    @SuppressWarnings("java:S1068")
     private final byte[] ENVIRONMENT;
 
     private final Object ACTION_INDEX;
@@ -100,6 +101,7 @@ public class ApiDemoEndpoints {
 
     private final Object COMPONENT_DEPENDENCIES;
 
+    @SuppressWarnings("java:S1068")
     private final Object COMPONENT_DEPENDENCY;
 
     private final Object COMPONENT_ICON;

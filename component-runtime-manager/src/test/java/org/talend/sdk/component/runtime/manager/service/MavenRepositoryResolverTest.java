@@ -55,8 +55,6 @@ class MavenRepositoryResolverTest {
 
     };
 
-    private final PathHandler handler = new PathHandlerImpl();
-
     private final PathHandler handlerNoExistCheck = new PathHandlerImpl() {
 
         @Override
