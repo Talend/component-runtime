@@ -44,6 +44,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -69,6 +70,8 @@ import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.UnsetPropertiesRecipe;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.RegExpLoader;
+import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.configuration.Configuration;
@@ -855,6 +858,16 @@ public class ReflectionService {
             final String script = "new RegExp(regex, indicators).test(text)";
             final Context context = Context.enter();
             try {
+                // Rhino 1.9.0+: RegExp is registered via ServiceLoader<RegExpLoader>.
+                // The ServiceLoader uses Thread.currentThread().getContextClassLoader() by default,
+                // which may not find the service in an isolated classloader context.
+                // Explicitly register RegExpProxy using Rhino's own classloader as fallback.
+                if (ScriptRuntime.getRegExpProxy(context) == null) {
+                    ServiceLoader
+                            .load(RegExpLoader.class, context.getClass().getClassLoader())
+                            .findFirst()
+                            .ifPresent(loader -> ScriptRuntime.setRegExpProxy(context, loader.newProxy()));
+                }
                 final Scriptable scope = context.initStandardObjects();
                 scope.put("text", scope, text);
                 scope.put("regex", scope, regex);
