@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -221,9 +222,9 @@ public final class RecordImpl implements Record {
         @Override
         public List<Entry> getCurrentEntries() {
             if (this.providedSchema != null) {
-                return Collections.unmodifiableList(this.providedSchema.getAllEntries().toList());
+                return Collections.unmodifiableList(this.providedSchema.getAllEntries().collect(Collectors.toList()));
             }
-            return this.entries.streams().toList();
+            return this.entries.streams().collect(Collectors.toList());
         }
 
         @Override
