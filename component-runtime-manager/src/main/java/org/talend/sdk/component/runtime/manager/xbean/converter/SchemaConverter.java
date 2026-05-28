@@ -297,10 +297,15 @@ public class SchemaConverter extends AbstractConverter {
         if (object instanceof String) {
             return Json.createValue((String) object);
         }
-        // fallback for remaining numeric types (Double, Float, Short, Byte, AtomicInteger, ...).
-        // Must stay after BigInteger/BigDecimal to preserve their precision.
-        if (object instanceof Number) {
+        // Floating-point fallback: Float/Double via doubleValue().
+        if (object instanceof Double || object instanceof Float) {
             return Json.createValue(((Number) object).doubleValue());
+        }
+        // Integral fallback for remaining Number types (Short, Byte, AtomicInteger, AtomicLong, ...).
+        // Must stay after BigInteger/BigDecimal to preserve their precision, and uses longValue()
+        // to avoid both precision loss and unwanted decimal representation (e.g. 7 -> 7.0).
+        if (object instanceof Number) {
+            return Json.createValue(((Number) object).longValue());
         }
 
         return null;

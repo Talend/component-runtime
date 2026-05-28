@@ -16,71 +16,95 @@
 package org.talend.sdk.component.runtime.manager.xbean.converter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.json.JsonNumber;
+import javax.json.JsonObject;
 import javax.json.JsonValue;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 
 class SchemaConverterTest {
 
-    private JsonValue invokeToValue(final SchemaConverter converter, final Object input) throws Exception {
-        final Method m = SchemaConverter.class.getDeclaredMethod("toValue", Object.class);
-        m.setAccessible(true);
-        return (JsonValue) m.invoke(converter, input);
+    private final RecordBuilderFactory factory = new RecordBuilderFactoryImpl("test");
+
+    private final SchemaConverter converter = new SchemaConverter();
+
+    /**
+     * Exercises {@link SchemaConverter#toValue(Object)} via the public
+     * {@link SchemaConverter#toJson(Schema)} API by building a single-entry record schema whose entry has
+     * the requested default value, and returning the {@code defaultValue} JSON node produced by the
+     * converter.
+     * <p>
+     * The {@code entryType} only drives entry construction; the converter routes the default value
+     * through {@link SchemaConverter#toValue(Object)} regardless of the declared type.
+     */
+    private JsonValue defaultValueOf(final Schema.Type entryType, final Object defaultValue) {
+        final Schema.Entry entry = factory
+                .newEntryBuilder()
+                .withName("field")
+                .withType(entryType)
+                .withNullable(true)
+                .withDefaultValue(defaultValue)
+                .build();
+        final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(entry).build();
+        final JsonObject json = converter.toJson(schema);
+        return json.getJsonArray(SchemaConverter.ENTRIES).getJsonObject(0).get("defaultValue");
     }
 
     @Test
-    void toValueHandlesFloatWithoutClassCastException() throws Exception {
-        // Regression test: previously the Double||Float branch cast Float to Double directly,
-        // which throws ClassCastException. Both numeric types must be safely converted.
-        final SchemaConverter converter = new SchemaConverter();
+    void toJsonHandlesFloatAndDoubleDefaultValues() {
+        // Regression: previously a Float default value triggered ClassCastException in toValue.
+        final JsonNumber fromFloat = (JsonNumber) defaultValueOf(Schema.Type.FLOAT, 1.5f);
+        assertEquals(1.5d, fromFloat.doubleValue(), 0.0001d);
 
-        final JsonValue fromFloat = invokeToValue(converter, 1.5f);
-        assertNotNull(fromFloat);
-        assertTrue(fromFloat instanceof JsonNumber, "Expected JsonNumber, got " + fromFloat);
-        assertEquals(1.5d, ((JsonNumber) fromFloat).doubleValue(), 0.0001d);
-
-        final JsonValue fromDouble = invokeToValue(converter, 2.5d);
-        assertNotNull(fromDouble);
-        assertTrue(fromDouble instanceof JsonNumber);
-        assertEquals(2.5d, ((JsonNumber) fromDouble).doubleValue(), 0.0001d);
+        final JsonNumber fromDouble = (JsonNumber) defaultValueOf(Schema.Type.DOUBLE, 2.5d);
+        assertEquals(2.5d, fromDouble.doubleValue(), 0.0001d);
     }
 
     @Test
-    void toValueHandlesOtherNumericTypesViaNumberFallback() throws Exception {
-        final SchemaConverter converter = new SchemaConverter();
+    void toJsonHandlesIntegralNumberSubtypesWithoutDecimalRepresentation() {
+        // Short / Byte must serialize as integers (no .0 suffix), via the Number/longValue() fallback.
+        final JsonNumber fromShort = (JsonNumber) defaultValueOf(Schema.Type.INT, (short) 7);
+        assertTrue(fromShort.isIntegral(), "Short must serialize as integral");
+        assertEquals(7L, fromShort.longValue());
 
-        final JsonValue fromShort = invokeToValue(converter, (short) 7);
-        assertTrue(fromShort instanceof JsonNumber);
-        assertEquals(7d, ((JsonNumber) fromShort).doubleValue(), 0.0001d);
-
-        final JsonValue fromByte = invokeToValue(converter, (byte) 3);
-        assertTrue(fromByte instanceof JsonNumber);
-        assertEquals(3d, ((JsonNumber) fromByte).doubleValue(), 0.0001d);
+        final JsonNumber fromByte = (JsonNumber) defaultValueOf(Schema.Type.INT, (byte) 3);
+        assertTrue(fromByte.isIntegral(), "Byte must serialize as integral");
+        assertEquals(3L, fromByte.longValue());
     }
 
     @Test
-    void toValueKeepsBigDecimalAndBigIntegerPrecision() throws Exception {
-        // Guard against a regression where Number fallback would swallow BigDecimal/BigInteger
-        // and silently lose precision via doubleValue().
-        final SchemaConverter converter = new SchemaConverter();
-
+    void toJsonKeepsBigDecimalAndBigIntegerPrecision() {
+        // Guard against a regression where the Number fallback would swallow BigDecimal/BigInteger
+        // and silently lose precision through doubleValue()/longValue().
         final BigDecimal bd = new BigDecimal("12345678901234567890.123456789");
-        final JsonValue fromBigDecimal = invokeToValue(converter, bd);
-        assertTrue(fromBigDecimal instanceof JsonNumber);
-        assertEquals(bd, ((JsonNumber) fromBigDecimal).bigDecimalValue());
+        final JsonNumber fromBigDecimal = (JsonNumber) defaultValueOf(Schema.Type.DECIMAL, bd);
+        assertEquals(bd, fromBigDecimal.bigDecimalValue());
 
+        // No dedicated Schema.Type for BigInteger; the entry type is irrelevant here, only the
+        // default-value routing through toValue() matters.
         final BigInteger bi = new BigInteger("123456789012345678901234567890");
-        final JsonValue fromBigInteger = invokeToValue(converter, bi);
-        assertTrue(fromBigInteger instanceof JsonNumber);
-        assertEquals(bi, ((JsonNumber) fromBigInteger).bigIntegerValue());
+        final JsonNumber fromBigInteger = (JsonNumber) defaultValueOf(Schema.Type.STRING, bi);
+        assertEquals(bi, fromBigInteger.bigIntegerValue());
+    }
+
+    @Test
+    void toJsonPreservesLargeAtomicLongValues() {
+        // AtomicLong falls into the Number fallback. longValue() must be used (not doubleValue())
+        // so that values beyond 2^53 (not exactly representable as double) are preserved.
+        final long big = (1L << 53) + 1L; // 9007199254740993, +1 beyond double precision
+        final JsonNumber fromAtomicLong =
+                (JsonNumber) defaultValueOf(Schema.Type.LONG, new AtomicLong(big));
+        assertTrue(fromAtomicLong.isIntegral(), "AtomicLong must serialize as integral");
+        assertEquals(big, fromAtomicLong.longValue());
     }
 }
 
