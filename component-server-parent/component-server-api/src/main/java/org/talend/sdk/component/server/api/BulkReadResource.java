@@ -55,9 +55,14 @@ public interface BulkReadResource {
                       "path" : "/api/v1/component/index", \s
                       "queryParameters" : {"identifiers" : ["12345", "6789A"]}, \s
                       "verb" : "GET", \s
-                      "headers" : {...} \s
+                      "headers" : {} \s
                     }, \s
-                    { [...]} \s
+                    { \s
+                      "path" : "/api/v1/component/details", \s
+                      "queryParameters" : {"identifier" : "12345"}, \s
+                      "verb" : "GET", \s
+                      "headers" : {} \s
+                    } \s
                     ] \s
                     }`""",
             required = true,
