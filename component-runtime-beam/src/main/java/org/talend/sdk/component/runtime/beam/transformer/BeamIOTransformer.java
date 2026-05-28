@@ -260,8 +260,6 @@ public class BeamIOTransformer implements ClassFileTransformer {
                         writeClass.invoke(oos, obj, false);
                     } else if (ObjectStreamClass.class.isInstance(obj)) {
                         writeClassDesc.invoke(oos, obj, false);
-                    } else if (String.class.isInstance(obj)) {
-                        writeClassDesc.invoke(oos, obj, false);
                     } else if (obj instanceof String) {
                         writeString.invoke(oos, obj, false);
                     } else if (obj.getClass().isArray()) {
