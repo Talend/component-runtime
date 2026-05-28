@@ -335,10 +335,17 @@ class ProjectResourceTest {
         Stream
                 .of("component-api", "<source>1.8</source>", "<trimStackTrace>false</trimStackTrace>")
                 .forEach(token -> assertTrue(files.get("application/pom.xml").contains(token), token));
-        assertEquals("= A Talend generated Component Starter Project\n" + "\n" + "== Test\n" + "\n"
-                + "=== Talend Component Kit Testing\n" + "\n"
-                + "Talend Component Kit Testing skeleton generator. For each component selected it generates an associated test suffixed with `Test`.\n"
-                + "\n" + "\n", files.get("application/README.adoc"));
+        assertEquals("""
+                = A Talend generated Component Starter Project
+                
+                == Test
+                
+                === Talend Component Kit Testing
+                
+                Talend Component Kit Testing skeleton generator. For each component selected it generates an associated test suffixed with `Test`.
+                
+                
+                """, files.get("application/README.adoc"));
     }
 
     @Test

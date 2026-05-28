@@ -661,17 +661,17 @@ class TaCoKitGuessSchemaTest {
             log.info("[discoverProcessorSchema] calling guess schema action.");
             log.info("[discoverProcessorSchema] trash values coming...");
             log.warn(
-                    "[discoverProcessorSchema] trash values collected [WARN ] 14:38:00 com.couchbase.endpoint- [com.couchbase.endpoint][EndpointConnectionFailedEvent][905us] Connect attempt 5 failed because of UnknownHostException: <AnyIPwithoutcouchbaseservice> {\"circuitBreaker\":\"DISABLED\",\"coreId\":\"0x2620ac1e00000001\",\"remote\":\"<AnyIPwithoutcouchbaseservice>:11210\",\"type\":\"KV\"}\n"
-                            +
-                            "java.net.UnknownHostException: <AnyIPwithoutcouchbaseservice>\n" +
-                            "        at java.net.InetAddress$CachedAddresses.get(InetAddress.java:801) ~[?:?]\n" +
-                            "        at java.net.InetAddress.getAllByName0(InetAddress.java:1533) ~[?:?]\n" +
-                            "        at java.net.InetAddress.getAllByName(InetAddress.java:1385) ~[?:?]\n" +
-                            "        at java.net.InetAddress.getAllByName(InetAddress.java:1306) ~[?:?]\n" +
-                            "        at java.net.InetAddress.getByName(InetAddress.java:1256) ~[?:?]\n" +
-                            "        at java.security.AccessController.doPrivileged(AccessController.java:569) ~[?:?]\n"
-                            +
-                            "        at java.lang.Thread.run(Thread.java:840) [?:?]\n");
+                    """
+                            [discoverProcessorSchema] trash values collected [WARN ] 14:38:00 com.couchbase.endpoint- [com.couchbase.endpoint][EndpointConnectionFailedEvent][905us] Connect attempt 5 failed because of UnknownHostException: <AnyIPwithoutcouchbaseservice> {"circuitBreaker":"DISABLED","coreId":"0x2620ac1e00000001","remote":"<AnyIPwithoutcouchbaseservice>:11210","type":"KV"}
+                            java.net.UnknownHostException: <AnyIPwithoutcouchbaseservice>
+                                    at java.net.InetAddress$CachedAddresses.get(InetAddress.java:801) ~[?:?]
+                                    at java.net.InetAddress.getAllByName0(InetAddress.java:1533) ~[?:?]
+                                    at java.net.InetAddress.getAllByName(InetAddress.java:1385) ~[?:?]
+                                    at java.net.InetAddress.getAllByName(InetAddress.java:1306) ~[?:?]
+                                    at java.net.InetAddress.getByName(InetAddress.java:1256) ~[?:?]
+                                    at java.security.AccessController.doPrivileged(AccessController.java:569) ~[?:?]
+                                    at java.lang.Thread.run(Thread.java:840) [?:?]
+                            """);
             if (conf.shouldActionFail) {
                 log.error("[discoverProcessorSchema] Action will fail!");
                 throw new DiscoverSchemaException("Cannot execute action.", conf.failWith);

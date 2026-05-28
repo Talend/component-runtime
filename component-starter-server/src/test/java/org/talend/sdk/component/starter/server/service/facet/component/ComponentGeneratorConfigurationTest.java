@@ -46,61 +46,103 @@ class ComponentGeneratorConfigurationTest {
                 .of(
                         // no field
                         new Scenario(new ProjectRequest.DataStructure(new ArrayList<>()),
-                                "package demo.source;\n" + "\n" + "import java.io.Serializable;\n" + "\n"
-                                        + "import org.talend.sdk.component.api.configuration.Option;\n"
-                                        + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n"
-                                        + "import org.talend.sdk.component.api.meta.Documentation;\n\n"
-                                        + "@GridLayout({\n"
-                                        + "    // the generated layout put one configuration entry per line,\n"
-                                        + "    // customize it as much as needed\n" + "})\n"
-                                        + "@Documentation(\"TODO fill the documentation for this configuration\")"
-                                        + "\n" + "public class Demo implements Serializable {\n}"),
+                                """
+                                        package demo.source;
+                                        
+                                        import java.io.Serializable;
+                                        
+                                        import org.talend.sdk.component.api.configuration.Option;
+                                        import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
+                                        import org.talend.sdk.component.api.meta.Documentation;
+                                        
+                                        @GridLayout({
+                                            // the generated layout put one configuration entry per line,
+                                            // customize it as much as needed
+                                        })
+                                        @Documentation("TODO fill the documentation for this configuration")
+                                        public class Demo implements Serializable {
+                                        }"""),
                         // string field
                         new Scenario(
                                 new ProjectRequest.DataStructure(new ArrayList<>(
                                         singleton(new ProjectRequest.Entry("name", "String", null, null)))),
-                                "package demo.source;\n" + "\n" + "import java.io.Serializable;\n" + "\n"
-                                        + "import org.talend.sdk.component.api.configuration.Option;\n"
-                                        + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n"
-                                        + "import org.talend.sdk.component.api.meta.Documentation;\n\n"
-                                        + "@GridLayout({\n"
-                                        + "    // the generated layout put one configuration entry per line,\n"
-                                        + "    // customize it as much as needed\n"
-                                        + "    @GridLayout.Row({ \"name\" })\n" + "})\n"
-                                        + "@Documentation(\"TODO fill the documentation for this configuration\")"
-                                        + "\n" + "public class Demo implements Serializable {\n" + "    @Option\n"
-                                        + "    @Documentation(\"TODO fill the documentation for this parameter\")"
-                                        + "\n" + "    private String name;\n" + "\n"
-
-                                        + "    public String getName() {\n" + "        return name;\n" + "    }\n"
-                                        + "\n" + "    public Demo setName(String name) {\n"
-                                        + "        this.name = name;\n" + "        return this;\n" + "    }\n" + "}"),
+                                """
+                                        package demo.source;
+                                        
+                                        import java.io.Serializable;
+                                        
+                                        import org.talend.sdk.component.api.configuration.Option;
+                                        import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
+                                        import org.talend.sdk.component.api.meta.Documentation;
+                                        
+                                        @GridLayout({
+                                            // the generated layout put one configuration entry per line,
+                                            // customize it as much as needed
+                                            @GridLayout.Row({ "name" })
+                                        })
+                                        @Documentation("TODO fill the documentation for this configuration")
+                                        public class Demo implements Serializable {
+                                            @Option
+                                            @Documentation("TODO fill the documentation for this parameter")
+                                            private String name;
+                                        
+                                            public String getName() {
+                                                return name;
+                                            }
+                                        
+                                            public Demo setName(String name) {
+                                                this.name = name;
+                                                return this;
+                                            }
+                                        }"""),
                         // string field + int field
                         new Scenario(
                                 new ProjectRequest.DataStructure(
                                         new ArrayList<>(asList(new ProjectRequest.Entry("name", "String", null, null),
                                                 new ProjectRequest.Entry("age", "int", null, null)))),
-                                "package demo.source;\n" + "\n" + "import java.io.Serializable;\n" + "\n"
-                                        + "import org.talend.sdk.component.api.configuration.Option;\n"
-                                        + "import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;\n"
-                                        + "import org.talend.sdk.component.api.meta.Documentation;\n\n"
-                                        + "@GridLayout({\n"
-                                        + "    // the generated layout put one configuration entry per line,\n"
-                                        + "    // customize it as much as needed\n"
-                                        + "    @GridLayout.Row({ \"name\" }),\n" + "    @GridLayout.Row({ \"age\" })\n"
-                                        + "})\n"
-                                        + "@Documentation(\"TODO fill the documentation for this configuration\")"
-                                        + "\n" + "public class Demo implements Serializable {\n" + "    @Option\n"
-                                        + "    @Documentation(\"TODO fill the documentation for this parameter\")"
-                                        + "\n" + "    private String name;\n\n" + "    @Option\n"
-                                        + "    @Documentation(\"TODO fill the documentation for this parameter\")"
-                                        + "\n" + "    private int age;\n" + "\n" + "    public String getName() {\n"
-                                        + "        return name;\n" + "    }\n" + "\n"
-                                        + "    public Demo setName(String name) {\n" + "        this.name = name;\n"
-                                        + "        return this;\n" + "    }\n" + "\n" + "    public int getAge() {\n"
-                                        + "        return age;\n" + "    }\n" + "\n"
-                                        + "    public Demo setAge(int age) {\n" + "        this.age = age;\n"
-                                        + "        return this;\n" + "    }\n" + "}"));
+                                """
+                                        package demo.source;
+                                        
+                                        import java.io.Serializable;
+                                        
+                                        import org.talend.sdk.component.api.configuration.Option;
+                                        import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
+                                        import org.talend.sdk.component.api.meta.Documentation;
+                                        
+                                        @GridLayout({
+                                            // the generated layout put one configuration entry per line,
+                                            // customize it as much as needed
+                                            @GridLayout.Row({ "name" }),
+                                            @GridLayout.Row({ "age" })
+                                        })
+                                        @Documentation("TODO fill the documentation for this configuration")
+                                        public class Demo implements Serializable {
+                                            @Option
+                                            @Documentation("TODO fill the documentation for this parameter")
+                                            private String name;
+                                        
+                                            @Option
+                                            @Documentation("TODO fill the documentation for this parameter")
+                                            private int age;
+                                        
+                                            public String getName() {
+                                                return name;
+                                            }
+                                        
+                                            public Demo setName(String name) {
+                                                this.name = name;
+                                                return this;
+                                            }
+                                        
+                                            public int getAge() {
+                                                return age;
+                                            }
+                                        
+                                            public Demo setAge(int age) {
+                                                this.age = age;
+                                                return this;
+                                            }
+                                        }"""));
     }
 
     @ParameterizedTest

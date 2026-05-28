@@ -34,11 +34,19 @@ public class TravisFacet implements FacetGenerator {
 
     public void register(@Observes final GeneratorRegistration init) {
         init.registerFacetType(this);
-        travisYml = new InMemoryFile(".travis.yml", "language: java\njdk:\n- oraclejdk8\nenv:\n" + "  global:\n"
-                + "    - MAVEN_OPTS=\"-Dmaven.artifact.threads=64 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn\"\n"
-                + "cache:\n" + "  directories:\n  - \"$HOME/.m2\"\n"
-                + "install: mvn clean install -DskipTests -Dinvoker.skip=true --batch-mode\n"
-                + "script: mvn clean install -e --batch-mode\n");
+        travisYml = new InMemoryFile(".travis.yml", """
+                language: java
+                jdk:
+                - oraclejdk8
+                env:
+                  global:
+                    - MAVEN_OPTS="-Dmaven.artifact.threads=64 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
+                cache:
+                  directories:
+                  - "$HOME/.m2"
+                install: mvn clean install -DskipTests -Dinvoker.skip=true --batch-mode
+                script: mvn clean install -e --batch-mode
+                """);
     }
 
     @Override
@@ -50,11 +58,13 @@ public class TravisFacet implements FacetGenerator {
 
     @Override
     public String readme() {
-        return "The .travis.yml file created at the root of the project is preconfigured to be able to build "
-                + "a common component. It caches the maven repository to speed up builds and decrease the maven "
-                + "log level to avoid to reach Travis CI output limit too fast for no reason.\n\n"
-                + "More information can be found at "
-                + "link:https://docs.travis-ci.com/user/getting-started/#To-get-started-with-Travis-CI[Get Started with Travis CI].";
+        return """
+                The .travis.yml file created at the root of the project is preconfigured to be able to build \
+                a common component. It caches the maven repository to speed up builds and decrease the maven \
+                log level to avoid to reach Travis CI output limit too fast for no reason.
+                
+                More information can be found at \
+                link:https://docs.travis-ci.com/user/getting-started/#To-get-started-with-Travis-CI[Get Started with Travis CI].""";
     }
 
     @Override

@@ -330,9 +330,10 @@ class ComponentValidatorTest {
     @ComponentPackage("org.talend.test.failure.i18n.custom")
     void testFailureI18nCustom(final ExceptionSpec expectedException) {
         expectedException
-                .expectMessage("Some error were detected:\n"
-                        + "- Missing key org.talend.test.failure.i18n.custom.MyInternalization.message in interface org.talend.test.failure.i18n.custom.MyInternalization resource bundle\n"
-                        + "- Key org.talend.test.failure.i18n.custom.MyInternalization.message_wrong from interface org.talend.test.failure.i18n.custom.MyInternalization is no more used");
+                .expectMessage("""
+                        Some error were detected:
+                        - Missing key org.talend.test.failure.i18n.custom.MyInternalization.message in interface org.talend.test.failure.i18n.custom.MyInternalization resource bundle
+                        - Key org.talend.test.failure.i18n.custom.MyInternalization.message_wrong from interface org.talend.test.failure.i18n.custom.MyInternalization is no more used""");
     }
 
     @Test
@@ -389,8 +390,11 @@ class ComponentValidatorTest {
             validateDataSet = false, validateWording = true)
     void testFailureDocumentationWordingOption(final ExceptionSpec expectedException) {
         expectedException
-                .expectMessage("Some error were detected:\n" + "- @Documentation on 'empty' is empty or is"
-                        + " not capitalized or ends not by a dot.\n- @Documentation on 'input' is empty or is not capitalized or ends not by a dot");
+                .expectMessage("""
+                        Some error were detected:
+                        - @Documentation on 'empty' is empty or is\
+                         not capitalized or ends not by a dot.
+                        - @Documentation on 'input' is empty or is not capitalized or ends not by a dot""");
     }
 
     @Test
@@ -413,10 +417,11 @@ class ComponentValidatorTest {
     @ComponentPackage(value = "org.talend.test.failure.layout", validateDataSet = false)
     void testFailureLayoutOption(final ExceptionSpec expectedException) {
         expectedException
-                .expectMessage("Some error were detected:\n"
-                        + "- Option 'badOption' in @OptionOrder doesn't exist in declaring class 'org.talend.test.failure.layout.MyComponent$MyNestedConfig'\n"
-                        + "- Option 'badOption' in @GridLayout doesn't exist in declaring class 'org.talend.test.failure.layout.MyComponent$MyConfig'\n"
-                        + "- Option 'proxy' in @GridLayout doesn't exist in declaring class 'org.talend.test.failure.layout.MyComponent$OtherConfig'");
+                .expectMessage("""
+                        Some error were detected:
+                        - Option 'badOption' in @OptionOrder doesn't exist in declaring class 'org.talend.test.failure.layout.MyComponent$MyNestedConfig'
+                        - Option 'badOption' in @GridLayout doesn't exist in declaring class 'org.talend.test.failure.layout.MyComponent$MyConfig'
+                        - Option 'proxy' in @GridLayout doesn't exist in declaring class 'org.talend.test.failure.layout.MyComponent$OtherConfig'""");
     }
 
     @Test
@@ -485,19 +490,20 @@ class ComponentValidatorTest {
     @ComponentPackage(value = "org.talend.test.failure.missingplaceholder", validatePlaceholder = true)
     void testFailureMissingPlaceholder(final ExceptionSpec expectedException) {
         expectedException
-                .expectMessage("Some error were detected:\n" +
-                        "- Missing _placeholder resource bundle entries:\n" +
-                        " Foo.missingPlaceholderChar._placeholder = \n" +
-                        " Foo.missingPlaceholderCharacter._placeholder = \n" +
-                        " Foo.missingPlaceholderDouble._placeholder = \n" +
-                        " Foo.missingPlaceholderDoubleWrapper._placeholder = \n" +
-                        " Foo.missingPlaceholderFloat._placeholder = \n" +
-                        " Foo.missingPlaceholderFloatWrapper._placeholder = \n" +
-                        " Foo.missingPlaceholderInt._placeholder = \n" +
-                        " Foo.missingPlaceholderInteger._placeholder = \n" +
-                        " Foo.missingPlaceholderLong._placeholder = \n" +
-                        " Foo.missingPlaceholderLongWrapper._placeholder = \n" +
-                        " Foo.missingPlaceholderStr._placeholder = ");
+                .expectMessage("""
+                        Some error were detected:
+                        - Missing _placeholder resource bundle entries:
+                         Foo.missingPlaceholderChar._placeholder =\s
+                         Foo.missingPlaceholderCharacter._placeholder =\s
+                         Foo.missingPlaceholderDouble._placeholder =\s
+                         Foo.missingPlaceholderDoubleWrapper._placeholder =\s
+                         Foo.missingPlaceholderFloat._placeholder =\s
+                         Foo.missingPlaceholderFloatWrapper._placeholder =\s
+                         Foo.missingPlaceholderInt._placeholder =\s
+                         Foo.missingPlaceholderInteger._placeholder =\s
+                         Foo.missingPlaceholderLong._placeholder =\s
+                         Foo.missingPlaceholderLongWrapper._placeholder =\s
+                         Foo.missingPlaceholderStr._placeholder =\s""");
     }
 
     @Test
@@ -561,9 +567,10 @@ class ComponentValidatorTest {
     @ComponentPackage("org.talend.test.failure.aftergroup")
     void testFailureAfterGroup(final ExceptionSpec expectedException) {
         expectedException
-                .expectMessage("- @Output parameter must be of type OutputEmitter\n"
-                        + "- Parameter of AfterGroup method need to be annotated with Output\n"
-                        + "- class org.talend.test.failure.aftergroup.MyComponent5 must have a single @AfterGroup method with @LastGroup parameter");
+                .expectMessage("""
+                        - @Output parameter must be of type OutputEmitter
+                        - Parameter of AfterGroup method need to be annotated with Output
+                        - class org.talend.test.failure.aftergroup.MyComponent5 must have a single @AfterGroup method with @LastGroup parameter""");
     }
 
     @Test
