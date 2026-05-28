@@ -549,7 +549,15 @@ public class ComponentResourceImpl implements ComponentResource {
 
     @Override
     public Map<String, String> migrate(final String id, final int version, final Map<String, String> config) {
-        decodeBase64Values(config);
+        config.entrySet().stream().map(e -> {
+            if (e.getValue().startsWith(BASE64_PREFIX)) {
+                final String value = new String(Base64
+                        .getUrlDecoder()
+                        .decode(e.getValue().substring(BASE64_PREFIX.length()).getBytes(StandardCharsets.UTF_8)));
+                e.setValue(value);
+            }
+            return e;
+        }).collect(toMap(Entry::getKey, Entry::getValue));
         if (virtualComponents.isExtensionEntity(id)) {
             return config;
         }
@@ -567,32 +575,14 @@ public class ComponentResourceImpl implements ComponentResource {
             log.info("[Component#migrate] {}#{} registry version {} - incoming: {}.", comp.getParent().getName(),
                     comp.getName(), comp.getVersion(), version);
         }
-        return comp.getMigrationHandler().get().migrate(version, config);
-    }
-
-    /**
-     * Decodes in place every value of {@code config} prefixed by {@value #BASE64_PREFIX}.
-     * <p>
-     * Null values are tolerated, an invalid base64 payload is reported as an HTTP 400 instead of
-     * propagating an {@link IllegalArgumentException} as an opaque 500.
-     */
-    private void decodeBase64Values(final Map<String, String> config) {
-        try {
-            config.replaceAll((key, value) -> {
-                if (value == null || !value.startsWith(BASE64_PREFIX)) {
-                    return value;
-                }
-                final byte[] decoded = Base64.getUrlDecoder().decode(value.substring(BASE64_PREFIX.length()));
-                return new String(decoded, StandardCharsets.UTF_8);
-            });
-        } catch (final IllegalArgumentException iae) {
-            throw new WebApplicationException(Response
-                    .status(Status.BAD_REQUEST)
-                    .type(APPLICATION_JSON_TYPE)
-                    .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED,
-                            "Invalid base64-encoded value in migration config: " + iae.getMessage()))
-                    .build());
-        }
+        return ofNullable(componentDao.findById(id))
+                .orElseThrow(() -> new WebApplicationException(Response
+                        .status(Response.Status.NOT_FOUND)
+                        .entity(new ErrorPayload(COMPONENT_MISSING, "Didn't find component " + id))
+                        .build()))
+                .getMigrationHandler()
+                .get()
+                .migrate(version, config);
     }
 
     @Override
