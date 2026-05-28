@@ -155,7 +155,13 @@ public class VaultClient {
     private final Predicate<Throwable> shouldRetry = cause -> {
         if (WebApplicationException.class.isInstance(cause)) {
             final WebApplicationException wae = WebApplicationException.class.cast(cause);
-            final int status = wae.getResponse().getStatus();
+            final Response response = wae.getResponse();
+            if (response == null) {
+                // no response information: don't make the retry loop NPE, keep retrying as a
+                // recoverable error (the underlying cause is logged by retryFuture).
+                return true;
+            }
+            final int status = response.getStatus();
             if (Status.NOT_FOUND.getStatusCode() == status || status >= 500) {
                 return false;
             }

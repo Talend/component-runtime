@@ -305,8 +305,8 @@ class VaultClientTest {
         // in throwError(Throwable); the default cantDecipherStatusCode should be used instead.
         final int defaultStatus = 422;
         // Use a fresh VaultClient instance (not the CDI proxy) so reflective field access works.
-        final VaultClient client = new VaultClient();
-        client.setCantDecipherStatusCode(defaultStatus);
+        final VaultClient vaultClient = new VaultClient();
+        vaultClient.setCantDecipherStatusCode(defaultStatus);
         final WebApplicationException waeWithoutResponse = new WebApplicationException("boom") {
 
             @Override
@@ -318,7 +318,7 @@ class VaultClientTest {
         final Method throwError = VaultClient.class.getDeclaredMethod("throwError", Throwable.class);
         throwError.setAccessible(true);
         try {
-            throwError.invoke(client, waeWithoutResponse);
+            throwError.invoke(vaultClient, waeWithoutResponse);
             org.junit.jupiter.api.Assertions.fail("Expected a WebApplicationException to be thrown");
         } catch (final InvocationTargetException ite) {
             final Throwable target = ite.getTargetException();
@@ -328,6 +328,29 @@ class VaultClientTest {
             assertEquals(defaultStatus, thrown.getResponse().getStatus());
             assertEquals("boom", thrown.getMessage());
         }
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void shouldRetryWithNullResponseDoesNotNpe() throws Exception {
+        // Regression: shouldRetry must not call wae.getResponse().getStatus() when the response is null;
+        // otherwise retryFuture() raises an NPE before throwError(...) can build the fallback payload.
+        final VaultClient vaultClient = new VaultClient();
+        final java.lang.reflect.Field f = VaultClient.class.getDeclaredField("shouldRetry");
+        f.setAccessible(true);
+        final java.util.function.Predicate<Throwable> shouldRetry =
+                (java.util.function.Predicate<Throwable>) f.get(vaultClient);
+
+        final WebApplicationException waeWithoutResponse = new WebApplicationException("boom") {
+
+            @Override
+            public Response getResponse() {
+                return null;
+            }
+        };
+
+        // Must not NPE, and must allow the retry loop to keep running (true = retry).
+        assertTrue(shouldRetry.test(waeWithoutResponse));
     }
 
     /**
@@ -354,9 +377,7 @@ class VaultClientTest {
     @Test
     @Disabled
     void executeWithRealVault() {
-        // setup.setVaultUrl("http://localhost:8200");
-        final Client realClt = setup.vaultClient(setup.vaultExecutorService());
-        // vault.setVault(setup.vaultTarget(realClt));
+        setup.vaultClient(setup.vaultExecutorService());
         vault.setAuthEndpoint("/v1/auth/approle/login");
         vault.setDecryptEndpoint("/v1/transit/decrypt/{x-talend-tenant-id}");
         vault.setRole(() -> "_role-id_");
