@@ -353,6 +353,70 @@ class VaultClientTest {
         assertTrue(shouldRetry.test(waeWithoutResponse));
     }
 
+    @Test
+    void handleAuthExceptionWithNullResponseDoesNotNpe() throws Exception {
+        // Regression: doAuth().exceptionally() used to dereference wae.getResponse().getEntity()
+        // and response.getStatus() without a null check; with a null response that NPE masked the
+        // original cause. The handler now falls through to throwError(Throwable) which is null-safe.
+        final int defaultStatus = 422;
+        final VaultClient client = new VaultClient();
+        client.setCantDecipherStatusCode(defaultStatus);
+
+        final WebApplicationException waeWithoutResponse = new WebApplicationException("boom") {
+
+            @Override
+            public Response getResponse() {
+                return null;
+            }
+        };
+        // Mimics what CompletableFuture#exceptionally receives: a CompletionException wrapping cause.
+        final java.util.concurrent.CompletionException wrapped =
+                new java.util.concurrent.CompletionException(waeWithoutResponse);
+
+        final java.lang.reflect.Method handler =
+                VaultClient.class.getDeclaredMethod("handleAuthException", Throwable.class);
+        handler.setAccessible(true);
+        try {
+            handler.invoke(client, wrapped);
+            org.junit.jupiter.api.Assertions.fail("Expected a WebApplicationException to be thrown");
+        } catch (final java.lang.reflect.InvocationTargetException ite) {
+            final Throwable target = ite.getTargetException();
+            assertTrue(target instanceof WebApplicationException,
+                    "Expected WebApplicationException, got " + target);
+            final WebApplicationException thrown = (WebApplicationException) target;
+            assertEquals(defaultStatus, thrown.getResponse().getStatus());
+            assertEquals("boom", thrown.getMessage());
+        }
+    }
+
+    @Test
+    void handleAuthExceptionWithNullCauseDoesNotNpe() throws Exception {
+        // Regression: CompletableFuture#exceptionally can receive an exception thrown directly
+        // (not wrapped in CompletionException), so e.getCause() may be null. The handler must
+        // not NPE on cause.getMessage() / shouldRetry / throwError.
+        final int defaultStatus = 422;
+        final VaultClient client = new VaultClient();
+        client.setCantDecipherStatusCode(defaultStatus);
+
+        // RuntimeException with no cause => e.getCause() returns null.
+        final RuntimeException directThrow = new RuntimeException("direct");
+
+        final java.lang.reflect.Method handler =
+                VaultClient.class.getDeclaredMethod("handleAuthException", Throwable.class);
+        handler.setAccessible(true);
+        try {
+            handler.invoke(client, directThrow);
+            org.junit.jupiter.api.Assertions.fail("Expected a WebApplicationException to be thrown");
+        } catch (final java.lang.reflect.InvocationTargetException ite) {
+            final Throwable target = ite.getTargetException();
+            assertTrue(target instanceof WebApplicationException,
+                    "Expected WebApplicationException, got " + target);
+            final WebApplicationException thrown = (WebApplicationException) target;
+            assertEquals(defaultStatus, thrown.getResponse().getStatus());
+            assertEquals("direct", thrown.getMessage());
+        }
+    }
+
     /**
      * Demonstration purpose: with a "real" vault server instance
      * 
