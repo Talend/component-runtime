@@ -58,7 +58,7 @@ public class CodenvyFacet implements FacetGenerator {
     @Override
     public String readme() {
         return """
-                Codenvy allows you to code on this project from any web browser if you host your sources in a Github repository.
+                Codenvy allows you to code on this project from any web browser if you host your sources in a GitHub repository.
                 
                 Click on this link and the project will be opened on your account, ready to develop:
                 
