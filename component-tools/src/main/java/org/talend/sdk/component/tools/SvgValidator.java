@@ -36,13 +36,6 @@ public class SvgValidator {
     private final SAXSVGDocumentFactory factory =
             new SAXSVGDocumentFactory(XMLResourceDescriptor.getXMLParserClassName());
 
-    @SuppressWarnings("java:S1068")
-    private final Boolean legacy;
-
-    public SvgValidator(final Boolean legacy) {
-        this.legacy = legacy;
-    }
-
     public Stream<String> validate(final Path path) {
         final String prefix = "[" + path.getFileName() + "] ";
 

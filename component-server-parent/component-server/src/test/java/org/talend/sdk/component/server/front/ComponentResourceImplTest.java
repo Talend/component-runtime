@@ -482,6 +482,62 @@ class ComponentResourceImplTest {
     }
 
     @Test
+    void migrateToleratesNullValues() {
+        // Regression: previously a null value triggered NPE on String#startsWith(BASE64_PREFIX)
+        // before the migration handler could run.
+        final HashMap<String, String> body = new HashMap<>();
+        body.put("going", "nowhere");
+        body.put("nullable", null);
+        body.put("configuration.dataSet.connection.authMethod", "base64://QWN0aXZlRGlyZWN0b3J5");
+        final Map<String, String> migrated = base
+                .path("component/migrate/{id}/{version}")
+                .resolveTemplate("id", client.getJdbcId())
+                .resolveTemplate("version", 1)
+                .request(APPLICATION_JSON_TYPE)
+                .post(entity(body, APPLICATION_JSON_TYPE), new GenericType<Map<String, String>>() {
+                });
+        assertEquals("ActiveDirectory", migrated.get("configuration.dataSet.connection.authMethod"));
+        assertEquals("nowhere", migrated.get("going"));
+    }
+
+    @Test
+    void migrateToleratesEmptyAndPrefixOnlyValues() {
+        // Empty strings ("") must be left untouched (no prefix match) and a payload reduced to
+        // the prefix only ("base64://") must decode to an empty string without throwing.
+        final HashMap<String, String> body = new HashMap<>();
+        body.put("empty", "");
+        body.put("prefixOnly", "base64://");
+        body.put("going", "nowhere");
+        body.put("configuration.dataSet.connection.authMethod", "base64://QWN0aXZlRGlyZWN0b3J5");
+        final Map<String, String> migrated = base
+                .path("component/migrate/{id}/{version}")
+                .resolveTemplate("id", client.getJdbcId())
+                .resolveTemplate("version", 1)
+                .request(APPLICATION_JSON_TYPE)
+                .post(entity(body, APPLICATION_JSON_TYPE), new GenericType<Map<String, String>>() {
+                });
+        assertEquals("", migrated.get("empty"));
+        assertEquals("", migrated.get("prefixOnly"));
+        assertEquals("ActiveDirectory", migrated.get("configuration.dataSet.connection.authMethod"));
+        assertEquals("nowhere", migrated.get("going"));
+    }
+
+    @Test
+    void migrateInvalidBase64Returns400() {
+        // Regression: an invalid base64 payload used to bubble up as an opaque 500.
+        // It should be reported as a 400 Bad Request.
+        final HashMap<String, String> body = new HashMap<>();
+        body.put("configuration.dataSet.connection.authMethod", "base64://!!not-valid-base64!!");
+        final Response response = base
+                .path("component/migrate/{id}/{version}")
+                .resolveTemplate("id", client.getJdbcId())
+                .resolveTemplate("version", 1)
+                .request(APPLICATION_JSON_TYPE)
+                .post(entity(body, APPLICATION_JSON_TYPE));
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+    }
+
+    @Test
     void migrateFromStudioWs() {
         final Map<String, String> migrated = ws
                 .read(Map.class, "post", String.format("/component/migrate/%s/1", client.getJdbcId()),
