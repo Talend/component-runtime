@@ -239,7 +239,6 @@ class DIBatchSimulationTest {
         final Map<Class<?>, Object> servicesMapper =
                 manager.findPlugin(mapperMapper.plugin()).get().get(ComponentManager.AllServices.class).getServices();
         final Jsonb jsonbMapper = Jsonb.class.cast(servicesMapper.get(Jsonb.class));
-        JsonBuilderFactory.class.cast(servicesMapper.get(JsonBuilderFactory.class));
         final RecordBuilderFactory recordBuilderMapper =
                 RecordBuilderFactory.class.cast(servicesMapper.get(RecordBuilderFactory.class));
         final RecordConverters converters = new RecordConverters();
