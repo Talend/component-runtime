@@ -675,14 +675,12 @@ class AvroRecordTest {
         final Date date = new Date(new java.text.SimpleDateFormat("yyyy-MM-dd").parse("2018-12-6").getTime());
         final Date datetime = new Date();
         final Date time = new Date(1000 * 60 * 60 * 15 + 1000 * 60 * 20 + 39000); // 15:20:39
-        final Instant timestamp = java.sql.Timestamp.valueOf("2021-04-19 13:37:07.752345").toInstant();
         builder.withDateTime("t_date", date);
         builder.withDateTime("t_datetime", datetime);
         builder.withDateTime("t_time", time);
         final Record rec = builder.build();
         final Pipeline pipeline = Pipeline.create();
-        final PCollection<Record> input = pipeline.apply(Create.of(asList(rec)).withCoder(SchemaRegistryCoder.of())); //
-        final PCollection<Record> output = input.apply(new RecordToRecord());
+        pipeline.apply(Create.of(asList(rec)).withCoder(SchemaRegistryCoder.of())); //
         assertEquals(org.apache.beam.sdk.PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
     }
 
@@ -721,9 +719,7 @@ class AvroRecordTest {
         // should not use ReflectData for any GenericRecord implements
         // ReflectData.get().addLogicalTypeConversion(new Conversions.DecimalConversion());
 
-        final PCollection<Record> input =
-                pipeline.apply(Create.of(asList(rec1, rec2)).withCoder(SchemaRegistryCoder.of())); //
-        final PCollection<Record> output = input.apply(new RecordToRecord());
+        pipeline.apply(Create.of(asList(rec1, rec2)).withCoder(SchemaRegistryCoder.of())); //
         assertEquals(org.apache.beam.sdk.PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
     }
 
@@ -751,9 +747,7 @@ class AvroRecordTest {
 
         final Pipeline pipeline = Pipeline.create();
 
-        final PCollection<Record> input =
-                pipeline.apply(Create.of(asList(rec1, rec2)).withCoder(SchemaRegistryCoder.of())); //
-        final PCollection<Record> output = input.apply(new RecordToRecord());
+        pipeline.apply(Create.of(asList(rec1, rec2)).withCoder(SchemaRegistryCoder.of())); //
         assertEquals(org.apache.beam.sdk.PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
     }
 

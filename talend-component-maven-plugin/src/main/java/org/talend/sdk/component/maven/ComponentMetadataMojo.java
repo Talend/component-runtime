@@ -24,7 +24,6 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.stream.Stream;
@@ -84,7 +83,6 @@ public class ComponentMetadataMojo extends ComponentManagerBasedMojo {
                                                 .orElse(p.getName()),
                                         p.getIcon(), emptyList(), singletonList("MAIN"))),
                                 c.getProcessors().values().stream().map(p -> {
-                                    final Method listener = p.getListener();
                                     return new Component(p.getParent().getCategories(), p.getParent().getName(),
                                             p.getName(),
                                             p

@@ -405,6 +405,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
         return result.stream();
     }
 
+    @SuppressWarnings("java:S1481")
     private void checkAssignmentFromDynamicDependency() {
         DefaultArtifact defaultArtifact = new DefaultArtifact("g:a:v");
         // Do nothing, just check assignment

@@ -33,11 +33,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -549,15 +547,6 @@ public class ComponentResourceImpl implements ComponentResource {
 
     @Override
     public Map<String, String> migrate(final String id, final int version, final Map<String, String> config) {
-        final Map<String, String> configuration = config.entrySet().stream().map(e -> {
-            if (e.getValue().startsWith(BASE64_PREFIX)) {
-                final String value = new String(Base64
-                        .getUrlDecoder()
-                        .decode(e.getValue().substring(BASE64_PREFIX.length()).getBytes(StandardCharsets.UTF_8)));
-                e.setValue(value);
-            }
-            return e;
-        }).collect(toMap(Entry::getKey, Entry::getValue));
         if (virtualComponents.isExtensionEntity(id)) {
             return config;
         }

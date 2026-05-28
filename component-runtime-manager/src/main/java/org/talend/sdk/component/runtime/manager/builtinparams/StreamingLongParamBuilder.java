@@ -29,9 +29,6 @@ public class StreamingLongParamBuilder {
 
     private final ParameterMeta root;
 
-    @SuppressWarnings("java:S1068")
-    private final String componentClassName;
-
     private final String name;
 
     private final String layoutType;
@@ -43,7 +40,6 @@ public class StreamingLongParamBuilder {
     public StreamingLongParamBuilder(final ParameterMeta root, final String componentClassName,
             final String parameterName, final LocalConfiguration configuration) {
         this.root = root;
-        this.componentClassName = componentClassName;
         this.name = parameterName;
         this.configuration = configuration;
         this.layoutType = findLayoutType();
