@@ -383,9 +383,12 @@ class ProjectResourceTest {
         final ProjectModel projectModel = new ProjectModel();
         projectModel.setFacets(singletonList("Travis CI"));
         final Map<String, String> files = createZip(projectModel, target);
+        final String travisContent = files.get("application/.travis.yml");
 
         assertTrue(files.get("application/README.adoc").contains("=== Travis CI\n"));
-        assertTrue(files.get("application/.travis.yml").contains("language: java"));
+        assertTrue(travisContent.contains("language: java"));
+        assertTrue(travisContent.contains("jdk:\n  - oraclejdk8"), travisContent);
+        assertTrue(travisContent.contains("directories:\n    - \"$HOME/.m2\""), travisContent);
     }
 
     @Test
