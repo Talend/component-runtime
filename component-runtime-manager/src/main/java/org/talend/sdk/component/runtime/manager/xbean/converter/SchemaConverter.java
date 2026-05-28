@@ -282,11 +282,11 @@ public class SchemaConverter extends AbstractConverter {
         if (object instanceof Long) {
             return Json.createValue((Long) object);
         }
-        if (object instanceof Double || object instanceof Float) {
-            return Json.createValue((Double) object);
-        }
         if (object instanceof BigInteger) {
             return Json.createValue((BigInteger) object);
+        }
+        if (object instanceof BigDecimal) {
+            return Json.createValue((BigDecimal) object);
         }
         if (object instanceof Boolean) {
             if (object == Boolean.TRUE) {
@@ -294,11 +294,13 @@ public class SchemaConverter extends AbstractConverter {
             }
             return JsonValue.FALSE;
         }
-        if (object instanceof BigDecimal) {
-            return Json.createValue((BigDecimal) object);
-        }
         if (object instanceof String) {
             return Json.createValue((String) object);
+        }
+        // fallback for remaining numeric types (Double, Float, Short, Byte, AtomicInteger, ...).
+        // Must stay after BigInteger/BigDecimal to preserve their precision.
+        if (object instanceof Number) {
+            return Json.createValue(((Number) object).doubleValue());
         }
 
         return null;
