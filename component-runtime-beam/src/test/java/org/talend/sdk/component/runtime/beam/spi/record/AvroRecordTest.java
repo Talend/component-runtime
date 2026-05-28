@@ -747,7 +747,7 @@ class AvroRecordTest {
 
         final Pipeline pipeline = Pipeline.create();
 
-        pipeline.apply(Create.of(asList(rec1, rec2)).withCoder(SchemaRegistryCoder.of())); //
+        pipeline.apply(Create.of(asList(rec1, rec2)).withCoder(SchemaRegistryCoder.of())).apply(new RecordToRecord());
         assertEquals(org.apache.beam.sdk.PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
     }
 
