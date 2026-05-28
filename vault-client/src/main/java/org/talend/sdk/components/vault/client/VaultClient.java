@@ -434,7 +434,7 @@ public class VaultClient {
                 } catch (final Exception ignored) {
                     // no-op
                 }
-                if (message.isEmpty()) {
+                if (message == null || message.isEmpty()) {
                     message = cause.getMessage();
                 }
                 throwError(response.getStatus(), message);
