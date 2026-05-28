@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.record;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;

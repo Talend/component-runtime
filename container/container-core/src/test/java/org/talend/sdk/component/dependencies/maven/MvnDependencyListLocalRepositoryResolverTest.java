@@ -17,6 +17,7 @@ package org.talend.sdk.component.dependencies.maven;
 
 import static java.lang.ClassLoader.getSystemClassLoader;
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
