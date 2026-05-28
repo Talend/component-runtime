@@ -474,8 +474,8 @@ public class VaultClient {
         if (WebApplicationException.class.isInstance(cause)) {
             final WebApplicationException wae = WebApplicationException.class.cast(cause);
             final Response response = wae.getResponse();
-            status = response.getStatus();
             if (response != null) {
+                status = response.getStatus();
                 if (ErrorPayload.class.isInstance(response.getEntity())) { // internal error
                     throw wae;
                 } else {

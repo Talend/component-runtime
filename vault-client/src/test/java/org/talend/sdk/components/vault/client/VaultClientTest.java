@@ -19,12 +19,15 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.enterprise.inject.se.SeContainer;
 import javax.enterprise.inject.se.SeContainerInitializer;
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -294,6 +297,37 @@ class VaultClientTest {
         assertEquals(400, response.getStatus());
         assertEquals("{\"errors\":[\"wrong vault_encrypt\"]}",
                 response.readEntity(ErrorPayload.class).getDescription());
+    }
+
+    @Test
+    void throwErrorWithNullResponseDoesNotNpe() throws Exception {
+        // A WebApplicationException whose getResponse() returns null must not trigger an NPE
+        // in throwError(Throwable); the default cantDecipherStatusCode should be used instead.
+        final int defaultStatus = 422;
+        // Use a fresh VaultClient instance (not the CDI proxy) so reflective field access works.
+        final VaultClient client = new VaultClient();
+        client.setCantDecipherStatusCode(defaultStatus);
+        final WebApplicationException waeWithoutResponse = new WebApplicationException("boom") {
+
+            @Override
+            public Response getResponse() {
+                return null;
+            }
+        };
+
+        final Method throwError = VaultClient.class.getDeclaredMethod("throwError", Throwable.class);
+        throwError.setAccessible(true);
+        try {
+            throwError.invoke(client, waeWithoutResponse);
+            org.junit.jupiter.api.Assertions.fail("Expected a WebApplicationException to be thrown");
+        } catch (final InvocationTargetException ite) {
+            final Throwable target = ite.getTargetException();
+            assertTrue(target instanceof WebApplicationException,
+                    "Expected WebApplicationException, got " + target);
+            final WebApplicationException thrown = (WebApplicationException) target;
+            assertEquals(defaultStatus, thrown.getResponse().getStatus());
+            assertEquals("boom", thrown.getMessage());
+        }
     }
 
     /**
