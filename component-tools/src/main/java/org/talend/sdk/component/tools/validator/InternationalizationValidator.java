@@ -213,8 +213,8 @@ public class InternationalizationValidator implements Validator {
                             """
                                     
                                     
-                                    Please, check changes and disable '-Dtalend.validation.internationalization.autofix=false' / \
-                                    '<validateInternationalizationAutoFix>false</>'property.
+                                    Please, check changes and set '-Dtalend.validation.internationalization.autofix=false' / \
+                                    '<validateInternationalizationAutoFix>false</validateInternationalizationAutoFix>' to disable autofix.
                                     
                                     """));
             log.info(resultAutoFix);

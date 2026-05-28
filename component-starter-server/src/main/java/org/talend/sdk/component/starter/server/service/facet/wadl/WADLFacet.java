@@ -72,7 +72,7 @@ public class WADLFacet implements FacetGenerator {
                 }
                 ----
                 
-                Don't forget you need to build once the project to have the generated interfaces and be able to write your client from the \
+                Don't forget you need to build once the project to have the generated interfaces and be able to write your client \
                 using the sources created in `generated-sources` folder.
                 
                 TIP: you can customize the way the client is created from the interface - including the providers/serializers used,

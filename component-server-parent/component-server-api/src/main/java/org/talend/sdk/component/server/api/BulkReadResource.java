@@ -47,7 +47,7 @@ public interface BulkReadResource {
     CompletionStage<BulkResponses> bulk(@RequestBody(
             description = """
                     The requests list as json objects containing a list of request objects. \s
-                    If your request contains multiple identifiers, you must use a list of string. \s
+                    If your request contains multiple identifiers, you must use a list of strings. \s
                     Example : \s
                     `{ \s
                     "requests" : [ \s
@@ -55,7 +55,7 @@ public interface BulkReadResource {
                       "path" : "/api/v1/component/index", \s
                       "queryParameters" : {"identifiers" : ["12345", "6789A"]}, \s
                       "verb" : "GET", \s
-                      "headers" : {...}, \s
+                      "headers" : {...} \s
                     }, \s
                     { [...]} \s
                     ] \s
