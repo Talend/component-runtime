@@ -276,17 +276,17 @@ public class SchemaConverter extends AbstractConverter {
         if (object == null) {
             return JsonValue.NULL;
         }
-        if (object instanceof Integer) {
-            return Json.createValue((Integer) object);
+        if (object instanceof Integer casted) {
+            return Json.createValue(casted);
         }
-        if (object instanceof Long) {
-            return Json.createValue((Long) object);
+        if (object instanceof Long casted) {
+            return Json.createValue(casted);
         }
-        if (object instanceof BigInteger) {
-            return Json.createValue((BigInteger) object);
+        if (object instanceof BigInteger casted) {
+            return Json.createValue(casted);
         }
-        if (object instanceof BigDecimal) {
-            return Json.createValue((BigDecimal) object);
+        if (object instanceof BigDecimal casted) {
+            return Json.createValue(casted);
         }
         if (object instanceof Boolean) {
             if (object == Boolean.TRUE) {
@@ -294,8 +294,8 @@ public class SchemaConverter extends AbstractConverter {
             }
             return JsonValue.FALSE;
         }
-        if (object instanceof String) {
-            return Json.createValue((String) object);
+        if (object instanceof String casted) {
+            return Json.createValue(casted);
         }
         // Floating-point fallback: Float/Double via doubleValue().
         if (object instanceof Double || object instanceof Float) {
@@ -304,8 +304,8 @@ public class SchemaConverter extends AbstractConverter {
         // Integral fallback for remaining Number types (Short, Byte, AtomicInteger, AtomicLong, ...).
         // Must stay after BigInteger/BigDecimal to preserve their precision, and uses longValue()
         // to avoid both precision loss and unwanted decimal representation (e.g. 7 -> 7.0).
-        if (object instanceof Number) {
-            return Json.createValue(((Number) object).longValue());
+        if (object instanceof Number casted) {
+            return Json.createValue(casted.longValue());
         }
 
         return null;
