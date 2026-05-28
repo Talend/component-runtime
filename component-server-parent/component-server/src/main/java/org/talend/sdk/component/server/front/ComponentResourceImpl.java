@@ -549,15 +549,14 @@ public class ComponentResourceImpl implements ComponentResource {
 
     @Override
     public Map<String, String> migrate(final String id, final int version, final Map<String, String> config) {
-        config.entrySet().stream().map(e -> {
+        config.entrySet().forEach(e -> {
             if (e.getValue().startsWith(BASE64_PREFIX)) {
                 final String value = new String(Base64
                         .getUrlDecoder()
                         .decode(e.getValue().substring(BASE64_PREFIX.length()).getBytes(StandardCharsets.UTF_8)));
                 e.setValue(value);
             }
-            return e;
-        }).collect(toMap(Entry::getKey, Entry::getValue));
+        });
         if (virtualComponents.isExtensionEntity(id)) {
             return config;
         }
