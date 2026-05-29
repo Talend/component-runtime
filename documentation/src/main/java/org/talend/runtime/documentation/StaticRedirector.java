@@ -29,7 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = PRIVATE)
 public class StaticRedirector {
 
-    public static final String LATEST_REDIRECT = """
+    public static final String LATEST_REDIRECT =
+            """
             <!DOCTYPE html>
             <meta charset="utf-8">
             <link rel="canonical" href="https://talend.github.io/component-runtime/main/latest/index.html">

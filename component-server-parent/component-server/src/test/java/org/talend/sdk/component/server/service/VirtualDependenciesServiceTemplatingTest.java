@@ -51,9 +51,10 @@ class VirtualDependenciesServiceTemplatingTest {
                         new Pair("a=b\nc=userJar(dummy)",
                                 "a=b\nc=virtual.talend.component.server.generated.foo_plugin:dummy:jar:unknown"),
                         new Pair("""
-                                a=b
-                                c=userJar(dummy)
-                                another[0]=userJar(other)""", """
+                                 a=b
+                                 c=userJar(dummy)
+                                 another[0]=userJar(other)""",
+                                """
                                 a=b
                                 c=virtual.talend.component.server.generated.foo_plugin:dummy:jar:unknown
                                 another[0]=virtual.talend.component.server.generated.foo_plugin:other:jar:unknown"""));

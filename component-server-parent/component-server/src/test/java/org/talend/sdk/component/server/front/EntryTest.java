@@ -44,14 +44,14 @@ class EntryTest {
         Map<String, String> props = new LinkedHashMap<>(0);
         props.put("p1", "v1");
         return new Entry("name", "raw", Schema.Type.STRING, true, false, true,
-                true, null, "comment", props, "default");
+                true, null, "comment", props, "default", "");
     }
 
     private Entry createEmptyEntry() {
         Map<String, String> props = new LinkedHashMap<>(0);
         props.put("p1", "v1");
         return new Entry("name", null, Schema.Type.STRING, true, false, true,
-                true, null, null, props, null);
+                true, null, null, props, null, "");
     }
 
     // ----------------------------------------------------------------------

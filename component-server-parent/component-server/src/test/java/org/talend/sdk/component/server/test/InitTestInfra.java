@@ -352,17 +352,17 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                     out
                             .write(("""
                                     == input
-                                    
+
                                     desc
-                                    
+
                                     === Configuration
-                                    
+
                                     Something1
-                                    
+
                                     == output
-                                    
+
                                     === Configuration
-                                    
+
                                     Something else""")
                                     .getBytes(StandardCharsets.UTF_8));
                     out.closeEntry();

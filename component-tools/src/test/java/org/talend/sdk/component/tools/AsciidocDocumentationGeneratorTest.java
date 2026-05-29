@@ -45,53 +45,53 @@ class AsciidocDocumentationGeneratorTest extends GeneratorBase {
         assertTrue(output.exists());
         try (final BufferedReader reader = new BufferedReader(new FileReader(output))) {
             assertEquals("""
-                    //component_start:my
-                    
-                    == my
-                    
-                    super my component
-                    
-                    //configuration_start
-                    
-                    === Configuration
-                    
-                    [cols="d,d,m,a,e,d",options="header"]
-                    |===
-                    |Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type
-                    |configuration|configuration configuration|-|Always enabled|configuration|-
-                    |input|the input value|def|Always enabled|configuration.input|-
-                    |nested|it is nested|-|Always enabled|configuration.nested|dataset
-                    |datastore|the datastore|-|Always enabled|configuration.nested.datastore|datastore
-                    |url|The url|-|Always enabled|configuration.nested.datastore.url|datastore
-                    |user|the user to log in|unknown|Always enabled|configuration.nested.user|dataset
-                    |===
-                    
-                    //configuration_end
-                    
-                    //component_end:my
-                    
-                    //component_start:my2
-                    
-                    == my2
-                    
-                    super my component2
-                    
-                    //configuration_start
-                    
-                    === Configuration
-                    
-                    [cols="d,d,m,a,e,d",options="header"]
-                    |===
-                    |Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type
-                    |ds|ds configuration|-|Always enabled|ds|dataset
-                    |datastore|the datastore|-|Always enabled|ds.datastore|datastore
-                    |Input|an input|-|Always enabled|ds.datastore.input|datastore
-                    |===
-                    
-                    //configuration_end
-                    
-                    //component_end:my2
-                    """, reader.lines().collect(joining("\n")));
+                         //component_start:my
+
+                         == my
+
+                         super my component
+
+                         //configuration_start
+
+                         === Configuration
+
+                         [cols="d,d,m,a,e,d",options="header"]
+                         |===
+                         |Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type
+                         |configuration|configuration configuration|-|Always enabled|configuration|-
+                         |input|the input value|def|Always enabled|configuration.input|-
+                         |nested|it is nested|-|Always enabled|configuration.nested|dataset
+                         |datastore|the datastore|-|Always enabled|configuration.nested.datastore|datastore
+                         |url|The url|-|Always enabled|configuration.nested.datastore.url|datastore
+                         |user|the user to log in|unknown|Always enabled|configuration.nested.user|dataset
+                         |===
+
+                         //configuration_end
+
+                         //component_end:my
+
+                         //component_start:my2
+
+                         == my2
+
+                         super my component2
+
+                         //configuration_start
+
+                         === Configuration
+
+                         [cols="d,d,m,a,e,d",options="header"]
+                         |===
+                         |Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type
+                         |ds|ds configuration|-|Always enabled|ds|dataset
+                         |datastore|the datastore|-|Always enabled|ds.datastore|datastore
+                         |Input|an input|-|Always enabled|ds.datastore.input|datastore
+                         |===
+
+                         //configuration_end
+
+                         //component_end:my2
+                         """, reader.lines().collect(joining("\n")));
         }
     }
 
@@ -104,35 +104,36 @@ class AsciidocDocumentationGeneratorTest extends GeneratorBase {
                 output, null, 2, null, null, null, null, log, findWorkDir(), "1.0", Locale.ROOT).run();
         assertTrue(output.exists());
         try (final BufferedReader reader = new BufferedReader(new FileReader(output))) {
-            assertEquals("""
-                            //component_start:WithNestedConfigTypes
-                            
-                            == WithNestedConfigTypes
-                            
-                            super my component
-                            
-                            //configuration_start
-                            
-                            === Configuration
-                            
-                            [cols="d,d,m,a,e,d",options="header"]
-                            |===
-                            |Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type
-                            |configuration|configuration configuration|-|Always enabled|configuration|-
-                            |conf With Datase|config with dataset|-|Always enabled|configuration.confWithDataset|-
-                            |dataset|dataset configuration|-|Always enabled|configuration.confWithDataset.dataset|dataset
-                            |Advanced parameter|Advanced parameter|-|Always enabled|configuration.confWithDataset.dataset.advanced|dataset
-                            |config With Datastore|config with datastore|-|Always enabled|configuration.confWithDataset.dataset.configWithDatastore|dataset
-                            |datastore|...|-|Always enabled|configuration.confWithDataset.dataset.configWithDatastore.datastore|datastore
-                            |Advanced in datastore|Advanced in datastore|-|Always enabled|configuration.confWithDataset.dataset.configWithDatastore.datastore.advanced_ds|datastore
-                            |user|the user to log in|-|Always enabled|configuration.confWithDataset.dataset.configWithDatastore.datastore.user|datastore
-                            |input|the input value|-|Always enabled|configuration.input|-
-                            |===
-                            
-                            //configuration_end
-                            
-                            //component_end:WithNestedConfigTypes
-                            """,
+            assertEquals(
+                    """
+                    //component_start:WithNestedConfigTypes
+
+                    == WithNestedConfigTypes
+
+                    super my component
+
+                    //configuration_start
+
+                    === Configuration
+
+                    [cols="d,d,m,a,e,d",options="header"]
+                    |===
+                    |Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type
+                    |configuration|configuration configuration|-|Always enabled|configuration|-
+                    |conf With Datase|config with dataset|-|Always enabled|configuration.confWithDataset|-
+                    |dataset|dataset configuration|-|Always enabled|configuration.confWithDataset.dataset|dataset
+                    |Advanced parameter|Advanced parameter|-|Always enabled|configuration.confWithDataset.dataset.advanced|dataset
+                    |config With Datastore|config with datastore|-|Always enabled|configuration.confWithDataset.dataset.configWithDatastore|dataset
+                    |datastore|...|-|Always enabled|configuration.confWithDataset.dataset.configWithDatastore.datastore|datastore
+                    |Advanced in datastore|Advanced in datastore|-|Always enabled|configuration.confWithDataset.dataset.configWithDatastore.datastore.advanced_ds|datastore
+                    |user|the user to log in|-|Always enabled|configuration.confWithDataset.dataset.configWithDatastore.datastore.user|datastore
+                    |input|the input value|-|Always enabled|configuration.input|-
+                    |===
+
+                    //configuration_end
+
+                    //component_end:WithNestedConfigTypes
+                    """,
                     reader.lines().collect(joining("\n")));
         }
     }
@@ -147,53 +148,53 @@ class AsciidocDocumentationGeneratorTest extends GeneratorBase {
         assertTrue(output.exists());
         try (final BufferedReader reader = new BufferedReader(new FileReader(output))) {
             assertEquals("""
-                    //component_start:my
-                    
-                    == my
-                    
-                    Awesome Doc
-                    
-                    //configuration_start
-                    
-                    === Configuration
-                    
-                    [cols="d,d,m,a,e,d",options="header"]
-                    |===
-                    |Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type
-                    |configuration|configuration configuration|-|Always enabled|configuration|-
-                    |input|the input value|def|Always enabled|configuration.input|-
-                    |nested|it is nested|-|Always enabled|configuration.nested|dataset
-                    |datastore|the datastore|-|Always enabled|configuration.nested.datastore|datastore
-                    |url|The url|-|Always enabled|configuration.nested.datastore.url|datastore
-                    |user|the user to log in|unknown|Always enabled|configuration.nested.user|dataset
-                    |===
-                    
-                    //configuration_end
-                    
-                    //component_end:my
-                    
-                    //component_start:my2
-                    
-                    == my2
-                    
-                    super my component2
-                    
-                    //configuration_start
-                    
-                    === Configuration
-                    
-                    [cols="d,d,m,a,e,d",options="header"]
-                    |===
-                    |Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type
-                    |ds|ds configuration|-|Always enabled|ds|dataset
-                    |datastore|the datastore|-|Always enabled|ds.datastore|datastore
-                    |Input|an input|-|Always enabled|ds.datastore.input|datastore
-                    |===
-                    
-                    //configuration_end
-                    
-                    //component_end:my2
-                    """, reader.lines().collect(joining("\n")));
+                         //component_start:my
+
+                         == my
+
+                         Awesome Doc
+
+                         //configuration_start
+
+                         === Configuration
+
+                         [cols="d,d,m,a,e,d",options="header"]
+                         |===
+                         |Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type
+                         |configuration|configuration configuration|-|Always enabled|configuration|-
+                         |input|the input value|def|Always enabled|configuration.input|-
+                         |nested|it is nested|-|Always enabled|configuration.nested|dataset
+                         |datastore|the datastore|-|Always enabled|configuration.nested.datastore|datastore
+                         |url|The url|-|Always enabled|configuration.nested.datastore.url|datastore
+                         |user|the user to log in|unknown|Always enabled|configuration.nested.user|dataset
+                         |===
+
+                         //configuration_end
+
+                         //component_end:my
+
+                         //component_start:my2
+
+                         == my2
+
+                         super my component2
+
+                         //configuration_start
+
+                         === Configuration
+
+                         [cols="d,d,m,a,e,d",options="header"]
+                         |===
+                         |Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type
+                         |ds|ds configuration|-|Always enabled|ds|dataset
+                         |datastore|the datastore|-|Always enabled|ds.datastore|datastore
+                         |Input|an input|-|Always enabled|ds.datastore.input|datastore
+                         |===
+
+                         //configuration_end
+
+                         //component_end:my2
+                         """, reader.lines().collect(joining("\n")));
         }
     }
 
@@ -206,15 +207,16 @@ class AsciidocDocumentationGeneratorTest extends GeneratorBase {
                 output, null, 2, null, null, null, null, log, findWorkDir(), "1.0", Locale.ROOT).run();
         assertTrue(output.exists());
         try (final BufferedReader reader = new BufferedReader(new FileReader(output))) {
-            assertEquals("""
+            assertEquals(
+                    """
                     //component_start:configurationWithArrayOfObject
-                    
+
                     == configurationWithArrayOfObject
-                    
+
                     //configuration_start
-                    
+
                     === Configuration
-                    
+
                     [cols="d,d,m,a,e,d",options="header"]
                     |===
                     |Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type
@@ -226,11 +228,12 @@ class AsciidocDocumentationGeneratorTest extends GeneratorBase {
                     |operation|The operation to apply.|SUM|Always enabled|configuration.operations[${index}].operation|-
                     |outputFieldPath|The resulting field name.|<empty>|`fieldPath` is equal to `a value` or `anaother value`|configuration.operations[${index}].outputFieldPath|-
                     |===
-                    
+
                     //configuration_end
-                    
+
                     //component_end:configurationWithArrayOfObject
-                    """, reader.lines().collect(joining("\n")));
+                    """,
+                    reader.lines().collect(joining("\n")));
         }
     }
 
@@ -244,38 +247,38 @@ class AsciidocDocumentationGeneratorTest extends GeneratorBase {
         assertTrue(output.exists());
         try (final BufferedReader reader = new BufferedReader(new FileReader(output))) {
             assertEquals("""
-                            //component_start:activeif
-                            
-                            == activeif
-                            
-                            //configuration_start
-                            
-                            === Configuration
-                            
-                            [cols="d,d,m,a,e,d",options="header"]
-                            |===
-                            |Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type
-                            |configuration|configuration configuration|-|Always enabled|configuration|-
-                            |advanced|advanced configuration|false|Always enabled|configuration.advanced|-
-                            |advancedOption|advancedOption configuration|-|All of the following conditions are met:
-                            
-                            - `advanced` is equal to `false`
-                            - `query` is empty
-                            |configuration.advancedOption|-
-                            |query|query configuration|-|All of the following conditions are met:
-                            
-                            - `toggle` is equal to `true`
-                            - `type` is equal to `mysql` or `oracle`
-                            |configuration.query|-
-                            |toggle|toggle configuration|false|Always enabled|configuration.toggle|-
-                            |token|token configuration|-|`toggle` is equal to `true`|configuration.token|-
-                            |type|type configuration|-|Always enabled|configuration.type|-
-                            |===
-                            
-                            //configuration_end
-                            
-                            //component_end:activeif
-                            """,
+                         //component_start:activeif
+
+                         == activeif
+
+                         //configuration_start
+
+                         === Configuration
+
+                         [cols="d,d,m,a,e,d",options="header"]
+                         |===
+                         |Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type
+                         |configuration|configuration configuration|-|Always enabled|configuration|-
+                         |advanced|advanced configuration|false|Always enabled|configuration.advanced|-
+                         |advancedOption|advancedOption configuration|-|All of the following conditions are met:
+
+                         - `advanced` is equal to `false`
+                         - `query` is empty
+                         |configuration.advancedOption|-
+                         |query|query configuration|-|All of the following conditions are met:
+
+                         - `toggle` is equal to `true`
+                         - `type` is equal to `mysql` or `oracle`
+                         |configuration.query|-
+                         |toggle|toggle configuration|false|Always enabled|configuration.toggle|-
+                         |token|token configuration|-|`toggle` is equal to `true`|configuration.token|-
+                         |type|type configuration|-|Always enabled|configuration.type|-
+                         |===
+
+                         //configuration_end
+
+                         //component_end:activeif
+                         """,
                     reader.lines().collect(joining("\n")));
         }
     }

@@ -54,29 +54,29 @@ public class WADLFacet implements FacetGenerator {
     @Override
     public String readme() {
         return """
-                Generates the needed classes to call HTTP endpoints defined by a WADL located at `src/main/resources/wadl/client.xml`.
-                The `wadl2java` CXF plugin generates interfaces representing the endpoints and you can create a client using CXF `JAXRSClientFactoryBean` \
-                class:
-                
-                [source,java]
-                ----
-                import org.talend.sdk.component.api.service.Service;
-                
-                import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
-                
-                @Service
-                public class MyService {
-                  public MyGeneratedEndpointApi newClient(final String url) {
-                      return JAXRSClientFactoryBean.create(url, MyGeneratedEndpointApi.class);
-                  }
-                }
-                ----
-                
-                Don't forget you need to build once the project to have the generated interfaces and be able to write your client \
-                using the sources created in `generated-sources` folder.
-                
-                TIP: you can customize the way the client is created from the interface - including the providers/serializers used,
-                more details available at http://cxf.apache.org/docs/jax-rs-client-api.html.""";
+               Generates the needed classes to call HTTP endpoints defined by a WADL located at `src/main/resources/wadl/client.xml`.
+               The `wadl2java` CXF plugin generates interfaces representing the endpoints and you can create a client using CXF `JAXRSClientFactoryBean` \
+               class:
+
+               [source,java]
+               ----
+               import org.talend.sdk.component.api.service.Service;
+
+               import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
+
+               @Service
+               public class MyService {
+                 public MyGeneratedEndpointApi newClient(final String url) {
+                     return JAXRSClientFactoryBean.create(url, MyGeneratedEndpointApi.class);
+                 }
+               }
+               ----
+
+               Don't forget you need to build once the project to have the generated interfaces and be able to write your client \
+               using the sources created in `generated-sources` folder.
+
+               TIP: you can customize the way the client is created from the interface - including the providers/serializers used,
+               more details available at http://cxf.apache.org/docs/jax-rs-client-api.html.""";
     }
 
     @Override

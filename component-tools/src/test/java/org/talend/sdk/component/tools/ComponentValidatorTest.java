@@ -330,7 +330,8 @@ class ComponentValidatorTest {
     @ComponentPackage("org.talend.test.failure.i18n.custom")
     void testFailureI18nCustom(final ExceptionSpec expectedException) {
         expectedException
-                .expectMessage("""
+                .expectMessage(
+                        """
                         Some error were detected:
                         - Missing key org.talend.test.failure.i18n.custom.MyInternalization.message in interface org.talend.test.failure.i18n.custom.MyInternalization resource bundle
                         - Key org.talend.test.failure.i18n.custom.MyInternalization.message_wrong from interface org.talend.test.failure.i18n.custom.MyInternalization is no more used""");
@@ -391,10 +392,10 @@ class ComponentValidatorTest {
     void testFailureDocumentationWordingOption(final ExceptionSpec expectedException) {
         expectedException
                 .expectMessage("""
-                        Some error were detected:
-                        - @Documentation on 'empty' is empty or is\
-                         not capitalized or ends not by a dot.
-                        - @Documentation on 'input' is empty or is not capitalized or ends not by a dot""");
+                               Some error were detected:
+                               - @Documentation on 'empty' is empty or is\
+                                not capitalized or ends not by a dot.
+                               - @Documentation on 'input' is empty or is not capitalized or ends not by a dot""");
     }
 
     @Test
@@ -417,7 +418,8 @@ class ComponentValidatorTest {
     @ComponentPackage(value = "org.talend.test.failure.layout", validateDataSet = false)
     void testFailureLayoutOption(final ExceptionSpec expectedException) {
         expectedException
-                .expectMessage("""
+                .expectMessage(
+                        """
                         Some error were detected:
                         - Option 'badOption' in @OptionOrder doesn't exist in declaring class 'org.talend.test.failure.layout.MyComponent$MyNestedConfig'
                         - Option 'badOption' in @GridLayout doesn't exist in declaring class 'org.talend.test.failure.layout.MyComponent$MyConfig'
@@ -491,19 +493,19 @@ class ComponentValidatorTest {
     void testFailureMissingPlaceholder(final ExceptionSpec expectedException) {
         expectedException
                 .expectMessage("""
-                        Some error were detected:
-                        - Missing _placeholder resource bundle entries:
-                         Foo.missingPlaceholderChar._placeholder =\s
-                         Foo.missingPlaceholderCharacter._placeholder =\s
-                         Foo.missingPlaceholderDouble._placeholder =\s
-                         Foo.missingPlaceholderDoubleWrapper._placeholder =\s
-                         Foo.missingPlaceholderFloat._placeholder =\s
-                         Foo.missingPlaceholderFloatWrapper._placeholder =\s
-                         Foo.missingPlaceholderInt._placeholder =\s
-                         Foo.missingPlaceholderInteger._placeholder =\s
-                         Foo.missingPlaceholderLong._placeholder =\s
-                         Foo.missingPlaceholderLongWrapper._placeholder =\s
-                         Foo.missingPlaceholderStr._placeholder =\s""");
+                               Some error were detected:
+                               - Missing _placeholder resource bundle entries:
+                                Foo.missingPlaceholderChar._placeholder =\s
+                                Foo.missingPlaceholderCharacter._placeholder =\s
+                                Foo.missingPlaceholderDouble._placeholder =\s
+                                Foo.missingPlaceholderDoubleWrapper._placeholder =\s
+                                Foo.missingPlaceholderFloat._placeholder =\s
+                                Foo.missingPlaceholderFloatWrapper._placeholder =\s
+                                Foo.missingPlaceholderInt._placeholder =\s
+                                Foo.missingPlaceholderInteger._placeholder =\s
+                                Foo.missingPlaceholderLong._placeholder =\s
+                                Foo.missingPlaceholderLongWrapper._placeholder =\s
+                                Foo.missingPlaceholderStr._placeholder =\s""");
     }
 
     @Test
@@ -567,7 +569,8 @@ class ComponentValidatorTest {
     @ComponentPackage("org.talend.test.failure.aftergroup")
     void testFailureAfterGroup(final ExceptionSpec expectedException) {
         expectedException
-                .expectMessage("""
+                .expectMessage(
+                        """
                         - @Output parameter must be of type OutputEmitter
                         - Parameter of AfterGroup method need to be annotated with Output
                         - class org.talend.test.failure.aftergroup.MyComponent5 must have a single @AfterGroup method with @LastGroup parameter""");

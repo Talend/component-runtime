@@ -43,37 +43,37 @@ class BeamActionSerializationTest {
                 .request(APPLICATION_JSON_TYPE)
                 .post(Entity.entity(emptyMap(), APPLICATION_JSON_TYPE), String.class);
         final String attended = """
-                {
-                  "entries":[
-                    {
-                      "elementSchema":{
-                        "entries":[
-                        ],
-                        "metadata":[
-                        ],
-                        "props":{
-                
-                        },
-                        "type":"STRING"
-                      },
-                      "errorCapable":false,
-                      "metadata":false,
-                      "name":"array",
-                      "nullable":false,
-                      "props":{
-                
-                      },
-                      "type":"ARRAY",
-                      "valid":true
-                    }
-                  ],
-                  "metadata":[
-                  ],
-                  "props":{
-                    "talend.fields.order":"array"
-                  },
-                  "type":"RECORD"
-                }""";
+                                {
+                                  "entries":[
+                                    {
+                                      "elementSchema":{
+                                        "entries":[
+                                        ],
+                                        "metadata":[
+                                        ],
+                                        "props":{
+
+                                        },
+                                        "type":"STRING"
+                                      },
+                                      "errorCapable":false,
+                                      "metadata":false,
+                                      "name":"array",
+                                      "nullable":false,
+                                      "props":{
+
+                                      },
+                                      "type":"ARRAY",
+                                      "valid":true
+                                    }
+                                  ],
+                                  "metadata":[
+                                  ],
+                                  "props":{
+                                    "talend.fields.order":"array"
+                                  },
+                                  "type":"RECORD"
+                                }""";
         assertEquals(attended, schema);
     }
 }

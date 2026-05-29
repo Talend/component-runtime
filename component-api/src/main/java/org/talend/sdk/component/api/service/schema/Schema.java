@@ -32,12 +32,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Partial("""
-        This API should support nested schema but the Studio is not yet ready.
-        
-        The cloud platform also doesn't use it yet.
-        
-        Also prefer to use \
-        `org.talend.sdk.component.api.record.Schema` over this partial default implementation.""")
+         This API should support nested schema but the Studio is not yet ready.
+
+         The cloud platform also doesn't use it yet.
+
+         Also prefer to use \
+         `org.talend.sdk.component.api.record.Schema` over this partial default implementation.""")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

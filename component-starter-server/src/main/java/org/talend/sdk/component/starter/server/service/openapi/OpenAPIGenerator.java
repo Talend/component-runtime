@@ -142,9 +142,9 @@ public class OpenAPIGenerator {
         payloads
                 .add(new FacetGenerator.InMemoryFile(resourcesBaseFolder + "connection/Messages.properties",
                         """
-                                APIConnection.baseUrl._displayName = Base URL
-                                APIConnection.baseUrl._placeholder = Base URL...
-                                """));
+                        APIConnection.baseUrl._displayName = Base URL
+                        APIConnection.baseUrl._placeholder = Base URL...
+                        """));
 
         final Collection<Option> options = operations
                 .stream()

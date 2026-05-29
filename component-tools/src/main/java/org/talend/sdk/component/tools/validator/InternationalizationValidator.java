@@ -211,13 +211,13 @@ public class InternationalizationValidator implements Validator {
             String resultAutoFix = forLogs.stream()
                     .collect(Collectors.joining("\n", "Automatically fixed missing labels:\n",
                             """
-                                    
-                                    
-                                    Please review the changes, then disable further autofixes with \
-                                    '-Dtalend.validation.internationalization.autofix=false' or \
-                                    '<validateInternationalizationAutoFix>false</validateInternationalizationAutoFix>'.
-                                    
-                                    """));
+
+
+                            Please review the changes, then disable further autofixes with \
+                            '-Dtalend.validation.internationalization.autofix=false' or \
+                            '<validateInternationalizationAutoFix>false</validateInternationalizationAutoFix>'.
+
+                            """));
             log.info(resultAutoFix);
 
             result = forLogs.stream();
