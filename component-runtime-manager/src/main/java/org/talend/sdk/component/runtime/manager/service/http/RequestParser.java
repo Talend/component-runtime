@@ -93,7 +93,7 @@ public class RequestParser {
     }
 
     @AllArgsConstructor
-    final static class ReflectionInstanceCreator implements InstanceCreator {
+    static final class ReflectionInstanceCreator implements InstanceCreator {
 
         private final ReflectionService reflections;
 

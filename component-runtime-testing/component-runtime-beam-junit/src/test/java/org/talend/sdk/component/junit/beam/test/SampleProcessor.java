@@ -31,8 +31,8 @@ import lombok.NoArgsConstructor;
 public class SampleProcessor implements Serializable {
 
     @ElementListener
-    public void onNext(final @Input Sample sample, final @Output OutputEmitter<Sample> success,
-            final @Output("reject") OutputEmitter<Reject> reject) {
+    public void onNext(@Input final Sample sample, @Output final OutputEmitter<Sample> success,
+                       @Output("reject") final OutputEmitter<Reject> reject) {
 
         success.emit(sample);
         reject.emit(new Reject(sample, "error"));

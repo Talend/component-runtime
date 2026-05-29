@@ -43,11 +43,11 @@ public class ActionsServices {
      *
      */
 
-    public final static String LIST_ENTITIES = "action_LIST_ENTITIES";
+    public static final String LIST_ENTITIES = "action_LIST_ENTITIES";
 
-    public final static String UPDATE_CONFIG = "action_UPDATE";
+    public static final String UPDATE_CONFIG = "action_UPDATE";
 
-    public final static String VALIDATION = "action_VALIDATION";
+    public static final String VALIDATION = "action_VALIDATION";
 
     @Service
     private I18n i18n;
@@ -77,7 +77,7 @@ public class ActionsServices {
      * https://talend.github.io/component-runtime/main/latest/services-actions.html#_update
      */
     @Update(UPDATE_CONFIG)
-    public NestedConfig retrieveFeedback(final @Option("configuration") NestedConfig source) throws Exception {
+    public NestedConfig retrieveFeedback(@Option("configuration") final NestedConfig source) throws Exception {
         NestedConfig dest = new NestedConfig();
         dest.setStringOption1(i18n.setByService(source.getStringOption1()));
         dest.setStringOption2(i18n.setByService(source.getStringOption2()));

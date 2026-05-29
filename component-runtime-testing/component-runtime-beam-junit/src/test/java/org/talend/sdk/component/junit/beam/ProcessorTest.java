@@ -50,7 +50,7 @@ public class ProcessorTest {
             new SimpleComponentRule(SampleProcessor.class.getPackage().getName());
 
     @Rule
-    public transient final TestPipeline pipeline = TestPipeline.create();
+    public final transient TestPipeline pipeline = TestPipeline.create();
 
     @Test
     public void processor() {

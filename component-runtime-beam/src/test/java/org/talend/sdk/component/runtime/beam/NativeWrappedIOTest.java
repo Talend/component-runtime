@@ -82,7 +82,7 @@ public class NativeWrappedIOTest {
                     .withIsolatedPackage(JdbcSource.class.getPackage().getName(), JdbcIO.class.getPackage().getName());
 
     @Rule
-    public transient final TestPipeline pipeline = TestPipeline.create();
+    public final transient TestPipeline pipeline = TestPipeline.create();
 
     @Test
     public void dofn() {

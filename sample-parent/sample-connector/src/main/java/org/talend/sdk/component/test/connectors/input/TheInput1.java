@@ -47,9 +47,9 @@ public class TheInput1 implements Serializable {
 
     private final RuntimeContextHolder context;
 
-    public TheInput1(final @Option("configin") InputConfig config,
-            final GenerateExceptionServices exceptionServices,
-            final RuntimeContextHolder context) {
+    public TheInput1(@Option("configin") final InputConfig config,
+                     final GenerateExceptionServices exceptionServices,
+                     final RuntimeContextHolder context) {
         this.config = config;
         this.exceptionServices = exceptionServices;
         this.context = context;

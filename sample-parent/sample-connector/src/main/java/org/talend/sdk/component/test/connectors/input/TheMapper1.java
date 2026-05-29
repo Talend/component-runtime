@@ -58,8 +58,8 @@ public class TheMapper1 implements Serializable {
     @RuntimeContext
     private transient RuntimeContextHolder context;
 
-    public TheMapper1(final @Option("configin") InputConfig config,
-            final GenerateExceptionServices exceptionServices) {
+    public TheMapper1(@Option("configin") final InputConfig config,
+                      final GenerateExceptionServices exceptionServices) {
         this.config = config;
         this.exceptionServices = exceptionServices;
     }

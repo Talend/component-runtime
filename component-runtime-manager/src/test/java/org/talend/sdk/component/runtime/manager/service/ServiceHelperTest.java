@@ -44,10 +44,10 @@ class ServiceHelperTest {
     }
 
     @Service
-    static public class Service1 {
+    public static class Service1 {
     }
 
     @Service
-    static public class Service2 extends BaseService {
+    public static class Service2 extends BaseService {
     }
 }

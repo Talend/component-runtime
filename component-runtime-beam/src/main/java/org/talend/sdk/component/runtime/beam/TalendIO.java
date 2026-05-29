@@ -109,7 +109,7 @@ public final class TalendIO {
         return new Write(output);
     }
 
-    public static abstract class Base<A extends PInput, B extends POutput, D extends Lifecycle>
+    public abstract static class Base<A extends PInput, B extends POutput, D extends Lifecycle>
             extends PTransform<A, B> {
 
         protected D delegate;

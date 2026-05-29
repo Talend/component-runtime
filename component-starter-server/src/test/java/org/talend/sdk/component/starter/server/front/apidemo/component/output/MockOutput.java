@@ -66,8 +66,8 @@ public class MockOutput implements Serializable {
     }
 
     @ElementListener
-    public void onNext(@Input final JsonObject record, final @Output OutputEmitter<JsonObject> success,
-            final @Output("reject") OutputEmitter<Reject> reject) {
+    public void onNext(@Input final JsonObject record, @Output final OutputEmitter<JsonObject> success,
+                       @Output("reject") final OutputEmitter<Reject> reject) {
         try {
             JsonObject newRec;
             String sysId = null;

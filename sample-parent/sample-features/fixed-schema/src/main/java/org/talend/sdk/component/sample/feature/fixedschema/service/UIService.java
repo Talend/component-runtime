@@ -29,9 +29,9 @@ import lombok.NonNull;
 @Service
 public class UIService {
 
-    public final static String SECOND_FLOW_NAME = "second";
+    public static final String SECOND_FLOW_NAME = "second";
 
-    public final static String THIRD_FLOW_NAME = "third";
+    public static final String THIRD_FLOW_NAME = "third";
 
     @Service
     private RecordBuilderFactory factory;
@@ -47,7 +47,7 @@ public class UIService {
     }
 
     @DiscoverSchemaExtended("fixedschemaextended")
-    public Schema guessSchema4Processors(final @Option("config") @NonNull Config config, final @NonNull String branch) {
+    public Schema guessSchema4Processors(@Option("config") final @NonNull Config config, final @NonNull String branch) {
         if (branch.equals(SECOND_FLOW_NAME)) {
             return factory.newSchemaBuilder(Schema.Type.RECORD)
                     .withEntry(factory.newEntryBuilder().withName("second").withType(Schema.Type.INT).build())

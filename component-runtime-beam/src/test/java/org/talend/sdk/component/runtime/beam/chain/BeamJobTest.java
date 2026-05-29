@@ -43,7 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 class BeamJobTest implements Serializable {
 
-    private transient final PluginGenerator pluginGenerator = new PluginGenerator();
+    private final transient PluginGenerator pluginGenerator = new PluginGenerator();
 
     @Test
     void complex(final TestInfo info, @TempDir final Path temporaryFolder) throws IOException {

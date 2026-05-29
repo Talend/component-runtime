@@ -50,7 +50,7 @@ import org.talend.sdk.component.runtime.record.RecordImpl;
 
 public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
-    public final static ZoneId UTC = ZoneId.of("UTC");
+    public static final ZoneId UTC = ZoneId.of("UTC");
 
     private static final RecordConverters RECORD_CONVERTERS = new RecordConverters();
 
