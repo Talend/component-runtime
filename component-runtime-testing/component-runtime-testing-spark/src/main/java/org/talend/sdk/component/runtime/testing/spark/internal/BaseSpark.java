@@ -305,8 +305,9 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
                 fail(e.getMessage());
             }
 
-            try (final JarOutputStream file = new JarOutputStream(new FileOutputStream(new File(sparkHome,
-                    version.libFolder() + "/spark-assembly-" + sparkVersion + "-hadoop2.6.0.jar")))) {
+            try (final FileOutputStream fos = new FileOutputStream(new File(sparkHome,
+                    version.libFolder() + "/spark-assembly-" + sparkVersion + "-hadoop2.6.0.jar"));
+                    final JarOutputStream file = new JarOutputStream(fos)) {
                 file.putNextEntry(new ZipEntry("META-INF/marker"));
                 file.write("just to let spark find the jar".getBytes(StandardCharsets.UTF_8));
             } catch (final IOException e) {
@@ -452,6 +453,9 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
                         args == null ? Stream.empty() : Stream.of(args))
                 .toArray(String[]::new);
         LOGGER.info("Submitting: " + asList(submitArgs));
+        // Monitor is a long-running Thread; closed in the success branch below
+        // and via the cleanup task / shutdown hook fallback (see config.cleanupTasks).
+        @SuppressWarnings({ "resource", "java:S2095" })
         final SparkProcessMonitor monitor = new SparkProcessMonitor(config.get(),
                 "spark-submit-" + main.getSimpleName() + "-monitor", () -> true, submitArgs);
         final Thread hook = new Thread(monitor::close);

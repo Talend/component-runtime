@@ -86,7 +86,10 @@ public class AsciidoctorExecutor implements AutoCloseable {
         final Path adoc = PathFactory.get(args[0]).toAbsolutePath();
         final File output =
                 adoc.getParent().resolve(args.length > 1 ? args[1] : args[0].replace(".adoc", ".pdf")).toFile();
-        final List<String> lines = Files.lines(adoc).collect(toList());
+        final List<String> lines;
+        try (final Stream<String> stream = Files.lines(adoc)) {
+            lines = stream.collect(toList());
+        }
         final String version = lines
                 .stream()
                 .filter(it -> it.startsWith("v"))
