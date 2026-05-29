@@ -19,12 +19,15 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.enterprise.inject.se.SeContainer;
 import javax.enterprise.inject.se.SeContainerInitializer;
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -296,6 +299,124 @@ class VaultClientTest {
                 response.readEntity(ErrorPayload.class).getDescription());
     }
 
+    @Test
+    void throwErrorWithNullResponseDoesNotNpe() throws Exception {
+        // A WebApplicationException whose getResponse() returns null must not trigger an NPE
+        // in throwError(Throwable); the default cantDecipherStatusCode should be used instead.
+        final int defaultStatus = 422;
+        // Use a fresh VaultClient instance (not the CDI proxy) so reflective field access works.
+        final VaultClient vaultClient = new VaultClient();
+        vaultClient.setCantDecipherStatusCode(defaultStatus);
+        final WebApplicationException waeWithoutResponse = new WebApplicationException("boom") {
+
+            @Override
+            public Response getResponse() {
+                return null;
+            }
+        };
+
+        final Method throwError = VaultClient.class.getDeclaredMethod("throwError", Throwable.class);
+        throwError.setAccessible(true);
+        try {
+            throwError.invoke(vaultClient, waeWithoutResponse);
+            org.junit.jupiter.api.Assertions.fail("Expected a WebApplicationException to be thrown");
+        } catch (final InvocationTargetException ite) {
+            final Throwable target = ite.getTargetException();
+            assertTrue(target instanceof WebApplicationException,
+                    "Expected WebApplicationException, got " + target);
+            final WebApplicationException thrown = (WebApplicationException) target;
+            assertEquals(defaultStatus, thrown.getResponse().getStatus());
+            assertEquals("boom", thrown.getMessage());
+        }
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void shouldRetryWithNullResponseDoesNotNpe() throws Exception {
+        // Regression: shouldRetry must not call wae.getResponse().getStatus() when the response is null;
+        // otherwise retryFuture() raises an NPE before throwError(...) can build the fallback payload.
+        final VaultClient vaultClient = new VaultClient();
+        final java.lang.reflect.Field f = VaultClient.class.getDeclaredField("shouldRetry");
+        f.setAccessible(true);
+        final java.util.function.Predicate<Throwable> shouldRetry =
+                (java.util.function.Predicate<Throwable>) f.get(vaultClient);
+
+        final WebApplicationException waeWithoutResponse = new WebApplicationException("boom") {
+
+            @Override
+            public Response getResponse() {
+                return null;
+            }
+        };
+
+        // Must not NPE, and must allow the retry loop to keep running (true = retry).
+        assertTrue(shouldRetry.test(waeWithoutResponse));
+    }
+
+    @Test
+    void handleAuthExceptionWithNullResponseDoesNotNpe() throws Exception {
+        // Regression: doAuth().exceptionally() used to dereference wae.getResponse().getEntity()
+        // and response.getStatus() without a null check; with a null response that NPE masked the
+        // original cause. The handler now falls through to throwError(Throwable) which is null-safe.
+        final int defaultStatus = 422;
+        final VaultClient client = new VaultClient();
+        client.setCantDecipherStatusCode(defaultStatus);
+
+        final WebApplicationException waeWithoutResponse = new WebApplicationException("boom") {
+
+            @Override
+            public Response getResponse() {
+                return null;
+            }
+        };
+        // Mimics what CompletableFuture#exceptionally receives: a CompletionException wrapping cause.
+        final java.util.concurrent.CompletionException wrapped =
+                new java.util.concurrent.CompletionException(waeWithoutResponse);
+
+        final java.lang.reflect.Method handler =
+                VaultClient.class.getDeclaredMethod("handleAuthException", Throwable.class);
+        handler.setAccessible(true);
+        try {
+            handler.invoke(client, wrapped);
+            org.junit.jupiter.api.Assertions.fail("Expected a WebApplicationException to be thrown");
+        } catch (final java.lang.reflect.InvocationTargetException ite) {
+            final Throwable target = ite.getTargetException();
+            assertTrue(target instanceof WebApplicationException,
+                    "Expected WebApplicationException, got " + target);
+            final WebApplicationException thrown = (WebApplicationException) target;
+            assertEquals(defaultStatus, thrown.getResponse().getStatus());
+            assertEquals("boom", thrown.getMessage());
+        }
+    }
+
+    @Test
+    void handleAuthExceptionWithNullCauseDoesNotNpe() throws Exception {
+        // Regression: CompletableFuture#exceptionally can receive an exception thrown directly
+        // (not wrapped in CompletionException), so e.getCause() may be null. The handler must
+        // not NPE on cause.getMessage() / shouldRetry / throwError.
+        final int defaultStatus = 422;
+        final VaultClient client = new VaultClient();
+        client.setCantDecipherStatusCode(defaultStatus);
+
+        // RuntimeException with no cause => e.getCause() returns null.
+        final RuntimeException directThrow = new RuntimeException("direct");
+
+        final java.lang.reflect.Method handler =
+                VaultClient.class.getDeclaredMethod("handleAuthException", Throwable.class);
+        handler.setAccessible(true);
+        try {
+            handler.invoke(client, directThrow);
+            org.junit.jupiter.api.Assertions.fail("Expected a WebApplicationException to be thrown");
+        } catch (final java.lang.reflect.InvocationTargetException ite) {
+            final Throwable target = ite.getTargetException();
+            assertTrue(target instanceof WebApplicationException,
+                    "Expected WebApplicationException, got " + target);
+            final WebApplicationException thrown = (WebApplicationException) target;
+            assertEquals(defaultStatus, thrown.getResponse().getStatus());
+            assertEquals("direct", thrown.getMessage());
+        }
+    }
+
     /**
      * Demonstration purpose: with a "real" vault server instance
      * 
@@ -320,9 +441,7 @@ class VaultClientTest {
     @Test
     @Disabled
     void executeWithRealVault() {
-        // setup.setVaultUrl("http://localhost:8200");
-        final Client realClt = setup.vaultClient(setup.vaultExecutorService());
-        // vault.setVault(setup.vaultTarget(realClt));
+        setup.vaultClient(setup.vaultExecutorService());
         vault.setAuthEndpoint("/v1/auth/approle/login");
         vault.setDecryptEndpoint("/v1/transit/decrypt/{x-talend-tenant-id}");
         vault.setRole(() -> "_role-id_");
