@@ -113,6 +113,7 @@ import org.apache.xbean.finder.archive.CompositeArchive;
 import org.apache.xbean.finder.archive.FileArchive;
 import org.apache.xbean.finder.archive.FilteredArchive;
 import org.apache.xbean.finder.archive.JarArchive;
+import org.apache.xbean.finder.filter.ContainsFilter;
 import org.apache.xbean.finder.filter.ExcludeIncludeFilter;
 import org.apache.xbean.finder.filter.Filter;
 import org.apache.xbean.finder.filter.FilterList;
@@ -198,6 +199,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ComponentManager implements AutoCloseable {
 
+    public static final String PROPERTY_CLASSES_AND_PACKAGES =
+            "talend.component.manager.classloader.container.classesAndPackages";
+
+    public static final String PROPERTY_PARENT_RESOURCES =
+            "talend.component.manager.classloader.container.parentResources";
+
+    protected static final String[] KNOWN_PARENT_RESOURCES = { "/xmlMappings/" };
+
     private static class SingletonHolder {
 
         protected static final AtomicReference<ComponentManager> CONTEXTUAL_INSTANCE = new AtomicReference<>();
@@ -211,11 +220,15 @@ public class ComponentManager implements AutoCloseable {
                 {
                     info("ComponentManager version: " + ComponentManagerVersion.VERSION);
                     info("Creating the contextual ComponentManager instance " + getIdentifiers());
-
-                    parallelIf(Boolean.getBoolean("talend.component.manager.plugins.parallel"),
-                            container.getDefinedNestedPlugin().stream().filter(p -> !hasPlugin(p)))
-                            .forEach(this::addPlugin);
-                    info("Components: " + availablePlugins());
+                    try {
+                        parallelIf(Boolean.getBoolean("talend.component.manager.plugins.parallel"),
+                                container.getDefinedNestedPlugin().stream().filter(p -> !hasPlugin(p)))
+                                .forEach(this::addPlugin);
+                        info("Components: " + availablePlugins());
+                    } catch (Exception e) {
+                        info("Failed to load plugins from plugins.properties: " + e.getMessage());
+                        log.debug("Failed to load plugins from plugins.properties.", e);
+                    }
                 }
 
                 @Override
@@ -311,6 +324,8 @@ public class ComponentManager implements AutoCloseable {
     // tcomp (org.talend + javax.annotation + jsonp) + logging (slf4j) are/can be provided service
     // + tcomp "runtime" indeed (invisible from the components but required for the runtime
     private final Filter classesFilter;
+
+    private final Filter resourcesFilter;
 
     private final ParameterModelService parameterModelService;
 
@@ -426,7 +441,10 @@ public class ComponentManager implements AutoCloseable {
                 .distinct()
                 .map(PrefixFilter::new)
                 .toArray(Filter[]::new));
-
+        resourcesFilter = new FilterList(additionalParentResources()
+                .distinct()
+                .map(ContainsFilter::new)
+                .toArray(Filter[]::new));
         jsonpProvider = loadJsonProvider();
         jsonbProvider = loadJsonbProvider();
         // these factories have memory caches so ensure we reuse them properly
@@ -460,6 +478,7 @@ public class ComponentManager implements AutoCloseable {
         migrationHandlerFactory = new MigrationHandlerFactory(reflections);
 
         final Predicate<String> isContainerClass = name -> isContainerClass(classesFilter, name);
+        final Predicate<String> isParentResource = name -> isParentResource(resourcesFilter, name);
         final ContainerManager.ClassLoaderConfiguration defaultClassLoaderConfiguration =
                 ContainerManager.ClassLoaderConfiguration
                         .builder()
@@ -467,6 +486,7 @@ public class ComponentManager implements AutoCloseable {
                         .parentClassesFilter(isContainerClass)
                         .classesFilter(isContainerClass.negate())
                         .supportsResourceDependencies(true)
+                        .parentResourcesFilter(isParentResource)
                         .create();
         this.container = new ContainerManager(ContainerManager.DependenciesResolutionConfiguration
                 .builder()
@@ -605,10 +625,21 @@ public class ComponentManager implements AutoCloseable {
         return Stream
                 .concat(customizers.stream().flatMap(Customizer::containerClassesAndPackages),
                         ofNullable(
-                                System.getProperty("talend.component.manager.classloader.container.classesAndPackages"))
+                                System.getProperty(PROPERTY_CLASSES_AND_PACKAGES))
                                 .map(s -> s.split(","))
                                 .map(Stream::of)
                                 .orElseGet(Stream::empty));
+    }
+
+    private Stream<String> additionalParentResources() {
+        return Stream.concat(
+                Stream.of(KNOWN_PARENT_RESOURCES),
+                Stream.concat(customizers.stream().flatMap(Customizer::parentResources),
+                        ofNullable(
+                                System.getProperty(PROPERTY_PARENT_RESOURCES))
+                                .map(s -> s.split(","))
+                                .map(Stream::of)
+                                .orElseGet(Stream::empty)));
     }
 
     public static Path findM2() {
@@ -900,13 +931,28 @@ public class ComponentManager implements AutoCloseable {
                 final Enumeration<URL> componentMarkers =
                         Thread.currentThread().getContextClassLoader().getResources("TALEND-INF/dependencies.txt");
                 while (componentMarkers.hasMoreElements()) {
-                    File file = Files.toFile(componentMarkers.nextElement());
-                    if (file.getName().equals("dependencies.txt") && file.getParentFile() != null
-                            && file.getParentFile().getName().equals("TALEND-INF")) {
-                        file = file.getParentFile().getParentFile();
-                    }
-                    if (!hasPlugin(container.buildAutoIdFromName(file.getName()))) {
-                        addPlugin(file.getAbsolutePath());
+                    final URL marker = componentMarkers.nextElement();
+                    File file = Files.toFile(marker);
+                    if (file != null) {
+                        if (file.getName().equals("dependencies.txt")
+                                && file.getParentFile() != null
+                                && file.getParentFile().getName().equals("TALEND-INF")
+                                && file.getParentFile().getParentFile() != null) {
+                            file = file.getParentFile().getParentFile();
+                        }
+                        if (!hasPlugin(ContainerManager.buildAutoIdFromName(file.getName()))) {
+                            addPlugin(file.getAbsolutePath());
+                        }
+                    } else {
+                        // lookup nested jar
+                        if (marker != null && "jar".equals(marker.getProtocol())) {
+                            final String urlFile = marker.getFile();
+                            final String jarPath = urlFile.substring(0, urlFile.lastIndexOf("!"));
+                            final String jarFilePath = jarPath.substring(jarPath.lastIndexOf("/") + 1);
+                            if (!hasPlugin(ContainerManager.buildAutoIdFromName(jarFilePath))) {
+                                addPlugin(jarPath);
+                            }
+                        }
                     }
                 }
             } catch (final IOException e) {
@@ -1040,6 +1086,10 @@ public class ComponentManager implements AutoCloseable {
     }
 
     protected boolean isContainerClass(final Filter filter, final String name) {
+        return name != null && filter.accept(name);
+    }
+
+    protected boolean isParentResource(final Filter filter, final String name) {
         return name != null && filter.accept(name);
     }
 
@@ -1720,11 +1770,11 @@ public class ComponentManager implements AutoCloseable {
                     return true;
                 }).map(nested -> {
                     if ("nested".equals(nested.getProtocol())
-                            || (nested.getPath() != null && nested.getPath().contains("!/MAVEN-INF/repository/"))) {
+                            || (nested.getPath() != null && nested.getPath().contains(NESTED_MAVEN_REPOSITORY))) {
                         JarInputStream jarStream = null;
                         try {
                             jarStream = new JarInputStream(nested.openStream());
-                            log.debug("Found a nested resource for " + nested);
+                            log.debug("Found a nested resource for {}", nested);
                             return new NestedJarArchive(nested, jarStream, loader);
                         } catch (final IOException e) {
                             if (jarStream != null) {
@@ -2206,6 +2256,14 @@ public class ComponentManager implements AutoCloseable {
         Stream<String> containerClassesAndPackages();
 
         /**
+         * @return a stream of string representing resources. They will be considered
+         * as loaded from the "container" (ComponentManager loader) and not the components classloaders.
+         */
+        default Stream<String> parentResources() {
+            return Stream.empty();
+        }
+
+        /**
          * @return advanced toggle to ignore built-in beam exclusions and let this customizer override them.
          */
         default boolean ignoreBeamClassLoaderExclusions() {
@@ -2213,7 +2271,7 @@ public class ComponentManager implements AutoCloseable {
         }
 
         /**
-         * Disable default built-in component classpath building mecanism. This is useful when relying on
+         * Disable default built-in component classpath building mechanism. This is useful when relying on
          * a custom {@link ContainerClasspathContributor} handling it.
          *
          * @return true if the default dependencies descriptor (TALEND-INF/dependencies.txt) must be ignored.

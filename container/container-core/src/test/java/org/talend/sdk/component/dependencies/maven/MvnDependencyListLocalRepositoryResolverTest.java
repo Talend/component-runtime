@@ -33,6 +33,7 @@ import java.util.zip.ZipEntry;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.talend.sdk.component.container.ContainerManager;
 import org.talend.sdk.component.test.dependencies.DependenciesTxtBuilder;
 
 class MvnDependencyListLocalRepositoryResolverTest {
@@ -89,6 +90,30 @@ class MvnDependencyListLocalRepositoryResolverTest {
             final List<String> toResolve =
                     new MvnDependencyListLocalRepositoryResolver("TALEND-INF/dependencies.txt", d -> null)
                             .resolve(tempLoader, "foo/bar/dummy/1.0.0-TCOMP-2285/dummy-1.0.0-TCOMP-2285.jar")
+                            .map(Artifact::toPath)
+                            .collect(toList());
+            assertEquals(asList("org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar",
+                    "org/apache/tomee/javaee-api/7.0-1/javaee-api-7.0-1.jar"), toResolve);
+        }
+    }
+
+    @Test
+    void resolveWithDynamicDependencies(@TempDir final File temporaryFolder) throws Exception {
+        final File file = new File(temporaryFolder, UUID.randomUUID().toString() + ".jar");
+        file.getParentFile().mkdirs();
+        final String module = ContainerManager.buildAutoIdFromName("dummy-1.0.0.jar");
+        final String deps = "org.apache.tomee:ziplock:jar:8.0.14:runtime,org.apache.tomee:javaee-api:jar:7.0-1:compile";
+        try (final JarOutputStream jar = new JarOutputStream(new FileOutputStream(file))) {
+            jar.putNextEntry(new ZipEntry("TALEND-INF/dynamic-dependencies.properties"));
+            jar.write((module + "=" + deps).getBytes(StandardCharsets.UTF_8));
+            jar.closeEntry();
+        }
+
+        try (final URLClassLoader tempLoader =
+                new URLClassLoader(new URL[] { file.toURI().toURL() }, getSystemClassLoader())) {
+            final List<String> toResolve =
+                    new MvnDependencyListLocalRepositoryResolver("TALEND-INF/dependencies.txt", d -> null)
+                            .resolve(tempLoader, "foo/bar/dummy/1.0.0/dummy-1.0.0.jar")
                             .map(Artifact::toPath)
                             .collect(toList());
             assertEquals(asList("org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar",
