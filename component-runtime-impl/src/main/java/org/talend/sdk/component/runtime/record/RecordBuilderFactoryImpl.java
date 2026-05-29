@@ -37,8 +37,7 @@ public class RecordBuilderFactoryImpl implements RecordBuilderFactory, Serializa
     @Override
     public Schema.Builder newSchemaBuilder(final Schema.Type type) {
         switch (type) {
-            case RECORD:
-            case ARRAY:
+            case RECORD, ARRAY:
                 return new SchemaImpl.BuilderImpl().withType(type);
             default:
                 return Schemas.valueOf(type.name());
