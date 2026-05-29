@@ -297,13 +297,13 @@ class ActionValidatorTest {
 
         @DiscoverSchemaExtended("schema")
         public Schema guessProcessorSchemaKo1(final Schema schema, @Option final FakeDataSet configuration,
-                                              final String outgoing) {
+                final String outgoing) {
             return null;
         }
 
         @DiscoverSchemaExtended("schema")
         public Schema guessProcessorSchemaKo2(final Schema schema, @Option final FakeDataSet configuration,
-                                              final String outgoing) {
+                final String outgoing) {
             return null;
         }
 

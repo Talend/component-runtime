@@ -51,7 +51,7 @@ public class MapperWithCheckpoint implements Serializable {
     private int partition = -1;
 
     public MapperWithCheckpoint(@Option("configuration") final MapperWithCheckpointConfig config,
-                                final RecordBuilderFactory recordBuilderFactory) {
+            final RecordBuilderFactory recordBuilderFactory) {
         this.config = config;
         this.recordBuilderFactory = recordBuilderFactory;
     }

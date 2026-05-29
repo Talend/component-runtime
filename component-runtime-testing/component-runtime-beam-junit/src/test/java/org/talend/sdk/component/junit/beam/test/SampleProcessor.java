@@ -32,7 +32,7 @@ public class SampleProcessor implements Serializable {
 
     @ElementListener
     public void onNext(@Input final Sample sample, @Output final OutputEmitter<Sample> success,
-                       @Output("reject") final OutputEmitter<Reject> reject) {
+            @Output("reject") final OutputEmitter<Reject> reject) {
 
         success.emit(sample);
         reject.emit(new Reject(sample, "error"));

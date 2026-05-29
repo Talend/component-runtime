@@ -190,7 +190,7 @@ public class SchemaServices {
 
     @DiscoverSchemaExtended(DISCOVER_SCHEMA_EXTENDED_SCHEMA)
     public Schema discoverSchemaExtendedSch(@Option("configurationSchema") final NestedConfig incomingConfig,
-                                            final Schema incomingSchema) {
+            final Schema incomingSchema) {
 
         final Builder schemaBuilder = recordFactory.newSchemaBuilder(incomingSchema);
         schemaBuilder.withEntry(recordFactory.newEntryBuilder()
@@ -202,7 +202,7 @@ public class SchemaServices {
 
     @DiscoverSchemaExtended(DISCOVER_SCHEMA_EXTENDED_BRANCH)
     public Schema discoverSchemaExtendedBranch(@Option("configurationBranch") final NestedConfig incomingConfig,
-                                               final String branch) {
+            final String branch) {
 
         final Builder schemaBuilder = recordFactory.newSchemaBuilder(Type.RECORD);
         schemaBuilder.withEntry(recordFactory.newEntryBuilder()
@@ -218,8 +218,8 @@ public class SchemaServices {
 
     @DiscoverSchemaExtended(DISCOVER_SCHEMA_EXTENDED_FULL)
     public Schema discoverSchemaExtendedFull(@Option("configurationFull") final NestedConfig incomingConfig,
-                                             final Schema incomingSchema,
-                                             final String branch) {
+            final Schema incomingSchema,
+            final String branch) {
 
         final Builder schemaBuilder = recordFactory.newSchemaBuilder(incomingSchema);
         schemaBuilder.withEntry(recordFactory.newEntryBuilder()
