@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.manager.interceptor;
 
 import static java.lang.Thread.sleep;
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.talend.sdk.component.runtime.manager.test.Serializer.roundTrip;
 
@@ -49,7 +48,7 @@ class InterceptorTest {
             final List<Object> collect = manager
                     .find(c -> c.get(ComponentManager.AllServices.class).getServices().values().stream())
                     .filter(c -> c.getClass().getName().endsWith("SuperService$$TalendServiceProxy"))
-                    .collect(toList());
+                    .toList();
             assertEquals(1, collect.size());
 
             final Object instance = collect.iterator().next();

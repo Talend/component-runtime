@@ -17,7 +17,6 @@ package org.talend.sdk.component.feature.form.service;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.talend.sdk.component.api.configuration.Option;
@@ -102,7 +101,7 @@ public class UIService {
                 .mapToObj(i -> new SuggestionValues.Item(singleString + "_" + i,
                         singleString + "_" + someComplexConfig.getAString() +
                                 "_" + someComplexConfig.isABoolean() + "_" + i))
-                .collect(Collectors.toList());
+                .toList();
         return new SuggestionValues(true, items);
     }
 

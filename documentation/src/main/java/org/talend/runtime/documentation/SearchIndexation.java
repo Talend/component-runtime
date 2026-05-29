@@ -21,7 +21,6 @@ import static java.util.Comparator.comparing;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.io.File;
@@ -160,7 +159,7 @@ public class SearchIndexation {
                 log.warn(target + ": " + e.getMessage());
                 return Collections.<JsonObject> emptyList();
             }
-        })).collect(toList());
+        })).toList();
         pool.shutdown();
 
         // await

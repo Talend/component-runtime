@@ -18,7 +18,6 @@ package org.talend.sdk.component.maven;
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static org.talend.sdk.component.maven.api.Audience.Type.TALEND_INTERNAL;
 
 import java.io.File;
@@ -178,7 +177,7 @@ public abstract class ComponentDependenciesBase extends AudienceAwareMojo {
                     .setRepositories(remoteRepositories.stream()
                             .filter(remoteRepository -> remoteRepository.getId()
                                     .equals(artifactRepositoryId))
-                            .collect(toList()));
+                            .toList());
             final ArtifactResult result = repositorySystem.resolveArtifact(repositorySystemSession, artifactRequest);
             if (result.isMissing()) {
                 throw new IllegalStateException("Can't find " + artifact);
