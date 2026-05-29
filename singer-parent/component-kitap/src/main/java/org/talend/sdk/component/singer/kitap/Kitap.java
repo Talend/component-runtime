@@ -204,8 +204,7 @@ public final class Kitap implements Runnable {
                             return JsonString.class.cast(e.getValue()).getString();
                         case NUMBER:
                             return String.valueOf(JsonNumber.class.cast(e.getValue()).doubleValue());
-                        case TRUE:
-                        case FALSE:
+                        case TRUE, FALSE:
                             return String.valueOf(JsonValue.TRUE.equals(e.getValue()));
                         default:
                             throw new IllegalArgumentException("Unsupported json entry: " + e);

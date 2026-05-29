@@ -59,8 +59,7 @@ abstract class BaseValidation implements Function<JsonValue, Stream<ValidationEr
         switch (value.getValueType()) {
             case STRING:
                 return onString(JsonString.class.cast(value));
-            case TRUE:
-            case FALSE:
+            case TRUE, FALSE:
                 return onBoolean(JsonValue.TRUE.equals(value));
             case NUMBER:
                 return onNumber(JsonNumber.class.cast(value));

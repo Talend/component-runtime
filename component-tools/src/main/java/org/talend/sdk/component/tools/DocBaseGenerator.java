@@ -560,10 +560,7 @@ public abstract class DocBaseGenerator extends BaseTask {
             }
 
             switch (p.getType()) {
-                case NUMBER:
-                case BOOLEAN:
-                case STRING:
-                case ENUM:
+                case NUMBER, BOOLEAN, STRING, ENUM:
                     return ofNullable(instance.getValue())
                             .map(String::valueOf)
                             .map(it -> it.isEmpty() ? "<empty>" : it)

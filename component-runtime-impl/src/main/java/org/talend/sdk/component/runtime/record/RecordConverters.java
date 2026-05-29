@@ -120,8 +120,7 @@ public class RecordConverters implements Serializable {
                                     .build(), record);
                     break;
                 }
-                case TRUE:
-                case FALSE:
+                case TRUE, FALSE:
                     builder.withBoolean(key, JsonValue.TRUE.equals(value));
                     break;
                 case STRING:

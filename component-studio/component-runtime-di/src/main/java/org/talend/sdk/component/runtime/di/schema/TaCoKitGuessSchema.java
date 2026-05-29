@@ -869,8 +869,7 @@ public class TaCoKitGuessSchema {
 
     protected String getTalendType(final JsonValue value) {
         switch (value.getValueType()) {
-            case TRUE:
-            case FALSE:
+            case TRUE, FALSE:
                 return javaTypesManager.BOOLEAN.getId();
             case NUMBER:
                 final Number number = JsonNumber.class.cast(value).numberValue();
