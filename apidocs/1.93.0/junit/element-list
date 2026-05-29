@@ -1,0 +1,11 @@
+org.talend.sdk.component.api
+org.talend.sdk.component.base
+org.talend.sdk.component.junit
+org.talend.sdk.component.junit.delegate
+org.talend.sdk.component.junit.environment
+org.talend.sdk.component.junit.environment.builtin
+org.talend.sdk.component.junit.environment.builtin.beam
+org.talend.sdk.component.junit.lang
+org.talend.sdk.component.junit5
+org.talend.sdk.component.junit5.environment
+org.talend.sdk.component.maven

@@ -1,0 +1,5 @@
+org.talend.sdk.component.junit.http.api
+org.talend.sdk.component.junit.http.internal.impl
+org.talend.sdk.component.junit.http.internal.junit5
+org.talend.sdk.component.junit.http.junit4
+org.talend.sdk.component.junit.http.junit5
