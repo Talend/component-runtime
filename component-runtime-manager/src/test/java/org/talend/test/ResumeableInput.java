@@ -49,6 +49,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ResumeableInput implements Serializable {
 
+    @SuppressWarnings("java:S1068")
     private final Jsonb jsonb;
 
     private final RecordBuilderFactory factory;

@@ -321,7 +321,7 @@ class VaultClientTest {
     @Disabled
     void executeWithRealVault() {
         // setup.setVaultUrl("http://localhost:8200");
-        final Client realClt = setup.vaultClient(setup.vaultExecutorService());
+        setup.vaultClient(setup.vaultExecutorService());
         // vault.setVault(setup.vaultTarget(realClt));
         vault.setAuthEndpoint("/v1/auth/approle/login");
         vault.setDecryptEndpoint("/v1/transit/decrypt/{x-talend-tenant-id}");

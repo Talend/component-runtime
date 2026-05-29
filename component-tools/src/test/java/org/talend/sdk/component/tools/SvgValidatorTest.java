@@ -81,7 +81,7 @@ class SvgValidatorTest {
     }
 
     private List<String> doValidate(final String name, final int count, final Boolean legacyMode) {
-        final List<String> errors = new SvgValidator(legacyMode).validate(icon(name)).collect(toList());
+        final List<String> errors = new SvgValidator().validate(icon(name)).collect(toList());
         assertEquals(count, errors.size());
         return errors;
     }

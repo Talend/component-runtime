@@ -35,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @FixedSchema(value = "jdbc_discover_schema", flows = { "reject" })
 public class JdbcOutput implements Serializable {
 
+    @SuppressWarnings("java:S1068")
     private final ConfigWrapper dataset;
 
     public JdbcOutput(@Option("configuration") final ConfigWrapper dataset) {

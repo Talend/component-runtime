@@ -18,7 +18,6 @@ package org.talend.sdk.component.server.front;
 import java.util.Date;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.StreamSupport;
 
 import javax.annotation.PostConstruct;
@@ -36,8 +35,6 @@ import org.talend.sdk.component.server.service.ComponentManagerService;
 
 @ApplicationScoped
 public class EnvironmentResourceImpl implements EnvironmentResource {
-
-    private final AtomicReference<Environment> environment = new AtomicReference<>();
 
     @Inject
     @ConfigProperty(name = "git.build.version")

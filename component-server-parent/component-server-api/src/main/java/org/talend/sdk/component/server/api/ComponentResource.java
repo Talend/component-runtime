@@ -215,8 +215,10 @@ public interface ComponentResource {
     // @Unused, only for sample
     class SampleErrorForBulk {
 
+        @SuppressWarnings("java:S1068")
         private ErrorPayload error1;
 
+        @SuppressWarnings("java:S1068")
         private ErrorPayload error2;
     }
 }

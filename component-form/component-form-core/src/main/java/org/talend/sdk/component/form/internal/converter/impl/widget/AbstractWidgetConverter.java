@@ -330,7 +330,6 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                             .collect(toList());
                     final Map<String, Collection<Object>> condition = values.size() == 1 ? values.iterator().next()
                             : new UiSchema.ConditionBuilder().withOperator("or").withValues(values).build();
-                    final UiSchema.ConditionValuesBuilder rootBuilder;
                     if (!shouldBe) { // no need to add the wrapper if we test true (default)
                         return new UiSchema.ConditionBuilder()
                                 .withOperator("==")

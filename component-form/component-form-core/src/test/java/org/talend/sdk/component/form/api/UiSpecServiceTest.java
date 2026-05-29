@@ -311,12 +311,6 @@ class UiSpecServiceTest {
     @Test
     void optionsOrder() throws Exception {
         final ConfigTypeNode node = load("optionsorder.json", ConfigTypeNode.class);
-        final SimplePropertyDefinition root = node
-                .getProperties()
-                .stream()
-                .filter(it -> it.getPath().equals("configuration"))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("bad config"));
         final Ui payload = service.convert("FileIO", "en", node, null).toCompletableFuture().get();
         final List<String> actualOrder = payload
                 .getUiSchema()

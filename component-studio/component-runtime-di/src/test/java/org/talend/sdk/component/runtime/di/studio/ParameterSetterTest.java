@@ -43,9 +43,6 @@ public class ParameterSetterTest {
 
     protected static RecordBuilderFactory builderFactory;
 
-    // do the same thing with studio
-    private static final Map<String, Object> globalMap = Collections.synchronizedMap(new HashMap<>());
-
     @BeforeAll
     static void forceManagerInit() {
         final ComponentManager manager = ComponentManager.instance();
