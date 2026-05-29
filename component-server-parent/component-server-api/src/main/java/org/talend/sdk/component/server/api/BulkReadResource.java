@@ -46,8 +46,8 @@ public interface BulkReadResource {
             content = @Content(mediaType = APPLICATION_JSON))
     CompletionStage<BulkResponses> bulk(@RequestBody(
             description = """
-                          The request body is a JSON object containing a list of request objects.<br/>
-                          If your request contains multiple identifiers, you must use a list of strings.<br/>
+                          The request body is a JSON object containing a list of request objects.
+                          If your request contains multiple identifiers, you must use a list of strings.
                           Example:
 
                           ```json
