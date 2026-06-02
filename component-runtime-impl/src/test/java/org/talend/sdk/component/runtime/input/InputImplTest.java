@@ -53,8 +53,8 @@ class InputImplTest {
 
         IntStream.range(0, 10).forEach(i -> {
             final Object next = input.next();
-            assertTrue(Record.class.isInstance(next));
-            final Record record = Record.class.cast(next);
+            assertTrue(next instanceof Record);
+            final Record record = (Record) next;
             assertEquals(Schema.Type.RECORD, record.getSchema().getType());
             assertEquals(1, record.getSchema().getEntries().size());
             final Schema.Entry data = record.getSchema().getEntries().iterator().next();

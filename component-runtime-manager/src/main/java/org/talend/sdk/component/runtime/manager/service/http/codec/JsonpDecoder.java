@@ -31,10 +31,10 @@ public class JsonpDecoder implements Decoder {
 
     @Override
     public Object decode(final byte[] value, final Type expectedType) {
-        if (!Class.class.isInstance(expectedType)) {
+        if (!(expectedType instanceof Class)) {
             throw new IllegalArgumentException("Unsupported type: " + expectedType);
         }
-        final Class<?> clazz = Class.class.cast(expectedType);
+        final Class<?> clazz = (Class) expectedType;
         return jsonb.fromJson(new ByteArrayInputStream(value), clazz);
     }
 }

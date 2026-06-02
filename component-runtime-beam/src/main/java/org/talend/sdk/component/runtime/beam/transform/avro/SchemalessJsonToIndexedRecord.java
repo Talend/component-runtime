@@ -78,11 +78,11 @@ public class SchemalessJsonToIndexedRecord extends PTransform<PCollection<JsonOb
                 case STRING:
                     return STRING;
                 case NUMBER:
-                    final Number number = JsonNumber.class.cast(element).numberValue();
-                    if (Long.class.isInstance(number)) {
+                    final Number number = ((JsonNumber) element).numberValue();
+                    if (number instanceof Long) {
                         return LONG;
                     }
-                    if (Integer.class.isInstance(number)) {
+                    if (number instanceof Integer) {
                         return INT;
                     }
                     return DOUBLE;

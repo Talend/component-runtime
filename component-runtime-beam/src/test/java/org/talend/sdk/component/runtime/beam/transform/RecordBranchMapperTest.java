@@ -46,7 +46,7 @@ public class RecordBranchMapperTest implements Serializable {
                     final List<Record> items = StreamSupport.stream(values.spliterator(), false).collect(toList());
                     assertEquals(2, items.size());
                     items.forEach(item -> {
-                        final Collection<Record> other = Collection.class.cast(item.get(Object.class, "other"));
+                        final Collection<Record> other = (Collection) item.get(Object.class, "other");
                         assertNotNull(other);
                         assertNotNull(other.iterator().next().getString("foo"));
                         assertNull(item.get(Object.class, "b1"));

@@ -54,7 +54,7 @@ class AdvancedProcessorImplTest {
         processor.onNext(name -> new Whatever(1), name -> value -> assertTrue(ref.compareAndSet(null, value)));
         final Object out = ref.get();
         assertNotNull(out);
-        assertTrue(() -> String.class.isInstance(out));
+        assertTrue(() -> out instanceof String);
         assertEquals("1", out.toString());
     }
 

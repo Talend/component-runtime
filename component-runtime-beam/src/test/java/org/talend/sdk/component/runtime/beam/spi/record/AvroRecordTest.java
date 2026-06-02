@@ -138,7 +138,7 @@ class AvroRecordTest {
                 .withDateTime("fromDate", date)
                 .build();
 
-        final IndexedRecord unwrap = Unwrappable.class.cast(record).unwrap(IndexedRecord.class);
+        final IndexedRecord unwrap = ((Unwrappable) record).unwrap(IndexedRecord.class);
         Assertions.assertNotNull(unwrap);
 
         final Field fromZonedDateTimeField = unwrap.getSchema().getField("fromZonedDateTime");
@@ -188,7 +188,7 @@ class AvroRecordTest {
                 .withInt("age", 22)
                 .build();
 
-        IndexedRecord unwrap = Unwrappable.class.cast(record).unwrap(IndexedRecord.class);
+        IndexedRecord unwrap = ((Unwrappable) record).unwrap(IndexedRecord.class);
 
         Assertions.assertNotNull(unwrap);
 
@@ -248,7 +248,7 @@ class AvroRecordTest {
                 .withDateTime("date", new Date(instant.toEpochMilli()))
                 .build();
 
-        IndexedRecord unwrap = Unwrappable.class.cast(record).unwrap(IndexedRecord.class);
+        IndexedRecord unwrap = ((Unwrappable) record).unwrap(IndexedRecord.class);
         Integer unixEpochDays = (Integer) unwrap.get(0);
 
         LocalDate date = LocalDate.of(2015, 11, 3);
@@ -375,10 +375,9 @@ class AvroRecordTest {
     @Test
     void recordEntryFromName() {
         assertEquals("{\"record\": {\"name\": \"ok\"}}",
-                Unwrappable.class
-                        .cast(new AvroRecordBuilder()
-                                .withRecord("record", new AvroRecordBuilder().withString("name", "ok").build())
-                                .build())
+                ((Unwrappable) new AvroRecordBuilder()
+                        .withRecord("record", new AvroRecordBuilder().withString("name", "ok").build())
+                        .build())
                         .unwrap(IndexedRecord.class)
                         .toString());
     }
@@ -853,15 +852,15 @@ class AvroRecordTest {
         assertEquals(Schema.Type.STRING, entries.get(3).getType());
         assertEquals(Schema.Type.RECORD, entries.get(4).getType());
         // check avro record
-        assertTrue(byte[].class.isInstance(record.getBytes("field01")));
+        assertTrue(record.getBytes("field01") instanceof byte[]);
         assertEquals("11.22", new String(record.getBytes("field01")));
-        assertTrue(BigDecimal.class.isInstance(record.getDecimal("field02")));
+        assertTrue(record.getDecimal("field02") instanceof BigDecimal);
         assertEquals(new BigDecimal("11.22"), record.getDecimal("field02"));
-        assertTrue(String.class.isInstance(record.getString("field03")));
+        assertTrue(record.getString("field03") instanceof String);
         assertEquals("012-345-678-901", record.getString("field03"));
-        assertTrue(String.class.isInstance(record.getString("field04")));
+        assertTrue(record.getString("field04") instanceof String);
         assertEquals("THREE", record.getString("field04"));
-        assertTrue(Map.class.isInstance(record.get(Object.class, "field05")));
+        assertTrue(record.get(Object.class, "field05") instanceof Map);
         assertThrows(IllegalArgumentException.class, () -> record.getRecord("field05"));
     }
 

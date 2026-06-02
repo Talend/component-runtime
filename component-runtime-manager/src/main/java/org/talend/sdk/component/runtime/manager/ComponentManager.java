@@ -448,26 +448,21 @@ public class ComponentManager implements AutoCloseable {
         jsonpProvider = loadJsonProvider();
         jsonbProvider = loadJsonbProvider();
         // these factories have memory caches so ensure we reuse them properly
-        jsonpGeneratorFactory = JsonGeneratorFactory.class
-                .cast(javaProxyEnricherFactory
-                        .asSerializable(tccl, null, JsonGeneratorFactory.class.getName(),
-                                jsonpProvider.createGeneratorFactory(emptyMap())));
-        jsonpReaderFactory = JsonReaderFactory.class
-                .cast(javaProxyEnricherFactory
-                        .asSerializable(tccl, null, JsonReaderFactory.class.getName(),
-                                jsonpProvider.createReaderFactory(emptyMap())));
-        jsonpBuilderFactory = JsonBuilderFactory.class
-                .cast(javaProxyEnricherFactory
-                        .asSerializable(tccl, null, JsonBuilderFactory.class.getName(),
-                                jsonpProvider.createBuilderFactory(emptyMap())));
-        jsonpParserFactory = JsonParserFactory.class
-                .cast(javaProxyEnricherFactory
-                        .asSerializable(tccl, null, JsonParserFactory.class.getName(),
-                                jsonpProvider.createParserFactory(emptyMap())));
-        jsonpWriterFactory = JsonWriterFactory.class
-                .cast(javaProxyEnricherFactory
-                        .asSerializable(tccl, null, JsonWriterFactory.class.getName(),
-                                jsonpProvider.createWriterFactory(emptyMap())));
+        jsonpGeneratorFactory = (JsonGeneratorFactory) javaProxyEnricherFactory
+                .asSerializable(tccl, null, JsonGeneratorFactory.class.getName(),
+                        jsonpProvider.createGeneratorFactory(emptyMap()));
+        jsonpReaderFactory = (JsonReaderFactory) javaProxyEnricherFactory
+                .asSerializable(tccl, null, JsonReaderFactory.class.getName(),
+                        jsonpProvider.createReaderFactory(emptyMap()));
+        jsonpBuilderFactory = (JsonBuilderFactory) javaProxyEnricherFactory
+                .asSerializable(tccl, null, JsonBuilderFactory.class.getName(),
+                        jsonpProvider.createBuilderFactory(emptyMap()));
+        jsonpParserFactory = (JsonParserFactory) javaProxyEnricherFactory
+                .asSerializable(tccl, null, JsonParserFactory.class.getName(),
+                        jsonpProvider.createParserFactory(emptyMap()));
+        jsonpWriterFactory = (JsonWriterFactory) javaProxyEnricherFactory
+                .asSerializable(tccl, null, JsonWriterFactory.class.getName(),
+                        jsonpProvider.createWriterFactory(emptyMap()));
 
         logInfoLevelMapping = findLogInfoLevel();
 
@@ -880,7 +875,7 @@ public class ComponentManager implements AutoCloseable {
             final int version, final Map<String, String> configuration) {
         return findComponentInternal(plugin, name, componentType, version, configuration)
                 // unwrap to access the actual instance which is the desired one
-                .map(i -> Delegated.class.isInstance(i) ? Delegated.class.cast(i).getDelegate() : i);
+                .map(i -> i instanceof Delegated ? ((Delegated) i).getDelegate() : i);
     }
 
     private Optional<Object> findComponentInternal(final String plugin, final String name,
@@ -1344,7 +1339,7 @@ public class ComponentManager implements AutoCloseable {
         @Override
         public void onCreate(final Container container) {
             final ConfigurableClassLoader loader = container.getLoader();
-            final OriginalId originalId = OriginalId.class.cast(container.get(OriginalId.class));
+            final OriginalId originalId = (OriginalId) container.get(OriginalId.class);
             final Map<java.lang.reflect.Type, Optional<Converter>> xbeanConverterCache = new ConcurrentHashMap<>();
 
             final AnnotationFinder finder;
@@ -1421,9 +1416,9 @@ public class ComponentManager implements AutoCloseable {
                     }
                 } : optimizedFinder;
             } finally {
-                if (AutoCloseable.class.isInstance(archive)) {
+                if (archive instanceof AutoCloseable) {
                     try {
-                        AutoCloseable.class.cast(archive).close();
+                        ((AutoCloseable) archive).close();
                     } catch (final Exception e) {
                         log.warn(e.getMessage());
                     }
@@ -1501,7 +1496,7 @@ public class ComponentManager implements AutoCloseable {
                     .filter(HttpClient.class::isAssignableFrom) // others are created manually
                     .forEach(proxy -> {
                         final Object instance =
-                                HttpClientFactory.class.cast(services.get(HttpClientFactory.class)).create(proxy, null);
+                                ((HttpClientFactory) services.get(HttpClientFactory.class)).create(proxy, null);
                         services.put(proxy, instance);
                         registry.getServices().add(new ServiceMeta(instance, emptyList()));
                     });
@@ -1516,7 +1511,7 @@ public class ComponentManager implements AutoCloseable {
                                             .createServiceInstance(container.getLoader(), container.getId(), service),
                                     container.getLoader())));
             // now we created all instances we can inject *then* postconstruct
-            final Injector injector = Injector.class.cast(services.get(Injector.class));
+            final Injector injector = (Injector) services.get(Injector.class);
             services.putAll(userServices);
             userServices.forEach((service, instance) -> {
                 injector.inject(instance);
@@ -1668,7 +1663,7 @@ public class ComponentManager implements AutoCloseable {
 
             String component = "";
             try {
-                component = ofNullable(String.class.cast(marker.annotationType().getMethod("family").invoke(marker)))
+                component = ofNullable((String) marker.annotationType().getMethod("family").invoke(marker))
                         .filter(c -> !c.isEmpty())
                         .orElseGet(components::family);
             } catch (final NoSuchMethodException e) {
@@ -1685,7 +1680,7 @@ public class ComponentManager implements AutoCloseable {
 
             final String name = Stream.of("name", "value").map(mName -> {
                 try {
-                    return String.class.cast(marker.annotationType().getMethod(mName).invoke(marker));
+                    return (String) marker.annotationType().getMethod(mName).invoke(marker);
                 } catch (final IllegalAccessException e) {
                     throw new IllegalStateException(e);
                 } catch (final InvocationTargetException e) {
@@ -1721,11 +1716,10 @@ public class ComponentManager implements AutoCloseable {
                                             ofNullable(serviceMethod.getDeclaringClass().getPackage())
                                                     .map(Package::getName)
                                                     .orElse(""),
-                                            new BaseParameterEnricher.Context(LocalConfiguration.class
-                                                    .cast(container
-                                                            .get(AllServices.class)
-                                                            .getServices()
-                                                            .get(LocalConfiguration.class))))),
+                                            new BaseParameterEnricher.Context((LocalConfiguration) container
+                                                    .get(AllServices.class)
+                                                    .getServices()
+                                                    .get(LocalConfiguration.class)))),
                     invoker);
         }
 
@@ -1802,16 +1796,16 @@ public class ComponentManager implements AutoCloseable {
         }
 
         private URL archiveToUrl(final Archive mainArchive) {
-            if (JarArchive.class.isInstance(mainArchive)) {
-                return JarArchive.class.cast(mainArchive).getUrl();
-            } else if (FileArchive.class.isInstance(mainArchive)) {
+            if (mainArchive instanceof JarArchive) {
+                return ((JarArchive) mainArchive).getUrl();
+            } else if (mainArchive instanceof FileArchive) {
                 try {
-                    return FileArchive.class.cast(mainArchive).getDir().toURI().toURL();
+                    return ((FileArchive) mainArchive).getDir().toURI().toURL();
                 } catch (final MalformedURLException e) {
                     throw new IllegalStateException(e);
                 }
-            } else if (NestedJarArchive.class.isInstance(mainArchive)) {
-                return NestedJarArchive.class.cast(mainArchive).getRootMarker();
+            } else if (mainArchive instanceof NestedJarArchive) {
+                return ((NestedJarArchive) mainArchive).getRootMarker();
             }
             return null;
         }
@@ -1930,8 +1924,7 @@ public class ComponentManager implements AutoCloseable {
                     () -> {
                         final List<ParameterMeta> params = parameterModelService
                                 .buildParameterMetas(constructor, getPackage(type),
-                                        new BaseParameterEnricher.Context(LocalConfiguration.class
-                                                .cast(services.getServices().get(LocalConfiguration.class))));
+                                        new BaseParameterEnricher.Context((LocalConfiguration) services.getServices().get(LocalConfiguration.class)));
                         if (infinite) {
                             if (partitionMapper.stoppable()) {
                                 addInfiniteMapperBuiltInParameters(type, params);
@@ -1984,8 +1977,7 @@ public class ComponentManager implements AutoCloseable {
             final Supplier<List<ParameterMeta>> parameterMetas = lazy(() -> executeInContainer(plugin,
                     () -> parameterModelService
                             .buildParameterMetas(constructor, getPackage(type),
-                                    new BaseParameterEnricher.Context(LocalConfiguration.class
-                                            .cast(services.getServices().get(LocalConfiguration.class))))));
+                                    new BaseParameterEnricher.Context((LocalConfiguration) services.getServices().get(LocalConfiguration.class)))));
             final Function<Map<String, String>, Object[]> parameterFactory =
                     createParametersFactory(plugin, constructor, services.getServices(), parameterMetas);
             final String name = of(emitter.name()).filter(n -> !n.isEmpty()).orElseGet(type::getName);
@@ -2022,7 +2014,7 @@ public class ComponentManager implements AutoCloseable {
             final Supplier<List<ParameterMeta>> parameterMetas = lazy(() -> executeInContainer(plugin, () -> {
                 final List<ParameterMeta> params = parameterModelService
                         .buildParameterMetas(constructor, getPackage(type), new BaseParameterEnricher.Context(
-                                LocalConfiguration.class.cast(services.getServices().get(LocalConfiguration.class))));
+                                (LocalConfiguration) services.getServices().get(LocalConfiguration.class)));
                 addProcessorsBuiltInParameters(type, params);
                 return params;
             }));
@@ -2091,10 +2083,10 @@ public class ComponentManager implements AutoCloseable {
 
             final StreamingMaxRecordsParamBuilder paramBuilder = new StreamingMaxRecordsParamBuilder(root,
                     type.getSimpleName(),
-                    LocalConfiguration.class.cast(services.services.get(LocalConfiguration.class)));
+                    (LocalConfiguration) services.services.get(LocalConfiguration.class));
             final ParameterMeta maxRecords = paramBuilder.newBulkParameter();
             final ParameterMeta maxDuration = new StreamingMaxDurationMsParamBuilder(root, type.getSimpleName(),
-                    LocalConfiguration.class.cast(services.services.get(LocalConfiguration.class))).newBulkParameter();
+                    (LocalConfiguration) services.services.get(LocalConfiguration.class)).newBulkParameter();
             final String layoutOptions = maxRecords.getName() + "|" + maxDuration.getName();
             final String layoutType = paramBuilder.getLayoutType();
             if (layoutType == null) {
@@ -2136,7 +2128,7 @@ public class ComponentManager implements AutoCloseable {
 
             if (Stream.of(type.getMethods()).anyMatch(p -> p.isAnnotationPresent(AfterGroup.class))) {
                 final MaxBatchSizeParamBuilder paramBuilder = new MaxBatchSizeParamBuilder(root, type.getSimpleName(),
-                        LocalConfiguration.class.cast(services.services.get(LocalConfiguration.class)));
+                        (LocalConfiguration) services.services.get(LocalConfiguration.class));
                 final ParameterMeta maxBatchSize = paramBuilder.newBulkParameter();
                 if (maxBatchSize != null) {
                     final String layoutType = paramBuilder.getLayoutType();
@@ -2169,8 +2161,7 @@ public class ComponentManager implements AutoCloseable {
             final Supplier<List<ParameterMeta>> parameterMetas = lazy(() -> executeInContainer(plugin,
                     () -> parameterModelService
                             .buildParameterMetas(constructor, getPackage(type),
-                                    new BaseParameterEnricher.Context(LocalConfiguration.class
-                                            .cast(services.getServices().get(LocalConfiguration.class))))));
+                                    new BaseParameterEnricher.Context((LocalConfiguration) services.getServices().get(LocalConfiguration.class)))));
             final Function<Map<String, String>, Object[]> parameterFactory =
                     createParametersFactory(plugin, constructor, services.getServices(), parameterMetas);
             final String name = of(processor.name()).filter(n -> !n.isEmpty()).orElseGet(type::getName);
@@ -2223,8 +2214,8 @@ public class ComponentManager implements AutoCloseable {
             return this.component == null || !component.equals(this.component.getName())
                     ? (this.component = new ComponentFamilyMeta(plugin, asList(components.categories()),
                             iconFinder.findIcon(familyAnnotationElement), comp,
-                            Class.class.isInstance(familyAnnotationElement)
-                                    ? getPackage(Class.class.cast(familyAnnotationElement))
+                            familyAnnotationElement instanceof Class
+                                    ? getPackage((Class) familyAnnotationElement)
                                     : ""))
                     : this.component;
         }
@@ -2232,7 +2223,7 @@ public class ComponentManager implements AutoCloseable {
         private Serializable doInvoke(final Constructor<?> constructor, final Object[] args) {
             return executeInContainer(plugin, () -> {
                 try {
-                    return Serializable.class.cast(constructor.newInstance(args));
+                    return (Serializable) constructor.newInstance(args);
                 } catch (final IllegalAccessException e) {
                     throw new IllegalStateException(e);
                 } catch (final ClassCastException e) {

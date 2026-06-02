@@ -47,7 +47,7 @@ public class OutputsHandler extends BaseIOHandler {
                 if (value instanceof javax.json.JsonValue) {
                     ref.add(jsonb.fromJson(value.toString(), ref.getType()));
                 } else if (value instanceof Record) {
-                    ref.add(registry.find(ref.getType()).newInstance(Record.class.cast(value)));
+                    ref.add(registry.find(ref.getType()).newInstance((Record) value));
                 } else {
                     ref.add(jsonb.fromJson(jsonb.toJson(value), ref.getType()));
                 }

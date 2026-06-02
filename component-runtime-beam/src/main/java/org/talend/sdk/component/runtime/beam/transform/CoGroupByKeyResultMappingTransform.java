@@ -85,7 +85,7 @@ public class CoGroupByKeyResultMappingTransform<K>
                     .getTupleTagList()
                     .getAll()
                     .stream()
-                    .map(key -> new Pair<>(key.getId(), Record.class.cast(result.getOnly(key, null))))
+                    .map(key -> new Pair<>(key.getId(), (Record) result.getOnly(key, null)))
                     .filter(p -> p.getSecond() != null)
                     .collect(builderFactory::newRecordBuilder, (b, p) -> {
                         final Record record = p.getSecond();

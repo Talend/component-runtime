@@ -96,7 +96,7 @@ public class DefaultResponseLocator implements ResponseLocator, AutoCloseable {
                 .flatMap(url -> {
                     final Collection<Model> models;
                     try (final InputStream stream = url.openStream()) {
-                        models = Collection.class.cast(jsonb.fromJson(stream, MODEL_TYPE));
+                        models = (Collection) jsonb.fromJson(stream, MODEL_TYPE);
                     } catch (final IOException e) {
                         throw new IllegalStateException(e);
                     }

@@ -38,12 +38,12 @@ public class TypeValidation implements ValidationExtension {
     @Override
     public Optional<Function<JsonValue, Stream<ValidationError>>> create(final ValidationContext model) {
         final JsonValue value = model.getSchema().get("type");
-        if (JsonString.class.isInstance(value)) {
+        if (value instanceof JsonString) {
             return Optional
                     .of(new Impl(model.toPointer(), model.getValueProvider(),
-                            mapType(JsonString.class.cast(value)).toArray(JsonValue.ValueType[]::new)));
+                            mapType((JsonString) value).toArray(JsonValue.ValueType[]::new)));
         }
-        if (JsonArray.class.isInstance(value)) {
+        if (value instanceof JsonArray) {
             return Optional
                     .of(new Impl(model.toPointer(), model.getValueProvider(),
                             value.asJsonArray().stream().flatMap(this::mapType).toArray(JsonValue.ValueType[]::new)));
@@ -53,7 +53,7 @@ public class TypeValidation implements ValidationExtension {
     }
 
     private Stream<? extends JsonValue.ValueType> mapType(final JsonValue value) {
-        switch (JsonString.class.cast(value).getString()) {
+        switch (((JsonString) value).getString()) {
             case "null":
                 return Stream.of(JsonValue.ValueType.NULL);
             case "string":

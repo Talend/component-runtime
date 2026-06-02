@@ -62,7 +62,7 @@ public class SvgValidator {
     private SVGOMSVGElement loadSvg(final Path path) {
         try {
             final Document document = factory.createDocument(path.toUri().toASCIIString());
-            return SVGOMSVGElement.class.cast(document.getDocumentElement());
+            return (SVGOMSVGElement) document.getDocumentElement();
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }

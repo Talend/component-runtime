@@ -78,11 +78,11 @@ public class JoinInputFactory implements ControllableInputFactory {
     }
 
     private Object map(final Object next) {
-        if (next == null || Record.class.isInstance(next)) { // directly ok
+        if (next == null || next instanceof Record) { // directly ok
             return next;
         }
 
-        if (String.class.isInstance(next) || next.getClass().isPrimitive()) { // primitives
+        if (next instanceof String || next.getClass().isPrimitive()) { // primitives
             return next;
         }
 

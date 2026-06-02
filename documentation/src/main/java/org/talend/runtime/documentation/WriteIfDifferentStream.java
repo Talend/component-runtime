@@ -41,7 +41,7 @@ public class WriteIfDifferentStream extends FilterOutputStream {
     @Override
     public void close() throws IOException {
         out.close();
-        final byte[] bytes = ByteArrayOutputStream.class.cast(out).toByteArray();
+        final byte[] bytes = ((ByteArrayOutputStream) out).toByteArray();
         if (!destination.exists() || isDifferent(bytes)) {
             try (final OutputStream out = new FileOutputStream(destination)) {
                 out.write(bytes);

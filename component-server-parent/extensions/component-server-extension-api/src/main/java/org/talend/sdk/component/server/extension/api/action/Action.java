@@ -40,7 +40,7 @@ public class Action {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        return reference.equals(Action.class.cast(o).reference);
+        return reference.equals(((Action) o).reference);
     }
 
     @Override

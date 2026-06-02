@@ -166,7 +166,7 @@ public final class Cli {
             final Mapper mpr = manager.findMapper(family, mapper, 1, configuration)
                     .orElseThrow(() -> new IllegalStateException(
                             String.format("No mapper found for: %s/%s.", family, manager)));
-            final InputImpl input = InputImpl.class.cast(mpr.create());
+            final InputImpl input = (InputImpl) mpr.create();
             Object data;
             // run lifecycle
             input.start(callback);

@@ -65,38 +65,38 @@ class CodecMatcherTest {
     @Test
     void selectWithExactMatch() {
         final Encoder jsonEncoder = matcher.select(codecMap, "application/json");
-        assertTrue(JsonEncoder.class.isInstance(jsonEncoder));
+        assertTrue(jsonEncoder instanceof JsonEncoder);
         assertEquals("application/json", jsonEncoder.getClass().getAnnotation(ContentType.class).value());
 
         final Encoder talendEncoder = matcher.select(codecMap, "application/talend+json");
-        assertTrue(TalendJsonEncoder.class.isInstance(talendEncoder));
+        assertTrue(talendEncoder instanceof TalendJsonEncoder);
         assertEquals("application/talend+json", talendEncoder.getClass().getAnnotation(ContentType.class).value());
 
         final Encoder defaultEncoder = matcher.select(codecMap, "*/*");
-        assertTrue(DefaultEncoder.class.isInstance(defaultEncoder));
+        assertTrue(defaultEncoder instanceof DefaultEncoder);
     }
 
     @Test
     void selectWithtRegex() {
         final Encoder jsonEncoder = matcher.select(codecMap, "foo/json");
-        assertTrue(JsonEncoder.class.isInstance(jsonEncoder));
+        assertTrue(jsonEncoder instanceof JsonEncoder);
         assertEquals("application/json", jsonEncoder.getClass().getAnnotation(ContentType.class).value());
 
         final Encoder talendEncoder = matcher.select(codecMap, "application/foo+json");
-        assertTrue(TalendJsonEncoder.class.isInstance(talendEncoder));
+        assertTrue(talendEncoder instanceof TalendJsonEncoder);
         assertEquals("application/talend+json", talendEncoder.getClass().getAnnotation(ContentType.class).value());
     }
 
     @Test
     void selectWithNoType() {
         final Encoder encoder = matcher.select(codecMap, null);
-        assertTrue(DefaultEncoder.class.isInstance(encoder));
+        assertTrue(encoder instanceof DefaultEncoder);
     }
 
     @Test
     void wildcardMatching() {
-        assertTrue(DefaultEncoder.class.isInstance(matcher.select(codecMap, "foo/bar")));
-        assertTrue(DefaultEncoder.class.isInstance(matcher.select(codecMap, "foo/bar+test")));
+        assertTrue(matcher.select(codecMap, "foo/bar") instanceof DefaultEncoder);
+        assertTrue(matcher.select(codecMap, "foo/bar+test") instanceof DefaultEncoder);
     }
 
     @Test

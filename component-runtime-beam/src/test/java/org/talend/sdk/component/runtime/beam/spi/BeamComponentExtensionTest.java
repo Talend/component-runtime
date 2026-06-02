@@ -115,15 +115,15 @@ class BeamComponentExtensionTest {
         final byte[] bytes = Serializer.toBytes(mapper);
         try (final ObjectInputStream ois = new EnhancedObjectInputStream(new ByteArrayInputStream(bytes),
                 Thread.currentThread().getContextClassLoader())) {
-            final Serializable deserialized = Serializable.class.cast(ois.readObject());
-            assertMapper(Mapper.class.cast(deserialized));
+            final Serializable deserialized = (Serializable) ois.readObject();
+            assertMapper((Mapper) deserialized);
         }
     }
 
     private void assertMapper(final Mapper mapper) {
         assertNotNull(mapper);
         assertThat(mapper, instanceOf(Delegated.class));
-        assertNotNull(Delegated.class.cast(mapper).getDelegate());
+        assertNotNull(((Delegated) mapper).getDelegate());
         try {
             mapper.start();
             fail();

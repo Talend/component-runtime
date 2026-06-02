@@ -84,7 +84,7 @@ public class Dependencies {
             if (pom.exists()) {
                 final PomEquippedResolveStage localPom = Maven.configureResolver().loadPomFromFile(pom);
                 final MavenWorkingSession mavenWorkingSession =
-                        PomEquippedResolveStageBaseImpl.class.cast(localPom).getMavenWorkingSession();
+                        ((PomEquippedResolveStageBaseImpl) localPom).getMavenWorkingSession();
                 try {
                     final Field remoteRepositories =
                             mavenWorkingSession.getClass().getDeclaredField("remoteRepositories");
@@ -92,7 +92,7 @@ public class Dependencies {
                         remoteRepositories.setAccessible(true);
                     }
                     final List<RemoteRepository> pomRepos =
-                            List.class.cast(remoteRepositories.get(mavenWorkingSession));
+                            (List) remoteRepositories.get(mavenWorkingSession);
                     if (pomRepos != null && !pomRepos.isEmpty()) {
                         pomRepos.forEach(r -> {
                             final MavenRemoteRepository repository =

@@ -70,7 +70,7 @@ public class LifecycleImpl extends Named implements Lifecycle {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final LifecycleImpl lifecycle = LifecycleImpl.class.cast(o);
+        final LifecycleImpl lifecycle = (LifecycleImpl) o;
         return Objects.equals(delegate, lifecycle.delegate) && Objects.equals(loader, lifecycle.loader);
     }
 

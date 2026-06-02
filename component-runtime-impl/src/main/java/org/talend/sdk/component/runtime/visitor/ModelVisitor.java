@@ -129,18 +129,18 @@ public class ModelVisitor {
                 throw new IllegalArgumentException(m + " must not have any parameter without @PartitionSize");
             }
             final Type splitReturnType = m.getGenericReturnType();
-            if (!ParameterizedType.class.isInstance(splitReturnType)) {
+            if (!(splitReturnType instanceof ParameterizedType)) {
                 throw new IllegalArgumentException(m + " must return a Collection<" + type.getName() + ">");
             }
 
-            final ParameterizedType splitPt = ParameterizedType.class.cast(splitReturnType);
-            if (!Class.class.isInstance(splitPt.getRawType())
-                    || !Collection.class.isAssignableFrom(Class.class.cast(splitPt.getRawType()))) {
+            final ParameterizedType splitPt = (ParameterizedType) splitReturnType;
+            if (!(splitPt.getRawType() instanceof Class)
+                    || !Collection.class.isAssignableFrom((Class) splitPt.getRawType())) {
                 throw new IllegalArgumentException(m + " must return a List of partition mapper, found: " + splitPt);
             }
 
             final Type arg = splitPt.getActualTypeArguments().length != 1 ? null : splitPt.getActualTypeArguments()[0];
-            if (!Class.class.isInstance(arg) || !type.isAssignableFrom(Class.class.cast(arg))) {
+            if (!(arg instanceof Class) || !type.isAssignableFrom((Class) arg)) {
                 throw new IllegalArgumentException(
                         m + " must return a Collection<" + type.getName() + "> but found: " + arg);
             }
@@ -254,10 +254,10 @@ public class ModelVisitor {
     }
 
     private boolean validOutputParam(final Parameter p) {
-        if (!ParameterizedType.class.isInstance(p.getParameterizedType())) {
+        if (!(p.getParameterizedType() instanceof ParameterizedType)) {
             return false;
         }
-        final ParameterizedType pt = ParameterizedType.class.cast(p.getParameterizedType());
+        final ParameterizedType pt = (ParameterizedType) p.getParameterizedType();
         return OutputEmitter.class == pt.getRawType();
     }
 

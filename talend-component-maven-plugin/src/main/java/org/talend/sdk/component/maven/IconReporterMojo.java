@@ -109,11 +109,10 @@ public class IconReporterMojo extends ClasspathMojoBase {
             executeInLoader();
         }
 
-        final AtomicInteger counter = AtomicInteger.class
-                .cast(session
-                        .getRequest()
-                        .getData()
-                        .computeIfAbsent(getClass().getName() + ".counter", k -> new AtomicInteger()));
+        final AtomicInteger counter = (AtomicInteger) session
+                .getRequest()
+                .getData()
+                .computeIfAbsent(getClass().getName() + ".counter", k -> new AtomicInteger());
         if (counter.incrementAndGet() != reactorProjects.size()) {
             getLog().debug("Not yet at the end of the build, skipping rendering");
             return;
@@ -128,7 +127,7 @@ public class IconReporterMojo extends ClasspathMojoBase {
     @Override // todo: findIcon != default but no @Icon
     protected void doExecute() {
         final ExecutionClassLoader loader =
-                ExecutionClassLoader.class.cast(Thread.currentThread().getContextClassLoader());
+                (ExecutionClassLoader) Thread.currentThread().getContextClassLoader();
         final AnnotationFinder finder = new AnnotationFinder(
                 new CompositeArchive(Stream.of(classes).map(c -> new FileArchive(loader, c)).toArray(Archive[]::new)));
 
@@ -207,11 +206,10 @@ public class IconReporterMojo extends ClasspathMojoBase {
 
     private GlobalReporter getReporter() {
         synchronized (session) {
-            return GlobalReporter.class
-                    .cast(session
-                            .getRequest()
-                            .getData()
-                            .computeIfAbsent(getClass().getName() + ".reporter", k -> new GlobalReporter()));
+            return (GlobalReporter) session
+                    .getRequest()
+                    .getData()
+                    .computeIfAbsent(getClass().getName() + ".reporter", k -> new GlobalReporter());
         }
     }
 

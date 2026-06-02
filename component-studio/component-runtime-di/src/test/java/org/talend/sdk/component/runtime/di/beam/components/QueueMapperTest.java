@@ -56,7 +56,7 @@ class QueueMapperTest {
         final LoopState lookup = LoopState.lookup(mapper.getStateId());
         lookup.push(Json.createObjectBuilder().add("id", 1).build());
         lookup.end();
-        assertEquals(1, Record.class.cast(input.next()).getInt("id"));
+        assertEquals(1, ((Record) input.next()).getInt("id"));
         assertNull(input.next());
     }
 }

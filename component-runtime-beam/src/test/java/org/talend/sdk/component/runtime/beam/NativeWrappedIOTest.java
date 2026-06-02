@@ -94,11 +94,10 @@ public class NativeWrappedIOTest {
         config.setQuery("SELECT * FROM   INFORMATION_SCHEMA.TABLES");
         final Map<String, String> map = SimpleFactory.configurationByExample().forInstance(config).configured().toMap();
         final String plugin = COMPONENTS.getTestPlugins().iterator().next();
-        final PTransform<PBegin, PCollection<JsonObject>> jdbc = PTransform.class
-                .cast(COMPONENTS
-                        .asManager()
-                        .createComponent("Jdbc", "Input", ComponentManager.ComponentType.MAPPER, 1, map)
-                        .orElseThrow(() -> new IllegalArgumentException("no jdbc input")));
+        final PTransform<PBegin, PCollection<JsonObject>> jdbc = (PTransform) COMPONENTS
+                .asManager()
+                .createComponent("Jdbc", "Input", ComponentManager.ComponentType.MAPPER, 1, map)
+                .orElseThrow(() -> new IllegalArgumentException("no jdbc input"));
         PAssert
                 .that(pipeline.apply(jdbc).setCoder(JsonpJsonObjectCoder.of(plugin)))
                 .satisfies((SerializableFunction<Iterable<JsonObject>, Void>) input -> {
@@ -112,11 +111,10 @@ public class NativeWrappedIOTest {
     @Test
     public void source() {
         final String plugin = COMPONENTS.getTestPlugins().iterator().next();
-        final PTransform<PBegin, PCollection<JsonObject>> jdbc = PTransform.class
-                .cast(COMPONENTS
-                        .asManager()
-                        .createComponent("beamtest", "source", ComponentManager.ComponentType.MAPPER, 1, emptyMap())
-                        .orElseThrow(() -> new IllegalArgumentException("no beamtest#source component")));
+        final PTransform<PBegin, PCollection<JsonObject>> jdbc = (PTransform) COMPONENTS
+                .asManager()
+                .createComponent("beamtest", "source", ComponentManager.ComponentType.MAPPER, 1, emptyMap())
+                .orElseThrow(() -> new IllegalArgumentException("no beamtest#source component"));
         PAssert
                 .that(pipeline.apply(jdbc).setCoder(JsonpJsonObjectCoder.of(plugin)))
                 .satisfies((SerializableFunction<Iterable<JsonObject>, Void>) input -> {
@@ -200,7 +198,7 @@ public class NativeWrappedIOTest {
         }
 
         private Set<String> getTestPlugins() {
-            return new HashSet<>(EmbeddedComponentManager.class.cast(asManager()).testPlugins);
+            return new HashSet<>(((EmbeddedComponentManager) asManager()).testPlugins);
         }
 
         static class PreState {

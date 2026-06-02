@@ -182,7 +182,7 @@ class ConfigurableClassLoaderTest {
                 final Object jarLocation =
                         aClass.getMethod("jarLocation", Class.class).invoke(null, ConfigurableClassLoaderTest.class);
                 assertNotNull(jarLocation);
-                assertTrue(File.class.isInstance(jarLocation));
+                assertTrue(jarLocation instanceof File);
             } catch (final Exception e) {
                 fail("JarLocation should be loaded from the nested jar");
             }

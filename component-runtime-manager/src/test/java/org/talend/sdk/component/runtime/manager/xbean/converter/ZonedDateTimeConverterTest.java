@@ -40,7 +40,7 @@ class ZonedDateTimeConverterTest {
     @ParameterizedTest
     void fromWebSubmit(final String date, final int year, final int month, final int day, final int hour,
             final int minute, final int second, final String zone) {
-        final ZonedDateTime zonedDateTime = ZonedDateTime.class.cast(converter.toObjectImpl(date));
+        final ZonedDateTime zonedDateTime = (ZonedDateTime) converter.toObjectImpl(date);
         if (year > 0) {
             assertEquals(year, zonedDateTime.getYear());
         }
@@ -68,7 +68,7 @@ class ZonedDateTimeConverterTest {
     void timeStringToObject() {
         final LocalTime now = LocalTime.now();
         converter.setAsText(now.toString());
-        final Object converted = ZonedDateTime.class.cast(converter.getValue()).toLocalTime();
+        final Object converted = ((ZonedDateTime) converter.getValue()).toLocalTime();
         assertEquals(now, converted);
         assertNotSame(now, converted);
     }
@@ -84,7 +84,7 @@ class ZonedDateTimeConverterTest {
     void dateStringToObject() {
         final LocalDate now = LocalDate.now();
         converter.setAsText(now.toString());
-        final Object converted = ZonedDateTime.class.cast(converter.getValue()).toLocalDate();
+        final Object converted = ((ZonedDateTime) converter.getValue()).toLocalDate();
         assertEquals(now, converted);
         assertNotSame(now, converted);
     }
@@ -116,7 +116,7 @@ class ZonedDateTimeConverterTest {
     void zonedDateTimeStringToObjectNoOffset() {
         final ZonedDateTime now = ZonedDateTime.now();
         converter.setAsText(now.toString().replaceFirst("\\[.+\\]", ""));
-        final ZonedDateTime converted = ZonedDateTime.class.cast(converter.getValue());
+        final ZonedDateTime converted = (ZonedDateTime) converter.getValue();
         assertEquals(now.toLocalDate(), converted.toLocalDate());
         assertEquals(now.toLocalDateTime(), converted.toLocalDateTime());
     }
@@ -126,7 +126,7 @@ class ZonedDateTimeConverterTest {
         final ZonedDateTime now = ZonedDateTime.now().withZoneSameInstant(ZoneId.of("UTC"));
         Stream.of(now.toString(), now.toString().replaceFirst("\\[.+\\]", "")).forEach(text -> {
             converter.setAsText(text);
-            final ZonedDateTime converted = ZonedDateTime.class.cast(converter.getValue());
+            final ZonedDateTime converted = (ZonedDateTime) converter.getValue();
             assertEquals(now.toLocalDate(), converted.toLocalDate());
             assertEquals(now.toLocalDateTime(), converted.toLocalDateTime());
         });
@@ -136,7 +136,7 @@ class ZonedDateTimeConverterTest {
     void zonedDateTimeStringToObjectNoOffsetNoTimeZone() {
         final ZonedDateTime now = ZonedDateTime.now();
         converter.setAsText(now.toString().replaceFirst("\\[.+\\]", "").replaceFirst("\\+.+", ""));
-        final ZonedDateTime converted = ZonedDateTime.class.cast(converter.getValue());
+        final ZonedDateTime converted = (ZonedDateTime) converter.getValue();
         assertEquals(now.toLocalDate(), converted.toLocalDate());
         assertEquals(now.toLocalDateTime(), converted.toLocalDateTime());
     }

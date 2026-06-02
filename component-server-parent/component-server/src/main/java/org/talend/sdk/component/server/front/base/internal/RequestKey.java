@@ -49,7 +49,7 @@ public class RequestKey {
         if (!super.equals(o)) {
             return false;
         }
-        final RequestKey that = RequestKey.class.cast(o);
+        final RequestKey that = (RequestKey) o;
         return Objects.equals(locale, that.locale) && Objects.equals(includeIconContent, that.includeIconContent)
                 && Objects.equals(query, that.query) && Objects.equals(theme, that.theme);
     }
