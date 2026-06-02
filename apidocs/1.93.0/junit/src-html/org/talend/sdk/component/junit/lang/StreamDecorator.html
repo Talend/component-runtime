@@ -67,17 +67,17 @@
 <span class="source-line-no">054</span><span id="line-54">                }</span>
 <span class="source-line-no">055</span><span id="line-55">            });</span>
 <span class="source-line-no">056</span><span id="line-56">            if (stream) {</span>
-<span class="source-line-no">057</span><span id="line-57">                if (Stream.class.isInstance(result)) {</span>
-<span class="source-line-no">058</span><span id="line-58">                    return decorate(Stream.class.cast(result), Stream.class, leafDecorator);</span>
+<span class="source-line-no">057</span><span id="line-57">                if (result instanceof Stream) {</span>
+<span class="source-line-no">058</span><span id="line-58">                    return decorate((Stream) result, Stream.class, leafDecorator);</span>
 <span class="source-line-no">059</span><span id="line-59">                }</span>
-<span class="source-line-no">060</span><span id="line-60">                if (IntStream.class.isInstance(result)) {</span>
-<span class="source-line-no">061</span><span id="line-61">                    return decorate(IntStream.class.cast(result), IntStream.class, leafDecorator);</span>
+<span class="source-line-no">060</span><span id="line-60">                if (result instanceof IntStream) {</span>
+<span class="source-line-no">061</span><span id="line-61">                    return decorate((IntStream) result, IntStream.class, leafDecorator);</span>
 <span class="source-line-no">062</span><span id="line-62">                }</span>
-<span class="source-line-no">063</span><span id="line-63">                if (LongStream.class.isInstance(result)) {</span>
-<span class="source-line-no">064</span><span id="line-64">                    return decorate(LongStream.class.cast(result), LongStream.class, leafDecorator);</span>
+<span class="source-line-no">063</span><span id="line-63">                if (result instanceof LongStream) {</span>
+<span class="source-line-no">064</span><span id="line-64">                    return decorate((LongStream) result, LongStream.class, leafDecorator);</span>
 <span class="source-line-no">065</span><span id="line-65">                }</span>
-<span class="source-line-no">066</span><span id="line-66">                if (DoubleStream.class.isInstance(result)) {</span>
-<span class="source-line-no">067</span><span id="line-67">                    return decorate(DoubleStream.class.cast(result), DoubleStream.class, leafDecorator);</span>
+<span class="source-line-no">066</span><span id="line-66">                if (result instanceof DoubleStream) {</span>
+<span class="source-line-no">067</span><span id="line-67">                    return decorate((DoubleStream) result, DoubleStream.class, leafDecorator);</span>
 <span class="source-line-no">068</span><span id="line-68">                }</span>
 <span class="source-line-no">069</span><span id="line-69">            }</span>
 <span class="source-line-no">070</span><span id="line-70">            return result;</span>

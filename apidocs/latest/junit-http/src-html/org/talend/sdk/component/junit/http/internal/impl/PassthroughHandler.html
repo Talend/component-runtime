@@ -118,11 +118,11 @@
 <span class="source-line-no">105</span><span id="line-105">            final Map&lt;String, String&gt; otherHeaders = new HashMap&lt;&gt;();</span>
 <span class="source-line-no">106</span><span id="line-106">            try {</span>
 <span class="source-line-no">107</span><span id="line-107">                final URL url = new URL(requestUri);</span>
-<span class="source-line-no">108</span><span id="line-108">                final HttpURLConnection connection = HttpURLConnection.class.cast(url.openConnection(Proxy.NO_PROXY));</span>
+<span class="source-line-no">108</span><span id="line-108">                final HttpURLConnection connection = (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);</span>
 <span class="source-line-no">109</span><span id="line-109">                connection.setConnectTimeout(30000);</span>
 <span class="source-line-no">110</span><span id="line-110">                connection.setReadTimeout(20000);</span>
-<span class="source-line-no">111</span><span id="line-111">                if (HttpsURLConnection.class.isInstance(connection) &amp;&amp; api.getSslContext() != null) {</span>
-<span class="source-line-no">112</span><span id="line-112">                    final HttpsURLConnection httpsURLConnection = HttpsURLConnection.class.cast(connection);</span>
+<span class="source-line-no">111</span><span id="line-111">                if (connection instanceof HttpsURLConnection &amp;&amp; api.getSslContext() != null) {</span>
+<span class="source-line-no">112</span><span id="line-112">                    final HttpsURLConnection httpsURLConnection = (HttpsURLConnection) connection;</span>
 <span class="source-line-no">113</span><span id="line-113">                    httpsURLConnection.setHostnameVerifier((h, s) -&gt; true);</span>
 <span class="source-line-no">114</span><span id="line-114">                    httpsURLConnection.setSSLSocketFactory(api.getSslContext().getSocketFactory());</span>
 <span class="source-line-no">115</span><span id="line-115">                }</span>

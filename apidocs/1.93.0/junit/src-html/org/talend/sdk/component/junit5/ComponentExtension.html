@@ -125,8 +125,8 @@
 <span class="source-line-no">112</span><span id="line-112">    }</span>
 <span class="source-line-no">113</span><span id="line-113"></span>
 <span class="source-line-no">114</span><span id="line-114">    public void doStop(final ExtensionContext extensionContext) {</span>
-<span class="source-line-no">115</span><span id="line-115">        ofNullable(EmbeddedComponentManager.class</span>
-<span class="source-line-no">116</span><span id="line-116">                .cast(extensionContext.getStore(NAMESPACE).get(EmbeddedComponentManager.class.getName())))</span>
+<span class="source-line-no">115</span><span id="line-115">        ofNullable((EmbeddedComponentManager) extensionContext.getStore(NAMESPACE)</span>
+<span class="source-line-no">116</span><span id="line-116">                .get(EmbeddedComponentManager.class.getName()))</span>
 <span class="source-line-no">117</span><span id="line-117">                .ifPresent(EmbeddedComponentManager::close);</span>
 <span class="source-line-no">118</span><span id="line-118">    }</span>
 <span class="source-line-no">119</span><span id="line-119"></span>

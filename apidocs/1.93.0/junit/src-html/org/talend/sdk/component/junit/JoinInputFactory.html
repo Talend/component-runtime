@@ -91,11 +91,11 @@
 <span class="source-line-no">078</span><span id="line-78">    }</span>
 <span class="source-line-no">079</span><span id="line-79"></span>
 <span class="source-line-no">080</span><span id="line-80">    private Object map(final Object next) {</span>
-<span class="source-line-no">081</span><span id="line-81">        if (next == null || Record.class.isInstance(next)) { // directly ok</span>
+<span class="source-line-no">081</span><span id="line-81">        if (next == null || next instanceof Record) { // directly ok</span>
 <span class="source-line-no">082</span><span id="line-82">            return next;</span>
 <span class="source-line-no">083</span><span id="line-83">        }</span>
 <span class="source-line-no">084</span><span id="line-84"></span>
-<span class="source-line-no">085</span><span id="line-85">        if (String.class.isInstance(next) || next.getClass().isPrimitive()) { // primitives</span>
+<span class="source-line-no">085</span><span id="line-85">        if (next instanceof String || next.getClass().isPrimitive()) { // primitives</span>
 <span class="source-line-no">086</span><span id="line-86">            return next;</span>
 <span class="source-line-no">087</span><span id="line-87">        }</span>
 <span class="source-line-no">088</span><span id="line-88"></span>

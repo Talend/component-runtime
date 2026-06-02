@@ -54,7 +54,7 @@
 <span class="source-line-no">041</span><span id="line-41">    @Override</span>
 <span class="source-line-no">042</span><span id="line-42">    public Object findInstance(final ExtensionContext extensionContext, final Class&lt;?&gt; type, final Annotation marker)</span>
 <span class="source-line-no">043</span><span id="line-43">            throws ParameterResolutionException {</span>
-<span class="source-line-no">044</span><span id="line-44">        return decrypter.createInstance(DecryptedServer.class.cast(marker));</span>
+<span class="source-line-no">044</span><span id="line-44">        return decrypter.createInstance((DecryptedServer) marker);</span>
 <span class="source-line-no">045</span><span id="line-45">    }</span>
 <span class="source-line-no">046</span><span id="line-46">}</span>
 

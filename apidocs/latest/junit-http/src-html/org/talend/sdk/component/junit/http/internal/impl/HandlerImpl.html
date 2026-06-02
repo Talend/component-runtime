@@ -194,9 +194,9 @@
 <span class="source-line-no">181</span><span id="line-181">                        log.error(e.getMessage(), e);</span>
 <span class="source-line-no">182</span><span id="line-182">                    }</span>
 <span class="source-line-no">183</span><span id="line-183">                });</span>
-<span class="source-line-no">184</span><span id="line-184">        if (!AutoCloseable.class.isInstance(handler.getExecutor())</span>
-<span class="source-line-no">185</span><span id="line-185">                &amp;&amp; ExecutorService.class.isInstance(handler.getExecutor())) {</span>
-<span class="source-line-no">186</span><span id="line-186">            final ExecutorService executorService = ExecutorService.class.cast(handler.getExecutor());</span>
+<span class="source-line-no">184</span><span id="line-184">        if (!(handler.getExecutor() instanceof AutoCloseable)</span>
+<span class="source-line-no">185</span><span id="line-185">                &amp;&amp; handler.getExecutor() instanceof ExecutorService) {</span>
+<span class="source-line-no">186</span><span id="line-186">            final ExecutorService executorService = (ExecutorService) handler.getExecutor();</span>
 <span class="source-line-no">187</span><span id="line-187">            executorService.shutdownNow(); // we don't need to wait here</span>
 <span class="source-line-no">188</span><span id="line-188">        }</span>
 <span class="source-line-no">189</span><span id="line-189">    }</span>

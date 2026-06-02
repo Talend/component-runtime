@@ -122,7 +122,7 @@
 <span class="source-line-no">109</span><span id="line-109">                .orElseThrow(() -&gt; new IllegalArgumentException("cant find plugin '" + plugin + "'"))</span>
 <span class="source-line-no">110</span><span id="line-110">                .get(ComponentManager.AllServices.class)</span>
 <span class="source-line-no">111</span><span id="line-111">                .getServices();</span>
-<span class="source-line-no">112</span><span id="line-112">        Injector.class.cast(services.get(Injector.class)).inject(instance);</span>
+<span class="source-line-no">112</span><span id="line-112">        ((Injector) services.get(Injector.class)).inject(instance);</span>
 <span class="source-line-no">113</span><span id="line-113">        return instance;</span>
 <span class="source-line-no">114</span><span id="line-114">    }</span>
 <span class="source-line-no">115</span><span id="line-115"></span>
@@ -494,7 +494,7 @@
 <span class="source-line-no">481</span><span id="line-481">    }</span>
 <span class="source-line-no">482</span><span id="line-482"></span>
 <span class="source-line-no">483</span><span id="line-483">    public Set&lt;String&gt; getTestPlugins() {</span>
-<span class="source-line-no">484</span><span id="line-484">        return new HashSet&lt;&gt;(EmbeddedComponentManager.class.cast(asManager()).testPlugins);</span>
+<span class="source-line-no">484</span><span id="line-484">        return new HashSet&lt;&gt;(((EmbeddedComponentManager) asManager()).testPlugins);</span>
 <span class="source-line-no">485</span><span id="line-485">    }</span>
 <span class="source-line-no">486</span><span id="line-486"></span>
 <span class="source-line-no">487</span><span id="line-487">    @Override</span>
@@ -512,7 +512,7 @@
 <span class="source-line-no">499</span><span id="line-499">        final State state = STATE.get();</span>
 <span class="source-line-no">500</span><span id="line-500">        return state.collector</span>
 <span class="source-line-no">501</span><span id="line-501">                .stream()</span>
-<span class="source-line-no">502</span><span id="line-502">                .filter(r -&gt; recordType.isInstance(r) || JsonObject.class.isInstance(r) || Record.class.isInstance(r))</span>
+<span class="source-line-no">502</span><span id="line-502">                .filter(r -&gt; recordType.isInstance(r) || r instanceof JsonObject || r instanceof Record)</span>
 <span class="source-line-no">503</span><span id="line-503">                .map(r -&gt; mapRecord(state, recordType, r))</span>
 <span class="source-line-no">504</span><span id="line-504">                .collect(toList());</span>
 <span class="source-line-no">505</span><span id="line-505">    }</span>
@@ -529,7 +529,7 @@
 <span class="source-line-no">516</span><span id="line-516"></span>
 <span class="source-line-no">517</span><span id="line-517">    private String getSinglePlugin() {</span>
 <span class="source-line-no">518</span><span id="line-518">        return Optional</span>
-<span class="source-line-no">519</span><span id="line-519">                .of(EmbeddedComponentManager.class.cast(asManager()).testPlugins/* sorted */)</span>
+<span class="source-line-no">519</span><span id="line-519">                .of(((EmbeddedComponentManager) asManager()).testPlugins/* sorted */)</span>
 <span class="source-line-no">520</span><span id="line-520">                .filter(c -&gt; !c.isEmpty())</span>
 <span class="source-line-no">521</span><span id="line-521">                .map(c -&gt; c.iterator().next())</span>
 <span class="source-line-no">522</span><span id="line-522">                .orElseThrow(() -&gt; new IllegalStateException("No component plugin found"));</span>

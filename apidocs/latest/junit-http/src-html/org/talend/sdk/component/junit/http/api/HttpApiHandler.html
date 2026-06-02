@@ -82,7 +82,7 @@
 <span class="source-line-no">069</span><span id="line-69">                        .newServerContext(SslProvider.JDK, null, InsecureTrustManagerFactory.INSTANCE,</span>
 <span class="source-line-no">070</span><span id="line-70">                                certificate.certificate(), certificate.privateKey(), null, null, null,</span>
 <span class="source-line-no">071</span><span id="line-71">                                IdentityCipherSuiteFilter.INSTANCE, null, 0, 0);</span>
-<span class="source-line-no">072</span><span id="line-72">                sslContext = JdkSslContext.class.cast(nettyContext).context();</span>
+<span class="source-line-no">072</span><span id="line-72">                sslContext = ((JdkSslContext) nettyContext).context();</span>
 <span class="source-line-no">073</span><span id="line-73">            } catch (final SSLException | CertificateException e) {</span>
 <span class="source-line-no">074</span><span id="line-74">                throw new IllegalStateException(e);</span>
 <span class="source-line-no">075</span><span id="line-75">            }</span>
