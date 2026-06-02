@@ -44,7 +44,7 @@ public class ProducerFinderImpl implements ProducerFinder {
     @Override
     public ProducerFinder init(final String plugin, final Object builder, final Function<Object, Record> converter) {
         this.plugin = plugin;
-        mapperFinder = ComponentInstantiator.Builder.class.cast(builder);
+        mapperFinder = (ComponentInstantiator.Builder) builder;
         recordConverter = converter;
         return this;
     }

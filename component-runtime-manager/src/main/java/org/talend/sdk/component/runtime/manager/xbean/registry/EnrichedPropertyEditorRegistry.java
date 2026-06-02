@@ -79,7 +79,7 @@ public class EnrichedPropertyEditorRegistry extends PropertyEditorRegistry {
                             return null;
                         }
                         final Object o = doubleEditor.toObject(text);
-                        return mapper.apply(Double.class.cast(o));
+                        return mapper.apply((Double) o);
                     }
                 };
 

@@ -68,9 +68,9 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
                 .getSchema()
                 .getFields()
                 .stream()
-                .filter(f -> org.joda.time.DateTime.class.isInstance(delegate.get(f.pos())))
+                .filter(f -> delegate.get(f.pos()) instanceof org.joda.time.DateTime)
                 .forEach(f -> delegate
-                        .put(f.pos(), org.joda.time.DateTime.class.cast(delegate.get(f.pos())).getMillis()));
+                        .put(f.pos(), ((org.joda.time.DateTime) delegate.get(f.pos())).getMillis()));
     }
 
     public AvroRecord(final Record record) {
@@ -115,7 +115,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             return new AvroRecord((Record) value).delegate;
         }
         if (value instanceof Record) {
-            return Unwrappable.class.cast(value).unwrap(IndexedRecord.class);
+            return ((Unwrappable) value).unwrap(IndexedRecord.class);
         }
         if (value instanceof ZonedDateTime zonedDateTime) {
             return zonedDateTime.toInstant().toEpochMilli();
@@ -212,7 +212,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final AvroRecord that = AvroRecord.class.cast(o);
+        final AvroRecord that = (AvroRecord) o;
         return Objects.equals(delegate, that.delegate);
     }
 
@@ -297,18 +297,18 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
         if (value instanceof GenericArray && !GenericArray.class.isAssignableFrom(expectedType)) {
             if (ZonedDateTime.class == expectedType) {
-                List<Long> longs = (List) Collection.class.cast(value).stream().collect(Collectors.toList());
+                List<Long> longs = (List) ((Collection) value).stream().collect(Collectors.toList());
                 final Instant instant = Instant.ofEpochSecond(longs.get(0), longs.get(1));
                 return expectedType.cast(ZonedDateTime.ofInstant(instant, UTC));
             }
             if (Instant.class == expectedType) {
-                List<Long> longs = (List) Collection.class.cast(value).stream().collect(Collectors.toList());
+                List<Long> longs = (List) ((Collection) value).stream().collect(Collectors.toList());
                 final Instant instant = Instant.ofEpochSecond(longs.get(0), longs.get(1));
                 return expectedType.cast(instant);
             }
             final Class<?> itemType = expectedType == Collection.class ? Object.class : expectedType;
             return expectedType
-                    .cast(doMapCollection(itemType, Collection.class.cast(value), fieldSchema.getElementType()));
+                    .cast(doMapCollection(itemType, (Collection) value, fieldSchema.getElementType()));
         }
 
         if (value instanceof org.joda.time.DateTime dateTime && ZonedDateTime.class == expectedType) {
@@ -319,7 +319,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         if (org.apache.avro.Schema.Type.FIXED.equals(fieldSchema.getType()) && value != null) {
             final String logicalType =
                     fieldSchema.getLogicalType() != null ? fieldSchema.getLogicalType().getName() : "";
-            final byte[] bytes = GenericData.Fixed.class.cast(value).bytes();
+            final byte[] bytes = ((GenericData.Fixed) value).bytes();
             if (LogicalTypes.decimal(1).getName().equals(logicalType)) {
                 return RECORD_CONVERTERS.coerce(expectedType, new String(bytes), fieldSchema.getName());
             }

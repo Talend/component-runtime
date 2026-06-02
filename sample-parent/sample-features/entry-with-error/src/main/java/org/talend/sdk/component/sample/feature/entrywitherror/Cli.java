@@ -101,7 +101,7 @@ public final class Cli {
 
             int count = 0;
             for (Mapper currentMapper : mappers) {
-                final InputImpl input = InputImpl.class.cast(currentMapper.create());
+                final InputImpl input = (InputImpl) currentMapper.create();
                 input.start();
                 while ((data = (Record) input.next()) != null) {
                     count++;

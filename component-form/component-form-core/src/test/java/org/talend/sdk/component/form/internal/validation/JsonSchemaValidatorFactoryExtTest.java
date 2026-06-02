@@ -159,8 +159,8 @@ class JsonSchemaValidatorFactoryExtTest {
         assertEquals(18, validations.size());
         assertEquals(4, validations
                 .stream()
-                .filter(v -> EnumValidationWithDefaultValue.class.isInstance(v) || MinimumValidation.class.isInstance(v)
-                        || MaximumValidation.class.isInstance(v) || TypeValidation.class.isInstance(v))
+                .filter(v -> v instanceof EnumValidationWithDefaultValue || v instanceof MinimumValidation
+                        || v instanceof MaximumValidation || v instanceof TypeValidation)
                 .toArray().length);
     }
 

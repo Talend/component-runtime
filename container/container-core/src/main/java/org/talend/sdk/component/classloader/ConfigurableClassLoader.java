@@ -178,8 +178,8 @@ public class ConfigurableClassLoader extends URLClassLoader {
             final CodeSource codeSource;
             try {
                 urlConnection = url.openConnection();
-                if (JarURLConnection.class.isInstance(urlConnection)) {
-                    final JarURLConnection juc = JarURLConnection.class.cast(urlConnection);
+                if (urlConnection instanceof JarURLConnection) {
+                    final JarURLConnection juc = (JarURLConnection) urlConnection;
                     manifest = juc.getManifest();
 
                     final Certificate[] certificates = juc.getCertificates();
@@ -446,8 +446,8 @@ public class ConfigurableClassLoader extends URLClassLoader {
     private InputStream getInputStream(final URL resource) throws IOException {
         final URLConnection urlc = resource.openConnection();
         final InputStream is = urlc.getInputStream();
-        if (JarURLConnection.class.isInstance(urlc)) {
-            final JarURLConnection juc = JarURLConnection.class.cast(urlc);
+        if (urlc instanceof JarURLConnection) {
+            final JarURLConnection juc = (JarURLConnection) urlc;
             final JarFile jar = juc.getJarFile();
             synchronized (closeables) {
                 if (!closeables.containsKey(jar)) {
@@ -807,10 +807,10 @@ public class ConfigurableClassLoader extends URLClassLoader {
                     final String pckName = name.substring(0, i);
                     final Package pck = super.getPackage(pckName);
                     if (pck == null) {
-                        if (!JarURLConnection.class.isInstance(connection)) {
+                        if (!(connection instanceof JarURLConnection)) {
                             doDefinePackage(null, null, pckName);
                         } else {
-                            final JarURLConnection urlConnection = JarURLConnection.class.cast(connection);
+                            final JarURLConnection urlConnection = (JarURLConnection) connection;
                             doDefinePackage(urlConnection.getManifest(), urlConnection.getJarFileURL(), pckName);
                         }
                     }
@@ -831,8 +831,8 @@ public class ConfigurableClassLoader extends URLClassLoader {
                     }
                     bytes = outputStream.toByteArray();
                 }
-                final Certificate[] certificates = JarURLConnection.class.isInstance(connection)
-                        ? JarURLConnection.class.cast(connection).getCertificates()
+                final Certificate[] certificates = connection instanceof JarURLConnection
+                        ? ((JarURLConnection) connection).getCertificates()
                         : NO_CERTIFICATES;
                 bytes = doTransform(resourceName, bytes);
                 clazz = super.defineClass(name, bytes, 0, bytes.length, new CodeSource(url, certificates));

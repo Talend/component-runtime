@@ -95,7 +95,7 @@ class JUnit5HttpApiTest {
 
     private Response execute(final String method, final String uri, final String payload) throws Exception {
         final URL url = new URL(uri);
-        final HttpURLConnection connection = HttpURLConnection.class.cast(url.openConnection());
+        final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setConnectTimeout(30000);
         connection.setReadTimeout(20000);
         connection.setRequestMethod(method);

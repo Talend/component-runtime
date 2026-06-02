@@ -107,10 +107,9 @@ public class Data {
                                 final List<Record> list = entry
                                         .getValue()
                                         .stream()
-                                        .map(it -> Record.class
-                                                .cast(converters
-                                                        .toRecord(REGISTRY, it, () -> jsonb,
-                                                                () -> recordBuilderFactory)))
+                                        .map(it -> (Record) converters
+                                                .toRecord(REGISTRY, it, () -> jsonb,
+                                                        () -> recordBuilderFactory))
                                         .collect(toList());
                                 aggregator
                                         .withArray(recordBuilderFactory
@@ -176,10 +175,9 @@ public class Data {
                 try {
                     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     final Record record = object.getArray(Record.class, e.getName()).iterator().next();
-                    final JsonObject jsonObject = JsonObject.class
-                            .cast(converters
-                                    .toType(registry, record, JsonObject.class, this::getJsonBuilder,
-                                            this::getJsonProvider, this::getJsonb, this::getRecordBuilderFactory));
+                    final JsonObject jsonObject = (JsonObject) converters
+                            .toType(registry, record, JsonObject.class, this::getJsonBuilder,
+                                    this::getJsonProvider, this::getJsonb, this::getRecordBuilderFactory);
                     if (Record.class == jsonbCoder.getType()) {
                         return (T) new RecordConverters()
                                 .toRecord(REGISTRY, jsonObject, this::getJsonb, this::getRecordBuilderFactory);

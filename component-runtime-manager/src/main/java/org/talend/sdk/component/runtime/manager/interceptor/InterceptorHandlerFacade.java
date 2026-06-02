@@ -135,8 +135,8 @@ public class InterceptorHandlerFacade implements InterceptorHandler {
             return method.invoke(delegate, args);
         } catch (final InvocationTargetException ite) {
             final Throwable cause = ite.getCause();
-            if (RuntimeException.class.isInstance(cause)) {
-                throw RuntimeException.class.cast(cause);
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
             }
             throw new IllegalStateException(cause.getMessage());
         } catch (final IllegalAccessException e) {
@@ -162,7 +162,7 @@ public class InterceptorHandlerFacade implements InterceptorHandler {
                 final Map<Class<?>, Object> services) {
             try {
                 final Object[] args = buildArgs(invoker, delegate, services);
-                this.delegate = InterceptorHandler.class.cast(constructor.newInstance(args));
+                this.delegate = (InterceptorHandler) constructor.newInstance(args);
             } catch (final InstantiationException | IllegalAccessException e) {
                 throw new IllegalStateException(e);
             } catch (final InvocationTargetException e) {

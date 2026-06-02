@@ -106,18 +106,17 @@ class AvroSchemaTest {
     @Test
     void emptySchema() {
         final org.apache.avro.Schema avro =
-                AvroSchema.class.cast(new AvroSchemaBuilder().withType(RECORD).build()).getDelegate();
+                ((AvroSchema) new AvroSchemaBuilder().withType(RECORD).build()).getDelegate();
         assertTrue(avro.getFields().isEmpty());
     }
 
     @Test
     void checkDateConversion() {
         final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply("test");
-        final org.apache.avro.Schema avro = AvroSchema.class
-                .cast(new AvroSchemaBuilder()
-                        .withType(RECORD)
-                        .withEntry(factory.newEntryBuilder().withType(DATETIME).withName("date").build())
-                        .build())
+        final org.apache.avro.Schema avro = ((AvroSchema) new AvroSchemaBuilder()
+                .withType(RECORD)
+                .withEntry(factory.newEntryBuilder().withType(DATETIME).withName("date").build())
+                .build())
                 .getDelegate();
         assertEquals(DATETIME, new AvroSchema(avro).getEntries().iterator().next().getType());
         assertEquals(LogicalTypes.timestampMillis(), LogicalTypes.fromSchema(avro.getField("date").schema()));
@@ -138,14 +137,13 @@ class AvroSchemaTest {
     @Test
     void checkDecimalConversion() {
         final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply("test");
-        final org.apache.avro.Schema avro = AvroSchema.class
-                .cast(new AvroSchemaBuilder()
-                        .withType(RECORD)
-                        .withEntry(factory.newEntryBuilder()
-                                .withType(DECIMAL)
-                                .withName("decimal")
-                                .build())
+        final org.apache.avro.Schema avro = ((AvroSchema) new AvroSchemaBuilder()
+                .withType(RECORD)
+                .withEntry(factory.newEntryBuilder()
+                        .withType(DECIMAL)
+                        .withName("decimal")
                         .build())
+                .build())
                 .getDelegate();
         assertEquals(DECIMAL, new AvroSchema(avro).getEntries().iterator().next().getType());
         assertEquals(Decimal.logicalType(), avro.getField("decimal").schema().getLogicalType());
@@ -172,7 +170,7 @@ class AvroSchemaTest {
                     .withType(RECORD)
                     .withEntry(factory.newEntryBuilder().withType(STRING).withName("name").withNullable(true).build())
                     .build();
-            final org.apache.avro.Schema avro = AvroSchema.class.cast(sdkSchema).getDelegate();
+            final org.apache.avro.Schema avro = ((AvroSchema) sdkSchema).getDelegate();
             final Schema schema = avro.getFields().iterator().next().schema();
             assertEquals(2, schema.getTypes().size());
             final Iterator<Schema> types = schema.getTypes().iterator();

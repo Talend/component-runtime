@@ -637,7 +637,7 @@ class HttpClientFactoryImplTest {
 
             @Override
             public void configure(final Connection connection, final ConfigurerConfiguration configuration) {
-                if (Boolean.class.cast(configuration.get("disableRedirect", Boolean.class))) {
+                if ((Boolean) configuration.get("disableRedirect", Boolean.class)) {
                     connection.withoutFollowRedirects();
                 }
             }
@@ -777,7 +777,7 @@ class HttpClientFactoryImplTest {
 
         @Override
         public byte[] encode(final Object value) {
-            return Payload.class.cast(value).value.getBytes(StandardCharsets.UTF_8);
+            return ((Payload) value).value.getBytes(StandardCharsets.UTF_8);
         }
     }
 

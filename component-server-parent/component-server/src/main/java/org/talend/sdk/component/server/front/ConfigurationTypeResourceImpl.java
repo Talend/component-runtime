@@ -190,7 +190,7 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
             return migrated;
         } catch (final Exception e) {
             // contract of migrate() do not impose to throw a ComponentException, so not likely to happen...
-            if (ComponentException.class.isInstance(e)) {
+            if (e instanceof ComponentException) {
                 final ComponentException ce = (ComponentException) e;
                 throw new WebApplicationException(Response
                         .status(ce.getErrorOrigin() == ComponentException.ErrorOrigin.USER ? 400
@@ -198,7 +198,7 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
                                 "Unexpected migration error")
                         .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED,
                                 "Migration execution failed with: " + ofNullable(e.getMessage())
-                                        .orElseGet(() -> NullPointerException.class.isInstance(e) ? "unexpected null"
+                                        .orElseGet(() -> e instanceof NullPointerException ? "unexpected null"
                                                 : "no error message")))
                         .build());
             }
@@ -206,7 +206,7 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
                     .status(520, "Unexpected migration error")
                     .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED,
                             "Migration execution failed with: " + ofNullable(e.getMessage())
-                                    .orElseGet(() -> NullPointerException.class.isInstance(e) ? "unexpected null"
+                                    .orElseGet(() -> e instanceof NullPointerException ? "unexpected null"
                                             : "no error message")))
                     .build());
         }

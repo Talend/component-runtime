@@ -109,7 +109,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
                 .orElseThrow(() -> new IllegalArgumentException("cant find plugin '" + plugin + "'"))
                 .get(ComponentManager.AllServices.class)
                 .getServices();
-        Injector.class.cast(services.get(Injector.class)).inject(instance);
+        ((Injector) services.get(Injector.class)).inject(instance);
         return instance;
     }
 
@@ -481,7 +481,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
     }
 
     public Set<String> getTestPlugins() {
-        return new HashSet<>(EmbeddedComponentManager.class.cast(asManager()).testPlugins);
+        return new HashSet<>(((EmbeddedComponentManager) asManager()).testPlugins);
     }
 
     @Override
@@ -499,7 +499,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
         final State state = STATE.get();
         return state.collector
                 .stream()
-                .filter(r -> recordType.isInstance(r) || JsonObject.class.isInstance(r) || Record.class.isInstance(r))
+                .filter(r -> recordType.isInstance(r) || r instanceof JsonObject || r instanceof Record)
                 .map(r -> mapRecord(state, recordType, r))
                 .collect(toList());
     }
@@ -516,7 +516,7 @@ public class BaseComponentsHandler implements ComponentsHandler {
 
     private String getSinglePlugin() {
         return Optional
-                .of(EmbeddedComponentManager.class.cast(asManager()).testPlugins/* sorted */)
+                .of(((EmbeddedComponentManager) asManager()).testPlugins/* sorted */)
                 .filter(c -> !c.isEmpty())
                 .map(c -> c.iterator().next())
                 .orElseThrow(() -> new IllegalStateException("No component plugin found"));

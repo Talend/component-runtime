@@ -201,9 +201,9 @@ public final class Kitap implements Runnable {
                 .collect(toMap(Map.Entry::getKey, e -> {
                     switch (e.getValue().getValueType()) {
                         case STRING:
-                            return JsonString.class.cast(e.getValue()).getString();
+                            return ((JsonString) e.getValue()).getString();
                         case NUMBER:
-                            return String.valueOf(JsonNumber.class.cast(e.getValue()).doubleValue());
+                            return String.valueOf(((JsonNumber) e.getValue()).doubleValue());
                         case TRUE:
                         case FALSE:
                             return String.valueOf(JsonValue.TRUE.equals(e.getValue()));
@@ -269,7 +269,7 @@ public final class Kitap implements Runnable {
 
         @Override
         public Record next() {
-            return Record.class.cast(next);
+            return (Record) next;
         }
     }
 }

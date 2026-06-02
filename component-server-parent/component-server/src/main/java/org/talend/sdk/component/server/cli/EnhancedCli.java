@@ -73,7 +73,7 @@ public class EnhancedCli extends Cli implements AutoCloseable {
 
     @Override
     public void close() {
-        ofNullable(instance).ifPresent(mw -> StandardServer.class.cast(mw.getTomcat().getServer()).stopAwait());
+        ofNullable(instance).ifPresent(mw -> ((StandardServer) mw.getTomcat().getServer()).stopAwait());
     }
 
     public static class CustomPefixHttp11NioProtocol extends Http11NioProtocol {

@@ -145,10 +145,10 @@ public class SimpleQueryLanguageCompiler {
                         .orElseThrow(() -> new IllegalArgumentException("Missing evaluator for '" + mapName + "'"));
                 return new ComparePredicate<>(comparator, t -> {
                     final Object map = evaluator.apply(t);
-                    if (!Map.class.isInstance(map)) {
+                    if (!(map instanceof Map)) {
                         throw new IllegalArgumentException(map + " is not a map");
                     }
-                    return Map.class.cast(map).get(mapKey);
+                    return ((Map) map).get(mapKey);
                 }, expectedValue);
             }
         }

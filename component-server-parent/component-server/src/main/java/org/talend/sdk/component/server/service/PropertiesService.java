@@ -172,7 +172,7 @@ public class PropertiesService {
         if (instance.isCreated()) {
             return null;
         }
-        if (Collection.class.isInstance(instance.getValue()) || Map.class.isInstance(instance.getValue())) {
+        if (instance.getValue() instanceof Collection || instance.getValue() instanceof Map) {
             // @Experimental("not primitives are a challenge, for now use that but can change if not adapted")
             return defaultMapper.toJson(instance.getValue());
         }

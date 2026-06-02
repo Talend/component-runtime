@@ -351,7 +351,7 @@ class CheckpointInputTest {
     protected InputImpl getInput(final ComponentManager manager, final String emitter, final int version,
             final Map<String, String> configuration) {
         final Mapper mapper = manager.findMapper("checkpoint", emitter, version, configuration).get();
-        return InputImpl.class.cast(mapper.create());
+        return (InputImpl) mapper.create();
     }
 
     protected ComponentManager newTestManager(final Path temporaryFolder) {

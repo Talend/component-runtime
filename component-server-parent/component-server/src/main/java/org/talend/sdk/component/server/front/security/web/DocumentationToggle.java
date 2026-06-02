@@ -44,7 +44,7 @@ public class DocumentationToggle implements Filter {
             return;
         }
 
-        final HttpServletResponse response = HttpServletResponse.class.cast(servletResponse);
+        final HttpServletResponse response = (HttpServletResponse) servletResponse;
         response.setStatus(HttpServletResponse.SC_NOT_FOUND);
     }
 }

@@ -234,7 +234,7 @@ public class DocumentationResourceImpl implements DocumentationResource {
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-            final DocKey docKey = DocKey.class.cast(o);
+            final DocKey docKey = (DocKey) o;
             return id.equals(docKey.id) && language.equals(docKey.language) && segment == docKey.segment;
         }
 
