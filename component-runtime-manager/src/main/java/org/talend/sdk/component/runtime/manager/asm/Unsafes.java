@@ -182,8 +182,8 @@ public final class Unsafes {
      */
     public static <T> Class<T> defineAndLoadClass(final ClassLoader classLoader, final String proxyName,
             final byte[] proxyBytes) {
-        if (classLoader instanceof ConfigurableClassLoader) {
-            return (Class<T>) ((ConfigurableClassLoader) classLoader)
+        if (classLoader instanceof ConfigurableClassLoader configurableClassLoader) {
+            return (Class<T>) configurableClassLoader
                     .registerBytecode(proxyName.replace('/', '.'), proxyBytes);
         }
         Class<?> clazz = classLoader.getClass();

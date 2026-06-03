@@ -71,7 +71,7 @@ public class JsonpJsonObjectCoder extends CustomCoder<JsonObject> {
 
     @Override
     public boolean equals(final Object obj) {
-        return obj instanceof JsonpJsonObjectCoder && ((JsonpJsonObjectCoder) obj).isValid();
+        return obj instanceof JsonpJsonObjectCoder coder && coder.isValid();
     }
 
     @Override

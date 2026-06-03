@@ -134,13 +134,13 @@ public class ModelVisitor {
             }
 
             final ParameterizedType splitPt = (ParameterizedType) splitReturnType;
-            if (!(splitPt.getRawType() instanceof Class)
-                    || !Collection.class.isAssignableFrom((Class) splitPt.getRawType())) {
+            if (!(splitPt.getRawType() instanceof Class clazz)
+                    || !Collection.class.isAssignableFrom(clazz)) {
                 throw new IllegalArgumentException(m + " must return a List of partition mapper, found: " + splitPt);
             }
 
             final Type arg = splitPt.getActualTypeArguments().length != 1 ? null : splitPt.getActualTypeArguments()[0];
-            if (!(arg instanceof Class) || !type.isAssignableFrom((Class) arg)) {
+            if (!(arg instanceof Class) || !type.isAssignableFrom((Class) arg)) { // NOSONAR
                 throw new IllegalArgumentException(
                         m + " must return a Collection<" + type.getName() + "> but found: " + arg);
             }

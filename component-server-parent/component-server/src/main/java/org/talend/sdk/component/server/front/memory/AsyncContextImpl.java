@@ -66,8 +66,8 @@ public class AsyncContextImpl implements AsyncContext {
     public void onError(final Throwable throwable) {
         final AsyncEvent event = new AsyncEvent(this, request, response, throwable);
         executeOnListeners(l -> l.onError(event), null);
-        if (!response.isCommitted() && response instanceof HttpServletResponse) {
-            final HttpServletResponse http = (HttpServletResponse) response;
+        if (!response.isCommitted() && response instanceof HttpServletResponse) { // NOSONAR
+            final HttpServletResponse http = response;
             http.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
         complete();

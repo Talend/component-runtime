@@ -68,9 +68,9 @@ public class MappingUtils {
         // non-matching types
         if (!expectedType.isInstance(value)) {
             // number classes mapping
-            if (value instanceof Number
+            if (value instanceof Number number
                     && Number.class.isAssignableFrom(PRIMITIVE_WRAPPER_MAP.getOrDefault(expectedType, expectedType))) {
-                return mapNumber(expectedType, (Number) value);
+                return mapNumber(expectedType, number);
             }
             // mapping primitive <-> Class
             if (isAssignableTo(value.getClass(), expectedType)) {
@@ -80,20 +80,20 @@ public class MappingUtils {
                 return String.valueOf(value);
             }
             // TCOMP-2293 support Instant
-            if (value instanceof Instant) {
+            if (value instanceof Instant instantVal) {
                 if (ZonedDateTime.class == expectedType) {
-                    return ZonedDateTime.ofInstant((Instant) value, UTC);
+                    return ZonedDateTime.ofInstant(instantVal, UTC);
                 } else if (java.util.Date.class == expectedType) {
-                    return java.sql.Timestamp.from((Instant) value);
+                    return java.sql.Timestamp.from(instantVal);
                 } else if (Long.class == expectedType) {
-                    return ((Instant) value).toEpochMilli();
+                    return instantVal.toEpochMilli();
                 }
             }
             if (value instanceof Timestamp
                     && (java.util.Date.class == expectedType || Instant.class == expectedType)) {
                 return value;
             }
-            if (value instanceof long[]) {
+            if (value instanceof long[]) { // NOSONAR
                 final Instant instant = Instant.ofEpochSecond(((long[]) value)[0], ((long[]) value)[1]);
                 if (ZonedDateTime.class == expectedType) {
                     return ZonedDateTime.ofInstant(instant, UTC);

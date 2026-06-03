@@ -153,8 +153,7 @@ public class StatisticService {
                         final Throwable e = ofNullable(te.getCause()).orElse(te);
                         if (retries - 1 == i) { // no need to retry
                             failed(createProject);
-                            throw e instanceof RuntimeException ? (RuntimeException) e
-                                    : new IllegalStateException(e);
+                            throw e instanceof RuntimeException rte ? rte : new IllegalStateException(e);
                         }
 
                         if (retrySleep > 0) {

@@ -205,16 +205,14 @@ public class WebAppComponentProxy {
     private void onException(final AsyncResponse response, final Throwable e) {
         final UiActionResult payload;
         final int status;
-        if (e instanceof WebException) {
-            final WebException we = (WebException) e;
+        if (e instanceof WebException we) {
             status = we.getStatus();
             payload = actionService.map(we);
-        } else if (e instanceof CompletionException) {
-            final CompletionException actualException = (CompletionException) e;
+        } else if (e instanceof CompletionException actualException) {
             log.error(actualException.getMessage(), actualException);
             status = Response.Status.BAD_GATEWAY.getStatusCode();
-            if (actualException.getCause() instanceof WebApplicationException) {
-                final Response resp = ((WebApplicationException) actualException.getCause()).getResponse();
+            if (actualException.getCause() instanceof WebApplicationException wae) {
+                final Response resp = wae.getResponse();
                 if (response != null) {
                     final String s = resp.readEntity(String.class);
                     response.resume(Response.status(resp.getStatus()).entity(s).type(APPLICATION_JSON_TYPE).build());

@@ -288,14 +288,14 @@ public class AsciidoctorExecutor implements AutoCloseable {
     public void close() {
         onClose.run();
         if (asciidoctor != null && !Boolean.getBoolean("talend.component.tools.jruby.teardown.skip")) {
-            if (asciidoctor instanceof AutoCloseable) {
+            if (asciidoctor instanceof AutoCloseable) { // NOSONAR
                 try {
                     ((AutoCloseable) asciidoctor).close();
                 } catch (final Exception e) {
                     throw new IllegalStateException(e);
                 }
-            } else if (asciidoctor instanceof JRubyAsciidoctor) {
-                ((JRubyAsciidoctor) asciidoctor).getRubyRuntime().tearDown();
+            } else if (asciidoctor instanceof JRubyAsciidoctor jRubyAsciidoctor) {
+                jRubyAsciidoctor.getRubyRuntime().tearDown();
             }
         }
     }

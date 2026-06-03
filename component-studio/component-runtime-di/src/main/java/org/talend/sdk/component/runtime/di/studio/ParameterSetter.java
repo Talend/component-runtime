@@ -33,8 +33,8 @@ public class ParameterSetter {
     private final Object delegate;
 
     public ParameterSetter(final Lifecycle lifecycle) {
-        if (lifecycle instanceof Delegated) {
-            delegate = ((Delegated) lifecycle).getDelegate();
+        if (lifecycle instanceof Delegated delegated) {
+            delegate = delegated.getDelegate();
         } else {
             throw new IllegalArgumentException("Not supported implementation of lifecycle : " + lifecycle);
         }

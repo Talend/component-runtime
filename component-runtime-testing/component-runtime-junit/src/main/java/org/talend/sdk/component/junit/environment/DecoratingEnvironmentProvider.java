@@ -32,8 +32,8 @@ public class DecoratingEnvironmentProvider implements EnvironmentProvider {
     }
 
     public String getName() {
-        return (provider instanceof BaseEnvironmentProvider
-                ? ((BaseEnvironmentProvider) provider).getName()
+        return (provider instanceof BaseEnvironmentProvider environmentProvider
+                ? environmentProvider.getName()
                 : provider.getClass().getSimpleName()).replace("Environment", "");
     }
 

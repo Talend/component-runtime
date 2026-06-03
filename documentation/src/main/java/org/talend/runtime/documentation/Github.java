@@ -112,8 +112,8 @@ public class Github {
                                     .collect(toList())))
                     .get();
         } catch (final ExecutionException ee) {
-            if (ee.getCause() instanceof WebApplicationException) {
-                final Response response = ((WebApplicationException) ee.getCause()).getResponse();
+            if (ee.getCause() instanceof WebApplicationException wae) {
+                final Response response = wae.getResponse();
                 if (response != null && response.getEntity() != null) {
                     log.error(response.readEntity(String.class));
                 }

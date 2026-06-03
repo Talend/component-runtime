@@ -65,10 +65,10 @@ public class BeamProducerFinder extends ProducerFinderImpl {
         } catch (Exception e) {
             log.warn("Component Kit Mapper instantiation failed, trying to wrap native beam mapper...");
             final Object delegate = ((Delegated) mapper).getDelegate();
-            if (delegate instanceof PTransform) {
+            if (delegate instanceof PTransform pTransform) {
                 final UUID uuid = UUID.randomUUID();
                 QUEUE.put(uuid, new ArrayBlockingQueue<>(QUEUE_SIZE, true));
-                return new QueueInput(delegate, familyName, inputName, familyName, (PTransform) delegate,
+                return new QueueInput(delegate, familyName, inputName, familyName, pTransform,
                         uuid);
             }
             throw new IllegalStateException(e);
