@@ -91,7 +91,7 @@ class SchemaRegistryCoderTest {
                 .build();
         final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(entry).build();
 
-        final org.apache.avro.Schema unwrapped = Unwrappable.class.cast(schema).unwrap(org.apache.avro.Schema.class);
+        final org.apache.avro.Schema unwrapped = ((Unwrappable) schema).unwrap(org.apache.avro.Schema.class);
         final String name = SchemaIdGenerator.generateRecordName(unwrapped.getFields());
         assertEquals("org.talend.sdk.component.schema.generated.Record_1_n_3269179092139509689", name);
     }

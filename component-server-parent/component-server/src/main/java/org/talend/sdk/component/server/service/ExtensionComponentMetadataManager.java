@@ -296,7 +296,7 @@ public class ExtensionComponentMetadataManager {
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-            final ActionKey actionKey = ActionKey.class.cast(o);
+            final ActionKey actionKey = (ActionKey) o;
             return hash == actionKey.hash && family.equals(actionKey.family) && type.equals(actionKey.type)
                     && name.equals(actionKey.name);
         }

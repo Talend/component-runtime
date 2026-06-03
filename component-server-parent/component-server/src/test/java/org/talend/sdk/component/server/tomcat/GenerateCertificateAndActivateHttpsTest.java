@@ -77,9 +77,9 @@ class GenerateCertificateAndActivateHttpsTest {
             keyStore.load(inputStream, builder.getKeystorePass().toCharArray());
         }
         final Key key = keyStore.getKey(builder.getKeyAlias(), builder.getKeystorePass().toCharArray());
-        assertTrue(PrivateKey.class.isInstance(key));
+        assertTrue(key instanceof PrivateKey);
         final Certificate certificate = keyStore.getCertificate(builder.getKeyAlias());
-        assertTrue(X509Certificate.class.isInstance(certificate));
+        assertTrue(certificate instanceof X509Certificate);
         final Certificate[] chain = keyStore.getCertificateChain(builder.getKeyAlias());
         assertEquals(1, chain.length);
         assertEquals(certificate, chain[0]);

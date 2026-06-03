@@ -176,7 +176,7 @@ public class TalendIOTest implements Serializable {
                     @Override
                     public void onNext(final InputFactory input, final OutputFactory factory) {
                         final Object read = input.read(Branches.DEFAULT_BRANCH);
-                        Output.DATA.add(Record.class.cast(read).getString("data"));
+                        Output.DATA.add(((Record) read).getString("data"));
                     }
                 }));
         assertEquals(PipelineResult.State.DONE, pipeline.run().getState());
@@ -197,7 +197,7 @@ public class TalendIOTest implements Serializable {
                         factory
                                 .create(Branches.DEFAULT_BRANCH)
                                 .emit(new Sample(
-                                        Record.class.cast(input.read(Branches.DEFAULT_BRANCH)).getString("data")));
+                                        ((Record) input.read(Branches.DEFAULT_BRANCH)).getString("data")));
                     }
                 }))
                 .setCoder(SchemaRegistryCoder.of())
@@ -236,7 +236,7 @@ public class TalendIOTest implements Serializable {
                     public void onNext(final InputFactory input, final OutputFactory factory) {
                         objects
                                 .add(new Sample(
-                                        Record.class.cast(input.read(Branches.DEFAULT_BRANCH)).getString("data")));
+                                        ((Record) input.read(Branches.DEFAULT_BRANCH)).getString("data")));
                     }
                 }))
                 .setCoder(SchemaRegistryCoder.of())
@@ -266,7 +266,7 @@ public class TalendIOTest implements Serializable {
                         final Object read = input.read(Branches.DEFAULT_BRANCH);
                         factory
                                 .create(Branches.DEFAULT_BRANCH)
-                                .emit(new Sample(Record.class.cast(read).getString("data")));
+                                .emit(new Sample(((Record) read).getString("data")));
                     }
                 }))
                 .apply(toSampleLength());

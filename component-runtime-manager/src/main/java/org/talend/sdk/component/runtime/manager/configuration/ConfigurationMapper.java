@@ -57,8 +57,8 @@ public class ConfigurationMapper {
                 case OBJECT:
                     return map(param.getNestedParameters(), value, indexes);
                 case ARRAY:
-                    final Collection<Object> values = Collection.class.isInstance(value) ? Collection.class.cast(value)
-                            : /* array */asList(Object[].class.cast(value));
+                    final Collection<Object> values = value instanceof Collection ? (Collection) value
+                            : /* array */asList((Object[]) value);
                     final int arrayIndex = indexes.keySet().size();
                     final AtomicInteger valuesIndex = new AtomicInteger(0);
                     final Map<String, String> config = values.stream()

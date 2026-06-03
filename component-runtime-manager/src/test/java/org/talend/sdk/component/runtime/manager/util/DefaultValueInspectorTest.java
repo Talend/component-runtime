@@ -49,13 +49,13 @@ class DefaultValueInspectorTest {
                         null, emptyMap(), false));
         assertNotNull(demoInstance.getValue());
         assertTrue(demoInstance.isCreated());
-        assertTrue(Collection.class.isInstance(demoInstance.getValue()));
-        final Collection<?> list = Collection.class.cast(demoInstance.getValue());
+        assertTrue(demoInstance.getValue() instanceof Collection);
+        final Collection<?> list = (Collection) demoInstance.getValue();
         assertEquals(1, list.size());
         final Object first = list.iterator().next();
         assertNotNull(first);
-        assertTrue(Foo.class.isInstance(first));
-        assertNull(Foo.class.cast(first).name);
+        assertTrue(first instanceof Foo);
+        assertNull(((Foo) first).name);
     }
 
     public static class Foo {

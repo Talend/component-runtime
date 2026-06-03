@@ -58,9 +58,9 @@ public class JsonIndexedRecord extends GenericData.Record {
             case FALSE:
                 return false;
             case NUMBER:
-                return JsonNumber.class.cast(jsonValue).numberValue();
+                return ((JsonNumber) jsonValue).numberValue();
             case STRING:
-                return JsonString.class.cast(jsonValue).getString();
+                return ((JsonString) jsonValue).getString();
             case ARRAY:
                 return jsonValue
                         .asJsonArray()

@@ -242,13 +242,12 @@ class DIBulkAutoChunkTest {
             }
 
             JobStateAware.init(processor, globalMap);
-            final Jsonb jsonbProcessor = Jsonb.class
-                    .cast(manager
-                            .findPlugin(processor.plugin())
-                            .get()
-                            .get(ComponentManager.AllServices.class)
-                            .getServices()
-                            .get(Jsonb.class));
+            final Jsonb jsonbProcessor = (Jsonb) manager
+                    .findPlugin(processor.plugin())
+                    .get()
+                    .get(ComponentManager.AllServices.class)
+                    .getServices()
+                    .get(Jsonb.class);
 
             final AutoChunkProcessor processorProcessor = new AutoChunkProcessor(200, processor);
 
@@ -321,19 +320,19 @@ class DIBulkAutoChunkTest {
 
         final Map<Class<?>, Object> servicesMapper =
                 manager.findPlugin(mapperMapper.plugin()).get().get(ComponentManager.AllServices.class).getServices();
-        final Jsonb jsonbMapper = Jsonb.class.cast(servicesMapper.get(Jsonb.class));
-        final JsonProvider jsonProvider = JsonProvider.class.cast(servicesMapper.get(JsonProvider.class));
+        final Jsonb jsonbMapper = (Jsonb) servicesMapper.get(Jsonb.class);
+        final JsonProvider jsonProvider = (JsonProvider) servicesMapper.get(JsonProvider.class);
         final JsonBuilderFactory jsonBuilderFactory =
-                JsonBuilderFactory.class.cast(servicesMapper.get(JsonBuilderFactory.class));
+                (JsonBuilderFactory) servicesMapper.get(JsonBuilderFactory.class);
         final RecordBuilderFactory recordBuilderMapper =
-                RecordBuilderFactory.class.cast(servicesMapper.get(RecordBuilderFactory.class));
+                (RecordBuilderFactory) servicesMapper.get(RecordBuilderFactory.class);
         builderFactory = recordBuilderMapper;
         final RecordConverters converters = new RecordConverters();
         final RecordConverters.MappingMetaRegistry registry = new RecordConverters.MappingMetaRegistry();
 
         Object dataMapper;
         while ((dataMapper = inputMapper.next()) != null) {
-            row1 = row1Struct.class.cast(registry.find(row1Struct.class).newInstance(Record.class.cast(dataMapper)));
+            row1 = (row1Struct) registry.find(row1Struct.class).newInstance((Record) dataMapper);
 
             sourceData.add(row1);
 
@@ -354,9 +353,9 @@ class DIBulkAutoChunkTest {
     }
 
     private void doClose(final Map<String, Object> globalMap) {
-        final Mapper mapperMapper = Mapper.class.cast(globalMap.remove("mapperMapper"));
+        final Mapper mapperMapper = (Mapper) globalMap.remove("mapperMapper");
         final org.talend.sdk.component.runtime.input.Input inputMapper =
-                org.talend.sdk.component.runtime.input.Input.class.cast(globalMap.remove("inputMapper"));
+                (org.talend.sdk.component.runtime.input.Input) globalMap.remove("inputMapper");
         try {
             if (inputMapper != null) {
                 inputMapper.stop();
@@ -374,7 +373,7 @@ class DIBulkAutoChunkTest {
         }
 
         final AutoChunkProcessor processorProcessor =
-                AutoChunkProcessor.class.cast(globalMap.remove("processorProcessor"));
+                (AutoChunkProcessor) globalMap.remove("processorProcessor");
         try {
             if (processorProcessor != null) {
                 processorProcessor.stop();

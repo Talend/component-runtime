@@ -51,7 +51,7 @@ public class ConfigurationTypeParameterEnricher extends BaseParameterEnricher {
 
     private String getName(final Annotation annotation) {
         try {
-            return String.class.cast(annotation.annotationType().getMethod("value").invoke(annotation));
+            return (String) annotation.annotationType().getMethod("value").invoke(annotation);
         } catch (final IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             return null;
         }

@@ -66,7 +66,7 @@ public class MigrationHandlerFactory {
                 .sorted(Comparator.comparingInt(o -> o.getPath().length()))
                 .map(p -> {
                     // for now we can assume it is not in arrays
-                    final Class<?> jType = Class.class.cast(p.getJavaType());
+                    final Class<?> jType = (Class) p.getJavaType();
                     final MigrationHandler handler = findMigrationHandler(Collections::emptyList, jType, services);
                     if (handler == NO_MIGRATION) {
                         return null;
