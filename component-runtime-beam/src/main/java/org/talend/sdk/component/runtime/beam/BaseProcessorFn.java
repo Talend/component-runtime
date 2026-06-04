@@ -65,8 +65,8 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
 
     BaseProcessorFn(final Processor processor) {
         this.processor = processor;
-        if (processor instanceof ProcessorImpl) {
-            ((ProcessorImpl) processor)
+        if (processor instanceof ProcessorImpl processor1) {
+            processor1
                     .getInternalConfiguration()
                     .entrySet()
                     .stream()

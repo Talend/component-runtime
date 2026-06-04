@@ -58,7 +58,7 @@ public class PluralRecordExtension implements ParameterResolver, AfterEachCallba
         // create a Jsonb instance which is PojoJsonbProvider as in component-runtime-manager
         return (Jsonb) Proxy
                 .newProxyInstance(Thread.currentThread().getContextClassLoader(),
-                        new Class<?>[]{Jsonb.class, PojoJsonbProvider.class}, (proxy, method, args) -> {
+                        new Class<?>[] { Jsonb.class, PojoJsonbProvider.class }, (proxy, method, args) -> {
                             if (method.getDeclaringClass() == Supplier.class) {
                                 return jsonb;
                             }

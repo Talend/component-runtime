@@ -97,8 +97,8 @@ public class ResolverImpl implements Resolver, Serializable {
                     ofNullable(configuration.getParentClassesFilter()).orElse(it -> false),
                     ofNullable(configuration.getClassesFilter()).orElse(it -> true),
                     nested.toArray(new String[0]),
-                    parent instanceof ConfigurableClassLoader
-                            ? ((ConfigurableClassLoader) parent).getJvmMarkers()
+                    parent instanceof ConfigurableClassLoader configurableClassLoader
+                            ? configurableClassLoader.getJvmMarkers()
                             : new String[] { "" },
                     ofNullable(configuration.getParentResourcesFilter()).orElse(it -> true));
             return new ClassLoaderDescriptorImpl(volatileLoader, resolved);

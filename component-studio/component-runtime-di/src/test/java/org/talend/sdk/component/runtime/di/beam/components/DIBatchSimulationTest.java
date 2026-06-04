@@ -251,8 +251,8 @@ class DIBatchSimulationTest {
         Object dataMapper;
         while ((dataMapper = inputMapper.next()) != null) {
             final String jsonValueMapper;
-            if (dataMapper instanceof javax.json.JsonValue) {
-                jsonValueMapper = ((javax.json.JsonValue) dataMapper).toString();
+            if (dataMapper instanceof javax.json.JsonValue jsonValue) {
+                jsonValueMapper = jsonValue.toString();
             } else if (dataMapper instanceof org.talend.sdk.component.api.record.Record) {
                 jsonValueMapper = jsonbMapper
                         .toJson(converters

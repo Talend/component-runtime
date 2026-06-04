@@ -98,8 +98,8 @@ public class SchemaConverter extends AbstractConverter {
         this.addProps(builder::withProp, json);
 
         final JsonValue orderValue = json.get("order");
-        if (orderValue instanceof JsonString) {
-            final Schema.EntriesOrder order = Schema.EntriesOrder.of(((JsonString) orderValue).getString());
+        if (orderValue instanceof JsonString jsonString) {
+            final Schema.EntriesOrder order = Schema.EntriesOrder.of(jsonString.getString());
             return builder.build(order);
         } else {
             return builder.build();
@@ -109,11 +109,11 @@ public class SchemaConverter extends AbstractConverter {
     private void treatElementSchema(final JsonObject json,
             final Consumer<Schema> setter) {
         final JsonValue elementSchema = json.get(ELEMENT_SCHEMA);
-        if (elementSchema instanceof JsonObject) {
-            final Schema schema = this.toSchema((JsonObject) elementSchema);
+        if (elementSchema instanceof JsonObject jsonObject) {
+            final Schema schema = this.toSchema(jsonObject);
             setter.accept(schema);
-        } else if (elementSchema instanceof JsonString) {
-            final Schema.Type innerType = Schema.Type.valueOf(((JsonString) elementSchema).getString());
+        } else if (elementSchema instanceof JsonString jsonString) {
+            final Schema.Type innerType = Schema.Type.valueOf(jsonString.getString());
             setter.accept(this.factory.newSchemaBuilder(innerType).build());
         }
     }
@@ -276,17 +276,17 @@ public class SchemaConverter extends AbstractConverter {
         if (object == null) {
             return JsonValue.NULL;
         }
-        if (object instanceof Integer) {
-            return Json.createValue((Integer) object);
+        if (object instanceof Integer i) {
+            return Json.createValue(i);
         }
-        if (object instanceof Long) {
-            return Json.createValue((Long) object);
+        if (object instanceof Long l) {
+            return Json.createValue(l);
         }
         if (object instanceof Double || object instanceof Float) {
             return Json.createValue((Double) object);
         }
-        if (object instanceof BigInteger) {
-            return Json.createValue((BigInteger) object);
+        if (object instanceof BigInteger bigInteger) {
+            return Json.createValue(bigInteger);
         }
         if (object instanceof Boolean) {
             if (object == Boolean.TRUE) {
@@ -294,11 +294,11 @@ public class SchemaConverter extends AbstractConverter {
             }
             return JsonValue.FALSE;
         }
-        if (object instanceof BigDecimal) {
-            return Json.createValue((BigDecimal) object);
+        if (object instanceof BigDecimal bigDecimal) {
+            return Json.createValue(bigDecimal);
         }
-        if (object instanceof String) {
-            return Json.createValue((String) object);
+        if (object instanceof String s) {
+            return Json.createValue(s);
         }
 
         return null;

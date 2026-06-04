@@ -135,8 +135,8 @@ public class InterceptorHandlerFacade implements InterceptorHandler {
             return method.invoke(delegate, args);
         } catch (final InvocationTargetException ite) {
             final Throwable cause = ite.getCause();
-            if (cause instanceof RuntimeException) {
-                throw (RuntimeException) cause;
+            if (cause instanceof RuntimeException runtimeException) {
+                throw runtimeException;
             }
             throw new IllegalStateException(cause.getMessage());
         } catch (final IllegalAccessException e) {

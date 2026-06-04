@@ -87,11 +87,10 @@ public class BeamIOTransformer implements ClassFileTransformer {
     @Override
     public byte[] transform(final ClassLoader loader, final String className, final Class<?> classBeingRedefined,
             final ProtectionDomain protectionDomain, final byte[] classfileBuffer) {
-        if (className == null || !(loader instanceof ConfigurableClassLoader)) {
+        if (className == null || !(loader instanceof ConfigurableClassLoader classLoader)) {
             return classfileBuffer;
         }
 
-        final ConfigurableClassLoader classLoader = (ConfigurableClassLoader) loader;
         final String javaClassName = toClassName(className);
         if (!KnownClassesFilter.INSTANCE.accept(javaClassName) && !canBeABeamIO(classLoader, javaClassName)) {
             return classfileBuffer;

@@ -398,10 +398,10 @@ public class VirtualDependenciesService {
         @Override
         public Set<String> keys() {
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-            if (!(loader instanceof ConfigurableClassLoader)) {
+            if (!(loader instanceof ConfigurableClassLoader configurableClassLoader)) {
                 return emptySet();
             }
-            final String id = ((ConfigurableClassLoader) loader).getId();
+            final String id = configurableClassLoader.getId();
             final Enrichment enrichment = delegate.getEnrichmentFor(id);
             if (enrichment == null || enrichment.customConfiguration == null) {
                 return emptySet();

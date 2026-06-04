@@ -129,18 +129,17 @@ public class ModelVisitor {
                 throw new IllegalArgumentException(m + " must not have any parameter without @PartitionSize");
             }
             final Type splitReturnType = m.getGenericReturnType();
-            if (!(splitReturnType instanceof ParameterizedType)) {
+            if (!(splitReturnType instanceof ParameterizedType splitPt)) {
                 throw new IllegalArgumentException(m + " must return a Collection<" + type.getName() + ">");
             }
 
-            final ParameterizedType splitPt = (ParameterizedType) splitReturnType;
-            if (!(splitPt.getRawType() instanceof Class)
-                    || !Collection.class.isAssignableFrom((Class) splitPt.getRawType())) {
+            if (!(splitPt.getRawType() instanceof Class clazz)
+                    || !Collection.class.isAssignableFrom(clazz)) {
                 throw new IllegalArgumentException(m + " must return a List of partition mapper, found: " + splitPt);
             }
 
             final Type arg = splitPt.getActualTypeArguments().length != 1 ? null : splitPt.getActualTypeArguments()[0];
-            if (!(arg instanceof Class) || !type.isAssignableFrom((Class) arg)) {
+            if (!(arg instanceof Class aClass) || !type.isAssignableFrom(aClass)) {
                 throw new IllegalArgumentException(
                         m + " must return a Collection<" + type.getName() + "> but found: " + arg);
             }
@@ -254,10 +253,9 @@ public class ModelVisitor {
     }
 
     private boolean validOutputParam(final Parameter p) {
-        if (!(p.getParameterizedType() instanceof ParameterizedType)) {
+        if (!(p.getParameterizedType() instanceof ParameterizedType pt)) {
             return false;
         }
-        final ParameterizedType pt = (ParameterizedType) p.getParameterizedType();
         return OutputEmitter.class == pt.getRawType();
     }
 
@@ -314,16 +312,15 @@ public class ModelVisitor {
      * Where the key is String and value is Object
      */
     private static boolean isValidAfterVariableContainer(final Type type) {
-        if (!(type instanceof ParameterizedType)) {
+        if (!(type instanceof ParameterizedType paramType)) {
             return false;
         }
 
-        final ParameterizedType paramType = (ParameterizedType) type;
-        if (!(paramType.getRawType() instanceof Class) || paramType.getActualTypeArguments().length != 2) {
+        if (!(paramType.getRawType() instanceof Class<?> containerType)
+                || paramType.getActualTypeArguments().length != 2) {
             return false;
         }
 
-        final Class<?> containerType = (Class<?>) paramType.getRawType();
         return Map.class.isAssignableFrom(containerType) && paramType.getActualTypeArguments()[0].equals(String.class)
                 && paramType.getActualTypeArguments()[1].equals(Object.class);
     }

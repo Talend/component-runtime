@@ -177,11 +177,11 @@ public class UiParameterEnricher extends BaseParameterEnricher {
                 }
                 return string;
             }
-            if (invoke instanceof Class) {
-                return ((Class) invoke).getSimpleName().toLowerCase(ENGLISH);
+            if (invoke instanceof Class aClass) {
+                return aClass.getSimpleName().toLowerCase(ENGLISH);
             }
-            if (invoke instanceof String[]) {
-                return Stream.of((String[]) invoke).collect(joining(","));
+            if (invoke instanceof String[] strings) {
+                return Stream.of(strings).collect(joining(","));
             }
             return String.valueOf(invoke);
         } catch (final InvocationTargetException | IllegalAccessException e) {

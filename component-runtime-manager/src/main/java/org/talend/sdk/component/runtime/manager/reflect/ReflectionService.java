@@ -111,10 +111,9 @@ public class ReflectionService {
                 Stream.of(executable.getParameters()).map(parameter -> {
                     final String name = parameterModelService.findName(parameter, parameter.getName());
                     final Type parameterizedType = parameter.getParameterizedType();
-                    if (parameterizedType instanceof Class) {
+                    if (parameterizedType instanceof Class configClass) {
                         if (parameter.isAnnotationPresent(Configuration.class)) {
                             try {
-                                final Class configClass = (Class) parameterizedType;
                                 return createConfigFactory(precomputed, loader, contextualSupplier, parameter.getName(),
                                         parameter.getAnnotation(Configuration.class), parameter.getAnnotations(),
                                         configClass);
@@ -124,8 +123,7 @@ public class ReflectionService {
                         }
                         final Object value = precomputed.get(parameterizedType);
                         if (value != null) {
-                            if (value instanceof Copiable) {
-                                final Copiable copiable = (Copiable) value;
+                            if (value instanceof Copiable copiable) {
                                 return (Function<Map<String, String>, Object>) config -> copiable.copy(value);
                             }
                             return (Function<Map<String, String>, Object>) config -> value;
@@ -136,11 +134,10 @@ public class ReflectionService {
                                 .apply(name, (Map) config);
                     }
 
-                    if (parameterizedType instanceof ParameterizedType) {
-                        final ParameterizedType pt = (ParameterizedType) parameterizedType;
-                        if (pt.getRawType() instanceof Class) {
-                            if (Collection.class.isAssignableFrom((Class) pt.getRawType())) {
-                                final Class<?> collectionType = (Class) pt.getRawType();
+                    if (parameterizedType instanceof ParameterizedType pt) {
+                        if (pt.getRawType() instanceof Class clazz) {
+                            if (Collection.class.isAssignableFrom(clazz)) {
+                                final Class<?> collectionType = clazz;
                                 final Type itemType = pt.getActualTypeArguments()[0];
                                 if (!(itemType instanceof Class)) {
                                     throw new IllegalArgumentException(
@@ -429,14 +426,14 @@ public class ReflectionService {
         }
         if (propertyEditorRegistry.findConverter(clazz) != null && Schema.class.isAssignableFrom(clazz)) {
             final Object configValue = config.get(name);
-            if (configValue instanceof String) {
-                return propertyEditorRegistry.getValue(clazz, (String) configValue);
+            if (configValue instanceof String s) {
+                return propertyEditorRegistry.getValue(clazz, s);
             }
         }
         if (propertyEditorRegistry.findConverter(clazz) != null && config.size() == 1) {
             final Object configValue = config.values().iterator().next();
-            if (configValue instanceof String) {
-                return propertyEditorRegistry.getValue(clazz, (String) configValue);
+            if (configValue instanceof String s) {
+                return propertyEditorRegistry.getValue(clazz, s);
             }
         }
 
@@ -519,15 +516,15 @@ public class ReflectionService {
             }
 
             final Type genericType = findField(normalizeName(enclosingName, metas), clazz).getGenericType();
-            if (genericType instanceof Class) {
-                final Class<?> arrayClass = (Class) genericType;
+            if (genericType instanceof Class arrayClass) {
                 if (arrayClass.isArray()) {
                     // we could use Array.newInstance but for now use the list, shouldn't impact
                     // much the perf
-                    final Collection<?> list = (Collection) createList(loader, contextualSupplier, prefix + enclosingName, List.class,
-                            arrayClass.getComponentType(), toList(), createObjectFactory(loader,
-                                    contextualSupplier, arrayClass.getComponentType(), metas, precomputed),
-                            new HashMap<>(listEntries), metas, precomputed);
+                    final Collection<?> list =
+                            (Collection) createList(loader, contextualSupplier, prefix + enclosingName, List.class,
+                                    arrayClass.getComponentType(), toList(), createObjectFactory(loader,
+                                            contextualSupplier, arrayClass.getComponentType(), metas, precomputed),
+                                    new HashMap<>(listEntries), metas, precomputed);
 
                     // we need that conversion to ensure the type matches
                     final Object array = Array.newInstance(arrayClass.getComponentType(), list.size());
@@ -590,10 +587,8 @@ public class ReflectionService {
                 if (idxStart > 0) {
                     final String listName = nestedName.substring(0, idxStart);
                     final Field field = findField(normalizeName(listName, metas), clazz);
-                    if (field.getGenericType() instanceof ParameterizedType) {
-                        final ParameterizedType pt = (ParameterizedType) field.getGenericType();
-                        if (pt.getRawType() instanceof Class) {
-                            final Class<?> rawType = (Class) pt.getRawType();
+                    if (field.getGenericType() instanceof ParameterizedType pt) {
+                        if (pt.getRawType() instanceof Class rawType) {
                             if (Set.class.isAssignableFrom(rawType)) {
                                 addListElement(loader, contextualSupplier, config, prefix, preparedObjects, nestedName,
                                         listName, pt, () -> new HashSet<>(2), translate(metas, listName), precomputed);
@@ -664,11 +659,10 @@ public class ReflectionService {
 
     private ParameterizedType validateCollection(final Class clazz, final String enclosingName,
             final Type genericType) {
-        if (!(genericType instanceof ParameterizedType)) {
+        if (!(genericType instanceof ParameterizedType pt)) {
             throw new IllegalArgumentException(
                     clazz + "#" + enclosingName + " should be a generic collection and not a " + genericType);
         }
-        final ParameterizedType pt = (ParameterizedType) genericType;
         if (pt.getActualTypeArguments().length != 1 || !(pt.getActualTypeArguments()[0] instanceof Class)) {
             throw new IllegalArgumentException(clazz + "#" + enclosingName
                     + " should use concrete class items and not a " + pt.getActualTypeArguments()[0]);
@@ -677,11 +671,10 @@ public class ReflectionService {
     }
 
     private ParameterizedType validateObject(final Class clazz, final String enclosingName, final Type genericType) {
-        if (!(genericType instanceof ParameterizedType)) {
+        if (!(genericType instanceof ParameterizedType pt)) {
             throw new IllegalArgumentException(
                     clazz + "#" + enclosingName + " should be a generic map and not a " + genericType);
         }
-        final ParameterizedType pt = (ParameterizedType) genericType;
         if (pt.getActualTypeArguments().length != 2 || !(pt.getActualTypeArguments()[0] instanceof Class)
                 || !(pt.getActualTypeArguments()[1] instanceof Class)) {
             throw new IllegalArgumentException(clazz + "#" + enclosingName
