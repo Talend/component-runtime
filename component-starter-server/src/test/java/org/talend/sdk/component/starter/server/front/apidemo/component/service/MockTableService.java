@@ -61,8 +61,7 @@ public class MockTableService {
         try {
             client.healthCheck(dt.getAuthorizationHeader());
         } catch (Exception e) {
-            if (e instanceof HttpException) {
-                final HttpException ex = (HttpException) e;
+            if (e instanceof HttpException ex) {
                 final JsonObject jError = (JsonObject) ex.getResponse().error(JsonObject.class);
                 String errorMessage = null;
                 if (jError != null && jError.containsKey("error")) {

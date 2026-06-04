@@ -148,14 +148,14 @@ public class VisibilityService {
                         return "0".equals(expected);
                     }
                     final int expectedSize = Integer.parseInt(expected);
-                    if (actual instanceof Collection) {
-                        return expectedSize == ((Collection) actual).size();
+                    if (actual instanceof Collection collection1) {
+                        return expectedSize == collection1.size();
                     }
                     if (actual.getClass().isArray()) {
                         return expectedSize == Array.getLength(actual);
                     }
-                    if (actual instanceof String) {
-                        return expectedSize == ((String) actual).length();
+                    if (actual instanceof String s) {
+                        return expectedSize == s.length();
                     }
                     return false;
                 default:

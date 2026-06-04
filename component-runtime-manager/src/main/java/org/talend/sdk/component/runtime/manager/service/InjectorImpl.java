@@ -86,8 +86,7 @@ public class InjectorImpl implements Serializable, Injector {
                 })
                 .forEach(field -> {
                     Object value = services.get(field.getType());
-                    if (value == null && field.getGenericType() instanceof ParameterizedType) {
-                        final ParameterizedType pt = (ParameterizedType) field.getGenericType();
+                    if (value == null && field.getGenericType() instanceof ParameterizedType pt) {
                         if (pt.getRawType() instanceof Class
                                 && Collection.class.isAssignableFrom((Class) pt.getRawType())) {
                             final Type serviceType = pt.getActualTypeArguments()[0];

@@ -138,8 +138,8 @@ public class WebsiteBuilderMojo extends ComponentDependenciesBase {
                         final Wrapper wrapper = super.find(name, scopes);
                         return s -> {
                             final Object call = wrapper.call(s);
-                            if (call instanceof Collection && !(call instanceof DecoratedCollection)) {
-                                return new DecoratedCollection<>((Collection) call);
+                            if (call instanceof Collection collection && !(call instanceof DecoratedCollection)) {
+                                return new DecoratedCollection<>(collection);
                             }
                             return call;
                         };

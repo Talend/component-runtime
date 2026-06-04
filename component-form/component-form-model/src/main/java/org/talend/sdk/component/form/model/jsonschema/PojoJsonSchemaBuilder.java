@@ -64,7 +64,7 @@ class PojoJsonSchemaBuilder {
     private JsonSchema buildSchema(final Field field) {
         final Type genericType = field.getGenericType();
 
-        if ((genericType instanceof Class && CharSequence.class.isAssignableFrom((Class) genericType))
+        if ((genericType instanceof Class aClass && CharSequence.class.isAssignableFrom(aClass))
                 || genericType == char.class || genericType == Character.class) {
             return schemas.computeIfAbsent((Class) genericType, k -> jsonSchema().withType("string").build());
         } else if (genericType == long.class || genericType == Long.class || genericType == int.class
@@ -83,8 +83,7 @@ class PojoJsonSchemaBuilder {
                 schemas.put(clazz, jsonSchema);
                 return jsonSchema;
             });
-        } else if (genericType instanceof ParameterizedType) {
-            final ParameterizedType pt = (ParameterizedType) genericType;
+        } else if (genericType instanceof ParameterizedType pt) {
             final Type rawType = pt.getRawType();
             if (!(rawType instanceof Class)) {
                 throw new IllegalArgumentException("Unsupported raw type: " + pt + ", this must be a Class");
@@ -92,11 +91,10 @@ class PojoJsonSchemaBuilder {
             final Class<?> rawClazz = (Class) rawType;
             if (Collection.class.isAssignableFrom(rawClazz) && pt.getActualTypeArguments().length == 1) {
                 final Type itemType = pt.getActualTypeArguments()[0];
-                if (!(itemType instanceof Class)) {
+                if (!(itemType instanceof Class itemClass)) {
                     throw new IllegalArgumentException(
                             "Unsupported generic type for item type: " + pt + ", this must be a Class");
                 }
-                final Class itemClass = (Class) itemType;
                 final JsonSchema nested = ofNullable(schemas.get(itemType)).orElseGet(() -> {
                     final JsonSchema jsonSchema = create(itemClass).build();
                     schemas.put(itemClass, jsonSchema);

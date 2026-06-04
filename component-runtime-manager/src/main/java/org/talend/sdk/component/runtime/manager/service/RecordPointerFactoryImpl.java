@@ -105,8 +105,7 @@ public class RecordPointerFactoryImpl implements RecordPointerFactory, Serializa
 
         private Object getValue(final Object value, final String referenceToken, final int currentPosition,
                 final int referencePosition) {
-            if (value instanceof Record) {
-                final Record record = (Record) value;
+            if (value instanceof Record record) {
                 final Object nestedVal = getRecordEntry(referenceToken, record);
                 if (nestedVal != null) {
                     return nestedVal;
@@ -130,7 +129,7 @@ public class RecordPointerFactoryImpl implements RecordPointerFactory, Serializa
                         throw new IllegalArgumentException(
                                 "'" + array + "' contains no element for index " + arrayIndex);
                     }
-                    return array instanceof List ? ((List) array).get(arrayIndex)
+                    return array instanceof List list ? list.get(arrayIndex)
                             : new ArrayList<>(array).get(arrayIndex);
                 } catch (final NumberFormatException e) {
                     throw new IllegalArgumentException("'" + referenceToken + "' is no valid array index", e);

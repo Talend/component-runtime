@@ -106,11 +106,9 @@ public class AsyncContextImpl implements AsyncContext {
     @Override
     public void dispatch() {
         final ServletRequest servletRequest = getRequest();
-        if (!(servletRequest instanceof HttpServletRequest)) {
+        if (!(servletRequest instanceof HttpServletRequest sr)) {
             throw new IllegalStateException("Not a http request: " + servletRequest);
         }
-
-        final HttpServletRequest sr = (HttpServletRequest) servletRequest;
 
         String path = sr.getRequestURI();
         final String cpath = sr.getContextPath();
@@ -128,11 +126,10 @@ public class AsyncContextImpl implements AsyncContext {
     @Override
     public void dispatch(final ServletContext context, final String path) {
         final ServletRequest servletRequest = getRequest();
-        if (!(servletRequest instanceof HttpServletRequest)) {
+        if (!(servletRequest instanceof HttpServletRequest request)) {
             throw new IllegalStateException("Not a http request: " + servletRequest);
         }
 
-        final HttpServletRequest request = (HttpServletRequest) servletRequest;
         if (request.getAttribute(ASYNC_REQUEST_URI) == null) {
             request.setAttribute(ASYNC_REQUEST_URI, request.getRequestURI());
             request.setAttribute(ASYNC_CONTEXT_PATH, request.getContextPath());

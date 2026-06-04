@@ -61,7 +61,7 @@ public class LocalPartitionMapper extends Named implements Mapper, Delegated {
 
     @Override
     public Input create() {
-        return input instanceof Input ? (Input) input
+        return input instanceof Input input1 ? input1
                 : new InputImpl(rootName(), name(), plugin(), input);
     }
 

@@ -807,14 +807,12 @@ public class ComponentManager implements AutoCloseable {
      */
     public static Map<String, String> jsonToMap(final JsonValue jsonValue, final String path) {
         final Map<String, String> result = new HashMap<>();
-        if (jsonValue instanceof JsonObject) {
-            JsonObject jsonObj = (JsonObject) jsonValue;
+        if (jsonValue instanceof JsonObject jsonObj) {
             for (String key : jsonObj.keySet()) {
                 String newPath = path.isEmpty() ? key : path + "." + key;
                 result.putAll(jsonToMap(jsonObj.get(key), newPath));
             }
-        } else if (jsonValue instanceof JsonArray) {
-            JsonArray jsonArray = (JsonArray) jsonValue;
+        } else if (jsonValue instanceof JsonArray jsonArray) {
             for (int i = 0; i < jsonArray.size(); i++) {
                 String newPath = path + "[" + i + "]";
                 result.putAll(jsonToMap(jsonArray.get(i), newPath));
@@ -875,7 +873,7 @@ public class ComponentManager implements AutoCloseable {
             final int version, final Map<String, String> configuration) {
         return findComponentInternal(plugin, name, componentType, version, configuration)
                 // unwrap to access the actual instance which is the desired one
-                .map(i -> i instanceof Delegated ? ((Delegated) i).getDelegate() : i);
+                .map(i -> i instanceof Delegated delegated ? delegated.getDelegate() : i);
     }
 
     private Optional<Object> findComponentInternal(final String plugin, final String name,
@@ -1416,9 +1414,9 @@ public class ComponentManager implements AutoCloseable {
                     }
                 } : optimizedFinder;
             } finally {
-                if (archive instanceof AutoCloseable) {
+                if (archive instanceof AutoCloseable autoCloseable) {
                     try {
-                        ((AutoCloseable) archive).close();
+                        autoCloseable.close();
                     } catch (final Exception e) {
                         log.warn(e.getMessage());
                     }
@@ -1796,16 +1794,16 @@ public class ComponentManager implements AutoCloseable {
         }
 
         private URL archiveToUrl(final Archive mainArchive) {
-            if (mainArchive instanceof JarArchive) {
-                return ((JarArchive) mainArchive).getUrl();
-            } else if (mainArchive instanceof FileArchive) {
+            if (mainArchive instanceof JarArchive jarArchive) {
+                return jarArchive.getUrl();
+            } else if (mainArchive instanceof FileArchive fileArchive) {
                 try {
-                    return ((FileArchive) mainArchive).getDir().toURI().toURL();
+                    return fileArchive.getDir().toURI().toURL();
                 } catch (final MalformedURLException e) {
                     throw new IllegalStateException(e);
                 }
-            } else if (mainArchive instanceof NestedJarArchive) {
-                return ((NestedJarArchive) mainArchive).getRootMarker();
+            } else if (mainArchive instanceof NestedJarArchive entries) {
+                return entries.getRootMarker();
             }
             return null;
         }
@@ -2214,8 +2212,8 @@ public class ComponentManager implements AutoCloseable {
             return this.component == null || !component.equals(this.component.getName())
                     ? (this.component = new ComponentFamilyMeta(plugin, asList(components.categories()),
                             iconFinder.findIcon(familyAnnotationElement), comp,
-                            familyAnnotationElement instanceof Class
-                                    ? getPackage((Class) familyAnnotationElement)
+                            familyAnnotationElement instanceof Class aClass
+                                    ? getPackage(aClass)
                                     : ""))
                     : this.component;
         }

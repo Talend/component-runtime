@@ -294,8 +294,8 @@ public class AsciidoctorExecutor implements AutoCloseable {
                 } catch (final Exception e) {
                     throw new IllegalStateException(e);
                 }
-            } else if (asciidoctor instanceof JRubyAsciidoctor) {
-                ((JRubyAsciidoctor) asciidoctor).getRubyRuntime().tearDown();
+            } else if (asciidoctor instanceof JRubyAsciidoctor jRubyAsciidoctor) {
+                jRubyAsciidoctor.getRubyRuntime().tearDown();
             }
         }
     }

@@ -46,8 +46,8 @@ public class OutputsHandler extends BaseIOHandler {
             if (ref != null && value != null) {
                 if (value instanceof javax.json.JsonValue) {
                     ref.add(jsonb.fromJson(value.toString(), ref.getType()));
-                } else if (value instanceof Record) {
-                    ref.add(registry.find(ref.getType()).newInstance((Record) value));
+                } else if (value instanceof Record record) {
+                    ref.add(registry.find(ref.getType()).newInstance(record));
                 } else {
                     ref.add(jsonb.fromJson(jsonb.toJson(value), ref.getType()));
                 }
@@ -67,8 +67,8 @@ public class OutputsHandler extends BaseIOHandler {
             if (ref != null && value != null) {
                 if (value instanceof javax.json.JsonValue) {
                     ref.add(jsonb.fromJson(value.toString(), ref.getType()));
-                } else if (value instanceof Record) {
-                    ref.add(((Record) value).getSchema());
+                } else if (value instanceof Record record) {
+                    ref.add(record.getSchema());
                 } else if (value instanceof Schema) {
                     ref.add(value);
                 } else {

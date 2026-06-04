@@ -148,8 +148,8 @@ class BeamIOTransformerTest {
     private Object newInstance(final Class<?> aClass, final ClassLoader validationLoader) {
         try {
             final Object instance = aClass.getConstructor().newInstance();
-            if (instance instanceof SetValidator) {
-                ((SetValidator) instance)
+            if (instance instanceof SetValidator setValidator) {
+                setValidator
                         .setValidator(
                                 () -> assertEquals(Thread.currentThread().getContextClassLoader(), validationLoader));
             }

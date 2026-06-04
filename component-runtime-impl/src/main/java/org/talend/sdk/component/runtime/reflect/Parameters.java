@@ -32,10 +32,9 @@ import lombok.NoArgsConstructor;
 public class Parameters {
 
     public static boolean isGroupBuffer(final Type type) {
-        if (!(type instanceof ParameterizedType)) {
+        if (!(type instanceof ParameterizedType parameterizedType)) {
             return false;
         }
-        final ParameterizedType parameterizedType = (ParameterizedType) type;
         if (!(parameterizedType.getRawType() instanceof Class)
                 || parameterizedType.getActualTypeArguments().length != 1) {
             return false;

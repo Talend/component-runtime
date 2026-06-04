@@ -95,7 +95,7 @@ public abstract class DocBaseGenerator extends BaseTask {
         this.locale = locale;
         this.output = output;
         try {
-            this.log = log instanceof Log ? (Log) log : new ReflectiveLog(log);
+            this.log = log instanceof Log log1 ? log1 : new ReflectiveLog(log);
         } catch (final NoSuchMethodException e) {
             throw new IllegalArgumentException(e);
         }

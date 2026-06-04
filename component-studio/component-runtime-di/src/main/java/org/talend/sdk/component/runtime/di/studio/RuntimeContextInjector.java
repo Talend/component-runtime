@@ -35,8 +35,8 @@ public class RuntimeContextInjector {
      * @see Lifecycle
      */
     public static void injectLifecycle(final Lifecycle lifecycle, final RuntimeContextHolder runtimeContext) {
-        if (lifecycle instanceof Delegated) {
-            final Object delegate = ((Delegated) lifecycle).getDelegate();
+        if (lifecycle instanceof Delegated delegated) {
+            final Object delegate = delegated.getDelegate();
 
             Class<?> currentClass = delegate.getClass();
             while (currentClass != null && currentClass != Object.class) {
