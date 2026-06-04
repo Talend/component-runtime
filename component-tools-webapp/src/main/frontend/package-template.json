@@ -66,6 +66,12 @@
     "tmp": "^0.2.6",
     "underscore": "^1.13.8",
     "uuid": "^14.0.0",
-    "ws": "^8.20.1"
+    "ws": "^8.20.1",
+    "sockjs": {
+      "uuid": "^8.3.2"
+    },
+    "webpack-bundle-analyzer": {
+      "ws": "^7.5.10"
+    }
   }
 }
