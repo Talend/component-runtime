@@ -44,10 +44,8 @@ public class JUnit4HttpApiPerMethodConfigurator implements TestRule {
                 try {
                     base.evaluate();
                 } finally {
-                    if (responseLocator instanceof DefaultResponseLocator defaultResponseLocatorVal) {
+                    if (responseLocator instanceof DefaultResponseLocator defaultResponseLocator) {
                         if (Handlers.isActive("capture")) {
-                            final DefaultResponseLocator defaultResponseLocator =
-                                    defaultResponseLocatorVal;
                             defaultResponseLocator.flush(Handlers.getBaseCapture());
                         }
                     }

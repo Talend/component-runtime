@@ -93,8 +93,8 @@ public class MappingUtils {
                     && (java.util.Date.class == expectedType || Instant.class == expectedType)) {
                 return value;
             }
-            if (value instanceof long[]) { // NOSONAR
-                final Instant instant = Instant.ofEpochSecond(((long[]) value)[0], ((long[]) value)[1]);
+            if (value instanceof long[]  longArray) {
+                final Instant instant = Instant.ofEpochSecond(longArray[0], longArray[1]);
                 if (ZonedDateTime.class == expectedType) {
                     return ZonedDateTime.ofInstant(instant, UTC);
                 }

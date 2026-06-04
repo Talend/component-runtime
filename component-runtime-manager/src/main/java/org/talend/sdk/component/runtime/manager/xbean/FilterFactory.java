@@ -34,7 +34,7 @@ public class FilterFactory {
     public static Filter and(final Filter first, final Filter second) {
         if (Stream
                 .of(first, second)
-                .anyMatch(f -> !(f instanceof FilterList) // NOSONAR
+                .anyMatch(f -> !(f instanceof FilterList)
                         || !((FilterList) f).getFilters().stream().allMatch(PrefixFilter.class::isInstance))) {
             throw new IllegalArgumentException("And only works with filter list of prefix filters"); // for optims
         }

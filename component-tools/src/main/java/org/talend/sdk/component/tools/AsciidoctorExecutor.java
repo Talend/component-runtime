@@ -284,11 +284,14 @@ public class AsciidoctorExecutor implements AutoCloseable {
         return asciidoctor == null ? asciidoctor = Asciidoctor.Factory.create() : asciidoctor;
     }
 
+    @SuppressWarnings("java:S6201")
+    // unconditional patterns in instanceof are not supported in -source 17
+    // TODO: remove the @SuppressWarnings and apply S6201 when java 21+ only is supported.
     @Override
     public void close() {
         onClose.run();
         if (asciidoctor != null && !Boolean.getBoolean("talend.component.tools.jruby.teardown.skip")) {
-            if (asciidoctor instanceof AutoCloseable) { // NOSONAR
+            if (asciidoctor instanceof AutoCloseable) {
                 try {
                     ((AutoCloseable) asciidoctor).close();
                 } catch (final Exception e) {

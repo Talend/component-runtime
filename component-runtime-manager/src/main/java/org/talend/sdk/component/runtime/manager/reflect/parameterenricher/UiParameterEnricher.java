@@ -180,8 +180,8 @@ public class UiParameterEnricher extends BaseParameterEnricher {
             if (invoke instanceof Class classVal) {
                 return classVal.getSimpleName().toLowerCase(ENGLISH);
             }
-            if (invoke instanceof String[]) { // NOSONAR
-                return Stream.of((String[]) invoke).collect(joining(","));
+            if (invoke instanceof String[] stringArray) {
+                return Stream.of(stringArray).collect(joining(","));
             }
             return String.valueOf(invoke);
         } catch (final InvocationTargetException | IllegalAccessException e) {

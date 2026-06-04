@@ -783,8 +783,7 @@ public class TaCoKitGuessSchema {
                                     && pt.getActualTypeArguments().length == 1)
                             .map(p -> ((ParameterizedType) p).getActualTypeArguments()[0]))
                     .findFirst();
-            if (type.isPresent() && type.get() instanceof Class) { // NOSONAR
-                final Class<?> clazz = (Class) type.get();
+            if (type.isPresent() && type.get() instanceof Class clazz) {
                 if (clazz != JsonObject.class) {
                     guessSchemaThroughResultClass(clazz);
                 }

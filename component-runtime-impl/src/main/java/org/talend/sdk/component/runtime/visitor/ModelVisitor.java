@@ -140,7 +140,7 @@ public class ModelVisitor {
             }
 
             final Type arg = splitPt.getActualTypeArguments().length != 1 ? null : splitPt.getActualTypeArguments()[0];
-            if (!(arg instanceof Class) || !type.isAssignableFrom((Class) arg)) { // NOSONAR
+            if (!(arg instanceof Class) || !type.isAssignableFrom((Class) arg)) {
                 throw new IllegalArgumentException(
                         m + " must return a Collection<" + type.getName() + "> but found: " + arg);
             }
