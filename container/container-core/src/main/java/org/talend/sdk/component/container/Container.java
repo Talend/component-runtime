@@ -145,7 +145,8 @@ public class Container implements Lifecycle {
                             : null;
             final ConfigurableClassLoader loader = new ConfigurableClassLoader(id, urls,
                     overrideClassLoaderConfig.getParent(), overrideClassLoaderConfig.getParentClassesFilter(),
-                    overrideClassLoaderConfig.getClassesFilter(), rawNestedDependencies, jvmMarkers);
+                    overrideClassLoaderConfig.getClassesFilter(), rawNestedDependencies, jvmMarkers,
+                    overrideClassLoaderConfig.getParentResourcesFilter());
             transformers.forEach(loader::registerTransformer);
             activeSpecificTransformers(loader);
             return loader;
@@ -305,6 +306,10 @@ public class Container implements Lifecycle {
 
     public Date getCreated() {
         return created.get();
+    }
+
+    public boolean hasNestedRepository() {
+        return hasNestedRepository;
     }
 
     public void registerTransformer(final ClassFileTransformer transformer) {

@@ -232,7 +232,7 @@ class DiRecordVisitorTest extends VisitorsTest {
                 .build();
         //
         final DiRecordVisitor visitor = new DiRecordVisitor(RowStruct.class, Collections.emptyMap());
-        final RowStruct rowStruct = RowStruct.class.cast(visitor.visit(record));
+        final RowStruct rowStruct = (RowStruct) visitor.visit(record);
         assertNotNull(rowStruct);
         // asserts rowStruct::members
         assertEquals(":testing:", rowStruct.id);
@@ -266,7 +266,7 @@ class DiRecordVisitorTest extends VisitorsTest {
 
         // asserts rowStruct::document
         assertNotNull(rowStruct.document);
-        assertTrue(Document.class.isInstance(rowStruct.document));
+        assertTrue(rowStruct.document instanceof Document);
         assertEquals(DOCUMENT.toString(), rowStruct.document.toString());
         assertNotNull(rowStruct.documentFromString);
         assertEquals(DOCUMENT.toString(), rowStruct.documentFromString.toString());
@@ -275,42 +275,42 @@ class DiRecordVisitorTest extends VisitorsTest {
         assertNotNull(rowStruct.dynamic);
         assertNotNull(rowStruct.dynamic.metadatas);
         Object dynObject = rowStruct.dynamic.getColumnValue("dynBytes");
-        assertTrue(byte[].class.isInstance(dynObject));
+        assertTrue(dynObject instanceof byte[]);
         assertEquals(BYTES0, dynObject);
         assertArrayEquals(BYTES0, (byte[]) dynObject);
         dynObject = rowStruct.dynamic.getColumnValue("dynBytesArray");
-        assertTrue(byte[].class.isInstance(dynObject));
+        assertTrue(dynObject instanceof byte[]);
         assertEquals(BYTES0, dynObject);
         assertArrayEquals(BYTES0, (byte[]) dynObject);
         dynObject = rowStruct.dynamic.getColumnValue("dynBytesBuffer");
-        assertTrue(byte[].class.isInstance(dynObject));
+        assertTrue(dynObject instanceof byte[]);
         assertEquals(BYTES0, dynObject);
         assertArrayEquals(BYTES0, (byte[]) dynObject);
         dynObject = rowStruct.dynamic.getColumnValue("dynBytesWString");
-        assertTrue(byte[].class.isInstance(dynObject));
+        assertTrue(dynObject instanceof byte[]);
         assertArrayEquals(String.valueOf(BYTES0).getBytes(), (byte[]) dynObject);
 
         String originType = rowStruct.dynamic.getColumnMetadata(7).getDbType();
         assertEquals("DECIMAL", originType);
         dynObject = rowStruct.dynamic.getColumnValue("dynBigDecimal");
-        assertTrue(BigDecimal.class.isInstance(dynObject));
+        assertTrue(dynObject instanceof BigDecimal);
         assertEquals(BIGDEC, dynObject);
         dynObject = rowStruct.dynamic.getColumnValue("dynBigDecimal2");
-        assertTrue(BigDecimal.class.isInstance(dynObject));
+        assertTrue(dynObject instanceof BigDecimal);
         assertEquals(BIGDEC, dynObject);
         dynObject = rowStruct.dynamic.getColumnValue("dynDocument");
-        assertTrue(String.class.isInstance(dynObject));
+        assertTrue(dynObject instanceof String);
         assertEquals(DOCUMENT.toString(), dynObject);
 
         dynObject = rowStruct.dynamic.getColumnValue("dynShort");
-        assertTrue(Short.class.isInstance(dynObject));
+        assertTrue(dynObject instanceof Short);
         assertEquals(SHORT, dynObject);
         dynObject = rowStruct.dynamic.getColumnValue("dynChar");
-        assertTrue(Character.class.isInstance(dynObject));
+        assertTrue(dynObject instanceof Character);
         assertEquals(Character.MAX_VALUE, dynObject);
 
         dynObject = rowStruct.dynamic.getColumnValue("dynObject");
-        assertTrue(Object.class.isInstance(dynObject));
+        assertTrue(dynObject instanceof Object);
         assertEquals(OBJECT, dynObject);
 
         //
@@ -419,7 +419,7 @@ class DiRecordVisitorTest extends VisitorsTest {
                 .with(entry, "")
                 .build();
         final DiRecordVisitor visitor1 = new DiRecordVisitor(RowStruct3.class, Collections.emptyMap());
-        final RowStruct3 rowStruct1 = RowStruct3.class.cast(visitor1.visit(record1));
+        final RowStruct3 rowStruct1 = (RowStruct3) visitor1.visit(record1);
         assertNotNull(rowStruct1);
         assertEquals("the$name", rowStruct1.dyn.getColumnMetadata(0).getName());
         assertEquals("the$name", rowStruct1.dyn.getColumnMetadata(0).getDbName());
@@ -432,7 +432,7 @@ class DiRecordVisitorTest extends VisitorsTest {
                 .with(entry, "")
                 .build();
         final DiRecordVisitor visitor2 = new DiRecordVisitor(RowStruct3.class, Collections.emptyMap());
-        final RowStruct3 rowStruct2 = RowStruct3.class.cast(visitor2.visit(record2));
+        final RowStruct3 rowStruct2 = (RowStruct3) visitor2.visit(record2);
         assertNotNull(rowStruct2);
         assertEquals("the_name", rowStruct2.dyn.getColumnMetadata(0).getName());
         assertEquals("the$name", rowStruct2.dyn.getColumnMetadata(0).getDbName());
@@ -470,7 +470,7 @@ class DiRecordVisitorTest extends VisitorsTest {
                 .withDateTime("date2", value)
                 .build();
         final DiRecordVisitor visitor1 = new DiRecordVisitor(RowStruct3.class, Collections.emptyMap());
-        final RowStruct3 rowStruct1 = RowStruct3.class.cast(visitor1.visit(record1));
+        final RowStruct3 rowStruct1 = (RowStruct3) visitor1.visit(record1);
         assertNotNull(rowStruct1);
         assertEquals(SchemaProperty.LogicalType.DATE.key(), rowStruct1.dyn.getColumnMetadata(0).getLogicalType());
         assertEquals(SchemaProperty.LogicalType.TIME.key(), rowStruct1.dyn.getColumnMetadata(1).getLogicalType());
@@ -495,7 +495,7 @@ class DiRecordVisitorTest extends VisitorsTest {
                 .with(entry2, "v2")
                 .build();
         final DiRecordVisitor visitor1 = new DiRecordVisitor(RowStruct3.class, Collections.emptyMap());
-        final RowStruct3 rowStruct1 = RowStruct3.class.cast(visitor1.visit(record1));
+        final RowStruct3 rowStruct1 = (RowStruct3) visitor1.visit(record1);
         assertNotNull(rowStruct1);
         assertEquals("the$name", rowStruct1.dyn.getColumnMetadata(0).getName());
         assertEquals("the$name", rowStruct1.dyn.getColumnMetadata(0).getDbName());
@@ -522,7 +522,7 @@ class DiRecordVisitorTest extends VisitorsTest {
                 .build();
         //
         final DiRecordVisitor visitor = new DiRecordVisitor(RowStructConflict.class, Collections.emptyMap());
-        final RowStructConflict rowStruct = RowStructConflict.class.cast(visitor.visit(record));
+        final RowStructConflict rowStruct = (RowStructConflict) visitor.visit(record);
         assertNotNull(rowStruct);
         assertEquals("name01", rowStruct.name);
         assertEquals("{\"id\":\"createdById01\",\"user\":\"createUser01\"}", rowStruct.createdBy.toString());
@@ -548,7 +548,7 @@ class DiRecordVisitorTest extends VisitorsTest {
                 .build();
 
         final DiRecordVisitor visitor = new DiRecordVisitor(RowStructWithArrayRecord.class, Collections.emptyMap());
-        final RowStructWithArrayRecord rowStruct = RowStructWithArrayRecord.class.cast(visitor.visit(record));
+        final RowStructWithArrayRecord rowStruct = (RowStructWithArrayRecord) visitor.visit(record);
         assertNotNull(rowStruct);
         assertEquals(3, rowStruct.field.size());
         assertInstanceOf(Record.class, rowStruct.field.get(0));

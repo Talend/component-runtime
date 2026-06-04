@@ -138,7 +138,7 @@ public class RecordJsonGenerator implements JsonGenerator {
     public JsonGenerator write(final String name, final JsonValue value) {
         switch (value.getValueType()) {
             case ARRAY:
-                JsonValue jv = JsonValue.class.cast(Collection.class.cast(value).iterator().next());
+                JsonValue jv = (JsonValue) ((Collection) value).iterator().next();
                 if (jv.getValueType().equals(ValueType.TRUE) || jv.getValueType().equals(ValueType.FALSE)) {
                     objectBuilder
                             .withArray(
@@ -148,18 +148,16 @@ public class RecordJsonGenerator implements JsonGenerator {
                                             .withType(Type.ARRAY)
                                             .withElementSchema(factory.newSchemaBuilder(Type.BOOLEAN).build())
                                             .build(),
-                                    Collection.class
-                                            .cast(Collection.class
-                                                    .cast(value)
-                                                    .stream()
-                                                    .map(v -> JsonValue.class.cast(v)
-                                                            .getValueType()
-                                                            .equals(ValueType.TRUE))
-                                                    .collect(toList())));
+                                    (Collection) ((Collection) value)
+                                            .stream()
+                                            .map(v -> ((JsonValue) v)
+                                                    .getValueType()
+                                                    .equals(ValueType.TRUE))
+                                            .collect(toList()));
                 } else {
                     objectBuilder
-                            .withArray(createEntryForJsonArray(name, Collection.class.cast(value)),
-                                    Collection.class.cast(value));
+                            .withArray(createEntryForJsonArray(name, (Collection) value),
+                                    (Collection) value);
                 }
                 break;
             case OBJECT:
@@ -167,10 +165,10 @@ public class RecordJsonGenerator implements JsonGenerator {
                 objectBuilder.withRecord(name, r);
                 break;
             case STRING:
-                objectBuilder.withString(name, JsonString.class.cast(value).getString());
+                objectBuilder.withString(name, ((JsonString) value).getString());
                 break;
             case NUMBER:
-                objectBuilder.withDouble(name, JsonNumber.class.cast(value).numberValue().doubleValue());
+                objectBuilder.withDouble(name, ((JsonNumber) value).numberValue().doubleValue());
                 break;
             case TRUE:
                 objectBuilder.withBoolean(name, true);
@@ -238,17 +236,17 @@ public class RecordJsonGenerator implements JsonGenerator {
     public JsonGenerator write(final JsonValue value) {
         switch (value.getValueType()) {
             case ARRAY:
-                arrayBuilder.add(Collection.class.cast(value));
+                arrayBuilder.add((Collection) value);
                 break;
             case OBJECT:
                 Record r = recordConverters.toRecord(mappingRegistry, value, () -> jsonb, () -> factory);
                 arrayBuilder.add(factory.newRecordBuilder(r.getSchema(), r));
                 break;
             case STRING:
-                arrayBuilder.add(JsonString.class.cast(value).getString());
+                arrayBuilder.add(((JsonString) value).getString());
                 break;
             case NUMBER:
-                arrayBuilder.add(JsonNumber.class.cast(value).numberValue().doubleValue());
+                arrayBuilder.add(((JsonNumber) value).numberValue().doubleValue());
                 break;
             case TRUE:
                 arrayBuilder.add(true);
@@ -322,53 +320,53 @@ public class RecordJsonGenerator implements JsonGenerator {
 
         final String name;
         Object previous = builders.getLast();
-        if (NamedBuilder.class.isInstance(previous)) {
-            final NamedBuilder namedBuilder = NamedBuilder.class.cast(previous);
+        if (previous instanceof NamedBuilder) {
+            final NamedBuilder namedBuilder = (NamedBuilder) previous;
             name = namedBuilder.name;
             previous = namedBuilder.builder;
         } else {
             name = null;
         }
 
-        if (List.class.isInstance(last)) {
-            final List array = List.class.cast(last);
-            if (Collection.class.isInstance(previous)) {
-                arrayBuilder = Collection.class.cast(previous);
+        if (last instanceof List) {
+            final List array = (List) last;
+            if (previous instanceof Collection) {
+                arrayBuilder = (Collection) previous;
                 objectBuilder = null;
                 arrayBuilder.add(array);
-            } else if (Record.Builder.class.isInstance(previous)) {
-                objectBuilder = Record.Builder.class.cast(previous);
+            } else if (previous instanceof Record.Builder) {
+                objectBuilder = (Record.Builder) previous;
                 arrayBuilder = null;
                 objectBuilder.withArray(createEntryBuilderForArray(name, array).build(), prepareArray(array));
             } else {
                 throw new IllegalArgumentException("Unsupported previous builder: " + previous);
             }
-        } else if (Record.Builder.class.isInstance(last)) {
-            final Record.Builder object = Record.Builder.class.cast(last);
-            if (Collection.class.isInstance(previous)) {
-                arrayBuilder = Collection.class.cast(previous);
+        } else if (last instanceof Record.Builder) {
+            final Record.Builder object = (Record.Builder) last;
+            if (previous instanceof Collection) {
+                arrayBuilder = (Collection) previous;
                 objectBuilder = null;
                 arrayBuilder.add(object);
-            } else if (Record.Builder.class.isInstance(previous)) {
-                objectBuilder = Record.Builder.class.cast(previous);
+            } else if (previous instanceof Record.Builder) {
+                objectBuilder = (Record.Builder) previous;
                 arrayBuilder = null;
                 objectBuilder.withRecord(name, objectBuilder.build());
             } else {
                 throw new IllegalArgumentException("Unsupported previous builder: " + previous);
             }
-        } else if (NamedBuilder.class.isInstance(last)) {
-            final NamedBuilder<?> namedBuilder = NamedBuilder.class.cast(last);
-            if (Record.Builder.class.isInstance(previous)) {
-                objectBuilder = Record.Builder.class.cast(previous);
-                if (List.class.isInstance(namedBuilder.builder)) {
-                    final List array = List.class.cast(namedBuilder.builder);
+        } else if (last instanceof NamedBuilder) {
+            final NamedBuilder<?> namedBuilder = (NamedBuilder) last;
+            if (previous instanceof Record.Builder) {
+                objectBuilder = (Record.Builder) previous;
+                if (namedBuilder.builder instanceof List) {
+                    final List array = (List) namedBuilder.builder;
                     objectBuilder
                             .withArray(createEntryBuilderForArray(namedBuilder.name, array).build(),
                                     prepareArray(array));
                     arrayBuilder = null;
-                } else if (Record.Builder.class.isInstance(namedBuilder.builder)) {
+                } else if (namedBuilder.builder instanceof Record.Builder) {
                     objectBuilder
-                            .withRecord(namedBuilder.name, Record.Builder.class.cast(namedBuilder.builder).build());
+                            .withRecord(namedBuilder.name, ((Record.Builder) namedBuilder.builder).build());
                     arrayBuilder = null;
                 } else {
                     throw new IllegalArgumentException("Unsupported previous builder: " + previous);
@@ -386,7 +384,7 @@ public class RecordJsonGenerator implements JsonGenerator {
     private List prepareArray(final List array) {
         return ((Collection<?>) array)
                 .stream()
-                .map(it -> Record.Builder.class.isInstance(it) ? Record.Builder.class.cast(it).build() : it)
+                .map(it -> it instanceof Record.Builder ? ((Record.Builder) it).build() : it)
                 .collect(toList());
     }
 
@@ -394,7 +392,7 @@ public class RecordJsonGenerator implements JsonGenerator {
         final Schema.Type type = findType(array);
         final Schema.Entry.Builder builder = factory.newEntryBuilder().withName(name).withType(Schema.Type.ARRAY);
         if (type == Schema.Type.RECORD) {
-            final JsonObject first = JsonObject.class.cast(array.iterator().next());
+            final JsonObject first = (JsonObject) array.iterator().next();
             final Schema.Builder rBuilder = first
                     .entrySet()
                     .stream()
@@ -418,7 +416,7 @@ public class RecordJsonGenerator implements JsonGenerator {
         final Schema.Type type = findType(array);
         final Schema.Entry.Builder builder = factory.newEntryBuilder().withName(name).withType(Schema.Type.ARRAY);
         if (type == Schema.Type.RECORD) {
-            final Record first = Record.Builder.class.cast(array.iterator().next()).build();
+            final Record first = ((Record.Builder) array.iterator().next()).build();
             array.set(0, factory.newRecordBuilder(first.getSchema(), first)); // copy since build() resetted it
             builder.withElementSchema(first.getSchema());
         } else {
@@ -497,7 +495,7 @@ public class RecordJsonGenerator implements JsonGenerator {
 
     @Override
     public void close() {
-        holder.setRecord(Record.Builder.class.cast(builders.getLast()).build());
+        holder.setRecord(((Record.Builder) builders.getLast()).build());
     }
 
     @Override
@@ -516,8 +514,8 @@ public class RecordJsonGenerator implements JsonGenerator {
 
         @Override
         public JsonGenerator createGenerator(final Writer writer) {
-            if (OutputRecordHolder.class.isInstance(writer)) {
-                return new RecordJsonGenerator(factory.get(), jsonb.get(), OutputRecordHolder.class.cast(writer));
+            if (writer instanceof OutputRecordHolder) {
+                return new RecordJsonGenerator(factory.get(), jsonb.get(), (OutputRecordHolder) writer);
             }
             throw new IllegalArgumentException("Unsupported writer: " + writer);
         }

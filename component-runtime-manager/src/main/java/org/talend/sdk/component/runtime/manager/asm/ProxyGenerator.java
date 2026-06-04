@@ -623,7 +623,7 @@ public class ProxyGenerator implements Serializable {
             if (!invocationHandlerField.isAccessible()) {
                 invocationHandlerField.setAccessible(true);
             }
-            return InterceptorHandlerFacade.class.cast(invocationHandlerField.get(instance));
+            return (InterceptorHandlerFacade) invocationHandlerField.get(instance);
         } catch (final IllegalAccessException | NoSuchFieldException e) {
             throw new IllegalStateException(e);
         }

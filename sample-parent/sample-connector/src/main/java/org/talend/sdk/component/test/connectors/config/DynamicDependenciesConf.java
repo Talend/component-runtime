@@ -18,14 +18,14 @@ package org.talend.sdk.component.test.connectors.config;
 import java.io.Serializable;
 
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.type.DynamicDependenciesServiceConfiguration;
+import org.talend.sdk.component.api.configuration.type.DynamicDependenciesConfiguration;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.meta.Documentation;
 
 import lombok.Data;
 
 @Data
-@DynamicDependenciesServiceConfiguration
+@DynamicDependenciesConfiguration
 @GridLayout({
         @GridLayout.Row({ "group" }),
         @GridLayout.Row({ "artifact" })

@@ -34,7 +34,7 @@ public class IndexRedirector implements Filter {
     @Override
     public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
             final FilterChain filterChain) throws IOException, ServletException {
-        final HttpServletRequest httpServletRequest = HttpServletRequest.class.cast(servletRequest);
+        final HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         if (exists(httpServletRequest.getRequestURI())) {
             filterChain.doFilter(servletRequest, servletResponse);
         } else {

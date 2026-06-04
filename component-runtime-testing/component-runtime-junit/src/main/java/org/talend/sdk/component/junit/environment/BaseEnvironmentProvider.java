@@ -30,7 +30,7 @@ public abstract class BaseEnvironmentProvider implements EnvironmentProvider {
                 .filter(a -> a.annotationType() == EnvironmentConfigurations.class)
                 .findFirst()
                 .map(config -> {
-                    final EnvironmentConfigurations configurations = EnvironmentConfigurations.class.cast(config);
+                    final EnvironmentConfigurations configurations = (EnvironmentConfigurations) config;
                     return Stream
                             .of(configurations.value())
                             .filter(c -> c.environment().equals(getName())

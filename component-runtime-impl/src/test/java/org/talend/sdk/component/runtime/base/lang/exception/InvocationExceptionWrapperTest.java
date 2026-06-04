@@ -29,9 +29,9 @@ class InvocationExceptionWrapperTest {
     void ensureOriginalIsReplacedToGuaranteeSerializationAccrossClassLoaders() {
         final RuntimeException mapped = InvocationExceptionWrapper
                 .toRuntimeException(new InvocationTargetException(new CustomException("custom for test")));
-        assertTrue(ComponentException.class.isInstance(mapped));
+        assertTrue(mapped instanceof ComponentException);
         assertEquals("(" + CustomException.class.getName() + ") custom for test", mapped.getMessage());
-        assertTrue(ComponentException.class.isInstance(mapped.getCause()));
+        assertTrue(mapped.getCause() instanceof ComponentException);
         assertEquals("(" + AnotherException.class.getName() + ") other", mapped.getCause().getMessage());
     }
 

@@ -42,15 +42,15 @@ public class InvocationExceptionWrapper {
         if (targetException == null) {
             return null;
         }
-        if (ComponentException.class.isInstance(targetException)) {
-            return ComponentException.class.cast(targetException);
+        if (targetException instanceof ComponentException) {
+            return (ComponentException) targetException;
         }
-        if (DiscoverSchemaException.class.isInstance(targetException)) {
-            return DiscoverSchemaException.class.cast(targetException);
+        if (targetException instanceof DiscoverSchemaException) {
+            return (DiscoverSchemaException) targetException;
         }
-        if (RuntimeException.class.isInstance(targetException)
+        if (targetException instanceof RuntimeException
                 && targetException.getClass().getName().startsWith("java.")) {
-            final RuntimeException cast = RuntimeException.class.cast(targetException);
+            final RuntimeException cast = (RuntimeException) targetException;
             if (cast.getCause() == null
                     || (cast.getCause() != null && cast.getCause().getClass().getName().startsWith("java."))) {
                 return cast;

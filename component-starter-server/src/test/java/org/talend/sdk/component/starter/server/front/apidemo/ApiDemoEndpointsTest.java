@@ -151,7 +151,7 @@ class ApiDemoEndpointsTest {
                 .request(APPLICATION_JSON_TYPE)
                 .get(JsonObject.class);
         log.debug("[componentDependencies] {}", result);
-        assertTrue(JsonObject.class.isInstance(result.getJsonObject("dependencies")));
+        assertTrue(result.getJsonObject("dependencies") instanceof JsonObject);
         assertEquals(0, result.getJsonObject("dependencies").size());
     }
 
@@ -164,7 +164,7 @@ class ApiDemoEndpointsTest {
                 .request(APPLICATION_OCTET_STREAM_TYPE)
                 .get(Object.class);
         log.debug("[componentDependency] {}", result);
-        assertTrue(InputStream.class.isInstance(result));
+        assertTrue(result instanceof InputStream);
     }
 
     @Test
@@ -176,7 +176,7 @@ class ApiDemoEndpointsTest {
                 .request(APPLICATION_OCTET_STREAM_TYPE)
                 .get(Object.class);
         log.debug("[componentIcon] {}", result);
-        assertTrue(InputStream.class.isInstance(result));
+        assertTrue(result instanceof InputStream);
     }
 
     @Test
@@ -188,7 +188,7 @@ class ApiDemoEndpointsTest {
                 .request(APPLICATION_OCTET_STREAM_TYPE)
                 .get(Object.class);
         log.debug("[componentIconFamily] {}", result);
-        assertTrue(InputStream.class.isInstance(result));
+        assertTrue(result instanceof InputStream);
     }
 
     @Test

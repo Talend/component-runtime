@@ -58,13 +58,12 @@ public class RecordJsonMapper implements Function<Record, JsonObject> {
 
     private final Singer singer;
 
-    private final RecordService service = RecordService.class
-            .cast(new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
-                    Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
-                    Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
-                    JsonbProvider.provider(), null, null, emptyList(), t -> new RecordBuilderFactoryImpl("kitap"), null)
-                    .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
-                            RecordService.class, null, null));
+    private final RecordService service = (RecordService) new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
+            Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
+            Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
+            JsonbProvider.provider(), null, null, emptyList(), t -> new RecordBuilderFactoryImpl("kitap"), null)
+            .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
+                    RecordService.class, null, null);
 
     @Override
     public JsonObject apply(final Record record) {
@@ -157,7 +156,7 @@ public class RecordJsonMapper implements Function<Record, JsonObject> {
             stack
                     .add((o1, o2) -> factory
                             .createObjectBuilder(o2)
-                            .add(entry.getName(), JsonObject.class.cast(o1))
+                            .add(entry.getName(), (JsonObject) o1)
                             .build());
             return new JsonVisitor(singer, service, factory);
         }

@@ -282,7 +282,7 @@ public class OpenAPIGenerator {
                         case NUMBER:
                             return String.valueOf(defaultValue);
                         case STRING:
-                            return JsonString.class.cast(defaultValue).getString();
+                            return ((JsonString) defaultValue).getString();
                         default:
                             return null;
                     }

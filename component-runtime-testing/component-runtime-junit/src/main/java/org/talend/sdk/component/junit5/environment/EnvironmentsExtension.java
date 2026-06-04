@@ -43,7 +43,7 @@ public class EnvironmentsExtension implements TestTemplateInvocationContextProvi
                 .map(e -> new EnvironmentalContext(e,
                         format
                                 .replace("${displayName}", context.getDisplayName())
-                                .replace("${environment}", DecoratingEnvironmentProvider.class.cast(e).getName()),
+                                .replace("${environment}", ((DecoratingEnvironmentProvider) e).getName()),
                         createComponentExtension(context)));
     }
 

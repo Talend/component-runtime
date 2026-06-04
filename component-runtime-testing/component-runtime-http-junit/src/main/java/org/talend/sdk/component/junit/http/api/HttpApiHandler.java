@@ -69,7 +69,7 @@ public class HttpApiHandler<T extends HttpApiHandler<?>> {
                         .newServerContext(SslProvider.JDK, null, InsecureTrustManagerFactory.INSTANCE,
                                 certificate.certificate(), certificate.privateKey(), null, null, null,
                                 IdentityCipherSuiteFilter.INSTANCE, null, 0, 0);
-                sslContext = JdkSslContext.class.cast(nettyContext).context();
+                sslContext = ((JdkSslContext) nettyContext).context();
             } catch (final SSLException | CertificateException e) {
                 throw new IllegalStateException(e);
             }

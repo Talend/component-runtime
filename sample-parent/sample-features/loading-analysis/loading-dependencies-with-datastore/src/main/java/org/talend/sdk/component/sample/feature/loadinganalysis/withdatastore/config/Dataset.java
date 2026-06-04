@@ -13,22 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.api.configuration.type;
+package org.talend.sdk.component.sample.feature.loadinganalysis.withdatastore.config;
 
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import java.io.Serializable;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import org.talend.sdk.component.api.configuration.type.meta.ConfigurationType;
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.type.DataSet;
+import org.talend.sdk.component.api.configuration.ui.layout.AutoLayout;
 import org.talend.sdk.component.api.meta.Documentation;
 
-@Target(TYPE)
-@Retention(RUNTIME)
-@ConfigurationType("dynamicDependenciesServiceConfiguration")
-@Documentation("Mark a model (complex object) as being the configuration used in services annotated with @DynamicDependencies.")
-public @interface DynamicDependenciesServiceConfiguration {
+import lombok.Data;
 
-    String value() default "default";
+@Data
+@DataSet("dyndepsdse")
+@AutoLayout
+public class Dataset implements Serializable {
+
+    @Option
+    @Documentation("A datastore.")
+    private Datastore dso = new Datastore();
+
 }

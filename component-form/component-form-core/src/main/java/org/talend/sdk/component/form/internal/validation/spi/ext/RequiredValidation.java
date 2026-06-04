@@ -39,7 +39,7 @@ public class RequiredValidation implements ValidationExtension {
                 .filter(it -> it.getValueType() == JsonValue.ValueType.ARRAY)
                 .map(JsonValue::asJsonArray)
                 .filter(arr -> arr.stream().allMatch(it -> it.getValueType() == JsonValue.ValueType.STRING))
-                .map(arr -> arr.stream().map(it -> JsonString.class.cast(it).getString()).collect(toSet()))
+                .map(arr -> arr.stream().map(it -> ((JsonString) it).getString()).collect(toSet()))
                 .map(required -> new Impl(required, model.getValueProvider(), model.toPointer()));
     }
 

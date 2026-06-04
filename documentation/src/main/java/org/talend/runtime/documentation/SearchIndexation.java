@@ -85,9 +85,8 @@ public class SearchIndexation {
         final String latest = args[1];
         log.info("[main] sitemap: {}; latest: {}.", siteMapFile.toString(), latest);
         final String urlMarker = "/component-runtime/";
-        final SiteMap siteMap = SiteMap.class
-                .cast(new SiteMapParser(false /* we index a local file with remote urls */)
-                        .parseSiteMap(siteMapFile.toURI().toURL()));
+        final SiteMap siteMap = (SiteMap) new SiteMapParser(false /* we index a local file with remote urls */)
+                .parseSiteMap(siteMapFile.toURI().toURL());
         final ExecutorService pool = Executors.newFixedThreadPool(Integer.getInteger("talend.algolia.indexation", 256));
         final List<Future<List<JsonObject>>> updates = siteMap.getSiteMapUrls().stream().filter(url -> {
             // filter not indexed pages

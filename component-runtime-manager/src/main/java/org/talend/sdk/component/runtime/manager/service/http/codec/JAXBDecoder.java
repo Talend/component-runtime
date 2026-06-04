@@ -46,7 +46,7 @@ public class JAXBDecoder implements Decoder {
             spf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             spf.setNamespaceAware(true);
             final XMLReader xmlReader = spf.newSAXParser().getXMLReader();
-            final Class key = Class.class.cast(expectedType);
+            final Class key = (Class) expectedType;
             return jaxbContexts
                     .get(key)
                     .createUnmarshaller()

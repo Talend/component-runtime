@@ -40,13 +40,13 @@ public interface FlowsFactory {
         if (meta == null) {
             throw new IllegalArgumentException("meta should not be null");
         }
-        if (PartitionMapperMeta.class.isInstance(meta)) {
+        if (meta instanceof PartitionMapperMeta) {
             return new PartitionMapperFlowsFactory();
         }
-        if (ProcessorMeta.class.isInstance(meta)) {
+        if (meta instanceof ProcessorMeta) {
             return new ProcessorFlowsFactory(meta.getType());
         }
-        if (DriverRunnerMeta.class.isInstance(meta)) {
+        if (meta instanceof DriverRunnerMeta) {
             return new DriverRunnerFlowsFactory();
         }
         throw new IllegalArgumentException("unknown meta type " + meta.getClass().getName());

@@ -272,7 +272,7 @@ public class ComponentManagerService {
                 })
                 .filter(Objects::nonNull)
                 .findFirst()
-                .map(ts -> FileTime.class.cast(ts).toMillis())
+                .map(ts -> ((FileTime) ts).toMillis())
                 .orElse(0L);
         log.debug("[readPluginsTimestamp] Latest: {}.", Instant.ofEpochMilli(last));
         return last;

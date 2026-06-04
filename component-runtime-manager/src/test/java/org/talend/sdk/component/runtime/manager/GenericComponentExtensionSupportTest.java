@@ -100,7 +100,7 @@ class GenericComponentExtensionSupportTest {
                     .orElseThrow(IllegalStateException::new);
             final Input input = mapper.create(); // we bypass a bit the lifecycle cause we know the test component we
                                                  // use
-            final Record next = Record.class.cast(input.next());
+            final Record next = (Record) input.next();
             assertEquals("my-generic", next.getString("plugin"));
             assertEquals("the-first", next.getString("name"));
             assertEquals("a", next.getString("key"));
