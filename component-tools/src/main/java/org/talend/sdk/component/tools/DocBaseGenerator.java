@@ -95,7 +95,7 @@ public abstract class DocBaseGenerator extends BaseTask {
         this.locale = locale;
         this.output = output;
         try {
-            this.log = Log.class.isInstance(log) ? Log.class.cast(log) : new ReflectiveLog(log);
+            this.log = log instanceof Log ? (Log) log : new ReflectiveLog(log);
         } catch (final NoSuchMethodException e) {
             throw new IllegalArgumentException(e);
         }
@@ -570,8 +570,8 @@ public abstract class DocBaseGenerator extends BaseTask {
                             .orElse(null);
                 case ARRAY:
                     return String
-                            .valueOf(Collection.class.isInstance(instance.getValue())
-                                    ? Collection.class.cast(instance.getValue()).size()
+                            .valueOf(instance.getValue() instanceof Collection
+                                    ? ((Collection) instance.getValue()).size()
                                     : Array.getLength(instance.getValue()));
                 case OBJECT:
                 default:

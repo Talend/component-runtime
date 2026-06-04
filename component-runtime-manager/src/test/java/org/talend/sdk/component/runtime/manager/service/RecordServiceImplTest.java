@@ -52,13 +52,12 @@ class RecordServiceImplTest {
 
     private final RecordBuilderFactory factory = new RecordBuilderFactoryImpl(null);
 
-    private final RecordService service = RecordService.class
-            .cast(new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
-                    Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
-                    Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
-                    JsonbProvider.provider(), null, null, emptyList(), t -> factory, null)
-                    .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
-                            RecordService.class, null, null));
+    private final RecordService service = (RecordService) new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
+            Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
+            Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
+            JsonbProvider.provider(), null, null, emptyList(), t -> factory, null)
+            .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
+                    RecordService.class, null, null);
 
     private final Schema address = factory
             .newSchemaBuilder(RECORD)
@@ -104,18 +103,16 @@ class RecordServiceImplTest {
         final AtomicInteger out = new AtomicInteger();
         assertEquals(3,
                 service
-                        .visit(RecordVisitor.class
-                                .cast(Proxy
+                        .visit((RecordVisitor) Proxy
                                         .newProxyInstance(Thread.currentThread().getContextClassLoader(),
-                                                new Class<?>[] { RecordVisitor.class }, (proxy, method, args) -> {
+                                                new Class<?>[]{RecordVisitor.class}, (proxy, method, args) -> {
                                                     visited
                                                             .add(method.getName() + "/"
                                                                     + (args == null ? "null"
-                                                                            : Stream
-                                                                                    .of(args)
-                                                                                    .filter(it -> !Schema.Entry.class
-                                                                                            .isInstance(it))
-                                                                                    .collect(Collectors.toList())));
+                                                                    : Stream
+                                                                    .of(args)
+                                                                    .filter(it -> !(it instanceof Schema.Entry))
+                                                                    .collect(Collectors.toList())));
                                                     switch (method.getName()) {
                                                         case "get":
                                                             return out.incrementAndGet();
@@ -128,7 +125,7 @@ class RecordServiceImplTest {
                                                             return method.getReturnType() == RecordVisitor.class ? proxy
                                                                     : null;
                                                     }
-                                                })),
+                                                }),
                                 baseRecord));
         assertEquals(asList("onString/[Optional[Test]]", "onInt/[OptionalInt[33]]",
                 "onRecord/[Optional[{\"street\":\"here\",\"number\":1}]]", "onString/[Optional[here]]",

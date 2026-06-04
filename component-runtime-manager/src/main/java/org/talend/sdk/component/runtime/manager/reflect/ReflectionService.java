@@ -111,10 +111,10 @@ public class ReflectionService {
                 Stream.of(executable.getParameters()).map(parameter -> {
                     final String name = parameterModelService.findName(parameter, parameter.getName());
                     final Type parameterizedType = parameter.getParameterizedType();
-                    if (Class.class.isInstance(parameterizedType)) {
+                    if (parameterizedType instanceof Class) {
                         if (parameter.isAnnotationPresent(Configuration.class)) {
                             try {
-                                final Class configClass = Class.class.cast(parameterizedType);
+                                final Class configClass = (Class) parameterizedType;
                                 return createConfigFactory(precomputed, loader, contextualSupplier, parameter.getName(),
                                         parameter.getAnnotation(Configuration.class), parameter.getAnnotations(),
                                         configClass);
@@ -124,8 +124,8 @@ public class ReflectionService {
                         }
                         final Object value = precomputed.get(parameterizedType);
                         if (value != null) {
-                            if (Copiable.class.isInstance(value)) {
-                                final Copiable copiable = Copiable.class.cast(value);
+                            if (value instanceof Copiable) {
+                                final Copiable copiable = (Copiable) value;
                                 return (Function<Map<String, String>, Object>) config -> copiable.copy(value);
                             }
                             return (Function<Map<String, String>, Object>) config -> value;
@@ -133,20 +133,20 @@ public class ReflectionService {
                         final BiFunction<String, Map<String, Object>, Object> objectFactory = createObjectFactory(
                                 loader, contextualSupplier, parameterizedType, translate(metas, name), precomputed);
                         return (Function<Map<String, String>, Object>) config -> objectFactory
-                                .apply(name, Map.class.cast(config));
+                                .apply(name, (Map) config);
                     }
 
-                    if (ParameterizedType.class.isInstance(parameterizedType)) {
-                        final ParameterizedType pt = ParameterizedType.class.cast(parameterizedType);
-                        if (Class.class.isInstance(pt.getRawType())) {
-                            if (Collection.class.isAssignableFrom(Class.class.cast(pt.getRawType()))) {
-                                final Class<?> collectionType = Class.class.cast(pt.getRawType());
+                    if (parameterizedType instanceof ParameterizedType) {
+                        final ParameterizedType pt = (ParameterizedType) parameterizedType;
+                        if (pt.getRawType() instanceof Class) {
+                            if (Collection.class.isAssignableFrom((Class) pt.getRawType())) {
+                                final Class<?> collectionType = (Class) pt.getRawType();
                                 final Type itemType = pt.getActualTypeArguments()[0];
-                                if (!Class.class.isInstance(itemType)) {
+                                if (!(itemType instanceof Class)) {
                                     throw new IllegalArgumentException(
                                             "For now we only support Collection<T> with T a Class<?>");
                                 }
-                                final Class<?> itemClass = Class.class.cast(itemType);
+                                final Class<?> itemClass = (Class) itemType;
 
                                 // if we have services matching this type then we return the collection of
                                 // services, otherwise
@@ -179,18 +179,18 @@ public class ReflectionService {
                                         loader, contextualSupplier, itemClass, parameterMetas, precomputed);
                                 return (Function<Map<String, String>, Object>) config -> createList(loader,
                                         contextualSupplier, name, collectionType, itemClass, collector, itemFactory,
-                                        Map.class.cast(config), parameterMetas, precomputed);
+                                        (Map) config, parameterMetas, precomputed);
                             }
-                            if (Map.class.isAssignableFrom(Class.class.cast(pt.getRawType()))) {
-                                final Class<?> mapType = Class.class.cast(pt.getRawType());
+                            if (Map.class.isAssignableFrom((Class) pt.getRawType())) {
+                                final Class<?> mapType = (Class) pt.getRawType();
                                 final Type keyItemType = pt.getActualTypeArguments()[0];
                                 final Type valueItemType = pt.getActualTypeArguments()[1];
-                                if (!Class.class.isInstance(keyItemType) || !Class.class.isInstance(valueItemType)) {
+                                if (!(keyItemType instanceof Class) || !(valueItemType instanceof Class)) {
                                     throw new IllegalArgumentException(
                                             "For now we only support Map<A, B> with A and B a Class<?>");
                                 }
-                                final Class<?> keyItemClass = Class.class.cast(keyItemType);
-                                final Class<?> valueItemClass = Class.class.cast(valueItemType);
+                                final Class<?> keyItemClass = (Class) keyItemType;
+                                final Class<?> valueItemClass = (Class) valueItemType;
                                 final List<ParameterMeta> parameterMetas = translate(metas, name);
                                 final BiFunction<String, Map<String, Object>, Object> keyItemFactory =
                                         createObjectFactory(loader, contextualSupplier, keyItemClass, parameterMetas,
@@ -201,7 +201,7 @@ public class ReflectionService {
                                 final Collector collector =
                                         createMapCollector(mapType, keyItemClass, valueItemClass, precomputed);
                                 return (Function<Map<String, String>, Object>) config -> createMap(name, mapType,
-                                        keyItemFactory, valueItemFactory, collector, Map.class.cast(config));
+                                        keyItemFactory, valueItemFactory, collector, (Map) config);
                             }
                         }
                     }
@@ -242,7 +242,7 @@ public class ReflectionService {
             final Configuration configuration, final Annotation[] allAnnotations, final Class<?> configClass)
             throws NoSuchMethodException {
         final Constructor constructor = configClass.getConstructor();
-        final LocalConfiguration config = LocalConfiguration.class.cast(precomputed.get(LocalConfiguration.class));
+        final LocalConfiguration config = (LocalConfiguration) precomputed.get(LocalConfiguration.class);
         if (config == null) {
             return c -> null;
         }
@@ -304,8 +304,7 @@ public class ReflectionService {
             final List<ParameterMeta> metas, final Map<Class<?>, Object> precomputed) {
         final Object obj = config.get(name);
         if (collectionType.isInstance(obj)) {
-            return Collection.class
-                    .cast(obj)
+            return ((Collection) obj)
                     .stream()
                     .map(o -> doConvert(itemClass, o, precomputed))
                     .collect(collector);
@@ -354,7 +353,7 @@ public class ReflectionService {
             final Map<String, Object> config) {
         final Object obj = config.get(name);
         if (mapType.isInstance(obj)) {
-            return Map.class.cast(obj).entrySet().stream().collect(collector);
+            return ((Map) obj).entrySet().stream().collect(collector);
         }
 
         // try to build it from the properties
@@ -383,7 +382,7 @@ public class ReflectionService {
     private BiFunction<String, Map<String, Object>, Object> createObjectFactory(final ClassLoader loader,
             final Function<Supplier<Object>, Object> contextualSupplier, final Type type,
             final List<ParameterMeta> metas, final Map<Class<?>, Object> precomputed) {
-        final Class clazz = Class.class.cast(type);
+        final Class clazz = (Class) type;
         if (clazz.isPrimitive() || Primitives.unwrap(clazz) != clazz || String.class == clazz) {
             return (name, config) -> doConvert(clazz, config.get(name), precomputed);
         }
@@ -406,7 +405,7 @@ public class ReflectionService {
                 .of(clazz.getConstructors())
                 .filter(c -> c.isAnnotationPresent(ConstructorProperties.class))
                 .findFirst()
-                .map(c -> ConstructorProperties.class.cast(c.getAnnotation(ConstructorProperties.class)).value())
+                .map(c -> ((ConstructorProperties) c.getAnnotation(ConstructorProperties.class)).value())
                 .orElse(null);
     }
 
@@ -425,19 +424,19 @@ public class ReflectionService {
             final Class clazz, final String[] args, final String name, final Map<String, Object> config,
             final List<ParameterMeta> metas, final Map<Class<?>, Object> precomputed) {
         final Object potentialJsonValue = config.get(name);
-        if (JsonObject.class == clazz && String.class.isInstance(potentialJsonValue)) {
+        if (JsonObject.class == clazz && potentialJsonValue instanceof String) {
             return createJsonValue(potentialJsonValue, precomputed, Json::createReader).asJsonObject();
         }
         if (propertyEditorRegistry.findConverter(clazz) != null && Schema.class.isAssignableFrom(clazz)) {
             final Object configValue = config.get(name);
-            if (String.class.isInstance(configValue)) {
-                return propertyEditorRegistry.getValue(clazz, String.class.cast(configValue));
+            if (configValue instanceof String) {
+                return propertyEditorRegistry.getValue(clazz, (String) configValue);
             }
         }
         if (propertyEditorRegistry.findConverter(clazz) != null && config.size() == 1) {
             final Object configValue = config.values().iterator().next();
-            if (String.class.isInstance(configValue)) {
-                return propertyEditorRegistry.getValue(clazz, String.class.cast(configValue));
+            if (configValue instanceof String) {
+                return propertyEditorRegistry.getValue(clazz, (String) configValue);
             }
         }
 
@@ -486,13 +485,13 @@ public class ReflectionService {
                             .getGenericType();
             final ParameterizedType pt = validateObject(clazz, enclosingName, genericType);
 
-            final Class<?> keyType = Class.class.cast(pt.getActualTypeArguments()[0]);
-            final Class<?> valueType = Class.class.cast(pt.getActualTypeArguments()[1]);
+            final Class<?> keyType = (Class) pt.getActualTypeArguments()[0];
+            final Class<?> valueType = (Class) pt.getActualTypeArguments()[1];
             preparedMaps
                     .put(enclosingName, createMap(prefix + enclosingName, Map.class,
                             createObjectFactory(loader, contextualSupplier, keyType, metas, precomputed),
                             createObjectFactory(loader, contextualSupplier, valueType, metas, precomputed),
-                            createMapCollector(Class.class.cast(pt.getRawType()), keyType, valueType, precomputed),
+                            createMapCollector((Class) pt.getRawType(), keyType, valueType, precomputed),
                             new HashMap<>(mapEntries)));
         }
 
@@ -520,16 +519,15 @@ public class ReflectionService {
             }
 
             final Type genericType = findField(normalizeName(enclosingName, metas), clazz).getGenericType();
-            if (Class.class.isInstance(genericType)) {
-                final Class<?> arrayClass = Class.class.cast(genericType);
+            if (genericType instanceof Class) {
+                final Class<?> arrayClass = (Class) genericType;
                 if (arrayClass.isArray()) {
                     // we could use Array.newInstance but for now use the list, shouldn't impact
                     // much the perf
-                    final Collection<?> list = Collection.class
-                            .cast(createList(loader, contextualSupplier, prefix + enclosingName, List.class,
-                                    arrayClass.getComponentType(), toList(), createObjectFactory(loader,
-                                            contextualSupplier, arrayClass.getComponentType(), metas, precomputed),
-                                    new HashMap<>(listEntries), metas, precomputed));
+                    final Collection<?> list = (Collection) createList(loader, contextualSupplier, prefix + enclosingName, List.class,
+                            arrayClass.getComponentType(), toList(), createObjectFactory(loader,
+                                    contextualSupplier, arrayClass.getComponentType(), metas, precomputed),
+                            new HashMap<>(listEntries), metas, precomputed);
 
                     // we need that conversion to ensure the type matches
                     final Object array = Array.newInstance(arrayClass.getComponentType(), list.size());
@@ -548,7 +546,7 @@ public class ReflectionService {
             preparedLists
                     .put(enclosingName,
                             createList(loader, contextualSupplier, prefix + enclosingName,
-                                    Class.class.cast(pt.getRawType()), Class.class.cast(itemType), toList(),
+                                    (Class) pt.getRawType(), (Class) itemType, toList(),
                                     createObjectFactory(loader, contextualSupplier, itemType, metas, precomputed),
                                     new HashMap<>(listEntries), metas, precomputed));
         }
@@ -592,10 +590,10 @@ public class ReflectionService {
                 if (idxStart > 0) {
                     final String listName = nestedName.substring(0, idxStart);
                     final Field field = findField(normalizeName(listName, metas), clazz);
-                    if (ParameterizedType.class.isInstance(field.getGenericType())) {
-                        final ParameterizedType pt = ParameterizedType.class.cast(field.getGenericType());
-                        if (Class.class.isInstance(pt.getRawType())) {
-                            final Class<?> rawType = Class.class.cast(pt.getRawType());
+                    if (field.getGenericType() instanceof ParameterizedType) {
+                        final ParameterizedType pt = (ParameterizedType) field.getGenericType();
+                        if (pt.getRawType() instanceof Class) {
+                            final Class<?> rawType = (Class) pt.getRawType();
                             if (Set.class.isAssignableFrom(rawType)) {
                                 addListElement(loader, contextualSupplier, config, prefix, preparedObjects, nestedName,
                                         listName, pt, () -> new HashSet<>(2), translate(metas, listName), precomputed);
@@ -666,12 +664,12 @@ public class ReflectionService {
 
     private ParameterizedType validateCollection(final Class clazz, final String enclosingName,
             final Type genericType) {
-        if (!ParameterizedType.class.isInstance(genericType)) {
+        if (!(genericType instanceof ParameterizedType)) {
             throw new IllegalArgumentException(
                     clazz + "#" + enclosingName + " should be a generic collection and not a " + genericType);
         }
-        final ParameterizedType pt = ParameterizedType.class.cast(genericType);
-        if (pt.getActualTypeArguments().length != 1 || !Class.class.isInstance(pt.getActualTypeArguments()[0])) {
+        final ParameterizedType pt = (ParameterizedType) genericType;
+        if (pt.getActualTypeArguments().length != 1 || !(pt.getActualTypeArguments()[0] instanceof Class)) {
             throw new IllegalArgumentException(clazz + "#" + enclosingName
                     + " should use concrete class items and not a " + pt.getActualTypeArguments()[0]);
         }
@@ -679,13 +677,13 @@ public class ReflectionService {
     }
 
     private ParameterizedType validateObject(final Class clazz, final String enclosingName, final Type genericType) {
-        if (!ParameterizedType.class.isInstance(genericType)) {
+        if (!(genericType instanceof ParameterizedType)) {
             throw new IllegalArgumentException(
                     clazz + "#" + enclosingName + " should be a generic map and not a " + genericType);
         }
-        final ParameterizedType pt = ParameterizedType.class.cast(genericType);
-        if (pt.getActualTypeArguments().length != 2 || !Class.class.isInstance(pt.getActualTypeArguments()[0])
-                || !Class.class.isInstance(pt.getActualTypeArguments()[1])) {
+        final ParameterizedType pt = (ParameterizedType) genericType;
+        if (pt.getActualTypeArguments().length != 2 || !(pt.getActualTypeArguments()[0] instanceof Class)
+                || !(pt.getActualTypeArguments()[1] instanceof Class)) {
             throw new IllegalArgumentException(clazz + "#" + enclosingName
                     + " should be a generic map with a key and value class type (" + pt + ")");
         }
@@ -743,8 +741,8 @@ public class ReflectionService {
             final List<ParameterMeta> metas, final Map<Class<?>, Object> precomputed) {
         // CHECKSTYLE:ON
         final Collection<Object> aggregator =
-                Collection.class.cast(preparedObjects.computeIfAbsent(listName, k -> init.get()));
-        final Class<?> itemType = Class.class.cast(pt.getActualTypeArguments()[0]);
+                (Collection) preparedObjects.computeIfAbsent(listName, k -> init.get());
+        final Class<?> itemType = (Class) pt.getActualTypeArguments()[0];
         final int index = parseIndex(nestedName.substring(listName.length() + 1, nestedName.length() - 1));
         final int maxSize = getArrayMaxLength(prefix + listName, config);
         if (aggregator.size() <= index && index < maxSize) {
@@ -932,8 +930,8 @@ public class ReflectionService {
                 if (min != null) {
                     final double bound = Double.parseDouble(min);
                     if (value.getValueType() == JsonValue.ValueType.NUMBER
-                            && JsonNumber.class.cast(value).doubleValue() < bound) {
-                        errors.add(MESSAGES.min(meta.getPath(), bound, JsonNumber.class.cast(value).doubleValue()));
+                            && ((JsonNumber) value).doubleValue() < bound) {
+                        errors.add(MESSAGES.min(meta.getPath(), bound, ((JsonNumber) value).doubleValue()));
                     }
                 }
             }
@@ -942,8 +940,8 @@ public class ReflectionService {
                 if (max != null) {
                     final double bound = Double.parseDouble(max);
                     if (value.getValueType() == JsonValue.ValueType.NUMBER
-                            && JsonNumber.class.cast(value).doubleValue() > bound) {
-                        errors.add(MESSAGES.max(meta.getPath(), bound, JsonNumber.class.cast(value).doubleValue()));
+                            && ((JsonNumber) value).doubleValue() > bound) {
+                        errors.add(MESSAGES.max(meta.getPath(), bound, ((JsonNumber) value).doubleValue()));
                     }
                 }
             }
@@ -952,7 +950,7 @@ public class ReflectionService {
                 if (min != null) {
                     final double bound = Double.parseDouble(min);
                     if (value.getValueType() == JsonValue.ValueType.STRING) {
-                        final String val = JsonString.class.cast(value).getString();
+                        final String val = ((JsonString) value).getString();
                         if (val.length() < bound) {
                             errors.add(MESSAGES.minLength(meta.getPath(), bound, val.length()));
                         }
@@ -964,7 +962,7 @@ public class ReflectionService {
                 if (max != null) {
                     final double bound = Double.parseDouble(max);
                     if (value.getValueType() == JsonValue.ValueType.STRING) {
-                        final String val = JsonString.class.cast(value).getString();
+                        final String val = ((JsonString) value).getString();
                         if (val.length() > bound) {
                             errors.add(MESSAGES.maxLength(meta.getPath(), bound, val.length()));
                         }
@@ -1003,8 +1001,8 @@ public class ReflectionService {
             {
                 final String pattern = metadata.get("tcomp::validation::pattern");
                 if (pattern != null && value.getValueType() == JsonValue.ValueType.STRING) {
-                    final String val = JsonString.class.cast(value).getString();
-                    if (!new JavascriptRegex(pattern).test(CharSequence.class.cast(val))) {
+                    final String val = ((JsonString) value).getString();
+                    if (!new JavascriptRegex(pattern).test((CharSequence) val)) {
                         errors.add(MESSAGES.pattern(meta.getPath(), pattern));
                     }
                 }

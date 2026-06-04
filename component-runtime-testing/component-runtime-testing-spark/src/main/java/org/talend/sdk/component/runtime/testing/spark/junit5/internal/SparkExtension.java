@@ -47,8 +47,7 @@ public class SparkExtension extends BaseSpark<SparkExtension>
     @Override
     public void beforeAll(final ExtensionContext extensionContext) throws Exception {
         temporaryFolderExtension.beforeAll(extensionContext);
-        root = TemporaryFolder.class
-                .cast(temporaryFolderExtension.findInstance(extensionContext, TemporaryFolder.class))
+        root = ((TemporaryFolder) temporaryFolderExtension.findInstance(extensionContext, TemporaryFolder.class))
                 .getRoot();
 
         final ExtensionContext.Store store = extensionContext.getStore(NAMESPACE);
@@ -68,11 +67,11 @@ public class SparkExtension extends BaseSpark<SparkExtension>
         final Instances instances = start();
         if (instances.getException() != null) {
             instances.close();
-            if (Exception.class.isInstance(instances.getException())) {
-                throw Exception.class.cast(instances.getException());
+            if (instances.getException() instanceof Exception) {
+                throw (Exception) instances.getException();
             }
-            if (Error.class.isInstance(instances.getException())) {
-                throw Error.class.cast(instances.getException());
+            if (instances.getException() instanceof Error) {
+                throw (Error) instances.getException();
             }
             throw new IllegalStateException(instances.getException());
         }

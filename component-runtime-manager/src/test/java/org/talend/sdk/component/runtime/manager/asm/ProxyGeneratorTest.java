@@ -48,7 +48,7 @@ class ProxyGeneratorTest {
         final Class<?> proxyClass = generator
                 .generateProxy(Thread.currentThread().getContextClassLoader(), Intercepted.class, "test",
                         Intercepted.class.getName());
-        final Intercepted proxy = Intercepted.class.cast(proxyClass.getConstructor().newInstance());
+        final Intercepted proxy = (Intercepted) proxyClass.getConstructor().newInstance();
         generator.initialize(proxy, (method, args) -> "intercepted");
 
         assertEquals("123[4]", proxy.ok(1, "2", "3", singletonList("4")));
@@ -58,7 +58,7 @@ class ProxyGeneratorTest {
     @Test
     void serialization() throws Exception {
         try {
-            assertFalse(Serializable.class.isInstance(new CatService())); // if this fails the whole test is pointless
+            assertFalse(new CatService() instanceof Serializable); // if this fails the whole test is pointless
 
             final ProxyGenerator generator = new ProxyGenerator();
             final Class<?> proxyType = generator
@@ -88,11 +88,11 @@ class ProxyGeneratorTest {
     }
 
     private void assertProxy(final Object proxy) throws Exception {
-        assertTrue(() -> CatService.class.isInstance(proxy));
-        assertEquals("123[4]", CatService.class.cast(proxy).cat(1, "2", "3", singletonList("4")));
+        assertTrue(() -> proxy instanceof CatService);
+        assertEquals("123[4]", ((CatService) proxy).cat(1, "2", "3", singletonList("4")));
         assertEquals(CatService.class.getName() + "$$TalendServiceProxy", proxy.getClass().getName());
 
-        assertTrue(Serializable.class.isInstance(proxy));
+        assertTrue(proxy instanceof Serializable);
         try {
             proxy.getClass().getMethod("writeReplace");
         } catch (final NoSuchMethodException nsm) {

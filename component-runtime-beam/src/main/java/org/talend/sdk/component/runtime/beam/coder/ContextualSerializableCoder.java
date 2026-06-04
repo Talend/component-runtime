@@ -85,7 +85,7 @@ public class ContextualSerializableCoder<T extends Serializable> extends Seriali
     @Override
     public boolean equals(final Object other) {
         return !(other == null || getClass() != other.getClass())
-                && getRecordType() == ContextualSerializableCoder.class.cast(other).getRecordType();
+                && getRecordType() == ((ContextualSerializableCoder) other).getRecordType();
     }
 
     @Override

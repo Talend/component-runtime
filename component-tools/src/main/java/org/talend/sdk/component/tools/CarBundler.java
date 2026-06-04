@@ -58,7 +58,7 @@ public class CarBundler implements Runnable {
     public CarBundler(final Configuration configuration, final Object log) {
         this.configuration = configuration;
         try {
-            this.log = Log.class.isInstance(log) ? Log.class.cast(log) : new ReflectiveLog(log);
+            this.log = log instanceof Log ? (Log) log : new ReflectiveLog(log);
         } catch (final NoSuchMethodException e) {
             throw new IllegalArgumentException(e);
         }

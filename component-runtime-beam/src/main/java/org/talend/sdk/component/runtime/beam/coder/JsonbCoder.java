@@ -71,7 +71,7 @@ public class JsonbCoder<T> extends CustomCoder<T> {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final JsonbCoder<?> that = JsonbCoder.class.cast(o);
+        final JsonbCoder<?> that = (JsonbCoder) o;
         return Objects.equals(type, that.type) && (jsonb != null && that.jsonb != null);
     }
 

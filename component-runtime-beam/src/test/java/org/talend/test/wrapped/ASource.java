@@ -75,7 +75,7 @@ public class ASource extends BoundedSource<JsonObject> {
     }
 
     private static void assertClassLoader() {
-        assertTrue(ConfigurableClassLoader.class.isInstance(Thread.currentThread().getContextClassLoader()));
+        assertTrue(Thread.currentThread().getContextClassLoader() instanceof ConfigurableClassLoader);
     }
 
     @Data

@@ -395,7 +395,7 @@ public class StaticResourceGenerator implements Runnable {
             final Map<String, String> requestHeaders, final Map<String, String> responseHeaders, final int status,
             final Function<Class<?>, Object> responseProvider, final Jsonb jsonb) {
         return new Route(id, status, path, queries, requestHeaders, responseHeaders,
-                status == 200 ? byte[].class.cast(responseProvider.apply(byte[].class))
+                status == 200 ? (byte[]) responseProvider.apply(byte[].class)
                         : jsonb.toJson(responseProvider.apply(ErrorPayload.class)).getBytes(StandardCharsets.UTF_8));
     }
 

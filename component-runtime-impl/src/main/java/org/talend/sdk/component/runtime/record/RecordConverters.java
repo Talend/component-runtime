@@ -68,11 +68,11 @@ public class RecordConverters implements Serializable {
         if (data == null) {
             return null;
         }
-        if (Record.class.isInstance(data)) {
-            return Record.class.cast(data);
+        if (data instanceof Record) {
+            return (Record) data;
         }
-        if (JsonObject.class.isInstance(data)) {
-            return json2Record(recordBuilderProvider.get(), JsonObject.class.cast(data));
+        if (data instanceof JsonObject) {
+            return json2Record(recordBuilderProvider.get(), (JsonObject) data);
         }
 
         final MappingMeta meta = registry.find(data.getClass());
@@ -81,9 +81,9 @@ public class RecordConverters implements Serializable {
         }
 
         final Jsonb jsonb = jsonbProvider.get();
-        if (!String.class.isInstance(data) && !data.getClass().isPrimitive()
-                && PojoJsonbProvider.class.isInstance(jsonb)) {
-            final Jsonb pojoMapper = PojoJsonbProvider.class.cast(jsonb).get();
+        if (!(data instanceof String) && !data.getClass().isPrimitive()
+                && jsonb instanceof PojoJsonbProvider) {
+            final Jsonb pojoMapper = ((PojoJsonbProvider) jsonb).get();
             final OutputRecordHolder holder = new OutputRecordHolder(data);
             try (final OutputRecordHolder stream = holder) {
                 pojoMapper.toJson(data, stream);
@@ -125,10 +125,10 @@ public class RecordConverters implements Serializable {
                     builder.withBoolean(key, JsonValue.TRUE.equals(value));
                     break;
                 case STRING:
-                    builder.withString(key, JsonString.class.cast(value).getString());
+                    builder.withString(key, ((JsonString) value).getString());
                     break;
                 case NUMBER:
-                    final JsonNumber number = JsonNumber.class.cast(value);
+                    final JsonNumber number = (JsonNumber) value;
                     builder.withDouble(key, number.doubleValue());
                     break;
                 case NULL:
@@ -172,17 +172,17 @@ public class RecordConverters implements Serializable {
     }
 
     private Object mapJson(final RecordBuilderFactory factory, final JsonValue it) {
-        if (JsonObject.class.isInstance(it)) {
-            return json2Record(factory, JsonObject.class.cast(it));
+        if (it instanceof JsonObject) {
+            return json2Record(factory, (JsonObject) it);
         }
-        if (JsonArray.class.isInstance(it)) {
-            return JsonArray.class.cast(it).stream().map(i -> mapJson(factory, i)).collect(toList());
+        if (it instanceof JsonArray) {
+            return ((JsonArray) it).stream().map(i -> mapJson(factory, i)).collect(toList());
         }
-        if (JsonString.class.isInstance(it)) {
-            return JsonString.class.cast(it).getString();
+        if (it instanceof JsonString) {
+            return ((JsonString) it).getString();
         }
-        if (JsonNumber.class.isInstance(it)) {
-            return JsonNumber.class.cast(it).numberValue();
+        if (it instanceof JsonNumber) {
+            return ((JsonNumber) it).numberValue();
         }
         if (JsonValue.FALSE.equals(it)) {
             return false;
@@ -197,38 +197,38 @@ public class RecordConverters implements Serializable {
     }
 
     public static Schema toSchema(final RecordBuilderFactory factory, final Object next) {
-        if (String.class.isInstance(next) || JsonString.class.isInstance(next)) {
+        if (next instanceof String || next instanceof JsonString) {
             return factory.newSchemaBuilder(Schema.Type.STRING).build();
         }
-        if (Integer.class.isInstance(next)) {
+        if (next instanceof Integer) {
             return factory.newSchemaBuilder(Schema.Type.INT).build();
         }
-        if (Long.class.isInstance(next) || JsonLongImpl.class.isInstance(next)) {
+        if (next instanceof Long || next instanceof JsonLongImpl) {
             return factory.newSchemaBuilder(Schema.Type.LONG).build();
         }
-        if (Float.class.isInstance(next)) {
+        if (next instanceof Float) {
             return factory.newSchemaBuilder(Schema.Type.FLOAT).build();
         }
-        if (JsonNumber.class.isInstance(next)) {
+        if (next instanceof JsonNumber) {
             return factory.newSchemaBuilder(Schema.Type.DOUBLE).build();
         }
-        if (Double.class.isInstance(next) || JsonNumber.class.isInstance(next)) {
+        if (next instanceof Double || next instanceof JsonNumber) {
             return factory.newSchemaBuilder(Schema.Type.DOUBLE).build();
         }
-        if (Boolean.class.isInstance(next) || JsonValue.TRUE.equals(next) || JsonValue.FALSE.equals(next)) {
+        if (next instanceof Boolean || JsonValue.TRUE.equals(next) || JsonValue.FALSE.equals(next)) {
             return factory.newSchemaBuilder(Schema.Type.BOOLEAN).build();
         }
-        if (Date.class.isInstance(next) || ZonedDateTime.class.isInstance(next) || Instant.class.isInstance(next)) {
+        if (next instanceof Date || next instanceof ZonedDateTime || next instanceof Instant) {
             return factory.newSchemaBuilder(Schema.Type.DATETIME).build();
         }
-        if (BigDecimal.class.isInstance(next)) {
+        if (next instanceof BigDecimal) {
             return factory.newSchemaBuilder(Schema.Type.DECIMAL).build();
         }
-        if (byte[].class.isInstance(next)) {
+        if (next instanceof byte[]) {
             return factory.newSchemaBuilder(Schema.Type.BYTES).build();
         }
-        if (Collection.class.isInstance(next) || JsonArray.class.isInstance(next)) {
-            final Collection collection = Collection.class.cast(next);
+        if (next instanceof Collection || next instanceof JsonArray) {
+            final Collection collection = (Collection) next;
             if (collection.isEmpty()) {
                 return factory.newSchemaBuilder(Schema.Type.STRING).build();
             }
@@ -237,8 +237,8 @@ public class RecordConverters implements Serializable {
                     .withElementSchema(toSchema(factory, collection.iterator().next()))
                     .build();
         }
-        if (Record.class.isInstance(next)) {
-            return Record.class.cast(next).getSchema();
+        if (next instanceof Record) {
+            return ((Record) next).getSchema();
         }
         throw new IllegalArgumentException("unsupported type for " + next);
     }
@@ -259,13 +259,13 @@ public class RecordConverters implements Serializable {
         }
 
         final JsonObject inputAsJson;
-        if (JsonObject.class.isInstance(data)) {
+        if (data instanceof JsonObject) {
             if (JsonObject.class == parameterType) {
                 return data;
             }
-            inputAsJson = JsonObject.class.cast(data);
-        } else if (Record.class.isInstance(data)) {
-            final Record record = Record.class.cast(data);
+            inputAsJson = (JsonObject) data;
+        } else if (data instanceof Record) {
+            final Record record = (Record) data;
             if (!JsonObject.class.isAssignableFrom(parameterType)) {
                 final MappingMeta mappingMeta = registry.find(parameterType);
                 if (mappingMeta.isLinearMapping()) {
@@ -378,48 +378,48 @@ public class RecordConverters implements Serializable {
                         builder.add(name, factory.createArrayBuilder().build());
                     } else { // only homogeneous collections
                         final Object item = collection.iterator().next();
-                        if (String.class.isInstance(item)) {
+                        if (item instanceof String) {
                             final JsonProvider jsonProvider = providerSupplier.get();
                             builder.add(name,
-                                    toArray(factory, v -> jsonProvider.createValue(String.class.cast(v)), collection));
-                        } else if (Double.class.isInstance(item)) {
+                                    toArray(factory, v -> jsonProvider.createValue((String) v), collection));
+                        } else if (item instanceof Double) {
                             final JsonProvider jsonProvider = providerSupplier.get();
                             builder.add(name,
-                                    toArray(factory, v -> jsonProvider.createValue(Double.class.cast(v)), collection));
-                        } else if (Float.class.isInstance(item)) {
+                                    toArray(factory, v -> jsonProvider.createValue((Double) v), collection));
+                        } else if (item instanceof Float) {
                             final JsonProvider jsonProvider = providerSupplier.get();
                             builder.add(name,
-                                    toArray(factory, v -> jsonProvider.createValue(Float.class.cast(v)), collection));
-                        } else if (Integer.class.isInstance(item)) {
+                                    toArray(factory, v -> jsonProvider.createValue((Float) v), collection));
+                        } else if (item instanceof Integer) {
                             final JsonProvider jsonProvider = providerSupplier.get();
                             builder.add(name,
-                                    toArray(factory, v -> jsonProvider.createValue(Integer.class.cast(v)), collection));
-                        } else if (Long.class.isInstance(item)) {
+                                    toArray(factory, v -> jsonProvider.createValue((Integer) v), collection));
+                        } else if (item instanceof Long) {
                             final JsonProvider jsonProvider = providerSupplier.get();
                             builder.add(name,
-                                    toArray(factory, v -> jsonProvider.createValue(Long.class.cast(v)), collection));
-                        } else if (Boolean.class.isInstance(item)) {
+                                    toArray(factory, v -> jsonProvider.createValue((Long) v), collection));
+                        } else if (item instanceof Boolean) {
                             builder.add(name, toArray(factory,
-                                    v -> Boolean.class.cast(v) ? JsonValue.TRUE : JsonValue.FALSE, collection));
-                        } else if (ZonedDateTime.class.isInstance(item)) {
+                                    v -> (Boolean) v ? JsonValue.TRUE : JsonValue.FALSE, collection));
+                        } else if (item instanceof ZonedDateTime) {
                             final JsonProvider jsonProvider = providerSupplier.get();
                             builder.add(name,
                                     toArray(factory,
                                             v -> jsonProvider.createValue(
-                                                    ZonedDateTime.class.cast(v).toInstant().toEpochMilli()),
+                                                    ((ZonedDateTime) v).toInstant().toEpochMilli()),
                                             collection));
-                        } else if (Date.class.isInstance(item)) {
+                        } else if (item instanceof Date) {
                             final JsonProvider jsonProvider = providerSupplier.get();
                             builder.add(name,
                                     toArray(factory,
-                                            v -> jsonProvider.createValue(Date.class.cast(v).getTime()),
+                                            v -> jsonProvider.createValue(((Date) v).getTime()),
                                             collection));
-                        } else if (Record.class.isInstance(item)) {
+                        } else if (item instanceof Record) {
                             builder.add(name,
                                     toArray(factory,
-                                            v -> buildRecord(factory, providerSupplier, Record.class.cast(v)).build(),
+                                            v -> buildRecord(factory, providerSupplier, (Record) v).build(),
                                             collection));
-                        } else if (JsonValue.class.isInstance(item)) {
+                        } else if (item instanceof JsonValue) {
                             builder.add(name, toArray(factory, JsonValue.class::cast, collection));
                         } // else throw?
                     }
@@ -518,7 +518,7 @@ public class RecordConverters implements Serializable {
                 }
             }
             try {
-                return Record.class.cast(visitRowStruct.invoke(rowStructVisitor, data, factory));
+                return (Record) visitRowStruct.invoke(rowStructVisitor, data, factory);
             } catch (final IllegalAccessException | InvocationTargetException e) {
                 throw new IllegalStateException(e);
             }

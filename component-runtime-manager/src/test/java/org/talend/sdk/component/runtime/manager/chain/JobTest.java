@@ -127,7 +127,7 @@ class JobTest {
                     .run();
 
             final LocalPartitionMapper mapper =
-                    LocalPartitionMapper.class.cast(manager.findMapper("lifecycle", "countdown", 1, emptyMap()).get());
+                    (LocalPartitionMapper) manager.findMapper("lifecycle", "countdown", 1, emptyMap()).get();
 
             assertEquals(asList("start", "produce(1)", "produce(0)", "produce(null)", "stop"),
                     ((Supplier<List<String>>) mapper.getDelegate()).get());
@@ -158,7 +158,7 @@ class JobTest {
                     .property("streaming.maxRecords", "2")
                     .run();
             final LocalPartitionMapper mapper =
-                    LocalPartitionMapper.class.cast(manager.findMapper("lifecycle", "countdown", 1, emptyMap()).get());
+                    (LocalPartitionMapper) manager.findMapper("lifecycle", "countdown", 1, emptyMap()).get();
             assertEquals(asList("start", "produce(4)", "produce(3)", "stop"),
                     ((Supplier<List<String>>) mapper.getDelegate()).get());
         }

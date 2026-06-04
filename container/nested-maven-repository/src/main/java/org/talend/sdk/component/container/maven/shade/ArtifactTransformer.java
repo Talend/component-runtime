@@ -98,10 +98,10 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
             final ProjectBuilder projectBuilder;
             final PlexusContainer container = session.getContainer();
             try {
-                resolver = ArtifactResolver.class.cast(container.lookup(ArtifactResolver.class, "default"));
-                projectBuilder = ProjectBuilder.class.cast(container.lookup(ProjectBuilder.class, "default"));
+                resolver = (ArtifactResolver) container.lookup(ArtifactResolver.class, "default");
+                projectBuilder = (ProjectBuilder) container.lookup(ProjectBuilder.class, "default");
                 graphBuilder = includeTransitiveDependencies
-                        ? DependencyGraphBuilder.class.cast(container.lookup(DependencyGraphBuilder.class, "default"))
+                        ? (DependencyGraphBuilder) container.lookup(DependencyGraphBuilder.class, "default")
                         : null;
             } catch (final ComponentLookupException e) {
                 throw new IllegalArgumentException(e);

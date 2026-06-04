@@ -36,7 +36,7 @@ public final class RecordAsserts implements Function<Iterable<Map<String, List<S
 
     public <R extends Serializable> RecordAsserts withAsserts(final String outputName,
             final SerializableConsumer<List<R>> validator) {
-        validators.put(outputName, SerializableConsumer.class.cast(validator));
+        validators.put(outputName, (SerializableConsumer) validator);
         return this;
     }
 

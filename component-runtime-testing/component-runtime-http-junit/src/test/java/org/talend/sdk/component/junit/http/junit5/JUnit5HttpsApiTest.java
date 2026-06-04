@@ -50,7 +50,7 @@ class JUnit5HttpsApiTest {
 
     private Response get() throws Exception {
         final URL url = new URL("https://foo.bar.not.existing.talend.com/component/test?api=true");
-        final HttpsURLConnection connection = HttpsURLConnection.class.cast(url.openConnection());
+        final HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
         connection.setSSLSocketFactory(handler.getSslContext().getSocketFactory());
         connection.setConnectTimeout(300000);
         connection.setReadTimeout(20000);

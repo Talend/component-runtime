@@ -128,10 +128,8 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
                     .map(after -> new AbstractMap.SimpleEntry<>(after, Stream.of(after.getParameters())
                             .map(param -> {
                                 if (isGroupBuffer(param.getParameterizedType())) {
-                                    expectedRecordType = Class.class
-                                            .cast(ParameterizedType.class
-                                                    .cast(param.getParameterizedType())
-                                                    .getActualTypeArguments()[0]);
+                                    expectedRecordType = (Class) ((ParameterizedType) param.getParameterizedType())
+                                            .getActualTypeArguments()[0];
                                     return (Function<OutputFactory, Object>) o -> records;
                                 }
                                 return toOutputParamBuilder(param);
@@ -320,7 +318,7 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
             throws IOException, ClassNotFoundException {
         try (final ObjectInputStream ois = new EnhancedObjectInputStream(new ByteArrayInputStream(value),
                 ContainerFinder.Instance.get().find(plugin).classloader())) {
-            return Serializable.class.cast(ois.readObject());
+            return (Serializable) ois.readObject();
         }
     }
 

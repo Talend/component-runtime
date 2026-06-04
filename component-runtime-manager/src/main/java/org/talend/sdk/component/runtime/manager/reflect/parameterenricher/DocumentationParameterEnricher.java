@@ -35,7 +35,7 @@ public class DocumentationParameterEnricher extends BaseParameterEnricher {
             final Annotation annotation) {
         if (annotation.annotationType() == Documentation.class) {
             HashMap<String, String> parameters = new HashMap<>();
-            Documentation doc = Documentation.class.cast(annotation);
+            Documentation doc = (Documentation) annotation;
             parameters.put(VALUE, doc.value());
             if (doc.tooltip()) {
                 parameters.put(TOOLTIP, "true");

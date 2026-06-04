@@ -153,8 +153,8 @@ public class VaultClient {
     private Pattern compiledPassthroughRegex;
 
     private final Predicate<Throwable> shouldRetry = cause -> {
-        if (WebApplicationException.class.isInstance(cause)) {
-            final WebApplicationException wae = WebApplicationException.class.cast(cause);
+        if (cause instanceof WebApplicationException) {
+            final WebApplicationException wae = (WebApplicationException) cause;
             final int status = wae.getResponse().getStatus();
             if (Status.NOT_FOUND.getStatusCode() == status || status >= 500) {
                 return false;
@@ -330,11 +330,11 @@ public class VaultClient {
                                 final Throwable cause = e.getCause();
                                 String message = "";
                                 int status = cantDecipherStatusCode;
-                                if (WebApplicationException.class.isInstance(cause)) {
-                                    final WebApplicationException wae = WebApplicationException.class.cast(cause);
+                                if (cause instanceof WebApplicationException) {
+                                    final WebApplicationException wae = (WebApplicationException) cause;
                                     final Response response = wae.getResponse();
                                     if (response != null) {
-                                        if (ErrorPayload.class.isInstance(response.getEntity())) { // internal error
+                                        if (response.getEntity() instanceof ErrorPayload) { // internal error
                                             throw wae;
                                         } else {
                                             try {
@@ -410,11 +410,11 @@ public class VaultClient {
                 //
                 .exceptionally(e -> {
                     final Throwable cause = e.getCause();
-                    if (WebApplicationException.class.isInstance(cause)) {
-                        final WebApplicationException wae = WebApplicationException.class.cast(cause);
+                    if (cause instanceof WebApplicationException) {
+                        final WebApplicationException wae = (WebApplicationException) cause;
                         final Response response = wae.getResponse();
                         String message = "";
-                        if (ErrorPayload.class.isInstance(wae.getResponse().getEntity())) {
+                        if (wae.getResponse().getEntity() instanceof ErrorPayload) {
                             throw wae; // already logged and setup broken so just rethrow
                         } else {
                             try {
@@ -471,12 +471,12 @@ public class VaultClient {
     private void throwError(final Throwable cause) {
         String message = "";
         int status = cantDecipherStatusCode;
-        if (WebApplicationException.class.isInstance(cause)) {
-            final WebApplicationException wae = WebApplicationException.class.cast(cause);
+        if (cause instanceof WebApplicationException) {
+            final WebApplicationException wae = (WebApplicationException) cause;
             final Response response = wae.getResponse();
             status = response.getStatus();
             if (response != null) {
-                if (ErrorPayload.class.isInstance(response.getEntity())) { // internal error
+                if (response.getEntity() instanceof ErrorPayload) { // internal error
                     throw wae;
                 } else {
                     try {

@@ -175,7 +175,7 @@ class ComponentManagerTest {
             manager.addPlugin(plugin.getAbsolutePath());
             final Mapper mapper =
                     manager.findMapper("config", "injected", 1, emptyMap()).orElseThrow(IllegalStateException::new);
-            final Record next = Record.class.cast(mapper.create().next());
+            final Record next = (Record) mapper.create().next();
             assertEquals(System.getProperty("java.version", "notset-on-jvm"), next.get(String.class, "value"));
         } finally { // clean temp files
             DynamicContainerFinder.SERVICES.clear();
@@ -483,10 +483,10 @@ class ComponentManagerTest {
     private Date doCheckJmx(final MBeanServer mBeanServer) throws Exception {
         final ObjectName name = new ObjectName("org.talend.test:value=plugin1,type=plugin");
         assertTrue(mBeanServer.isRegistered(name));
-        assertFalse(Boolean.class.cast(mBeanServer.getAttribute(name, "closed")));
+        assertFalse((Boolean) mBeanServer.getAttribute(name, "closed"));
         assertTrue(() -> {
             try {
-                return Date.class.isInstance(mBeanServer.getAttribute(name, "created"));
+                return mBeanServer.getAttribute(name, "created") instanceof Date;
             } catch (final MBeanException | AttributeNotFoundException | ReflectionException
                     | InstanceNotFoundException e) {
                 return false;
@@ -494,7 +494,7 @@ class ComponentManagerTest {
         });
         // ensure date is stable until reloading
         assertEquals(mBeanServer.getAttribute(name, "created"), mBeanServer.getAttribute(name, "created"));
-        return Date.class.cast(mBeanServer.getAttribute(name, "created"));
+        return (Date) mBeanServer.getAttribute(name, "created");
     }
 
     private void doCheckRegistry(final File plugin1, final File plugin2, final ComponentManager manager)
@@ -574,7 +574,7 @@ class ComponentManagerTest {
         }
         try (final ObjectInputStream ois =
                 new EnhancedObjectInputStream(new ByteArrayInputStream(baos.toByteArray()), loader)) {
-            return org.talend.sdk.component.runtime.output.Processor.class.cast(ois.readObject());
+            return (Processor) ois.readObject();
         }
     }
 
@@ -611,8 +611,7 @@ class ComponentManagerTest {
             manager.addPlugin(plugin.getAbsolutePath());
             final Container container = manager.getContainer().findAll().stream().findFirst().orElse(null);
             assertNotNull(container);
-            final LocalConfiguration envConf = LocalConfiguration.class
-                    .cast(container.get(AllServices.class).getServices().get(LocalConfiguration.class));
+            final LocalConfiguration envConf = (LocalConfiguration) container.get(AllServices.class).getServices().get(LocalConfiguration.class);
             // check translated env vars
             assertEquals("/home/user", envConf.get("USER_PATH"));
             assertEquals("/home/user", envConf.get("USER.PATH"));

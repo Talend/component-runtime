@@ -114,7 +114,7 @@ simplifiedPackages = [
 Collection<String> doIndex(dependency, excludes, simplifiedPackages, excludedPackages) {
     dependenciesResolver = session.container.lookup(LifecycleDependencyResolver)
 
-    resolutionProject = new MavenProject(artifactId: 'temp', groupId: 'temp', version: 'temp', packaging: 'pom');
+    resolutionProject = new MavenProject(artifactId: 'temp', groupId: 'temp', version: 'temp', packaging: 'pom')
     resolutionProject.artifact = new DefaultArtifact(project.groupId, project.artifactId, project.version, 'compile',
             'pom', null, new DefaultArtifactHandler())
     resolutionProject.dependencies = [dependency] as List
