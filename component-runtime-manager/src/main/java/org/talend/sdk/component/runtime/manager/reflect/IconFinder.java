@@ -113,7 +113,7 @@ public class IconFinder {
 
     public boolean isCustom(final Annotation icon) {
         if (Icon.class == icon.annotationType()) {
-            return Icon.class.cast(icon).value() == CUSTOM;
+            return ((Icon) icon).value() == CUSTOM;
         }
         if (hasMethod(icon.annotationType(), "type")) {
             return "custom".equalsIgnoreCase(String.valueOf(invoke(icon, icon.annotationType(), "type")));

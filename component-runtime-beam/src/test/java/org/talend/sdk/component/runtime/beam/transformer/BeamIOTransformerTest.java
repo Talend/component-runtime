@@ -148,7 +148,7 @@ class BeamIOTransformerTest {
             collection.set(instance, collectionInstance);
             final JsonObject original = Json.createObjectBuilder().add("init", true).build();
             final ByteArrayOutputStream out = new ByteArrayOutputStream();
-            Coder.class.cast(instance).encode(original, out);
+            ((Coder) instance).encode(original, out);
             out.flush();
             final Coder<?> deserialized = SerializableUtils.ensureSerializable((Coder<?>) instance);
             final ByteArrayInputStream inStream = new ByteArrayInputStream(out.toByteArray());
@@ -160,9 +160,8 @@ class BeamIOTransformerTest {
     private Object newInstance(final Class<?> aClass, final ClassLoader validationLoader) {
         try {
             final Object instance = aClass.getConstructor().newInstance();
-            if (SetValidator.class.isInstance(instance)) {
-                SetValidator.class
-                        .cast(instance)
+            if (instance instanceof SetValidator) {
+                ((SetValidator) instance)
                         .setValidator(
                                 () -> assertEquals(Thread.currentThread().getContextClassLoader(), validationLoader));
             }

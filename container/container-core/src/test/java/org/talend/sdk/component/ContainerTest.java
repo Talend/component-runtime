@@ -97,8 +97,8 @@ public class ContainerTest {
                 throw new IllegalStateException(e);
             } catch (final InvocationTargetException e) {
                 final Throwable targetException = e.getTargetException();
-                if (RuntimeException.class.isInstance(targetException)) {
-                    throw RuntimeException.class.cast(targetException);
+                if (targetException instanceof RuntimeException) {
+                    throw (RuntimeException) targetException;
                 }
                 throw new IllegalStateException(targetException);
             }

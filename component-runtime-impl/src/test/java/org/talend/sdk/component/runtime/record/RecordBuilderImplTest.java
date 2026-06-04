@@ -1058,7 +1058,7 @@ class RecordBuilderImplTest {
                 .before("_30")
                 .withString("_53", "53")
                 .build();
-        assertTrue(RecordImpl.class.isInstance(record));
+        assertTrue(record instanceof RecordImpl);
         assertEquals("_00,_10,_20,_25,_53,_30,_40,_50,_55", getSchemaFields(record.getSchema()));
         assertEquals("_00,_10,_20,_25,_53,_30,_40,_50,_55", record.getSchema().naturalOrder().toFields());
         assertEquals("0,10,20,25,53,30,40,50,55", getRecordValues(record));

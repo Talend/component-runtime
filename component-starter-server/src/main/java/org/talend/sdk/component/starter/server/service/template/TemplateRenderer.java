@@ -47,8 +47,8 @@ public class TemplateRenderer {
                     final Wrapper wrapper = super.find(name, scopes);
                     return s -> {
                         final Object call = wrapper.call(s);
-                        if (Collection.class.isInstance(call) && !DecoratedCollection.class.isInstance(call)) {
-                            return new DecoratedCollection<>(Collection.class.cast(call));
+                        if (call instanceof Collection && !(call instanceof DecoratedCollection)) {
+                            return new DecoratedCollection<>((Collection) call);
                         }
                         return call;
                     };

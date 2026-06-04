@@ -205,13 +205,12 @@ public class DynamicColumnsTest {
             }
 
             JobStateAware.init(processor, globalMap);
-            final Jsonb jsonbProcessor = Jsonb.class
-                    .cast(manager
-                            .findPlugin(processor.plugin())
-                            .get()
-                            .get(AllServices.class)
-                            .getServices()
-                            .get(Jsonb.class));
+            final Jsonb jsonbProcessor = (Jsonb) manager
+                    .findPlugin(processor.plugin())
+                    .get()
+                    .get(AllServices.class)
+                    .getServices()
+                    .get(Jsonb.class);
 
             final AutoChunkProcessor processorProcessor = new AutoChunkProcessor(100, processor);
 
@@ -284,21 +283,21 @@ public class DynamicColumnsTest {
 
         final Map<Class<?>, Object> servicesMapper =
                 manager.findPlugin(mapperMapper.plugin()).get().get(AllServices.class).getServices();
-        final Jsonb jsonbMapper = Jsonb.class.cast(servicesMapper.get(Jsonb.class));
-        final JsonProvider jsonProvider = JsonProvider.class.cast(servicesMapper.get(JsonProvider.class));
+        final Jsonb jsonbMapper = (Jsonb) servicesMapper.get(Jsonb.class);
+        final JsonProvider jsonProvider = (JsonProvider) servicesMapper.get(JsonProvider.class);
         final JsonBuilderFactory jsonBuilderFactory =
-                JsonBuilderFactory.class.cast(servicesMapper.get(JsonBuilderFactory.class));
+                (JsonBuilderFactory) servicesMapper.get(JsonBuilderFactory.class);
         final RecordBuilderFactory recordBuilderMapper =
-                RecordBuilderFactory.class.cast(servicesMapper.get(RecordBuilderFactory.class));
+                (RecordBuilderFactory) servicesMapper.get(RecordBuilderFactory.class);
         builderFactory = recordBuilderMapper;
         final RecordConverters converters = new RecordConverters();
         final MappingMetaRegistry registry = new MappingMetaRegistry();
 
         Object dataMapper;
         while ((dataMapper = inputMapper.next()) != null) {
-            row1 = row1Struct.class.cast(registry.find(row1Struct.class).newInstance(Record.class.cast(dataMapper)));
+            row1 = (row1Struct) registry.find(row1Struct.class).newInstance((Record) dataMapper);
 
-            assertTrue(row1Struct.class.isInstance(row1));
+            assertTrue(row1 instanceof row1Struct);
 
             sourceData.add(row1);
             inputsHandlerProcessor.reset();
@@ -314,8 +313,8 @@ public class DynamicColumnsTest {
     }
 
     private void doClose(final Map<String, Object> globalMap) {
-        final Mapper mapperMapper = Mapper.class.cast(globalMap.remove("mapperMapper"));
-        final Input inputMapper = Input.class.cast(globalMap.remove("inputMapper"));
+        final Mapper mapperMapper = (Mapper) globalMap.remove("mapperMapper");
+        final Input inputMapper = (Input) globalMap.remove("inputMapper");
         try {
             if (inputMapper != null) {
                 inputMapper.stop();
@@ -333,7 +332,7 @@ public class DynamicColumnsTest {
         }
 
         final AutoChunkProcessor processorProcessor =
-                AutoChunkProcessor.class.cast(globalMap.remove("processorProcessor"));
+                (AutoChunkProcessor) globalMap.remove("processorProcessor");
         try {
             if (processorProcessor != null) {
                 processorProcessor.stop();

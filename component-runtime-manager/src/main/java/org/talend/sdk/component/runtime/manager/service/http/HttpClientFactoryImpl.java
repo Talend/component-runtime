@@ -92,7 +92,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                                         .distinct()
                                         .toArray(Class[]::new),
                                 handler));
-        HttpClient.class.cast(instance).base(base);
+        ((HttpClient) instance).base(base);
         return instance;
     }
 

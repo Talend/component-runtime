@@ -41,10 +41,9 @@ final def dockerCredentials = usernamePassword(
     credentialsId: 'artifactory-datapwn-credentials',
     usernameVariable: 'DOCKER_USER',
     passwordVariable: 'DOCKER_PASS')
-final def sonarCredentials = usernamePassword(
-    credentialsId: 'sonar-credentials',
-    usernameVariable: 'SONAR_LOGIN',
-    passwordVariable: 'SONAR_PASSWORD')
+final def sonarToken = string(
+    credentialsId: 'sonar-credentials-token',
+    variable: 'SONAR_TOKEN')
 final def keyImportCredentials = usernamePassword(
     credentialsId: 'component-runtime-import-key-credentials',
     usernameVariable: 'KEY_USER',
@@ -87,7 +86,7 @@ String deployOptions = "$skipOptions -Possrh -Prelease -Pgpg2 -Denforcer.skip=tr
 pipeline {
   libraries {
     lib("connectors-lib@1.2.0") // https://github.com/Talend/tdi-jenkins-shared-libraries
-    lib("tqa-e2e-tests-tool@v2.4.2-ttp2")  // https://github.com/Talend/tqa-e2e-testing-tool
+    lib("tqa-e2e-tests-tool@2.6.7-ttp2")  // https://github.com/Talend/tqa-e2e-testing-tool
   }
   agent {
     kubernetes {
@@ -638,7 +637,7 @@ pipeline {
       steps {
         script {
           withCredentials([nexusCredentials,
-                           sonarCredentials,
+                           sonarToken,
                            gitCredentials]) {
 
             SonarController.runSonar(branch_name,

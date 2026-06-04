@@ -74,7 +74,7 @@ public class AvroSchemaConverter {
             default:
                 // no-op
         }
-        return Unwrappable.class.cast(builder.build()).unwrap(org.apache.avro.Schema.class);
+        return ((Unwrappable) builder.build()).unwrap(org.apache.avro.Schema.class);
     }
 
 }

@@ -300,7 +300,7 @@ public class LocalCacheService implements LocalCache, Serializable {
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-            return Objects.equals(ElementImpl.class.cast(o).value, value);
+            return Objects.equals(((ElementImpl) o).value, value);
         }
 
         @Override

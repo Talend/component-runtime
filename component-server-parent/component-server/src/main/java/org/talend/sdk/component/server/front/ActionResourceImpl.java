@@ -176,16 +176,16 @@ public class ActionResourceImpl implements ActionResource {
             // check org.talend.sdk.component.server.service.ComponentManagerService.readCurrentLocale if you change it
         }, Runnable::run).exceptionally(e -> {
             final Throwable cause;
-            if (ExecutionException.class.isInstance(e.getCause())) {
+            if (e.getCause() instanceof ExecutionException) {
                 cause = e.getCause().getCause();
             } else {
                 cause = e.getCause();
             }
-            if (WebApplicationException.class.isInstance(cause)) {
-                final WebApplicationException wae = WebApplicationException.class.cast(cause);
+            if (cause instanceof WebApplicationException) {
+                final WebApplicationException wae = (WebApplicationException) cause;
                 final Response response = wae.getResponse();
                 String message = "";
-                if (ErrorPayload.class.isInstance(wae.getResponse().getEntity())) {
+                if (wae.getResponse().getEntity() instanceof ErrorPayload) {
                     throw wae; // already logged and setup broken so just rethrow
                 } else {
                     try {
@@ -212,11 +212,11 @@ public class ActionResourceImpl implements ActionResource {
 
     private Response onError(final Throwable re) {
         log.warn(re.getMessage(), re);
-        if (WebApplicationException.class.isInstance(re.getCause())) {
-            return WebApplicationException.class.cast(re.getCause()).getResponse();
+        if (re.getCause() instanceof WebApplicationException) {
+            return ((WebApplicationException) re.getCause()).getResponse();
         }
 
-        if (ComponentException.class.isInstance(re)) {
+        if (re instanceof ComponentException) {
             final ComponentException ce = (ComponentException) re;
             throw new WebApplicationException(Response
                     .status(ce.getErrorOrigin() == ComponentException.ErrorOrigin.USER ? 400
@@ -224,7 +224,7 @@ public class ActionResourceImpl implements ActionResource {
                             "Unexpected callback error")
                     .entity(new ErrorPayload(ErrorDictionary.ACTION_ERROR,
                             "Action execution failed with: " + ofNullable(re.getMessage())
-                                    .orElseGet(() -> NullPointerException.class.isInstance(re) ? "unexpected null"
+                                    .orElseGet(() -> re instanceof NullPointerException ? "unexpected null"
                                             : "no error message")))
                     .build());
         }
@@ -233,7 +233,7 @@ public class ActionResourceImpl implements ActionResource {
                 .status(520, "Unexpected callback error")
                 .entity(new ErrorPayload(ErrorDictionary.ACTION_ERROR,
                         "Action execution failed with: " + ofNullable(re.getMessage())
-                                .orElseGet(() -> NullPointerException.class.isInstance(re) ? "unexpected null"
+                                .orElseGet(() -> re instanceof NullPointerException ? "unexpected null"
                                         : "no error message")))
                 .build());
     }

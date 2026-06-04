@@ -58,7 +58,7 @@ public class JUnit5HttpApi extends HttpApiHandler<JUnit5HttpApi>
             newInstance(config.headerFilter(), Predicate.class).ifPresent(this::setHeaderFilter);
             newInstance(config.executor(), Executor.class).ifPresent(this::setExecutor);
             newInstance(config.sslContext(), Supplier.class)
-                    .map(s -> SSLContext.class.cast(s.get()))
+                    .map(s -> (SSLContext) s.get())
                     .ifPresent(this::setSslContext);
             setSkipProxyHeaders(config.skipProxyHeaders());
             if (config.useSsl()) {
@@ -73,7 +73,7 @@ public class JUnit5HttpApi extends HttpApiHandler<JUnit5HttpApi>
 
     @Override
     public void afterAll(final ExtensionContext extensionContext) {
-        HandlerImpl.class.cast(extensionContext.getStore(NAMESPACE).get(HandlerImpl.class.getName())).close();
+        ((HandlerImpl) extensionContext.getStore(NAMESPACE).get(HandlerImpl.class.getName())).close();
     }
 
     @Override
@@ -85,7 +85,7 @@ public class JUnit5HttpApi extends HttpApiHandler<JUnit5HttpApi>
     public void beforeEach(final ExtensionContext extensionContext) {
         // test name
         final ResponseLocator responseLocator = getResponseLocator();
-        if (!DefaultResponseLocator.class.isInstance(responseLocator)) {
+        if (!(responseLocator instanceof DefaultResponseLocator)) {
             return;
         }
         final String test = extensionContext.getTestMethod().map(m -> {
@@ -99,7 +99,7 @@ public class JUnit5HttpApi extends HttpApiHandler<JUnit5HttpApi>
                     .orElseGet(() -> m.getDeclaringClass().getName() + "_" + m.getName()
                             + (displayName.equals(m.getName()) ? "" : ("_" + displayName)));
         }).orElse(null);
-        DefaultResponseLocator.class.cast(responseLocator).setTest(test);
+        ((DefaultResponseLocator) responseLocator).setTest(test);
     }
 
     @Override

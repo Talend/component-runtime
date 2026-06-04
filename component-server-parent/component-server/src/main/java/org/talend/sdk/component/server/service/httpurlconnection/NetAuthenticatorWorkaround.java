@@ -62,7 +62,7 @@ public class NetAuthenticatorWorkaround {
                         f.setAccessible(true);
                     }
                     try {
-                        return Authenticator.class.cast(f.get(null));
+                        return (Authenticator) f.get(null);
                     } catch (final IllegalAccessException e) {
                         throw new IllegalStateException(e);
                     }
@@ -111,7 +111,7 @@ public class NetAuthenticatorWorkaround {
         public PasswordAuthentication getPasswordAuthentication() {
             try {
                 return shouldSkip() ? null
-                        : PasswordAuthentication.class.cast(getPasswordAuthentication.invoke(delegate));
+                        : (PasswordAuthentication) getPasswordAuthentication.invoke(delegate);
             } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
             } catch (final InvocationTargetException e) {
@@ -122,7 +122,7 @@ public class NetAuthenticatorWorkaround {
         @Override
         public URL getRequestingURL() {
             try {
-                return shouldSkip() ? null : URL.class.cast(getRequestingURL.invoke(delegate));
+                return shouldSkip() ? null : (URL) getRequestingURL.invoke(delegate);
             } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
             } catch (final InvocationTargetException e) {
@@ -133,7 +133,7 @@ public class NetAuthenticatorWorkaround {
         @Override
         public RequestorType getRequestorType() {
             try {
-                return shouldSkip() ? null : RequestorType.class.cast(getRequestorType.invoke(delegate));
+                return shouldSkip() ? null : (RequestorType) getRequestorType.invoke(delegate);
             } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
             } catch (final InvocationTargetException e) {

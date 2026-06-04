@@ -69,8 +69,8 @@ public class DefaultResponseLocatorCapturingHandler extends PassthroughHandler {
         }
         model.setResponse(responseModel);
 
-        if (DefaultResponseLocator.class.isInstance(api.getResponseLocator())) {
-            DefaultResponseLocator.class.cast(api.getResponseLocator()).addModel(model);
+        if (api.getResponseLocator() instanceof DefaultResponseLocator) {
+            ((DefaultResponseLocator) api.getResponseLocator()).addModel(model);
         }
     }
 

@@ -87,11 +87,11 @@ public class BeamIOTransformer implements ClassFileTransformer {
     @Override
     public byte[] transform(final ClassLoader loader, final String className, final Class<?> classBeingRedefined,
             final ProtectionDomain protectionDomain, final byte[] classfileBuffer) {
-        if (className == null || !ConfigurableClassLoader.class.isInstance(loader)) {
+        if (className == null || !(loader instanceof ConfigurableClassLoader)) {
             return classfileBuffer;
         }
 
-        final ConfigurableClassLoader classLoader = ConfigurableClassLoader.class.cast(loader);
+        final ConfigurableClassLoader classLoader = (ConfigurableClassLoader) loader;
         final String javaClassName = toClassName(className);
         if (!KnownClassesFilter.INSTANCE.accept(javaClassName) && !canBeABeamIO(classLoader, javaClassName)) {
             return classfileBuffer;
@@ -248,17 +248,17 @@ public class BeamIOTransformer implements ClassFileTransformer {
         }
         return (out, obj) -> {
             try (final ObjectOutputStream oos = new ObjectOutputStream(out)) {
-                final boolean oldMode = Boolean.class.cast(setBlockDataMode.invoke(bout.get(oos), false));
-                depth.set(oos, Integer.class.cast(depth.get(oos)) + 1);
+                final boolean oldMode = (Boolean) setBlockDataMode.invoke(bout.get(oos), false);
+                depth.set(oos, (Integer) depth.get(oos) + 1);
                 try {
                     int h;
                     if ((obj = subsLookup.invoke(subs.get(oos), obj)) == null) {
                         writeNull.invoke(oos);
-                    } else if ((h = Integer.class.cast(handlesLookup.invoke(handles.get(oos), obj))) != -1) {
+                    } else if ((h = (Integer) handlesLookup.invoke(handles.get(oos), obj)) != -1) {
                         writeHandle.invoke(oos, h);
-                    } else if (Class.class.isInstance(obj)) {
+                    } else if (obj instanceof Class) {
                         writeClass.invoke(oos, obj, false);
-                    } else if (ObjectStreamClass.class.isInstance(obj)) {
+                    } else if (obj instanceof ObjectStreamClass) {
                         writeClassDesc.invoke(oos, obj, false);
                     } else if (obj instanceof String) {
                         writeString.invoke(oos, obj, false);
@@ -272,7 +272,7 @@ public class BeamIOTransformer implements ClassFileTransformer {
                         throw new NotSerializableException(String.valueOf(obj));
                     }
                 } finally {
-                    depth.set(oos, Integer.class.cast(depth.get(oos)) - 1);
+                    depth.set(oos, (Integer) depth.get(oos) - 1);
                     setBlockDataMode.invoke(bout.get(oos), oldMode);
                 }
             } catch (final Exception e) {

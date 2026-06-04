@@ -56,15 +56,14 @@ public class PluralRecordExtension implements ParameterResolver, AfterEachCallba
 
     private Jsonb getJsonb(Jsonb jsonb) {
         // create a Jsonb instance which is PojoJsonbProvider as in component-runtime-manager
-        return Jsonb.class
-                .cast(Proxy
-                        .newProxyInstance(Thread.currentThread().getContextClassLoader(),
-                                new Class<?>[] { Jsonb.class, PojoJsonbProvider.class }, (proxy, method, args) -> {
-                                    if (method.getDeclaringClass() == Supplier.class) {
-                                        return jsonb;
-                                    }
-                                    return method.invoke(jsonb, args);
-                                }));
+        return (Jsonb) Proxy
+                .newProxyInstance(Thread.currentThread().getContextClassLoader(),
+                        new Class<?>[]{Jsonb.class, PojoJsonbProvider.class}, (proxy, method, args) -> {
+                            if (method.getDeclaringClass() == Supplier.class) {
+                                return jsonb;
+                            }
+                            return method.invoke(jsonb, args);
+                        });
     }
 
     private Jsonb createPojoJsonb() {
@@ -81,7 +80,7 @@ public class PluralRecordExtension implements ParameterResolver, AfterEachCallba
             if (!mapper.isAccessible()) {
                 mapper.setAccessible(true);
             }
-            MapperBuilder.class.cast(mapper.get(jsonbBuilder)).setDoCloseOnStreams(true);
+            ((MapperBuilder) mapper.get(jsonbBuilder)).setDoCloseOnStreams(true);
         } catch (final Exception e) {
             throw new IllegalStateException(e);
         }

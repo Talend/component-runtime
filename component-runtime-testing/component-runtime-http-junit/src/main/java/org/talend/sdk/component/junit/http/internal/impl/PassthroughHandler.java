@@ -105,11 +105,11 @@ public class PassthroughHandler extends SimpleChannelInboundHandler<FullHttpRequ
             final Map<String, String> otherHeaders = new HashMap<>();
             try {
                 final URL url = new URL(requestUri);
-                final HttpURLConnection connection = HttpURLConnection.class.cast(url.openConnection(Proxy.NO_PROXY));
+                final HttpURLConnection connection = (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);
                 connection.setConnectTimeout(30000);
                 connection.setReadTimeout(20000);
-                if (HttpsURLConnection.class.isInstance(connection) && api.getSslContext() != null) {
-                    final HttpsURLConnection httpsURLConnection = HttpsURLConnection.class.cast(connection);
+                if (connection instanceof HttpsURLConnection && api.getSslContext() != null) {
+                    final HttpsURLConnection httpsURLConnection = (HttpsURLConnection) connection;
                     httpsURLConnection.setHostnameVerifier((h, s) -> true);
                     httpsURLConnection.setSSLSocketFactory(api.getSslContext().getSocketFactory());
                 }

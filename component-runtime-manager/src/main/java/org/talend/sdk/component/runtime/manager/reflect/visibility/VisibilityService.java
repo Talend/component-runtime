@@ -148,14 +148,14 @@ public class VisibilityService {
                         return "0".equals(expected);
                     }
                     final int expectedSize = Integer.parseInt(expected);
-                    if (Collection.class.isInstance(actual)) {
-                        return expectedSize == Collection.class.cast(actual).size();
+                    if (actual instanceof Collection) {
+                        return expectedSize == ((Collection) actual).size();
                     }
                     if (actual.getClass().isArray()) {
                         return expectedSize == Array.getLength(actual);
                     }
-                    if (String.class.isInstance(actual)) {
-                        return expectedSize == String.class.cast(actual).length();
+                    if (actual instanceof String) {
+                        return expectedSize == ((String) actual).length();
                     }
                     return false;
                 default:
@@ -185,13 +185,13 @@ public class VisibilityService {
                         if (actual == null) {
                             return false;
                         }
-                        if (CharSequence.class.isInstance(actual)) {
+                        if (actual instanceof CharSequence) {
                             return ofNullable(preprocessor.apply(TO_STRING.apply(actual)))
                                     .map(it -> it.contains(expected))
                                     .orElse(false);
                         }
-                        if (Collection.class.isInstance(actual)) {
-                            final Collection<?> collection = Collection.class.cast(actual);
+                        if (actual instanceof Collection) {
+                            final Collection<?> collection = (Collection) actual;
                             return collection.stream().map(preprocessor).anyMatch(it -> it.contains(expected));
                         }
                         if (actual.getClass().isArray()) {
@@ -220,13 +220,13 @@ public class VisibilityService {
                 case ARRAY:
                     return value.asJsonArray().stream().map(this::mapValue).collect(toList());
                 case STRING:
-                    return JsonString.class.cast(value).getString();
+                    return ((JsonString) value).getString();
                 case TRUE:
                     return true;
                 case FALSE:
                     return false;
                 case NUMBER:
-                    return JsonNumber.class.cast(value).doubleValue();
+                    return ((JsonNumber) value).doubleValue();
                 case NULL:
                     return null;
                 case OBJECT:

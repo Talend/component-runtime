@@ -293,7 +293,7 @@ public class UiSpecMapperImpl implements UiSpecMapper {
     private boolean isIncluded(final Field field) {
         // parameterized type are relationships -> specific pages
         return !"$jacocoData".equals(field.getName()) && !field.isAnnotationPresent(View.Skip.class)
-                && Class.class.isInstance(field.getGenericType());
+                && field.getGenericType() instanceof Class;
     }
 
     private static class Key {
@@ -315,7 +315,7 @@ public class UiSpecMapperImpl implements UiSpecMapper {
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-            final Key key = Key.class.cast(o);
+            final Key key = (Key) o;
             return model.equals(key.model);
         }
 

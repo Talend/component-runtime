@@ -85,20 +85,18 @@ class RecordConvertersTest {
         record.today = new Date(0);
         try (final Jsonb jsonb = JsonbBuilder
                 .create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))) {
-            final Record recordModel = Record.class
-                    .cast(converter
-                            .toType(new RecordConverters.MappingMetaRegistry(), record, Record.class,
-                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
-                                    () -> recordBuilderFactory));
+            final Record recordModel = (Record) converter
+                    .toType(new MappingMetaRegistry(), record, Record.class,
+                            () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                            () -> recordBuilderFactory);
             assertEquals(
                     "{\"bd\":\"10\",\"binary\":100.0,\"binary2\":100.0," + "\"character\":\"a\",\"character2\":\"a\","
                             + "\"notLong\":100.0,\"notLong2\":100.0," + "\"today\":\"1970-01-01T00:00:00Z[UTC]\"}",
                     recordModel.toString());
-            final SimpleRowStruct deserialized = SimpleRowStruct.class
-                    .cast(converter
-                            .toType(new RecordConverters.MappingMetaRegistry(), recordModel, SimpleRowStruct.class,
-                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
-                                    () -> recordBuilderFactory));
+            final SimpleRowStruct deserialized = (SimpleRowStruct) converter
+                    .toType(new MappingMetaRegistry(), recordModel, SimpleRowStruct.class,
+                            () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                            () -> recordBuilderFactory);
             if (record.bd.doubleValue() == deserialized.bd.doubleValue()) { // equals fails on this one
                 deserialized.bd = record.bd;
             }
@@ -125,16 +123,14 @@ class RecordConvertersTest {
         rowStruct.col11date = new java.util.Date();
         try (final Jsonb jsonb = JsonbBuilder
                 .create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))) {
-            final Record record = Record.class
-                    .cast(converter
-                            .toType(new RecordConverters.MappingMetaRegistry(), rowStruct, Record.class,
-                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
-                                    () -> recordBuilderFactory));
-            final RowStruct deserialized = RowStruct.class
-                    .cast(converter
-                            .toType(new RecordConverters.MappingMetaRegistry(), record, RowStruct.class,
-                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
-                                    () -> recordBuilderFactory));
+            final Record record = (Record) converter
+                    .toType(new MappingMetaRegistry(), rowStruct, Record.class,
+                            () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                            () -> recordBuilderFactory);
+            final RowStruct deserialized = (RowStruct) converter
+                    .toType(new MappingMetaRegistry(), record, RowStruct.class,
+                            () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                            () -> recordBuilderFactory);
             if (rowStruct.col10bigdec.doubleValue() == deserialized.col10bigdec.doubleValue()) {
                 deserialized.col10bigdec = rowStruct.col10bigdec;
             }
@@ -151,10 +147,9 @@ class RecordConvertersTest {
             throws Exception {
         final Wrapper record = new Wrapper();
         record.value = "hey";
-        final Record json = Record.class
-                .cast(converter
-                        .toType(new RecordConverters.MappingMetaRegistry(), record, Record.class,
-                                () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb, () -> recordBuilderFactory));
+        final Record json = (Record) converter
+                .toType(new MappingMetaRegistry(), record, Record.class,
+                        () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb, () -> recordBuilderFactory);
         assertEquals("hey", json.getString("value"));
     }
 
@@ -163,11 +158,10 @@ class RecordConvertersTest {
             final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final Record record = recordBuilderFactory.newRecordBuilder().withString("value", null).build();
         try (final Jsonb jsonb = JsonbBuilder.create()) {
-            final JsonObject json = JsonObject.class
-                    .cast(converter
-                            .toType(new RecordConverters.MappingMetaRegistry(), record, JsonObject.class,
-                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
-                                    () -> recordBuilderFactory));
+            final JsonObject json = (JsonObject) converter
+                    .toType(new MappingMetaRegistry(), record, JsonObject.class,
+                            () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                            () -> recordBuilderFactory);
             assertNull(json.getJsonString("value"));
         }
     }
@@ -177,11 +171,10 @@ class RecordConvertersTest {
             final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final Record record = recordBuilderFactory.newRecordBuilder().withBoolean("value", true).build();
         try (final Jsonb jsonb = JsonbBuilder.create()) {
-            final JsonObject json = JsonObject.class
-                    .cast(converter
-                            .toType(new RecordConverters.MappingMetaRegistry(), record, JsonObject.class,
-                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
-                                    () -> recordBuilderFactory));
+            final JsonObject json = (JsonObject) converter
+                    .toType(new MappingMetaRegistry(), record, JsonObject.class,
+                            () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                            () -> recordBuilderFactory);
             assertTrue(json.getBoolean("value"));
             final Record toRecord = converter
                     .toRecord(new RecordConverters.MappingMetaRegistry(), json, () -> jsonb,
@@ -196,11 +189,10 @@ class RecordConvertersTest {
             final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final Record record = recordBuilderFactory.newRecordBuilder().withInt("value", 2).build();
         try (final Jsonb jsonb = JsonbBuilder.create()) {
-            final IntStruct struct = IntStruct.class
-                    .cast(converter
-                            .toType(new RecordConverters.MappingMetaRegistry(), record, IntStruct.class,
-                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
-                                    () -> recordBuilderFactory));
+            final IntStruct struct = (IntStruct) converter
+                    .toType(new MappingMetaRegistry(), record, IntStruct.class,
+                            () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                            () -> recordBuilderFactory);
             final Record toRecord = converter
                     .toRecord(new RecordConverters.MappingMetaRegistry(), struct, () -> jsonb,
                             () -> recordBuilderFactory);
@@ -215,11 +207,10 @@ class RecordConvertersTest {
             final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final Record record = recordBuilderFactory.newRecordBuilder().withBoolean("value", true).build();
         try (final Jsonb jsonb = JsonbBuilder.create()) {
-            final BoolStruct struct = BoolStruct.class
-                    .cast(converter
-                            .toType(new RecordConverters.MappingMetaRegistry(), record, BoolStruct.class,
-                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
-                                    () -> recordBuilderFactory));
+            final BoolStruct struct = (BoolStruct) converter
+                    .toType(new MappingMetaRegistry(), record, BoolStruct.class,
+                            () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                            () -> recordBuilderFactory);
             final Record toRecord = converter
                     .toRecord(new RecordConverters.MappingMetaRegistry(), struct, () -> jsonb,
                             () -> recordBuilderFactory);
@@ -233,11 +224,10 @@ class RecordConvertersTest {
             final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
         final Record record = recordBuilderFactory.newRecordBuilder().withString("value", "yes").build();
         try (final Jsonb jsonb = JsonbBuilder.create()) {
-            final JsonObject json = JsonObject.class
-                    .cast(converter
-                            .toType(new RecordConverters.MappingMetaRegistry(), record, JsonObject.class,
-                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
-                                    () -> recordBuilderFactory));
+            final JsonObject json = (JsonObject) converter
+                    .toType(new MappingMetaRegistry(), record, JsonObject.class,
+                            () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                            () -> recordBuilderFactory);
             assertEquals("yes", json.getString("value"));
             final Record toRecord = converter
                     .toRecord(new RecordConverters.MappingMetaRegistry(), json, () -> jsonb,
@@ -252,10 +242,9 @@ class RecordConvertersTest {
             throws Exception {
         final Record record = recordBuilderFactory.newRecordBuilder().withInt("myInt", 2).build();
         // run the round trip
-        final IntWrapper wrapper = IntWrapper.class
-                .cast(converter
-                        .toType(new RecordConverters.MappingMetaRegistry(), record, IntWrapper.class,
-                                () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb, () -> recordBuilderFactory));
+        final IntWrapper wrapper = (IntWrapper) converter
+                .toType(new MappingMetaRegistry(), record, IntWrapper.class,
+                        () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb, () -> recordBuilderFactory);
         assertEquals(2, wrapper.myInt);
         final Record toRecord = converter
                 .toRecord(new RecordConverters.MappingMetaRegistry(), wrapper, () -> jsonb, () -> recordBuilderFactory);
@@ -270,11 +259,10 @@ class RecordConvertersTest {
         final Record record = recordBuilderFactory.newRecordBuilder().withBytes("value", bytes).build();
         try (final Jsonb jsonb =
                 JsonbBuilder.create(new JsonbConfig().withBinaryDataStrategy(BinaryDataStrategy.BASE_64))) {
-            final JsonObject json = JsonObject.class
-                    .cast(converter
-                            .toType(new RecordConverters.MappingMetaRegistry(), record, JsonObject.class,
-                                    () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
-                                    () -> recordBuilderFactory));
+            final JsonObject json = (JsonObject) converter
+                    .toType(new MappingMetaRegistry(), record, JsonObject.class,
+                            () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb,
+                            () -> recordBuilderFactory);
             assertEquals(Base64.getEncoder().encodeToString(bytes), json.getString("value"));
             final Record toRecord = converter
                     .toRecord(new RecordConverters.MappingMetaRegistry(), json, () -> jsonb,
@@ -465,10 +453,9 @@ class RecordConvertersTest {
         assertEquals(Arrays.stream(intAry).collect(toList()),
                 record.getArray(Integer.class, "intAryValue").stream().collect(toList()));
         //
-        final PojoWrapper wrapper = PojoWrapper.class
-                .cast(converter
-                        .toType(new RecordConverters.MappingMetaRegistry(), record, PojoWrapper.class,
-                                () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb, () -> recordBuilderFactory));
+        final PojoWrapper wrapper = (PojoWrapper) converter
+                .toType(new MappingMetaRegistry(), record, PojoWrapper.class,
+                        () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonb, () -> recordBuilderFactory);
         //
         assertEquals("pojo", wrapper.getBase().getRoot().getStringValue());
         assertEquals(19, wrapper.getBase().getIntValue());
@@ -482,9 +469,9 @@ class RecordConvertersTest {
         assertEquals(JsonValue.TRUE, wrapper.getJsonBoolValue().get(0));
         assertEquals(JsonValue.FALSE, wrapper.getJsonBoolValue().get(1));
         assertEquals(jsonObj1.getString("string"),
-                JsonObject.class.cast(wrapper.getJsonAryValue()[0]).getString("string"));
+                ((JsonObject) wrapper.getJsonAryValue()[0]).getString("string"));
         assertEquals(jsonObj1.getJsonNumber("number").doubleValue(),
-                JsonObject.class.cast(wrapper.getJsonAryValue()[0]).getJsonNumber("number").doubleValue());
+                ((JsonObject) wrapper.getJsonAryValue()[0]).getJsonNumber("number").doubleValue());
         assertEquals(Arrays.stream(intAry).collect(toList()),
                 Arrays.stream(wrapper.getIntAryValue()).collect(toList()));
     }

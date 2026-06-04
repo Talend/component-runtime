@@ -49,7 +49,7 @@ public class RecordBranchFilterTest implements Serializable {
                 final Object b1 = item.get(Object.class, "b1");
                 assertNotNull(b1);
 
-                final Collection<Record> records = Collection.class.cast(b1);
+                final Collection<Record> records = (Collection) b1;
                 assertNotNull(records.stream().map(r -> r.getString("foo")).findFirst().get());
             });
             return null;

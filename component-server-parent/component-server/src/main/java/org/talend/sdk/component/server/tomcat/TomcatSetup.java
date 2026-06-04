@@ -31,7 +31,7 @@ public class TomcatSetup implements Meecrowave.InstanceCustomizer {
     public void accept(final Tomcat tomcat) {
         final Server server = tomcat.getServer();
         server.addLifecycleListener(event -> {
-            if (Server.class.isInstance(event.getData()) && Lifecycle.AFTER_DESTROY_EVENT.equals(event.getType())
+            if (event.getData() instanceof Server && Lifecycle.AFTER_DESTROY_EVENT.equals(event.getType())
                     && Boolean.getBoolean("talend.component.exit-on-destroy")) {
                 System.exit(0);
             }
@@ -48,8 +48,7 @@ public class TomcatSetup implements Meecrowave.InstanceCustomizer {
                     .map(StandardHost.class::cast)
                     .forEach(host -> host.addLifecycleListener(event -> {
                         if (event.getType().equals(Lifecycle.BEFORE_START_EVENT)) {
-                            StandardHost.class
-                                    .cast(host)
+                            ((StandardHost) host)
                                     .setErrorReportValveClass(MinimalErrorReportValve.class.getName());
                         }
                     }));

@@ -98,7 +98,7 @@ public class ViewsMappingTransform extends PTransform<PCollection<Record>, PColl
                             .withElementSchema(element.getSchema())
                             .build(), singletonList(element));
             views.forEach((n, v) -> {
-                final Record sideInput = Record.class.cast(context.sideInput(v));
+                final Record sideInput = (Record) context.sideInput(v);
                 builder
                         .withArray(factory
                                 .newEntryBuilder()

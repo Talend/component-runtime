@@ -57,10 +57,10 @@ class JmxManagerTest {
 
         try {
             assertTrue(mBeanServer.isRegistered(name));
-            assertFalse(Boolean.class.cast(mBeanServer.getAttribute(name, "closed")));
+            assertFalse((Boolean) mBeanServer.getAttribute(name, "closed"));
 
             final Object created = mBeanServer.getAttribute(name, "created");
-            assertTrue(Date.class.isInstance(created));
+            assertTrue(created instanceof Date);
             // ensure date is stable until reloading
             assertEquals(created, created);
 

@@ -22,7 +22,7 @@ import org.apache.maven.project.MavenProject
 def createDependenciesDescriptor = { rootDependency, output ->
     def dependenciesResolver = session.container.lookup(LifecycleDependencyResolver)
 
-    def tmpProject = new MavenProject(artifactId: 'temp', groupId: 'temp', version: 'temp', packaging: 'pom');
+    def tmpProject = new MavenProject(artifactId: 'temp', groupId: 'temp', version: 'temp', packaging: 'pom')
     tmpProject.artifact = new DefaultArtifact(project.groupId, project.artifactId, project.version, 'compile',
             'pom', null, new DefaultArtifactHandler())
     tmpProject.dependencies = [rootDependency] as List

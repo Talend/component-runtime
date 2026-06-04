@@ -258,12 +258,12 @@ public class JobImpl implements Job {
         public void run() {
             ExecutorBuilder runner = this;
             final Object o = jobProperties.get(ExecutorBuilder.class.getName());
-            if (ExecutorBuilder.class.isInstance(o)) {
-                runner = ExecutorBuilder.class.cast(o);
-            } else if (Class.class.isInstance(o)) {
-                runner = newRunner(Class.class.cast(o));
-            } else if (String.class.isInstance(o)) {
-                final String name = String.class.cast(o).trim();
+            if (o instanceof ExecutorBuilder) {
+                runner = (ExecutorBuilder) o;
+            } else if (o instanceof Class) {
+                runner = newRunner((Class) o);
+            } else if (o instanceof String) {
+                final String name = ((String) o).trim();
                 if (!"standalone".equalsIgnoreCase(name) && !"default".equalsIgnoreCase(name)
                         && !"local".equalsIgnoreCase(name)) {
                     if ("beam".equalsIgnoreCase(name)) {
@@ -301,7 +301,7 @@ public class JobImpl implements Job {
             }
 
             if (runner == this) {
-                JobExecutor.class.cast(runner).localRun();
+                ((JobExecutor) runner).localRun();
             } else {
                 runner.run();
             }
@@ -356,9 +356,8 @@ public class JobImpl implements Job {
                                 .orElseThrow(() -> new IllegalStateException(
                                         "No processor found for:" + component.getNode()));
                         final AtomicInteger maxBatchSize = new AtomicInteger(1);
-                        if (ProcessorImpl.class.isInstance(processor)) {
-                            ProcessorImpl.class
-                                    .cast(processor)
+                        if (processor instanceof ProcessorImpl) {
+                            ((ProcessorImpl) processor)
                                     .getInternalConfiguration()
                                     .entrySet()
                                     .stream()
@@ -540,14 +539,14 @@ public class JobImpl implements Job {
         public GroupKeyProvider getKeyProvider(final String componentId) {
             if (componentProperties.get(componentId) != null) {
                 final Object o = componentProperties.get(componentId).get(GroupKeyProvider.class.getName());
-                if (GroupKeyProvider.class.isInstance(o)) {
-                    return new GroupKeyProviderImpl(GroupKeyProvider.class.cast(o));
+                if (o instanceof GroupKeyProvider) {
+                    return new GroupKeyProviderImpl((GroupKeyProvider) o);
                 }
             }
 
             final Object o = jobProperties.get(GroupKeyProvider.class.getName());
-            if (GroupKeyProvider.class.isInstance(o)) {
-                return new GroupKeyProviderImpl(GroupKeyProvider.class.cast(o));
+            if (o instanceof GroupKeyProvider) {
+                return new GroupKeyProviderImpl((GroupKeyProvider) o);
             }
 
             final ServiceLoader<GroupKeyProvider> services = ServiceLoader.load(GroupKeyProvider.class);
@@ -632,7 +631,7 @@ public class JobImpl implements Job {
                 return null;
             }
             currentRecords++;
-            return Record.class.cast(next);
+            return (Record) next;
         }
 
         public void stop() {
@@ -685,9 +684,8 @@ public class JobImpl implements Job {
                 outputs
                         .computeIfAbsent(name, k -> new ArrayList<>())
                         .add(new RecordConverters()
-                                .toRecord(registry, value, () -> Jsonb.class.cast(services.get(Jsonb.class)),
-                                        () -> RecordBuilderFactory.class
-                                                .cast(services.get(RecordBuilderFactory.class))));
+                                .toRecord(registry, value, () -> (Jsonb) services.get(Jsonb.class),
+                                        () -> (RecordBuilderFactory) services.get(RecordBuilderFactory.class)));
             }
         }
     }
@@ -717,7 +715,7 @@ public class JobImpl implements Job {
         }
 
         private Object map(final Object next) {
-            if (next == null || Record.class.isInstance(next)) {
+            if (next == null || next instanceof Record) {
                 return next;
             }
 

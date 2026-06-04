@@ -53,6 +53,6 @@ public class NoCheckpointCoder extends Coder<UnboundedSource.CheckpointMark> {
 
     @Override
     public boolean equals(final Object obj) {
-        return NoCheckpointCoder.class.isInstance(obj);
+        return obj instanceof NoCheckpointCoder;
     }
 }

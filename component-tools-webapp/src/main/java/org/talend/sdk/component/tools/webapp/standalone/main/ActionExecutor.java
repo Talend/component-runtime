@@ -109,7 +109,7 @@ public class ActionExecutor {
                 .println(jsonb
                         .toJson(new ErrorPayload("ACTION_ERROR",
                                 "Action execution failed with: " + ofNullable(re.getMessage())
-                                        .orElseGet(() -> NullPointerException.class.isInstance(re) ? "unexpected null"
+                                        .orElseGet(() -> re instanceof NullPointerException ? "unexpected null"
                                                 : "no error message"))));
     }
 

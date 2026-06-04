@@ -77,7 +77,7 @@ public class ModelValidator implements Validator {
         final Stream<String> errorStructure = finder
                 .findAnnotatedFields(Structure.class)
                 .stream()
-                .filter(f -> !ParameterizedType.class.isInstance(f.getGenericType()) || !isListObject(f))
+                .filter(f -> !(f.getGenericType() instanceof ParameterizedType) || !isListObject(f))
                 .map(f -> f.getDeclaringClass() + "#" + f.getName()
                         + " uses @Structure but is not a List<String> nor a List<Object>")
                 .sorted();
@@ -101,7 +101,7 @@ public class ModelValidator implements Validator {
     }
 
     private boolean isListObject(final Field f) {
-        final ParameterizedType pt = ParameterizedType.class.cast(f.getGenericType());
+        final ParameterizedType pt = (ParameterizedType) f.getGenericType();
         return List.class == pt.getRawType() && pt.getActualTypeArguments().length == 1;
     }
 

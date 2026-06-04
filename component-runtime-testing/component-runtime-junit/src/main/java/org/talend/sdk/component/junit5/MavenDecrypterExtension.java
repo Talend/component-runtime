@@ -41,6 +41,6 @@ public class MavenDecrypterExtension implements JUnit5InjectionSupport {
     @Override
     public Object findInstance(final ExtensionContext extensionContext, final Class<?> type, final Annotation marker)
             throws ParameterResolutionException {
-        return decrypter.createInstance(DecryptedServer.class.cast(marker));
+        return decrypter.createInstance((DecryptedServer) marker);
     }
 }

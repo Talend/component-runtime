@@ -64,39 +64,39 @@ class PojoJsonSchemaBuilder {
     private JsonSchema buildSchema(final Field field) {
         final Type genericType = field.getGenericType();
 
-        if ((Class.class.isInstance(genericType) && CharSequence.class.isAssignableFrom(Class.class.cast(genericType)))
+        if ((genericType instanceof Class && CharSequence.class.isAssignableFrom((Class) genericType))
                 || genericType == char.class || genericType == Character.class) {
-            return schemas.computeIfAbsent(Class.class.cast(genericType), k -> jsonSchema().withType("string").build());
+            return schemas.computeIfAbsent((Class) genericType, k -> jsonSchema().withType("string").build());
         } else if (genericType == long.class || genericType == Long.class || genericType == int.class
                 || genericType == Integer.class || genericType == byte.class || genericType == Byte.class
                 || genericType == short.class || genericType == Short.class || genericType == double.class
                 || genericType == Double.class || genericType == float.class || genericType == Float.class
                 || genericType == BigDecimal.class || genericType == BigInteger.class) {
-            return schemas.computeIfAbsent(Class.class.cast(genericType), k -> jsonSchema().withType("number").build());
+            return schemas.computeIfAbsent((Class) genericType, k -> jsonSchema().withType("number").build());
         } else if (genericType == boolean.class || genericType == Boolean.class) {
             return schemas
-                    .computeIfAbsent(Class.class.cast(genericType), k -> jsonSchema().withType("boolean").build());
-        } else if (Class.class.isInstance(genericType)) {
-            final Class<?> clazz = Class.class.cast(genericType);
+                    .computeIfAbsent((Class) genericType, k -> jsonSchema().withType("boolean").build());
+        } else if (genericType instanceof Class) {
+            final Class<?> clazz = (Class) genericType;
             return ofNullable(schemas.get(clazz)).orElseGet(() -> {
                 final JsonSchema jsonSchema = create(clazz).build();
                 schemas.put(clazz, jsonSchema);
                 return jsonSchema;
             });
-        } else if (ParameterizedType.class.isInstance(genericType)) {
-            final ParameterizedType pt = ParameterizedType.class.cast(genericType);
+        } else if (genericType instanceof ParameterizedType) {
+            final ParameterizedType pt = (ParameterizedType) genericType;
             final Type rawType = pt.getRawType();
-            if (!Class.class.isInstance(rawType)) {
+            if (!(rawType instanceof Class)) {
                 throw new IllegalArgumentException("Unsupported raw type: " + pt + ", this must be a Class");
             }
-            final Class<?> rawClazz = Class.class.cast(rawType);
+            final Class<?> rawClazz = (Class) rawType;
             if (Collection.class.isAssignableFrom(rawClazz) && pt.getActualTypeArguments().length == 1) {
                 final Type itemType = pt.getActualTypeArguments()[0];
-                if (!Class.class.isInstance(itemType)) {
+                if (!(itemType instanceof Class)) {
                     throw new IllegalArgumentException(
                             "Unsupported generic type for item type: " + pt + ", this must be a Class");
                 }
-                final Class itemClass = Class.class.cast(itemType);
+                final Class itemClass = (Class) itemType;
                 final JsonSchema nested = ofNullable(schemas.get(itemType)).orElseGet(() -> {
                     final JsonSchema jsonSchema = create(itemClass).build();
                     schemas.put(itemClass, jsonSchema);
@@ -106,7 +106,7 @@ class PojoJsonSchemaBuilder {
             } else if (Map.class.isAssignableFrom(rawClazz) && pt.getActualTypeArguments().length == 2) {
                 final Type keyType = pt.getActualTypeArguments()[0];
                 final Type valueType = pt.getActualTypeArguments()[1];
-                if (!Class.class.isInstance(keyType) || !Class.class.isInstance(valueType)) {
+                if (!(keyType instanceof Class) || !(valueType instanceof Class)) {
                     throw new IllegalArgumentException("Unsupported generic type for key or value type: " + pt
                             + ", these must be Class instances");
                 }
