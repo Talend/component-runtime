@@ -57,8 +57,8 @@ public class ServiceHelper {
                         .initialize(instance,
                                 new InterceptorHandlerFacade(serviceClass.getConstructor().newInstance(), allServices));
             }
-            if (instance instanceof BaseService baseService) {
-                this.updateService(baseService, containerId, serviceClass.getName());
+            if (instance instanceof BaseService) {
+                this.updateService((BaseService) instance, containerId, serviceClass.getName());
             }
             return instance;
         } catch (final InstantiationException | IllegalAccessException e) {

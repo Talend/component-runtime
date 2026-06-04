@@ -153,7 +153,8 @@ public class VaultClient {
     private Pattern compiledPassthroughRegex;
 
     private final Predicate<Throwable> shouldRetry = cause -> {
-        if (cause instanceof WebApplicationException wae) {
+        if (cause instanceof WebApplicationException) {
+            final WebApplicationException wae = (WebApplicationException) cause;
             final int status = wae.getResponse().getStatus();
             if (Status.NOT_FOUND.getStatusCode() == status || status >= 500) {
                 return false;
@@ -329,7 +330,8 @@ public class VaultClient {
                                 final Throwable cause = e.getCause();
                                 String message = "";
                                 int status = cantDecipherStatusCode;
-                                if (cause instanceof WebApplicationException wae) {
+                                if (cause instanceof WebApplicationException) {
+                                    final WebApplicationException wae = (WebApplicationException) cause;
                                     final Response response = wae.getResponse();
                                     if (response != null) {
                                         if (response.getEntity() instanceof ErrorPayload) { // internal error
@@ -408,7 +410,8 @@ public class VaultClient {
                 //
                 .exceptionally(e -> {
                     final Throwable cause = e.getCause();
-                    if (cause instanceof WebApplicationException wae) {
+                    if (cause instanceof WebApplicationException) {
+                        final WebApplicationException wae = (WebApplicationException) cause;
                         final Response response = wae.getResponse();
                         String message = "";
                         if (wae.getResponse().getEntity() instanceof ErrorPayload) {
@@ -468,7 +471,8 @@ public class VaultClient {
     private void throwError(final Throwable cause) {
         String message = "";
         int status = cantDecipherStatusCode;
-        if (cause instanceof WebApplicationException wae) {
+        if (cause instanceof WebApplicationException) {
+            final WebApplicationException wae = (WebApplicationException) cause;
             final Response response = wae.getResponse();
             status = response.getStatus();
             if (response != null) {

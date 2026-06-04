@@ -163,17 +163,18 @@ public class LayoutValidator implements Validator {
 
     private Class<?> toJavaType(final ParameterMeta p) {
         if (p.getType().equals(OBJECT) || p.getType().equals(ENUM)) {
-            if (p.getJavaType() instanceof Class classVal) {
-                return classVal;
+            if (p.getJavaType() instanceof Class) {
+                return (Class) p.getJavaType();
             }
             throw new IllegalArgumentException("Unsupported type for parameter " + p.getPath() + " (from "
                     + p.getSource().declaringClass() + "), ensure it is a Class<?>");
         }
 
-        if (p.getType().equals(ARRAY) && p.getJavaType() instanceof ParameterizedType parameterizedType) {
+        if (p.getType().equals(ARRAY) && p.getJavaType() instanceof ParameterizedType) {
+            final ParameterizedType parameterizedType = (ParameterizedType) p.getJavaType();
             final Type[] arguments = parameterizedType.getActualTypeArguments();
-            if (arguments.length == 1 && arguments[0] instanceof Class clazz) {
-                return clazz;
+            if (arguments.length == 1 && arguments[0] instanceof Class) {
+                return (Class) arguments[0];
             }
             throw new IllegalArgumentException("Unsupported type for parameter " + p.getPath() + " (from "
                     + p.getSource().declaringClass() + "), " + "ensure it is a ParameterizedType with one argument");

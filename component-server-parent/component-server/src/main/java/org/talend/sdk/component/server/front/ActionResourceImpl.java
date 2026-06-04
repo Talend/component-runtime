@@ -181,7 +181,8 @@ public class ActionResourceImpl implements ActionResource {
             } else {
                 cause = e.getCause();
             }
-            if (cause instanceof WebApplicationException wae) {
+            if (cause instanceof WebApplicationException) {
+                final WebApplicationException wae = (WebApplicationException) cause;
                 final Response response = wae.getResponse();
                 String message = "";
                 if (wae.getResponse().getEntity() instanceof ErrorPayload) {
@@ -211,11 +212,12 @@ public class ActionResourceImpl implements ActionResource {
 
     private Response onError(final Throwable re) {
         log.warn(re.getMessage(), re);
-        if (re.getCause() instanceof WebApplicationException wae) {
-            return wae.getResponse();
+        if (re.getCause() instanceof WebApplicationException) {
+            return ((WebApplicationException) re.getCause()).getResponse();
         }
 
-        if (re instanceof ComponentException ce) {
+        if (re instanceof ComponentException) {
+            final ComponentException ce = (ComponentException) re;
             throw new WebApplicationException(Response
                     .status(ce.getErrorOrigin() == ComponentException.ErrorOrigin.USER ? 400
                             : ce.getErrorOrigin() == ComponentException.ErrorOrigin.BACKEND ? 456 : 520,

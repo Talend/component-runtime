@@ -140,8 +140,8 @@ public class DiRowStructVisitor {
                         onBoolean(name, raw);
                         break;
                     case StudioTypes.DATE:
-                        if (raw instanceof Timestamp timestamp) {
-                            onInstant(name, timestamp);
+                        if (raw instanceof Timestamp) {
+                            onInstant(name, (Timestamp) raw);
                             break;
                         }
                         onDatetime(name, ((Date) raw).toInstant().atZone(UTC));
@@ -191,10 +191,10 @@ public class DiRowStructVisitor {
                     break;
                 case StudioTypes.BYTE_ARRAY:
                     final byte[] bytes;
-                    if (value instanceof byte[] byteArr) {
-                        bytes = byteArr;
-                    } else if (value instanceof ByteBuffer byteBuffer) {
-                        bytes = byteBuffer.array();
+                    if (value instanceof byte[]) {
+                        bytes = (byte[]) value;
+                    } else if (value instanceof ByteBuffer) {
+                        bytes = ((ByteBuffer) value).array();
                     } else {
                         log.warn("[visit] '{}' of type `id_byte[]` and content is contained in `{}`:"
                                 + " This should not happen! "
@@ -226,7 +226,7 @@ public class DiRowStructVisitor {
                     break;
                 case StudioTypes.DATE:
                     final ZonedDateTime dateTime;
-                    dateTime = ZonedDateTime.ofInstant(value instanceof Long longVal ? ofEpochMilli(longVal)
+                    dateTime = ZonedDateTime.ofInstant(value instanceof Long ? ofEpochMilli((Long) value)
                             : ((Date) value).toInstant(), UTC);
                     onDatetime(metaName, dateTime);
                     break;

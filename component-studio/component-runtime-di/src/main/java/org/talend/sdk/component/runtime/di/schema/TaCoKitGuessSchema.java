@@ -174,10 +174,10 @@ public class TaCoKitGuessSchema {
 
     private DiscoverSchemaException transformException(final Exception e) {
         DiscoverSchemaException discoverSchemaException;
-        if (e instanceof DiscoverSchemaException dse) {
-            discoverSchemaException = dse;
-        } else if (e instanceof ComponentException ce) {
-            discoverSchemaException = new DiscoverSchemaException(ce);
+        if (e instanceof DiscoverSchemaException) {
+            discoverSchemaException = (DiscoverSchemaException) e;
+        } else if (e instanceof ComponentException) {
+            discoverSchemaException = new DiscoverSchemaException((ComponentException) e);
         } else {
             discoverSchemaException = new DiscoverSchemaException(e.getMessage(), e.getStackTrace(), EXCEPTION);
         }
@@ -253,11 +253,12 @@ public class TaCoKitGuessSchema {
         }
         final Object schemaResult =
                 actionRef.getInvoker().apply(buildActionConfig(actionRef, configuration, schema, branch));
-        if (schemaResult instanceof Schema result) {
+        if (schemaResult instanceof Schema) {
+            final Schema result = (Schema) schemaResult;
             if (result.getEntries().isEmpty()) {
                 throw new DiscoverSchemaException(ERROR_NO_AVAILABLE_SCHEMA_FOUND, EXCEPTION);
             } else {
-                fromSchema(result);
+                fromSchema((Schema) schemaResult);
             }
         }
     }
@@ -467,8 +468,8 @@ public class TaCoKitGuessSchema {
                         : buildActionConfig(actionRef, configuration, schema, "INPUT");
         final Object schemaResult = actionRef.getInvoker().apply(actionConfiguration);
 
-        if (schemaResult instanceof Schema resultSchema) {
-            return fromSchema(resultSchema);
+        if (schemaResult instanceof Schema) {
+            return fromSchema((Schema) schemaResult);
 
         } else {
             log.error(ERROR_INSTANCE_SCHEMA);
@@ -500,7 +501,8 @@ public class TaCoKitGuessSchema {
     public Collection<Column> getFixedSchema(final String execute) {
         SchemaConverter sc = new SchemaConverter();
         Object o = sc.toObjectImpl(execute);
-        if (o instanceof Schema schema) {
+        if (o instanceof Schema) {
+            final Schema schema = (Schema) o;
             final Collection<Schema.Entry> entries = schema.getEntries();
             if (entries == null || entries.isEmpty()) {
                 log.info(NO_COLUMN_FOUND_BY_GUESS_SCHEMA);
@@ -659,8 +661,8 @@ public class TaCoKitGuessSchema {
         final Mapper mapper = componentManager
                 .findMapper(family, componentName, version, configuration)
                 .orElseThrow(() -> new IllegalArgumentException("Can't find " + family + "#" + componentName));
-        if (mapper instanceof JobStateAware jobStateAware) {
-            jobStateAware.setState(new JobStateAware.State());
+        if (mapper instanceof JobStateAware) {
+            ((JobStateAware) mapper).setState(new JobStateAware.State());
         }
         Input input = null;
         try {
@@ -673,10 +675,10 @@ public class TaCoKitGuessSchema {
             if (rowObject == null) {
                 return false;
             }
-            if (rowObject instanceof Record rcd) {
-                return fromSchema(rcd.getSchema());
-            } else if (rowObject instanceof java.util.Map map) {
-                return guessInputSchemaThroughResults(input, map);
+            if (rowObject instanceof Record) {
+                return fromSchema(((Record) rowObject).getSchema());
+            } else if (rowObject instanceof java.util.Map) {
+                return guessInputSchemaThroughResults(input, (java.util.Map) rowObject);
             } else if (rowObject instanceof java.util.Collection) {
                 throw new Exception("Can't guess schema from a Collection");
             } else {
@@ -705,12 +707,12 @@ public class TaCoKitGuessSchema {
      * @return true if completed; false if one more result row is needed.
      */
     public boolean guessSchemaThroughResult(final Object rowObject) throws Exception {
-        if (rowObject instanceof java.util.Map map) {
-            return guessSchemaThroughResult(map);
-        } else if (rowObject instanceof Schema schema) {
-            return fromSchema(schema);
-        } else if (rowObject instanceof Record rcd) {
-            return fromSchema(rcd.getSchema());
+        if (rowObject instanceof java.util.Map) {
+            return guessSchemaThroughResult((java.util.Map) rowObject);
+        } else if (rowObject instanceof Schema) {
+            return fromSchema((Schema) rowObject);
+        } else if (rowObject instanceof Record) {
+            return fromSchema(((Record) rowObject).getSchema());
         } else if (rowObject instanceof java.util.Collection) {
             throw new Exception("Can't guess schema from a Collection");
         } else {
@@ -762,8 +764,8 @@ public class TaCoKitGuessSchema {
 
     public void fromOutputEmitterPojo(final Processor processor, final String outBranchName) {
         Object o = processor;
-        while (o instanceof Delegated delegated) {
-            o = delegated.getDelegate();
+        while (o instanceof Delegated) {
+            o = ((Delegated) o).getDelegate();
         }
         final ClassLoader classLoader = o.getClass().getClassLoader();
         final Thread thread = Thread.currentThread();
@@ -778,12 +780,13 @@ public class TaCoKitGuessSchema {
                             .filter(i -> m.getParameters()[i].isAnnotationPresent(Output.class)
                                     && outBranchName.equals(m.getParameters()[i].getAnnotation(Output.class).value()))
                             .mapToObj(i -> m.getGenericParameterTypes()[i])
-                            .filter(t -> t instanceof ParameterizedType pt
-                                    && pt.getRawType() == OutputEmitter.class
-                                    && pt.getActualTypeArguments().length == 1)
+                            .filter(t -> t instanceof ParameterizedType
+                                    && ((ParameterizedType) t).getRawType() == OutputEmitter.class
+                                    && ((ParameterizedType) t).getActualTypeArguments().length == 1)
                             .map(p -> ((ParameterizedType) p).getActualTypeArguments()[0]))
                     .findFirst();
-            if (type.isPresent() && type.get() instanceof Class clazz) {
+            if (type.isPresent() && type.get() instanceof Class) {
+                final Class<?> clazz = (Class) type.get();
                 if (clazz != JsonObject.class) {
                     guessSchemaThroughResultClass(clazz);
                 }

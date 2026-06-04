@@ -193,16 +193,16 @@ public final class RecordImpl implements Record {
             if (entry.getType() == Schema.Type.DATETIME) {
                 if (value == null) {
                     withDateTime(entry, (ZonedDateTime) value);
-                } else if (value instanceof Long longValue) {
-                    withTimestamp(entry, longValue);
-                } else if (value instanceof Date date) {
-                    withDateTime(entry, date);
-                } else if (value instanceof ZonedDateTime zonedDateTime) {
-                    withDateTime(entry, zonedDateTime);
-                } else if (value instanceof Instant instant) {
-                    withInstant(entry, instant);
-                } else if (value instanceof Temporal temporal) {
-                    withTimestamp(entry, temporal.get(ChronoField.INSTANT_SECONDS) * 1000L);
+                } else if (value instanceof Long) {
+                    withTimestamp(entry, (Long) value);
+                } else if (value instanceof Date) {
+                    withDateTime(entry, (Date) value);
+                } else if (value instanceof ZonedDateTime) {
+                    withDateTime(entry, (ZonedDateTime) value);
+                } else if (value instanceof Instant) {
+                    withInstant(entry, (Instant) value);
+                } else if (value instanceof Temporal) {
+                    withTimestamp(entry, ((Temporal) value).get(ChronoField.INSTANT_SECONDS) * 1000L);
                 }
                 return this;
             } else {

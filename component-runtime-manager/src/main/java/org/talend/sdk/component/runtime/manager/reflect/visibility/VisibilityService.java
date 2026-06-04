@@ -148,14 +148,14 @@ public class VisibilityService {
                         return "0".equals(expected);
                     }
                     final int expectedSize = Integer.parseInt(expected);
-                    if (actual instanceof Collection collectionVal) {
-                        return expectedSize == collectionVal.size();
+                    if (actual instanceof Collection) {
+                        return expectedSize == ((Collection) actual).size();
                     }
                     if (actual.getClass().isArray()) {
                         return expectedSize == Array.getLength(actual);
                     }
-                    if (actual instanceof String string) {
-                        return expectedSize == string.length();
+                    if (actual instanceof String) {
+                        return expectedSize == ((String) actual).length();
                     }
                     return false;
                 default:
@@ -190,8 +190,8 @@ public class VisibilityService {
                                     .map(it -> it.contains(expected))
                                     .orElse(false);
                         }
-                        if (actual instanceof Collection collectionVal) {
-                            final Collection<?> collection = collectionVal;
+                        if (actual instanceof Collection) {
+                            final Collection<?> collection = (Collection) actual;
                             return collection.stream().map(preprocessor).anyMatch(it -> it.contains(expected));
                         }
                         if (actual.getClass().isArray()) {

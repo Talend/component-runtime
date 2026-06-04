@@ -68,9 +68,9 @@ public class MappingUtils {
         // non-matching types
         if (!expectedType.isInstance(value)) {
             // number classes mapping
-            if (value instanceof Number number
+            if (value instanceof Number
                     && Number.class.isAssignableFrom(PRIMITIVE_WRAPPER_MAP.getOrDefault(expectedType, expectedType))) {
-                return mapNumber(expectedType, number);
+                return mapNumber(expectedType, (Number) value);
             }
             // mapping primitive <-> Class
             if (isAssignableTo(value.getClass(), expectedType)) {
@@ -80,21 +80,21 @@ public class MappingUtils {
                 return String.valueOf(value);
             }
             // TCOMP-2293 support Instant
-            if (value instanceof Instant instantVal) {
+            if (value instanceof Instant) {
                 if (ZonedDateTime.class == expectedType) {
-                    return ZonedDateTime.ofInstant(instantVal, UTC);
+                    return ZonedDateTime.ofInstant((Instant) value, UTC);
                 } else if (java.util.Date.class == expectedType) {
-                    return java.sql.Timestamp.from(instantVal);
+                    return java.sql.Timestamp.from((Instant) value);
                 } else if (Long.class == expectedType) {
-                    return instantVal.toEpochMilli();
+                    return ((Instant) value).toEpochMilli();
                 }
             }
             if (value instanceof Timestamp
                     && (java.util.Date.class == expectedType || Instant.class == expectedType)) {
                 return value;
             }
-            if (value instanceof long[]  longArray) {
-                final Instant instant = Instant.ofEpochSecond(longArray[0], longArray[1]);
+            if (value instanceof long[]) {
+                final Instant instant = Instant.ofEpochSecond(((long[]) value)[0], ((long[]) value)[1]);
                 if (ZonedDateTime.class == expectedType) {
                     return ZonedDateTime.ofInstant(instant, UTC);
                 }

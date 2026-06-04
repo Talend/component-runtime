@@ -182,9 +182,8 @@ class ComponentValidatorTest {
         public void afterEach(final ExtensionContext context) {
             final ExtensionContext.Store store = context.getStore(NAMESPACE);
             final boolean fails = !((ComponentPackage) store.get(ComponentPackage.class.getName())).success();
-            final String expectedMessage =
-                    ((ExceptionSpec) context.getStore(NAMESPACE).get(ExceptionSpec.class.getName()))
-                            .getMessage();
+            final String expectedMessage = ((ExceptionSpec) context.getStore(NAMESPACE).get(ExceptionSpec.class.getName()))
+                    .getMessage();
             try {
                 ((ComponentValidator) store.get(ComponentValidator.class.getName())).run();
                 if (fails) {

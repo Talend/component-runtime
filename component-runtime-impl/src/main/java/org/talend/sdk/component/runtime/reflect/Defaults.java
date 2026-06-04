@@ -63,11 +63,10 @@ public class Defaults {
                     .invokeWithArguments(args);
         } else { // j > 8 - can need some --add-opens, we will add a module-info later to be clean when dropping j8
             final Method privateLookup = findPrivateLookup();
-            HANDLER = (clazz, method, proxy,
-                    args) -> ((MethodHandles.Lookup) privateLookup.invoke(null, clazz, constructor.newInstance(clazz)))
-                            .unreflectSpecial(method, clazz)
-                            .bindTo(proxy)
-                            .invokeWithArguments(args);
+            HANDLER = (clazz, method, proxy, args) -> ((MethodHandles.Lookup) privateLookup.invoke(null, clazz, constructor.newInstance(clazz)))
+                    .unreflectSpecial(method, clazz)
+                    .bindTo(proxy)
+                    .invokeWithArguments(args);
         }
     }
 

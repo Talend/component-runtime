@@ -33,8 +33,8 @@ public class ParameterSetter {
     private final Object delegate;
 
     public ParameterSetter(final Lifecycle lifecycle) {
-        if (lifecycle instanceof Delegated delegated) {
-            delegate = delegated.getDelegate();
+        if (lifecycle instanceof Delegated) {
+            delegate = ((Delegated) lifecycle).getDelegate();
         } else {
             throw new IllegalArgumentException("Not supported implementation of lifecycle : " + lifecycle);
         }
@@ -92,8 +92,8 @@ public class ParameterSetter {
                 try {
                     target = field.get(target);
                     if (arrayLocation > -1) {
-                        if (target instanceof List list) {
-                            target = list.get(arrayLocation);
+                        if (target instanceof List) {
+                            target = ((List) target).get(arrayLocation);
                         } else {
                             log.warn("expect a list, but not");
                             return;

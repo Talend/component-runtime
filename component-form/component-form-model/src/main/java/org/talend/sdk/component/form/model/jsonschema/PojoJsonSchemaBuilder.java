@@ -64,7 +64,7 @@ class PojoJsonSchemaBuilder {
     private JsonSchema buildSchema(final Field field) {
         final Type genericType = field.getGenericType();
 
-        if ((genericType instanceof Class clazz && CharSequence.class.isAssignableFrom(clazz))
+        if ((genericType instanceof Class && CharSequence.class.isAssignableFrom((Class) genericType))
                 || genericType == char.class || genericType == Character.class) {
             return schemas.computeIfAbsent((Class) genericType, k -> jsonSchema().withType("string").build());
         } else if (genericType == long.class || genericType == Long.class || genericType == int.class
@@ -76,14 +76,15 @@ class PojoJsonSchemaBuilder {
         } else if (genericType == boolean.class || genericType == Boolean.class) {
             return schemas
                     .computeIfAbsent((Class) genericType, k -> jsonSchema().withType("boolean").build());
-        } else if (genericType instanceof Class classVal) {
-            final Class<?> clazz = classVal;
+        } else if (genericType instanceof Class) {
+            final Class<?> clazz = (Class) genericType;
             return ofNullable(schemas.get(clazz)).orElseGet(() -> {
                 final JsonSchema jsonSchema = create(clazz).build();
                 schemas.put(clazz, jsonSchema);
                 return jsonSchema;
             });
-        } else if (genericType instanceof ParameterizedType pt) {
+        } else if (genericType instanceof ParameterizedType) {
+            final ParameterizedType pt = (ParameterizedType) genericType;
             final Type rawType = pt.getRawType();
             if (!(rawType instanceof Class)) {
                 throw new IllegalArgumentException("Unsupported raw type: " + pt + ", this must be a Class");

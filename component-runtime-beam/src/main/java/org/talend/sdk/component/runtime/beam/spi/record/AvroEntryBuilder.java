@@ -22,7 +22,8 @@ public class AvroEntryBuilder extends SchemaImpl.EntryImpl.BuilderImpl {
 
     @Override
     public Schema.Entry.Builder withElementSchema(final Schema schema) {
-        if (schema instanceof AvroSchema innerSchema) {
+        if (schema instanceof AvroSchema) {
+            final AvroSchema innerSchema = (AvroSchema) schema;
             AvroSchema avroSchema = this.authorizeNull(innerSchema);
             return super.withElementSchema(avroSchema);
         }

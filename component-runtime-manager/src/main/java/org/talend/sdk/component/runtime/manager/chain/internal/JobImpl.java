@@ -258,12 +258,12 @@ public class JobImpl implements Job {
         public void run() {
             ExecutorBuilder runner = this;
             final Object o = jobProperties.get(ExecutorBuilder.class.getName());
-            if (o instanceof ExecutorBuilder executorBuilder) {
-                runner = executorBuilder;
-            } else if (o instanceof Class classVal) {
-                runner = newRunner(classVal);
-            } else if (o instanceof String string) {
-                final String name = string.trim();
+            if (o instanceof ExecutorBuilder) {
+                runner = (ExecutorBuilder) o;
+            } else if (o instanceof Class) {
+                runner = newRunner((Class) o);
+            } else if (o instanceof String) {
+                final String name = ((String) o).trim();
                 if (!"standalone".equalsIgnoreCase(name) && !"default".equalsIgnoreCase(name)
                         && !"local".equalsIgnoreCase(name)) {
                     if ("beam".equalsIgnoreCase(name)) {
@@ -356,8 +356,8 @@ public class JobImpl implements Job {
                                 .orElseThrow(() -> new IllegalStateException(
                                         "No processor found for:" + component.getNode()));
                         final AtomicInteger maxBatchSize = new AtomicInteger(1);
-                        if (processor instanceof ProcessorImpl processorImpl) {
-                            processorImpl
+                        if (processor instanceof ProcessorImpl) {
+                            ((ProcessorImpl) processor)
                                     .getInternalConfiguration()
                                     .entrySet()
                                     .stream()
@@ -539,14 +539,14 @@ public class JobImpl implements Job {
         public GroupKeyProvider getKeyProvider(final String componentId) {
             if (componentProperties.get(componentId) != null) {
                 final Object o = componentProperties.get(componentId).get(GroupKeyProvider.class.getName());
-                if (o instanceof GroupKeyProvider groupKeyProvider) {
-                    return new GroupKeyProviderImpl(groupKeyProvider);
+                if (o instanceof GroupKeyProvider) {
+                    return new GroupKeyProviderImpl((GroupKeyProvider) o);
                 }
             }
 
             final Object o = jobProperties.get(GroupKeyProvider.class.getName());
-            if (o instanceof GroupKeyProvider groupKeyProvider) {
-                return new GroupKeyProviderImpl(groupKeyProvider);
+            if (o instanceof GroupKeyProvider) {
+                return new GroupKeyProviderImpl((GroupKeyProvider) o);
             }
 
             final ServiceLoader<GroupKeyProvider> services = ServiceLoader.load(GroupKeyProvider.class);

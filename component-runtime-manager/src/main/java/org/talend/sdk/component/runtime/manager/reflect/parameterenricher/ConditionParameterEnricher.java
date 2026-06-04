@@ -42,7 +42,8 @@ public class ConditionParameterEnricher extends BaseParameterEnricher {
         final Condition condition = annotation.annotationType().getAnnotation(Condition.class);
         if (condition != null) {
             final String type = condition.value();
-            if (annotation instanceof ActiveIfs activeIfs) {
+            if (annotation instanceof ActiveIfs) {
+                final ActiveIfs activeIfs = (ActiveIfs) annotation;
                 final Map<String, String> metas = Stream
                         .of(activeIfs.value())
                         .map(ai -> onParameterAnnotation(parameterName, parameterType, ai))
@@ -72,8 +73,8 @@ public class ConditionParameterEnricher extends BaseParameterEnricher {
                 .collect(toMap(m -> META_PREFIX + type + "::" + m.getName(), m -> {
                     try {
                         final Object invoke = m.invoke(annotation);
-                        if (invoke instanceof String[] stringArr) {
-                            return Stream.of(stringArr).collect(joining(","));
+                        if (invoke instanceof String[]) {
+                            return Stream.of((String[]) invoke).collect(joining(","));
                         }
                         if (ActiveIf.class == m.getDeclaringClass() && "evaluationStrategy".equals(m.getName())) {
                             final ActiveIf.EvaluationStrategyOption[] options =

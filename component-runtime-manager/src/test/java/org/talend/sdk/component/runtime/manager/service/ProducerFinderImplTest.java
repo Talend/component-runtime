@@ -77,8 +77,8 @@ class ProducerFinderImplTest {
     }
 
     private Record toRecord(final Object object) {
-        if (object instanceof Record rcd) {
-            return rcd;
+        if (object instanceof Record) {
+            return (Record) object;
         }
         return null;
     }

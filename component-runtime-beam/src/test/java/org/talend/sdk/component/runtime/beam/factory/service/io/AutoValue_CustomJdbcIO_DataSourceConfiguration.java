@@ -86,7 +86,8 @@ final class AutoValue_CustomJdbcIO_DataSourceConfiguration extends CustomJdbcIO.
         if (o == this) {
             return true;
         }
-        if (o instanceof CustomJdbcIO.DataSourceConfiguration that) {
+        if (o instanceof CustomJdbcIO.DataSourceConfiguration) {
+            CustomJdbcIO.DataSourceConfiguration that = (CustomJdbcIO.DataSourceConfiguration) o;
             return ((this.driverClassName == null) ? (that.getDriverClassName() == null)
                     : this.driverClassName.equals(that.getDriverClassName()))
                     && ((this.url == null) ? (that.getUrl() == null) : this.url.equals(that.getUrl()))

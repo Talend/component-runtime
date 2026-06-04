@@ -190,7 +190,8 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
             return migrated;
         } catch (final Exception e) {
             // contract of migrate() do not impose to throw a ComponentException, so not likely to happen...
-            if (e instanceof ComponentException ce) {
+            if (e instanceof ComponentException) {
+                final ComponentException ce = (ComponentException) e;
                 throw new WebApplicationException(Response
                         .status(ce.getErrorOrigin() == ComponentException.ErrorOrigin.USER ? 400
                                 : ce.getErrorOrigin() == ComponentException.ErrorOrigin.BACKEND ? 456 : 520,

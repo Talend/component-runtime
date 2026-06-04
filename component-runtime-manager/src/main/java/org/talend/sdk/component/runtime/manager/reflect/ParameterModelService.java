@@ -91,12 +91,12 @@ public class ParameterModelService {
 
     public boolean isService(final Param parameter) {
         final Class<?> type;
-        if (parameter.type instanceof Class classVal) {
-            type = classVal;
-        } else if (parameter.type instanceof ParameterizedType pt) {
-            final Type rawType = pt.getRawType();
-            if (rawType instanceof Class classVal) {
-                type = classVal;
+        if (parameter.type instanceof Class) {
+            type = (Class) parameter.type;
+        } else if (parameter.type instanceof ParameterizedType) {
+            final Type rawType = ((ParameterizedType) parameter.type).getRawType();
+            if (rawType instanceof Class) {
+                type = (Class) rawType;
             } else {
                 return false;
             }
@@ -136,12 +136,13 @@ public class ParameterModelService {
     }
 
     private Stream<Annotation> extractTypeAnnotation(final Param parameter) {
-        if (parameter.type instanceof Class classVal) {
-            return Stream.of(classVal.getAnnotations());
+        if (parameter.type instanceof Class) {
+            return Stream.of(((Class) parameter.type).getAnnotations());
         }
-        if (parameter.type instanceof ParameterizedType parameterizedType) {
-            if (parameterizedType.getRawType() instanceof Class classVal) {
-                return Stream.of(classVal.getAnnotations());
+        if (parameter.type instanceof ParameterizedType) {
+            final ParameterizedType parameterizedType = (ParameterizedType) parameter.type;
+            if (parameterizedType.getRawType() instanceof Class) {
+                return Stream.of(((Class) parameterizedType.getRawType()).getAnnotations());
             }
         }
         return Stream.empty();
@@ -179,13 +180,13 @@ public class ParameterModelService {
                 nested.addAll(meta);
                 break;
             case ARRAY:
-                final Type nestedType = genericType instanceof Class clazz && clazz.isArray()
-                        ? clazz.getComponentType()
+                final Type nestedType = genericType instanceof Class && ((Class) genericType).isArray()
+                        ? ((Class) genericType).getComponentType()
                         : ((ParameterizedType) genericType).getActualTypeArguments()[0];
                 addI18nPackageIfPossible(i18nPackages, nestedType);
                 nested
                         .addAll(buildParametersMetas(name + "[${index}]", normalizedPrefix + "[${index}].", nestedType,
-                                nestedType instanceof Class clazz ? clazz.getAnnotations()
+                                nestedType instanceof Class ? ((Class) nestedType).getAnnotations()
                                         : NO_ANNOTATIONS,
                                 i18nPackages, ignoreI18n, context));
                 break;
@@ -207,8 +208,8 @@ public class ParameterModelService {
     }
 
     private void addI18nPackageIfPossible(final Collection<String> i18nPackages, final Type type) {
-        if (type instanceof Class classVal) {
-            final Package typePck = classVal.getPackage();
+        if (type instanceof Class) {
+            final Package typePck = ((Class) type).getPackage();
             if (typePck != null && !typePck.getName().isEmpty() && !i18nPackages.contains(typePck.getName())) {
                 i18nPackages.add(typePck.getName());
             }
@@ -218,7 +219,8 @@ public class ParameterModelService {
     private Map<String, String> buildExtensions(final String name, final Type genericType,
             final Annotation[] annotations, final BaseParameterEnricher.Context context) {
         return getAnnotations(genericType, annotations).distinct().flatMap(a -> enrichers.stream().map(e -> {
-            if (e instanceof BaseParameterEnricher bpe) {
+            if (e instanceof BaseParameterEnricher) {
+                final BaseParameterEnricher bpe = (BaseParameterEnricher) e;
                 return bpe.withContext(context, () -> bpe.onParameterAnnotation(name, genericType, a));
             }
             return e.onParameterAnnotation(name, genericType, a);
@@ -252,16 +254,16 @@ public class ParameterModelService {
                 .concat(Stream.of(annotations),
                         // if a class concat its annotations
                         genericType instanceof Class
-                                ? getClassAnnotations(genericType, annotations)
-                                : (hasAClassFirstParameter(genericType) ? getClassAnnotations(
-                                        ((ParameterizedType) genericType).getActualTypeArguments()[0],
-                                        annotations) : Stream.empty()));
+                                        ? getClassAnnotations(genericType, annotations)
+                                        : (hasAClassFirstParameter(genericType) ? getClassAnnotations(
+                                                ((ParameterizedType) genericType).getActualTypeArguments()[0],
+                                                annotations) : Stream.empty()));
     }
 
     private boolean hasAClassFirstParameter(final Type genericType) {
-        return genericType instanceof ParameterizedType pt // if a list concat the item type annotations
-                && pt.getActualTypeArguments().length == 1
-                && pt.getActualTypeArguments()[0] instanceof Class;
+        return genericType instanceof ParameterizedType // if a list concat the item type annotations
+                && ((ParameterizedType) genericType).getActualTypeArguments().length == 1
+                && ((ParameterizedType) genericType).getActualTypeArguments()[0] instanceof Class;
     }
 
     private Stream<Annotation> getClassAnnotations(final Type genericType, final Annotation[] annotations) {
@@ -273,7 +275,8 @@ public class ParameterModelService {
     private List<ParameterMeta> buildParametersMetas(final String name, final String prefix, final Type type,
             final Annotation[] annotations, final Collection<String> i18nPackages, final boolean ignoreI18n,
             final BaseParameterEnricher.Context context) {
-        if (type instanceof ParameterizedType pt) {
+        if (type instanceof ParameterizedType) {
+            final ParameterizedType pt = (ParameterizedType) type;
             if (!(pt.getRawType() instanceof Class)) {
                 throw new IllegalArgumentException("Unsupported raw type in ParameterizedType parameter: " + pt);
             }
@@ -294,7 +297,7 @@ public class ParameterModelService {
                 }
                 return Stream
                         .concat(buildParametersMetas(name + ".key[${index}]", prefix + "key[${index}].",
-                                (Class) pt.getActualTypeArguments()[0], annotations, i18nPackages, ignoreI18n,
+                                        (Class) pt.getActualTypeArguments()[0], annotations, i18nPackages, ignoreI18n,
                                 context).stream(),
                                 buildParametersMetas(name + ".value[${index}]", prefix + "value[${index}].",
                                         (Class) pt.getActualTypeArguments()[1], annotations, i18nPackages,
@@ -302,7 +305,7 @@ public class ParameterModelService {
                         .collect(toList());
             }
         }
-        if (type instanceof Class classVal) {
+        if (type instanceof Class) {
             switch (findType(type)) {
                 case ENUM:
                 case STRING:
@@ -317,12 +320,12 @@ public class ParameterModelService {
 
                         @Override
                         public Class<?> declaringClass() {
-                            return classVal;
+                            return (Class) type;
                         }
                     }, type, annotations, i18nPackages, ignoreI18n, context));
                 default:
             }
-            return buildObjectParameters(prefix, classVal, i18nPackages, ignoreI18n, context);
+            return buildObjectParameters(prefix, (Class) type, i18nPackages, ignoreI18n, context);
         }
         throw new IllegalArgumentException("Unsupported parameter type: " + type);
     }
@@ -371,8 +374,8 @@ public class ParameterModelService {
     }
 
     private ParameterMeta.Type findType(final Type type) {
-        if (type instanceof Class classVal) {
-            final Class<?> clazz = classVal;
+        if (type instanceof Class) {
+            final Class<?> clazz = (Class) type;
 
             // we handled char before so we only have numbers now for primitives
             if (Primitives.unwrap(clazz) == boolean.class) {
@@ -392,9 +395,10 @@ public class ParameterModelService {
                 return ParameterMeta.Type.ARRAY;
             }
         }
-        if (type instanceof ParameterizedType pt) {
-            if (pt.getRawType() instanceof Class classVal) {
-                final Class<?> raw = classVal;
+        if (type instanceof ParameterizedType) {
+            final ParameterizedType pt = (ParameterizedType) type;
+            if (pt.getRawType() instanceof Class) {
+                final Class<?> raw = (Class) pt.getRawType();
                 if (Collection.class.isAssignableFrom(raw)) {
                     return ParameterMeta.Type.ARRAY;
                 }

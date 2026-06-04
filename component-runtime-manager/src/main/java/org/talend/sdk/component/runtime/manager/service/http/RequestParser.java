@@ -233,8 +233,8 @@ public class RequestParser {
             if (payload == null) {
                 return Optional.empty();
             }
-            if (payload instanceof byte[] bytes) {
-                return Optional.of(bytes);
+            if (payload instanceof byte[]) {
+                return Optional.of((byte[]) payload);
             }
             if (encoders.size() == 1) {
                 return Optional.of(encoders.values().iterator().next().encode(payload));
@@ -257,12 +257,13 @@ public class RequestParser {
 
     static Class<?> toClassType(final Type type) {
         Class<?> cType = null;
-        if (type instanceof Class classVal) {
-            cType = classVal;
-        } else if (type instanceof ParameterizedType pt) {
+        if (type instanceof Class) {
+            cType = (Class) type;
+        } else if (type instanceof ParameterizedType) {
+            final ParameterizedType pt = (ParameterizedType) type;
             if (pt.getRawType() == Response.class && pt.getActualTypeArguments().length == 1
-                    && pt.getActualTypeArguments()[0] instanceof Class clazz) {
-                cType = clazz;
+                    && pt.getActualTypeArguments()[0] instanceof Class) {
+                cType = (Class) pt.getActualTypeArguments()[0];
             }
         }
 

@@ -64,7 +64,7 @@ public class DependencyParameterEnricher extends BaseParameterEnricher {
 
         // Check it's a Collection (java.util)
         final Type rawType = parameterClass.getRawType();
-        if ((!(rawType instanceof Class clazz)) || !Collection.class.isAssignableFrom(clazz)) {
+        if ((!(rawType instanceof Class)) || !Collection.class.isAssignableFrom((Class) rawType)) {
             return false;
         }
 

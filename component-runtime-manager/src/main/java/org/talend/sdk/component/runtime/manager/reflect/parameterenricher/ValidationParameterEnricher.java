@@ -49,9 +49,9 @@ public class ValidationParameterEnricher extends BaseParameterEnricher {
     }
 
     private Class<?> toClass(final Type parameterType) {
-        return parameterType instanceof ParameterizedType pt
-                ? toClass(pt.getRawType())
-                : (parameterType instanceof Class clazz ? clazz : null);
+        return parameterType instanceof ParameterizedType
+                ? toClass(((ParameterizedType) parameterType).getRawType())
+                : (parameterType instanceof Class ? (Class) parameterType : null);
     }
 
     private String getValueString(final Annotation annotation) {

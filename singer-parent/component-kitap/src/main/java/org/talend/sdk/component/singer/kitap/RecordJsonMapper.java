@@ -58,8 +58,7 @@ public class RecordJsonMapper implements Function<Record, JsonObject> {
 
     private final Singer singer;
 
-    private final RecordService service = (RecordService) new DefaultServiceProvider(null, JsonProvider.provider(),
-            Json.createGeneratorFactory(emptyMap()),
+    private final RecordService service = (RecordService) new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
             Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
             Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
             JsonbProvider.provider(), null, null, emptyList(), t -> new RecordBuilderFactoryImpl("kitap"), null)

@@ -164,13 +164,14 @@ public class AutoValueFluentApiFactory implements Serializable {
         if (String.class == type) { // fast path
             return v;
         }
-        if (type instanceof Class clazz && (clazz.isInstance(v))) {
+        if (type instanceof Class && ((Class) type).isInstance(v)) {
             return v;
         }
-        if (type instanceof ParameterizedType pt) {
+        if (type instanceof ParameterizedType) {
+            final ParameterizedType pt = (ParameterizedType) type;
             final Type raw = pt.getRawType();
             // we know what we do if we use that
-            if (raw instanceof Class clazz && clazz.isInstance(v)) {
+            if (raw instanceof Class && ((Class) raw).isInstance(v)) {
                 return v;
             }
         }

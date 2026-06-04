@@ -52,8 +52,7 @@ class RecordServiceImplTest {
 
     private final RecordBuilderFactory factory = new RecordBuilderFactoryImpl(null);
 
-    private final RecordService service = (RecordService) new DefaultServiceProvider(null, JsonProvider.provider(),
-            Json.createGeneratorFactory(emptyMap()),
+    private final RecordService service = (RecordService) new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
             Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
             Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
             JsonbProvider.provider(), null, null, emptyList(), t -> factory, null)
@@ -105,28 +104,28 @@ class RecordServiceImplTest {
         assertEquals(3,
                 service
                         .visit((RecordVisitor) Proxy
-                                .newProxyInstance(Thread.currentThread().getContextClassLoader(),
-                                        new Class<?>[] { RecordVisitor.class }, (proxy, method, args) -> {
-                                            visited
-                                                    .add(method.getName() + "/"
-                                                            + (args == null ? "null"
+                                        .newProxyInstance(Thread.currentThread().getContextClassLoader(),
+                                                new Class<?>[]{RecordVisitor.class}, (proxy, method, args) -> {
+                                                    visited
+                                                            .add(method.getName() + "/"
+                                                                    + (args == null ? "null"
                                                                     : Stream
-                                                                            .of(args)
-                                                                            .filter(it -> !(it instanceof Schema.Entry))
-                                                                            .collect(Collectors.toList())));
-                                            switch (method.getName()) {
-                                                case "get":
-                                                    return out.incrementAndGet();
-                                                case "apply":
-                                                    return asList(args)
-                                                            .stream()
-                                                            .mapToInt(Integer.class::cast)
-                                                            .sum();
-                                                default:
-                                                    return method.getReturnType() == RecordVisitor.class ? proxy
-                                                            : null;
-                                            }
-                                        }),
+                                                                    .of(args)
+                                                                    .filter(it -> !(it instanceof Schema.Entry))
+                                                                    .collect(Collectors.toList())));
+                                                    switch (method.getName()) {
+                                                        case "get":
+                                                            return out.incrementAndGet();
+                                                        case "apply":
+                                                            return asList(args)
+                                                                    .stream()
+                                                                    .mapToInt(Integer.class::cast)
+                                                                    .sum();
+                                                        default:
+                                                            return method.getReturnType() == RecordVisitor.class ? proxy
+                                                                    : null;
+                                                    }
+                                                }),
                                 baseRecord));
         assertEquals(asList("onString/[Optional[Test]]", "onInt/[OptionalInt[33]]",
                 "onRecord/[Optional[{\"street\":\"here\",\"number\":1}]]", "onString/[Optional[here]]",

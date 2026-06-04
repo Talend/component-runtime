@@ -807,12 +807,14 @@ public class ComponentManager implements AutoCloseable {
      */
     public static Map<String, String> jsonToMap(final JsonValue jsonValue, final String path) {
         final Map<String, String> result = new HashMap<>();
-        if (jsonValue instanceof JsonObject jsonObj) {
+        if (jsonValue instanceof JsonObject) {
+            JsonObject jsonObj = (JsonObject) jsonValue;
             for (String key : jsonObj.keySet()) {
                 String newPath = path.isEmpty() ? key : path + "." + key;
                 result.putAll(jsonToMap(jsonObj.get(key), newPath));
             }
-        } else if (jsonValue instanceof JsonArray jsonArray) {
+        } else if (jsonValue instanceof JsonArray) {
+            JsonArray jsonArray = (JsonArray) jsonValue;
             for (int i = 0; i < jsonArray.size(); i++) {
                 String newPath = path + "[" + i + "]";
                 result.putAll(jsonToMap(jsonArray.get(i), newPath));
@@ -873,7 +875,7 @@ public class ComponentManager implements AutoCloseable {
             final int version, final Map<String, String> configuration) {
         return findComponentInternal(plugin, name, componentType, version, configuration)
                 // unwrap to access the actual instance which is the desired one
-                .map(i -> i instanceof Delegated delegated ? delegated.getDelegate() : i);
+                .map(i -> i instanceof Delegated ? ((Delegated) i).getDelegate() : i);
     }
 
     private Optional<Object> findComponentInternal(final String plugin, final String name,
@@ -1414,9 +1416,9 @@ public class ComponentManager implements AutoCloseable {
                     }
                 } : optimizedFinder;
             } finally {
-                if (archive instanceof AutoCloseable autoCloseable) {
+                if (archive instanceof AutoCloseable) {
                     try {
-                        autoCloseable.close();
+                        ((AutoCloseable) archive).close();
                     } catch (final Exception e) {
                         log.warn(e.getMessage());
                     }
@@ -1794,16 +1796,16 @@ public class ComponentManager implements AutoCloseable {
         }
 
         private URL archiveToUrl(final Archive mainArchive) {
-            if (mainArchive instanceof JarArchive jarArchive) {
-                return jarArchive.getUrl();
-            } else if (mainArchive instanceof FileArchive fileArchive) {
+            if (mainArchive instanceof JarArchive) {
+                return ((JarArchive) mainArchive).getUrl();
+            } else if (mainArchive instanceof FileArchive) {
                 try {
-                    return fileArchive.getDir().toURI().toURL();
+                    return ((FileArchive) mainArchive).getDir().toURI().toURL();
                 } catch (final MalformedURLException e) {
                     throw new IllegalStateException(e);
                 }
-            } else if (mainArchive instanceof NestedJarArchive nestedJarArchive) {
-                return nestedJarArchive.getRootMarker();
+            } else if (mainArchive instanceof NestedJarArchive) {
+                return ((NestedJarArchive) mainArchive).getRootMarker();
             }
             return null;
         }
@@ -1922,8 +1924,7 @@ public class ComponentManager implements AutoCloseable {
                     () -> {
                         final List<ParameterMeta> params = parameterModelService
                                 .buildParameterMetas(constructor, getPackage(type),
-                                        new BaseParameterEnricher.Context((LocalConfiguration) services.getServices()
-                                                .get(LocalConfiguration.class)));
+                                        new BaseParameterEnricher.Context((LocalConfiguration) services.getServices().get(LocalConfiguration.class)));
                         if (infinite) {
                             if (partitionMapper.stoppable()) {
                                 addInfiniteMapperBuiltInParameters(type, params);
@@ -1976,8 +1977,7 @@ public class ComponentManager implements AutoCloseable {
             final Supplier<List<ParameterMeta>> parameterMetas = lazy(() -> executeInContainer(plugin,
                     () -> parameterModelService
                             .buildParameterMetas(constructor, getPackage(type),
-                                    new BaseParameterEnricher.Context((LocalConfiguration) services.getServices()
-                                            .get(LocalConfiguration.class)))));
+                                    new BaseParameterEnricher.Context((LocalConfiguration) services.getServices().get(LocalConfiguration.class)))));
             final Function<Map<String, String>, Object[]> parameterFactory =
                     createParametersFactory(plugin, constructor, services.getServices(), parameterMetas);
             final String name = of(emitter.name()).filter(n -> !n.isEmpty()).orElseGet(type::getName);
@@ -2161,8 +2161,7 @@ public class ComponentManager implements AutoCloseable {
             final Supplier<List<ParameterMeta>> parameterMetas = lazy(() -> executeInContainer(plugin,
                     () -> parameterModelService
                             .buildParameterMetas(constructor, getPackage(type),
-                                    new BaseParameterEnricher.Context((LocalConfiguration) services.getServices()
-                                            .get(LocalConfiguration.class)))));
+                                    new BaseParameterEnricher.Context((LocalConfiguration) services.getServices().get(LocalConfiguration.class)))));
             final Function<Map<String, String>, Object[]> parameterFactory =
                     createParametersFactory(plugin, constructor, services.getServices(), parameterMetas);
             final String name = of(processor.name()).filter(n -> !n.isEmpty()).orElseGet(type::getName);
@@ -2215,8 +2214,8 @@ public class ComponentManager implements AutoCloseable {
             return this.component == null || !component.equals(this.component.getName())
                     ? (this.component = new ComponentFamilyMeta(plugin, asList(components.categories()),
                             iconFinder.findIcon(familyAnnotationElement), comp,
-                            familyAnnotationElement instanceof Class clazz
-                                    ? getPackage(clazz)
+                            familyAnnotationElement instanceof Class
+                                    ? getPackage((Class) familyAnnotationElement)
                                     : ""))
                     : this.component;
         }

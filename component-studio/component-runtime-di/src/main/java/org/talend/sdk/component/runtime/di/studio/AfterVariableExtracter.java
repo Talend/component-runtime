@@ -40,8 +40,8 @@ public class AfterVariableExtracter {
      * @return map with after variables.
      */
     public static Map<String, Object> extractAfterVariables(final Lifecycle lifecycle) {
-        if (lifecycle instanceof Delegated delegated) {
-            final Object delegate = delegated.getDelegate();
+        if (lifecycle instanceof Delegated) {
+            final Object delegate = ((Delegated) lifecycle).getDelegate();
 
             final ClassLoader classloader = ReflectionUtils.getClassLoader(lifecycle);
 

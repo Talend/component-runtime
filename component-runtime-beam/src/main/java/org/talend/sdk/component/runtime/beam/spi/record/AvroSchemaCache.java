@@ -42,7 +42,8 @@ public class AvroSchemaCache {
         if (schema == null || schema instanceof AvroSchema) {
             return (AvroSchema) schema;
         }
-        if (schema instanceof SchemaImpl realSchema) {
+        if (schema instanceof SchemaImpl) {
+            final SchemaImpl realSchema = (SchemaImpl) schema;
             if ((!this.cache.containsKey(realSchema))
                     && this.cache.size() >= AvroSchemaCache.MAX_SIZE) {
                 this.removeOldest();

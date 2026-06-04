@@ -47,7 +47,7 @@ public class WebServer implements Runnable {
         this.serverArguments = serverArguments;
         this.port = port;
         try {
-            this.log = log instanceof Log lg ? lg : new ReflectiveLog(log);
+            this.log = log instanceof Log ? (Log) log : new ReflectiveLog(log);
         } catch (final NoSuchMethodException e) {
             throw new IllegalArgumentException(e);
         }

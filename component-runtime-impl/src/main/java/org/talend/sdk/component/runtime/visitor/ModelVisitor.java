@@ -134,8 +134,8 @@ public class ModelVisitor {
             }
 
             final ParameterizedType splitPt = (ParameterizedType) splitReturnType;
-            if (!(splitPt.getRawType() instanceof Class clazz)
-                    || !Collection.class.isAssignableFrom(clazz)) {
+            if (!(splitPt.getRawType() instanceof Class)
+                    || !Collection.class.isAssignableFrom((Class) splitPt.getRawType())) {
                 throw new IllegalArgumentException(m + " must return a List of partition mapper, found: " + splitPt);
             }
 

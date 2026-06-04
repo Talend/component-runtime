@@ -68,11 +68,11 @@ public class RecordConverters implements Serializable {
         if (data == null) {
             return null;
         }
-        if (data instanceof Record recordVal) {
-            return recordVal;
+        if (data instanceof Record) {
+            return (Record) data;
         }
-        if (data instanceof JsonObject jsonObject) {
-            return json2Record(recordBuilderProvider.get(), jsonObject);
+        if (data instanceof JsonObject) {
+            return json2Record(recordBuilderProvider.get(), (JsonObject) data);
         }
 
         final MappingMeta meta = registry.find(data.getClass());
@@ -172,17 +172,17 @@ public class RecordConverters implements Serializable {
     }
 
     private Object mapJson(final RecordBuilderFactory factory, final JsonValue it) {
-        if (it instanceof JsonObject jsonObject) {
-            return json2Record(factory, jsonObject);
+        if (it instanceof JsonObject) {
+            return json2Record(factory, (JsonObject) it);
         }
-        if (it instanceof JsonArray jsonArray) {
-            return jsonArray.stream().map(i -> mapJson(factory, i)).collect(toList());
+        if (it instanceof JsonArray) {
+            return ((JsonArray) it).stream().map(i -> mapJson(factory, i)).collect(toList());
         }
-        if (it instanceof JsonString jsonString) {
-            return jsonString.getString();
+        if (it instanceof JsonString) {
+            return ((JsonString) it).getString();
         }
-        if (it instanceof JsonNumber jsonNumber) {
-            return jsonNumber.numberValue();
+        if (it instanceof JsonNumber) {
+            return ((JsonNumber) it).numberValue();
         }
         if (JsonValue.FALSE.equals(it)) {
             return false;
@@ -237,8 +237,8 @@ public class RecordConverters implements Serializable {
                     .withElementSchema(toSchema(factory, collection.iterator().next()))
                     .build();
         }
-        if (next instanceof Record recordVal) {
-            return recordVal.getSchema();
+        if (next instanceof Record) {
+            return ((Record) next).getSchema();
         }
         throw new IllegalArgumentException("unsupported type for " + next);
     }
@@ -259,12 +259,13 @@ public class RecordConverters implements Serializable {
         }
 
         final JsonObject inputAsJson;
-        if (data instanceof JsonObject jsonObject) {
+        if (data instanceof JsonObject) {
             if (JsonObject.class == parameterType) {
                 return data;
             }
-            inputAsJson = jsonObject;
-        } else if (data instanceof Record record) {
+            inputAsJson = (JsonObject) data;
+        } else if (data instanceof Record) {
+            final Record record = (Record) data;
             if (!JsonObject.class.isAssignableFrom(parameterType)) {
                 final MappingMeta mappingMeta = registry.find(parameterType);
                 if (mappingMeta.isLinearMapping()) {

@@ -470,8 +470,8 @@ public class ActionValidator implements Validator {
 
     private boolean hasStringInList(final Method method) {
         if (List.class.isAssignableFrom(method.getReturnType())
-                && method.getGenericReturnType() instanceof ParameterizedType parameterizedType) {
-            Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                && method.getGenericReturnType() instanceof ParameterizedType) {
+            Type[] actualTypeArguments = ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments();
             if (actualTypeArguments.length > 0) {
                 return "java.lang.String".equals(actualTypeArguments[0].getTypeName());
             }

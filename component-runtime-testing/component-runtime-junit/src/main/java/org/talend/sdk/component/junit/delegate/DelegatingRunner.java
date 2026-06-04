@@ -47,8 +47,8 @@ public class DelegatingRunner extends Runner {
         } catch (final InstantiationException | NoSuchMethodException | IllegalAccessException e) {
             throw new IllegalArgumentException(e);
         } catch (final InvocationTargetException e) {
-            if (e.getCause() instanceof InitializationError initError) {
-                throw initError;
+            if (e.getCause() instanceof InitializationError) {
+                throw (InitializationError) e.getCause();
             }
             throw new IllegalStateException(e.getTargetException());
         }

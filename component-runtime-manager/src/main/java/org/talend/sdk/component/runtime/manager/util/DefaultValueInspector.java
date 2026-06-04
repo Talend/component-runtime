@@ -51,13 +51,14 @@ public class DefaultValueInspector {
         final Type javaType = param.getJavaType();
         if (javaType instanceof Class) {
             return new Instance(tryCreatingObjectInstance(javaType), true);
-        } else if (javaType instanceof ParameterizedType pt) {
+        } else if (javaType instanceof ParameterizedType) {
+            final ParameterizedType pt = (ParameterizedType) javaType;
             final Type rawType = pt.getRawType();
-            if (rawType instanceof Class clazz && Collection.class.isAssignableFrom(clazz)
+            if (rawType instanceof Class && Collection.class.isAssignableFrom((Class) rawType)
                     && pt.getActualTypeArguments().length == 1
                     && pt.getActualTypeArguments()[0] instanceof Class) {
                 final Object instance = tryCreatingObjectInstance(pt.getActualTypeArguments()[0]);
-                final Class<?> collectionType = clazz;
+                final Class<?> collectionType = (Class) rawType;
                 if (Set.class == collectionType) {
                     return new Instance(singleton(instance), true);
                 }
