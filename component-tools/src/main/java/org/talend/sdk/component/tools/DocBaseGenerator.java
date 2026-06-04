@@ -570,8 +570,8 @@ public abstract class DocBaseGenerator extends BaseTask {
                             .orElse(null);
                 case ARRAY:
                     return String
-                            .valueOf(instance.getValue() instanceof Collection
-                                    ? ((Collection) instance.getValue()).size()
+                            .valueOf(instance.getValue() instanceof Collection collection
+                                    ? collection.size()
                                     : Array.getLength(instance.getValue()));
                 case OBJECT:
                 default:

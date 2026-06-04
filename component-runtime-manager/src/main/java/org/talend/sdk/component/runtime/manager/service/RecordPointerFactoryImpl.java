@@ -113,7 +113,7 @@ public class RecordPointerFactoryImpl implements RecordPointerFactory, Serializa
                 throw new IllegalArgumentException(
                         "'" + record + "' contains no value for name '" + referenceToken + "'");
             }
-            if (value instanceof Collection) {
+            if (value instanceof Collection array) {
                 if (referenceToken.startsWith("+") || referenceToken.startsWith("-")) {
                     throw new IllegalArgumentException(
                             "An array index must not start with '" + referenceToken.charAt(0) + "'");
@@ -122,7 +122,6 @@ public class RecordPointerFactoryImpl implements RecordPointerFactory, Serializa
                     throw new IllegalArgumentException("An array index must not start with a leading '0'");
                 }
 
-                final Collection<?> array = (Collection) value;
                 try {
                     final int arrayIndex = Integer.parseInt(referenceToken);
                     if (arrayIndex >= array.size()) {

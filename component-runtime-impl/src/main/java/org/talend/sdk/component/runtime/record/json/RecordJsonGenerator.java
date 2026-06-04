@@ -351,8 +351,7 @@ public class RecordJsonGenerator implements JsonGenerator {
             } else {
                 throw new IllegalArgumentException("Unsupported previous builder: " + previous);
             }
-        } else if (last instanceof NamedBuilder) {
-            final NamedBuilder<?> namedBuilder = (NamedBuilder) last;
+        } else if (last instanceof NamedBuilder namedBuilder) {
             if (previous instanceof Record.Builder builder1) {
                 objectBuilder = builder1;
                 if (namedBuilder.builder instanceof List array) {

@@ -261,8 +261,8 @@ public class RequestParser {
             cType = aClass;
         } else if (type instanceof ParameterizedType pt) {
             if (pt.getRawType() == Response.class && pt.getActualTypeArguments().length == 1
-                    && pt.getActualTypeArguments()[0] instanceof Class) {
-                cType = (Class) pt.getActualTypeArguments()[0];
+                    && pt.getActualTypeArguments()[0] instanceof Class ptClass) {
+                cType = ptClass;
             }
         }
 

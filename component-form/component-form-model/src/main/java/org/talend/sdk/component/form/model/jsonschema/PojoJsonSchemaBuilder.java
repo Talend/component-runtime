@@ -76,8 +76,7 @@ class PojoJsonSchemaBuilder {
         } else if (genericType == boolean.class || genericType == Boolean.class) {
             return schemas
                     .computeIfAbsent((Class) genericType, k -> jsonSchema().withType("boolean").build());
-        } else if (genericType instanceof Class) {
-            final Class<?> clazz = (Class) genericType;
+        } else if (genericType instanceof Class clazz) {
             return ofNullable(schemas.get(clazz)).orElseGet(() -> {
                 final JsonSchema jsonSchema = create(clazz).build();
                 schemas.put(clazz, jsonSchema);

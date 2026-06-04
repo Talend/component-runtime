@@ -130,8 +130,8 @@ public class RepositoryModelBuilder {
                 .setId(IdGenerator
                         .get(plugin, c.getKey().getFamily(), c.getKey().getConfigType(), c.getKey().getConfigName()));
 
-        if (config.getJavaType() instanceof Class) {
-            final Class<?> clazz = (Class) config.getJavaType();
+        if (config.getJavaType() instanceof Class javaTypeClass) {
+            final Class<?> clazz = javaTypeClass;
             final Version version = clazz.getAnnotation(Version.class);
             if (version != null) {
                 c.setVersion(version.value());

@@ -133,8 +133,8 @@ public class ModelVisitor {
                 throw new IllegalArgumentException(m + " must return a Collection<" + type.getName() + ">");
             }
 
-            if (!(splitPt.getRawType() instanceof Class)
-                    || !Collection.class.isAssignableFrom((Class) splitPt.getRawType())) {
+            if (!(splitPt.getRawType() instanceof Class clazz)
+                    || !Collection.class.isAssignableFrom(clazz)) {
                 throw new IllegalArgumentException(m + " must return a List of partition mapper, found: " + splitPt);
             }
 
@@ -316,7 +316,8 @@ public class ModelVisitor {
             return false;
         }
 
-        if (!(paramType.getRawType() instanceof Class<?> containerType) || paramType.getActualTypeArguments().length != 2) {
+        if (!(paramType.getRawType() instanceof Class<?> containerType)
+                || paramType.getActualTypeArguments().length != 2) {
             return false;
         }
 

@@ -63,6 +63,9 @@ public class AsyncContextImpl implements AsyncContext {
         return this;
     }
 
+    @SuppressWarnings("java:S6201")
+    // unconditional patterns in instanceof are not supported in -source 17
+    // TODO: remove the @SuppressWarnings and apply S6201 when java 21+ only is supported.
     public void onError(final Throwable throwable) {
         final AsyncEvent event = new AsyncEvent(this, request, response, throwable);
         executeOnListeners(l -> l.onError(event), null);

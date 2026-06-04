@@ -67,11 +67,11 @@ public class SparkExtension extends BaseSpark<SparkExtension>
         final Instances instances = start();
         if (instances.getException() != null) {
             instances.close();
-            if (instances.getException() instanceof Exception) {
-                throw (Exception) instances.getException();
+            if (instances.getException() instanceof Exception exception) {
+                throw exception;
             }
-            if (instances.getException() instanceof Error) {
-                throw (Error) instances.getException();
+            if (instances.getException() instanceof Error error) {
+                throw error;
             }
             throw new IllegalStateException(instances.getException());
         }

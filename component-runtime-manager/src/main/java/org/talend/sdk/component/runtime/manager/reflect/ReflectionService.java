@@ -135,9 +135,9 @@ public class ReflectionService {
                     }
 
                     if (parameterizedType instanceof ParameterizedType pt) {
-                        if (pt.getRawType() instanceof Class) {
-                            if (Collection.class.isAssignableFrom((Class) pt.getRawType())) {
-                                final Class<?> collectionType = (Class) pt.getRawType();
+                        if (pt.getRawType() instanceof Class clazz) {
+                            if (Collection.class.isAssignableFrom(clazz)) {
+                                final Class<?> collectionType = clazz;
                                 final Type itemType = pt.getActualTypeArguments()[0];
                                 if (!(itemType instanceof Class)) {
                                     throw new IllegalArgumentException(
@@ -516,15 +516,15 @@ public class ReflectionService {
             }
 
             final Type genericType = findField(normalizeName(enclosingName, metas), clazz).getGenericType();
-            if (genericType instanceof Class) {
-                final Class<?> arrayClass = (Class) genericType;
+            if (genericType instanceof Class arrayClass) {
                 if (arrayClass.isArray()) {
                     // we could use Array.newInstance but for now use the list, shouldn't impact
                     // much the perf
-                    final Collection<?> list = (Collection) createList(loader, contextualSupplier, prefix + enclosingName, List.class,
-                            arrayClass.getComponentType(), toList(), createObjectFactory(loader,
-                                    contextualSupplier, arrayClass.getComponentType(), metas, precomputed),
-                            new HashMap<>(listEntries), metas, precomputed);
+                    final Collection<?> list =
+                            (Collection) createList(loader, contextualSupplier, prefix + enclosingName, List.class,
+                                    arrayClass.getComponentType(), toList(), createObjectFactory(loader,
+                                            contextualSupplier, arrayClass.getComponentType(), metas, precomputed),
+                                    new HashMap<>(listEntries), metas, precomputed);
 
                     // we need that conversion to ensure the type matches
                     final Object array = Array.newInstance(arrayClass.getComponentType(), list.size());
@@ -588,8 +588,7 @@ public class ReflectionService {
                     final String listName = nestedName.substring(0, idxStart);
                     final Field field = findField(normalizeName(listName, metas), clazz);
                     if (field.getGenericType() instanceof ParameterizedType pt) {
-                        if (pt.getRawType() instanceof Class) {
-                            final Class<?> rawType = (Class) pt.getRawType();
+                        if (pt.getRawType() instanceof Class rawType) {
                             if (Set.class.isAssignableFrom(rawType)) {
                                 addListElement(loader, contextualSupplier, config, prefix, preparedObjects, nestedName,
                                         listName, pt, () -> new HashSet<>(2), translate(metas, listName), precomputed);

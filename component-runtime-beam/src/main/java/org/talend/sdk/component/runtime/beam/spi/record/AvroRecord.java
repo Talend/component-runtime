@@ -244,7 +244,8 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             return expectedType.cast(value);
         }
 
-        if (value instanceof IndexedRecord indexedRecord && (Record.class == expectedType || Object.class == expectedType)) {
+        if (value instanceof IndexedRecord indexedRecord
+                && (Record.class == expectedType || Object.class == expectedType)) {
             return expectedType.cast(new AvroRecord(indexedRecord));
         }
 
