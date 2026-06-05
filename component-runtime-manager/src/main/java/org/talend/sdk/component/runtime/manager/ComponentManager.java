@@ -1924,7 +1924,8 @@ public class ComponentManager implements AutoCloseable {
                     () -> {
                         final List<ParameterMeta> params = parameterModelService
                                 .buildParameterMetas(constructor, getPackage(type),
-                                        new BaseParameterEnricher.Context((LocalConfiguration) services.getServices().get(LocalConfiguration.class)));
+                                        new BaseParameterEnricher.Context((LocalConfiguration) services.getServices()
+                                                .get(LocalConfiguration.class)));
                         if (infinite) {
                             if (partitionMapper.stoppable()) {
                                 addInfiniteMapperBuiltInParameters(type, params);
@@ -1977,7 +1978,8 @@ public class ComponentManager implements AutoCloseable {
             final Supplier<List<ParameterMeta>> parameterMetas = lazy(() -> executeInContainer(plugin,
                     () -> parameterModelService
                             .buildParameterMetas(constructor, getPackage(type),
-                                    new BaseParameterEnricher.Context((LocalConfiguration) services.getServices().get(LocalConfiguration.class)))));
+                                    new BaseParameterEnricher.Context((LocalConfiguration) services.getServices()
+                                            .get(LocalConfiguration.class)))));
             final Function<Map<String, String>, Object[]> parameterFactory =
                     createParametersFactory(plugin, constructor, services.getServices(), parameterMetas);
             final String name = of(emitter.name()).filter(n -> !n.isEmpty()).orElseGet(type::getName);
@@ -2161,7 +2163,8 @@ public class ComponentManager implements AutoCloseable {
             final Supplier<List<ParameterMeta>> parameterMetas = lazy(() -> executeInContainer(plugin,
                     () -> parameterModelService
                             .buildParameterMetas(constructor, getPackage(type),
-                                    new BaseParameterEnricher.Context((LocalConfiguration) services.getServices().get(LocalConfiguration.class)))));
+                                    new BaseParameterEnricher.Context((LocalConfiguration) services.getServices()
+                                            .get(LocalConfiguration.class)))));
             final Function<Map<String, String>, Object[]> parameterFactory =
                     createParametersFactory(plugin, constructor, services.getServices(), parameterMetas);
             final String name = of(processor.name()).filter(n -> !n.isEmpty()).orElseGet(type::getName);

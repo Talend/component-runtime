@@ -159,6 +159,7 @@ class ActionParameterEnricherTest {
             {
                 put("tcomp::action::suggestions", "test");
                 put("tcomp::action::suggestions::parameters", ".,foo,/bar/dummy");
+                put("tcomp::action::suggestions::labelDisplayMode", "LABEL");
             }
         }, new ActionParameterEnricher().onParameterAnnotation("testParam", String.class, new Suggestable() {
 
@@ -170,6 +171,44 @@ class ActionParameterEnricherTest {
             @Override
             public String[] parameters() {
                 return new String[] { ".", "foo", "/bar/dummy" };
+            }
+
+            @Override
+            public LabelDisplayMode labelDisplayMode() {
+                return LabelDisplayMode.LABEL;
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Suggestable.class;
+            }
+        }));
+    }
+
+    @Test
+    void suggestionWithLabelId() {
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("tcomp::action::suggestions", "test");
+                put("tcomp::action::suggestions::parameters", ".");
+                put("tcomp::action::suggestions::labelDisplayMode", "LABEL_ID");
+            }
+        }, new ActionParameterEnricher().onParameterAnnotation("testParam", String.class, new Suggestable() {
+
+            @Override
+            public String value() {
+                return "test";
+            }
+
+            @Override
+            public String[] parameters() {
+                return new String[] { "." };
+            }
+
+            @Override
+            public LabelDisplayMode labelDisplayMode() {
+                return LabelDisplayMode.LABEL_ID;
             }
 
             @Override

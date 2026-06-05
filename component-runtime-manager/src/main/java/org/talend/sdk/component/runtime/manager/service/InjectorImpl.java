@@ -128,7 +128,8 @@ public class InjectorImpl implements Serializable, Injector {
                 })
                 .forEach(field -> {
                     try {
-                        final Class<?> configClass = (Class) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+                        final Class<?> configClass =
+                                (Class) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
                         final ClassLoader loader = Thread.currentThread().getContextClassLoader();
                         final Supplier<?> supplier = () -> {
                             try {

@@ -450,8 +450,10 @@ class ReflectionServiceTest {
                         new HttpClientFactoryImpl("test", reflectionService, JsonbBuilder.create(), emptyMap())
                                 .create(UserHttpClient.class, "http://foo"));
         final Method httpMtd = TableOwner.class.getMethod("http", UserHttpClient.class);
-        final HttpClient client1 = (HttpClient) reflectionService.parameterFactory(httpMtd, precomputed, null).apply(emptyMap())[0];
-        final HttpClient client2 = (HttpClient) reflectionService.parameterFactory(httpMtd, precomputed, null).apply(emptyMap())[0];
+        final HttpClient client1 =
+                (HttpClient) reflectionService.parameterFactory(httpMtd, precomputed, null).apply(emptyMap())[0];
+        final HttpClient client2 =
+                (HttpClient) reflectionService.parameterFactory(httpMtd, precomputed, null).apply(emptyMap())[0];
         assertNotSame(client1, client2);
         final InvocationHandler handler1 = Proxy.getInvocationHandler(client1);
         final InvocationHandler handler2 = Proxy.getInvocationHandler(client2);
