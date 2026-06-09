@@ -121,6 +121,18 @@ class BeamIOTransformerTest {
     }
 
     @Test
+    void bypassReplaceSerializerHandlesString() {
+        // Ensures the custom serializer used by SerializationWrapper writes top-level String
+        // values via writeString instead of falling into the wrong writeClassDesc branch.
+        scenario((transformer, loader) -> {
+            final BeamIOTransformer.SerializationWrapper wrapper =
+                    (BeamIOTransformer.SerializationWrapper) BeamIOTransformer.SerializationWrapper
+                            .replace("hello", "test");
+            assertEquals("hello", wrapper.readResolve());
+        });
+    }
+
+    @Test
     void coderSerialization() {
         scenario((transformer, loader) -> {
             final Class<?> coder = loader.loadClass(JdbcSource.WorkAroundCoder.class.getName());
