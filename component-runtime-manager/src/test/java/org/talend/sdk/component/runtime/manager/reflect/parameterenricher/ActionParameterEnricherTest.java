@@ -219,6 +219,14 @@ class ActionParameterEnricherTest {
     }
 
     @Test
+    void suggestable_labelDisplayMode_defaultsToLabel() throws Exception {
+        Suggestable.LabelDisplayMode defaultMode = (Suggestable.LabelDisplayMode) Suggestable.class
+                .getDeclaredMethod("labelDisplayMode")
+                .getDefaultValue();
+        assertEquals(Suggestable.LabelDisplayMode.LABEL, defaultMode);
+    }
+
+    @Test
     void condition() {
         assertEquals(new HashMap<String, String>() {
 
