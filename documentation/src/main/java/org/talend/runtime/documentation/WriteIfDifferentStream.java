@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -53,7 +54,10 @@ public class WriteIfDifferentStream extends FilterOutputStream {
     }
 
     private boolean isDifferent(final byte[] bytes) throws IOException {
-        final String source = Files.lines(destination.toPath()).collect(joining("\n")).trim();
+        final String source;
+        try (final Stream<String> lines = Files.lines(destination.toPath())) {
+            source = lines.collect(joining("\n")).trim();
+        }
         final String target = new String(bytes, StandardCharsets.UTF_8).trim();
         return !source.equals(target);
     }

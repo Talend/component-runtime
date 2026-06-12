@@ -1030,6 +1030,8 @@ public class ComponentManager implements AutoCloseable {
                 return pluginId;
             }
 
+            // Container lifecycle is owned by ContainerManager (registered on create, closed via removePlugin)
+            @SuppressWarnings({ "resource", "java:S2095" })
             final String id = this.container
                     .builder(pluginRootFile)
                     .withCustomizer(createContainerCustomizer(pluginRootFile))
@@ -1048,6 +1050,8 @@ public class ComponentManager implements AutoCloseable {
     }
 
     public String addWithLocationPlugin(final String location, final String pluginRootFile) {
+        // Container lifecycle is owned by ContainerManager (registered on create, closed via removePlugin)
+        @SuppressWarnings({ "resource", "java:S2095" })
         final String id = this.container
                 .builder(pluginRootFile)
                 .withCustomizer(createContainerCustomizer(location))
@@ -1059,6 +1063,8 @@ public class ComponentManager implements AutoCloseable {
     }
 
     protected String addPlugin(final String forcedId, final String pluginRootFile) {
+        // Container lifecycle is owned by ContainerManager (registered on create, closed via removePlugin)
+        @SuppressWarnings({ "resource", "java:S2095" })
         final String id = this.container
                 .builder(forcedId, pluginRootFile)
                 .withCustomizer(createContainerCustomizer(forcedId))
@@ -1825,21 +1831,23 @@ public class ComponentManager implements AutoCloseable {
             final URL nestedJar =
                     loader.getParent().getResource(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + module);
             if (nestedJar != null) {
-                InputStream nestedStream = null;
-                final JarInputStream jarStream;
+                final InputStream nestedStream;
                 try {
                     nestedStream = nestedJar.openStream();
-                    jarStream = new JarInputStream(nestedStream);
+                } catch (final IOException e) {
+                    throw new IllegalStateException(e);
+                }
+                try {
+                    final JarInputStream jarStream = new JarInputStream(nestedStream);
                     log.debug("Found a nested resource for " + module);
                     return new NestedJarArchive(nestedJar, jarStream, loader);
                 } catch (final IOException e) {
-                    if (nestedStream != null) {
-                        try { // normally not needed
-                            nestedStream.close();
-                        } catch (final IOException e1) {
-                            // no-op
-                        }
+                    try { // normally not needed
+                        nestedStream.close();
+                    } catch (final IOException e1) {
+                        // no-op
                     }
+                    throw new IllegalStateException(e);
                 }
             }
             throw new IllegalArgumentException(
