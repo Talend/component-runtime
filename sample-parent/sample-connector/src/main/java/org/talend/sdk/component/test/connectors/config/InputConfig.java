@@ -41,7 +41,7 @@ import lombok.Data;
                 @GridLayout.Row({ "dataset" }) })
 public class InputConfig implements Serializable {
 
-    public final static int INPUT_CONFIG_VERSION = 3;
+    public static final int INPUT_CONFIG_VERSION = 3;
 
     @Option
     @Documentation("Doc: default dataset documentation without Internationalization.")

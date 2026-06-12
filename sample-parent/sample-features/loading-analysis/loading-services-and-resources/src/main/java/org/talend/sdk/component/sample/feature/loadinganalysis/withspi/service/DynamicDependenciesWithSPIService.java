@@ -75,7 +75,7 @@ public class DynamicDependenciesWithSPIService implements Serializable {
     }
 
     @DiscoverSchema("dyndepsdse")
-    public Schema guessSchema4Input(final @Option("configuration") Dataset dse) {
+    public Schema guessSchema4Input(@Option("configuration") final Dataset dse) {
         return recordBuilderFactory.newSchemaBuilder(Type.RECORD)
                 .withEntry(recordBuilderFactory.newEntryBuilder().withType(Type.STRING).withName("value").build())
                 .withEntry(

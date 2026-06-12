@@ -28,7 +28,7 @@ import lombok.AllArgsConstructor;
 @Version(migrationHandler = AbstractMigrationHandler.DataSetHandler.class)
 public class MigrationDataSet implements Serializable {
 
-    public final static int Version = -1;
+    public static final int Version = -1;
 
     @Option
     private final MigrationDataStore dataStore;

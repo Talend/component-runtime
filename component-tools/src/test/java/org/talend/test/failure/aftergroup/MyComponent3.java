@@ -48,12 +48,12 @@ public class MyComponent3 implements Serializable {
     }
 
     @ElementListener
-    public Foo passthrough(final Foo item, final @Output("out1") OutputEmitter<JsonObject> out) {
+    public Foo passthrough(final Foo item, @Output("out1") final OutputEmitter<JsonObject> out) {
         return item;
     }
 
     @AfterGroup
-    public void afterGroup(final @Output OutputEmitter<JsonObject> out1, JsonObject out2) {
+    public void afterGroup(@Output final OutputEmitter<JsonObject> out1, JsonObject out2) {
 
     }
 

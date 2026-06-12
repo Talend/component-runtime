@@ -34,7 +34,7 @@ public class UserServices {
      *
      */
 
-    public final static String USER = "action_USER";
+    public static final String USER = "action_USER";
 
     /**
      * User action

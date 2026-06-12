@@ -50,7 +50,7 @@ public class InMemoryQueueIOTest implements Serializable {
     private static final Collection<Record> INPUT_OUTPUTS = new CopyOnWriteArrayList<>();
 
     @Rule
-    public transient final TestPipeline pipeline =
+    public final transient TestPipeline pipeline =
             TestPipeline.fromOptions(PipelineOptionsFactory.fromArgs("--blockOnRun=false").create());
 
     @Test(timeout = 60000)

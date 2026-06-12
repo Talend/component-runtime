@@ -1297,7 +1297,7 @@ public class ComponentManager implements AutoCloseable {
             }
         };
 
-        abstract public Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(ComponentFamilyMeta family);
+        public abstract Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(ComponentFamilyMeta family);
 
         abstract Class<? extends Lifecycle> runtimeType();
     }

@@ -44,9 +44,9 @@ import lombok.Data;
                 @GridLayout.Row({ "datastore" }) })
 public class TheDataset implements Serializable {
 
-    public final static int DATASET_VERSION = 5;
+    public static final int DATASET_VERSION = 5;
 
-    public final static String DATASET_INFO = "info-to-sanitize";
+    public static final String DATASET_INFO = "info-to-sanitize";
 
     @Option
     @Documentation("Doc: default datastore documentation without Internationalization.")

@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DynamicDependenciesWithDynamicDependenciesConfigurationService extends AbstractDynamicDependenciesService
         implements Serializable {
 
-    public final static String DEPENDENCY_WITHDYNDEPSCONFIG_ACTION = "DEPENDENCY_WITHDYNDEPSCONFIG_ACTION";
+    public static final String DEPENDENCY_WITHDYNDEPSCONFIG_ACTION = "DEPENDENCY_WITHDYNDEPSCONFIG_ACTION";
 
     @DynamicDependencies
     public List<String> getDynamicDependencies(@Option("theSubConfig") final SubConfig subConfig) {
@@ -46,7 +46,7 @@ public class DynamicDependenciesWithDynamicDependenciesConfigurationService exte
     }
 
     @DiscoverSchemaExtended(DEPENDENCY_WITHDYNDEPSCONFIG_ACTION)
-    public Schema guessSchema4Input(final @Option("configuration") Config config) {
+    public Schema guessSchema4Input(@Option("configuration") final Config config) {
         return super.buildSchema();
     }
 
