@@ -524,10 +524,11 @@ public class ReflectionService {
                 if (arrayClass.isArray()) {
                     // we could use Array.newInstance but for now use the list, shouldn't impact
                     // much the perf
-                    final Collection<?> list = (Collection) createList(loader, contextualSupplier, prefix + enclosingName, List.class,
-                            arrayClass.getComponentType(), toList(), createObjectFactory(loader,
-                                    contextualSupplier, arrayClass.getComponentType(), metas, precomputed),
-                            new HashMap<>(listEntries), metas, precomputed);
+                    final Collection<?> list =
+                            (Collection) createList(loader, contextualSupplier, prefix + enclosingName, List.class,
+                                    arrayClass.getComponentType(), toList(), createObjectFactory(loader,
+                                            contextualSupplier, arrayClass.getComponentType(), metas, precomputed),
+                                    new HashMap<>(listEntries), metas, precomputed);
 
                     // we need that conversion to ensure the type matches
                     final Object array = Array.newInstance(arrayClass.getComponentType(), list.size());
