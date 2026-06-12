@@ -85,6 +85,14 @@
       <username>${env.DOCKER_USER}</username>
       <password>${env.DOCKER_PASS}</password>
     </server>
+    <server>
+        <id>github_package_snapshots</id>
+        <username>${env.GITHUB_PACKAGES_LOGIN}</username>
+        <password>${env.GITHUB_PACKAGES_TOKEN}</password>
+        <configuration>
+            <timeout>30000</timeout>
+        </configuration>
+    </server>
   </servers>
 
   <mirrors>
