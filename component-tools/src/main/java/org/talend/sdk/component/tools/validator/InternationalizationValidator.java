@@ -210,8 +210,14 @@ public class InternationalizationValidator implements Validator {
             List<String> forLogs = result.collect(toList());
             String resultAutoFix = forLogs.stream()
                     .collect(Collectors.joining("\n", "Automatically fixed missing labels:\n",
-                            "\n\nPlease, check changes and disable '-Dtalend.validation.internationalization.autofix=false' / "
-                                    + "'<validateInternationalizationAutoFix>false</>'property.\n\n"));
+                            """
+
+
+                            Please review the changes, then disable further autofixes with \
+                            '-Dtalend.validation.internationalization.autofix=false' or \
+                            '<validateInternationalizationAutoFix>false</validateInternationalizationAutoFix>'.
+
+                            """));
             log.info(resultAutoFix);
 
             result = forLogs.stream();

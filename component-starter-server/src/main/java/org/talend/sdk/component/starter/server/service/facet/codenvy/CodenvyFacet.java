@@ -57,10 +57,13 @@ public class CodenvyFacet implements FacetGenerator {
 
     @Override
     public String readme() {
-        return "Codenvy allows you to code on this project from any web browser if you host your sources in a Github repository.\n\n"
-                + "Click on this link and the project " + "will be opened on your account, ready to develop:\n\n"
-                + "image:http://beta.codenvy.com/factory/resources/codenvy-contribute.svg["
-                + "Codenvy,link=http://codenvy.io/f?url=https://github.com/@organization@/@repository@,window=\"_blank\"]";
+        return """
+               Codenvy allows you to code on this project from any web browser if you host your sources in a GitHub repository.
+
+               Click on this link and the project will be opened on your account, ready to develop:
+
+               image:http://beta.codenvy.com/factory/resources/codenvy-contribute.svg[\
+               Codenvy,link=http://codenvy.io/f?url=https://github.com/@organization@/@repository@,window="_blank"]""";
     }
 
     @Override
