@@ -373,7 +373,8 @@ public class Generator {
             stream.println("Therefore, the following packages are ignored:");
             stream.println();
             stream.println("[.talend-filterlist]");
-            ((KnownClassesFilter.OptimizedExclusionFilter) ((KnownClassesFilter) KnownClassesFilter.INSTANCE).getDelegateSkip())
+            ((KnownClassesFilter.OptimizedExclusionFilter) ((KnownClassesFilter) KnownClassesFilter.INSTANCE)
+                    .getDelegateSkip())
                     .getIncluded()
                     .stream()
                     .sorted()

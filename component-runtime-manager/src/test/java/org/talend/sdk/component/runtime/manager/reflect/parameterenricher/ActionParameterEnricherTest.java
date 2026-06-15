@@ -159,6 +159,7 @@ class ActionParameterEnricherTest {
             {
                 put("tcomp::action::suggestions", "test");
                 put("tcomp::action::suggestions::parameters", ".,foo,/bar/dummy");
+                put("tcomp::action::suggestions::labelDisplayMode", "LABEL");
             }
         }, new ActionParameterEnricher().onParameterAnnotation("testParam", String.class, new Suggestable() {
 
@@ -173,10 +174,56 @@ class ActionParameterEnricherTest {
             }
 
             @Override
+            public LabelDisplayMode labelDisplayMode() {
+                return LabelDisplayMode.LABEL;
+            }
+
+            @Override
             public Class<? extends Annotation> annotationType() {
                 return Suggestable.class;
             }
         }));
+    }
+
+    @Test
+    void suggestionWithLabelId() {
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("tcomp::action::suggestions", "test");
+                put("tcomp::action::suggestions::parameters", ".");
+                put("tcomp::action::suggestions::labelDisplayMode", "LABEL_ID");
+            }
+        }, new ActionParameterEnricher().onParameterAnnotation("testParam", String.class, new Suggestable() {
+
+            @Override
+            public String value() {
+                return "test";
+            }
+
+            @Override
+            public String[] parameters() {
+                return new String[] { "." };
+            }
+
+            @Override
+            public LabelDisplayMode labelDisplayMode() {
+                return LabelDisplayMode.LABEL_ID;
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Suggestable.class;
+            }
+        }));
+    }
+
+    @Test
+    void suggestable_labelDisplayMode_defaultsToLabel() throws Exception {
+        Suggestable.LabelDisplayMode defaultMode = (Suggestable.LabelDisplayMode) Suggestable.class
+                .getDeclaredMethod("labelDisplayMode")
+                .getDefaultValue();
+        assertEquals(Suggestable.LabelDisplayMode.LABEL, defaultMode);
     }
 
     @Test

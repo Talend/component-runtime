@@ -611,7 +611,8 @@ class ComponentManagerTest {
             manager.addPlugin(plugin.getAbsolutePath());
             final Container container = manager.getContainer().findAll().stream().findFirst().orElse(null);
             assertNotNull(container);
-            final LocalConfiguration envConf = (LocalConfiguration) container.get(AllServices.class).getServices().get(LocalConfiguration.class);
+            final LocalConfiguration envConf =
+                    (LocalConfiguration) container.get(AllServices.class).getServices().get(LocalConfiguration.class);
             // check translated env vars
             assertEquals("/home/user", envConf.get("USER_PATH"));
             assertEquals("/home/user", envConf.get("USER.PATH"));

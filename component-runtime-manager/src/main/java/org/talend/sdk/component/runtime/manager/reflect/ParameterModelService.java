@@ -254,10 +254,10 @@ public class ParameterModelService {
                 .concat(Stream.of(annotations),
                         // if a class concat its annotations
                         genericType instanceof Class
-                                        ? getClassAnnotations(genericType, annotations)
-                                        : (hasAClassFirstParameter(genericType) ? getClassAnnotations(
-                                                ((ParameterizedType) genericType).getActualTypeArguments()[0],
-                                                annotations) : Stream.empty()));
+                                ? getClassAnnotations(genericType, annotations)
+                                : (hasAClassFirstParameter(genericType) ? getClassAnnotations(
+                                        ((ParameterizedType) genericType).getActualTypeArguments()[0],
+                                        annotations) : Stream.empty()));
     }
 
     private boolean hasAClassFirstParameter(final Type genericType) {
@@ -297,7 +297,7 @@ public class ParameterModelService {
                 }
                 return Stream
                         .concat(buildParametersMetas(name + ".key[${index}]", prefix + "key[${index}].",
-                                        (Class) pt.getActualTypeArguments()[0], annotations, i18nPackages, ignoreI18n,
+                                (Class) pt.getActualTypeArguments()[0], annotations, i18nPackages, ignoreI18n,
                                 context).stream(),
                                 buildParametersMetas(name + ".value[${index}]", prefix + "value[${index}].",
                                         (Class) pt.getActualTypeArguments()[1], annotations, i18nPackages,
