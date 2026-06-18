@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.talend.sdk.component.loading-analysis</groupId>
         <artifactId>loading-analysis</artifactId>
-        <version>1.94.0-SNAPSHOT</version>
+        <version>1.93.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>service-provider-from-dynamic-dependency</artifactId>
