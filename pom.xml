@@ -146,9 +146,9 @@
   <properties>
     <scm.repository>talend/component-runtime</scm.repository>
 
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
-    <maven.compiler.release>17</maven.compiler.release>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <!-- when using -T X, X > 1 you can set -DsimpleLogger.showThreadName=true to have something a bit more readable -->
