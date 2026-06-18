@@ -107,4 +107,3 @@ class SchemaConverterTest {
         assertEquals(big, fromAtomicLong.longValue());
     }
 }
-
