@@ -27,3 +27,4 @@ NOTE:
 * the build relies on Node.JS and npm
 * the build uses `frontend-maven-plugin` to setup your environment.
 
+test
