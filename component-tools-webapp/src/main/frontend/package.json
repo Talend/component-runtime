@@ -35,7 +35,7 @@
     "body-parser": "^1.18.3",
     "cross-env": "^7.0.3",
     "webpack": "5.105.4",
-    "webpack-dev-server": "5.2.5"
+    "webpack-dev-server": "^5.2.5"
   },
   "overrides": {
     "@babel/core": "^7.29.6",

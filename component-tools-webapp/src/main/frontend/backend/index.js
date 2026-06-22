@@ -18,6 +18,7 @@ const fs = require("fs");
 const application = require("./application.json");
 const bodyParser = require("body-parser");
 const atob = require("atob");
+const { createProxyMiddleware } = require("http-proxy-middleware");
 
 function getApplication(req, res) {
   res.json(application);
@@ -46,19 +47,19 @@ function setup(middlewares, devServer) {
 
   devServer.app.use(bodyParser.urlencoded({ extended: true }));
   devServer.app.use(bodyParser.json());
-  // Use the `unshift` method if you want to run a middleware before all other middlewares
-  // or when you are migrating from the `onBeforeSetupMiddleware` option
-  middlewares.unshift({
-    name: "project-configuration",
-    path: "/api/v1/application/index",
-    middleware: getApplication,
-  });
 
-  middlewares.unshift({
-    name: "project-configuration",
-    path: "/api/v1/application/detail/:detailId",
-    middleware: getApplicationDetail,
-  });
+  devServer.app.get("/api/v1/application/index", getApplication);
+  devServer.app.get("/api/v1/application/detail/:detailId", getApplicationDetail);
+
+  devServer.app.use(
+    createProxyMiddleware({
+      pathFilter: "/api",
+      target: process.env.API_URL || "http://localhost:10101",
+      changeOrigin: true,
+      secure: false,
+    })
+  );
+
   return middlewares;
 }
 
