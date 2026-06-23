@@ -460,4 +460,8 @@ public class ComponentManagerService {
         return instance;
     }
 
+    public boolean isStarted() {
+        return started;
+    }
+
 }

@@ -201,6 +201,12 @@ public class ComponentServerConfiguration {
     @ConfigProperty(name = "talend.component.server.plugins.reloading.marker")
     private Optional<String> pluginsReloadFileMarker;
 
+    @Inject
+    @Documentation("Minimum percentage of available JVM heap required for the liveness probe to report UP. "
+            + "If the available heap drops below this threshold the health endpoint returns 503.")
+    @ConfigProperty(name = "talend.server.health.memory.threshold", defaultValue = "10")
+    private Integer healthMemoryThreshold;
+
     @PostConstruct
     private void init() {
         if (logRequests != null && logRequests) {
