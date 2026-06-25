@@ -22,8 +22,6 @@ import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,7 +60,7 @@ class FrontCacheResolverTest {
     }
 
     @Test
-    void clearCaches() throws JsonProcessingException {
+    void clearCaches() {
         final int connectors = service.getConnectors().getPluginsList().size();
 
         // Initialize 2 caches
