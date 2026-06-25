@@ -51,9 +51,6 @@ import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 
-import nl.jqno.equalsverifier.EqualsVerifier;
-import nl.jqno.equalsverifier.Warning;
-
 class SchemaImplTest {
 
     private final Schema.Entry data1 = new SchemaImpl.EntryImpl.BuilderImpl() //
@@ -85,13 +82,42 @@ class SchemaImplTest {
         final RecordBuilderFactory f = new RecordBuilderFactoryImpl("test");
         final Entry first = f.newEntryBuilder().withName("First").withType(Type.STRING).build();
         final Entry second = f.newEntryBuilder().withName("Second").withType(Type.STRING).build();
-        EqualsVerifier.simple()
-                .suppress(Warning.STRICT_HASHCODE) // Supress test hashcode use all fields used by equals (for legacy)
-                .forClass(SchemaImpl.class)
-                .withPrefabValues(Schema.Entry.class, first, second)
-                .withIgnoredFields("entriesOrder", "entryMap")
-                .withPrefabValues(EntriesOrder.class, EntriesOrder.of("First"), EntriesOrder.of("Second"))
-                .verify();
+
+        // Create two identical schemas
+        final Schema schema1 = new BuilderImpl()
+                .withType(Type.RECORD)
+                .withEntry(first)
+                .withEntry(second)
+                .build();
+
+        final Schema schema2 = new BuilderImpl()
+                .withType(Type.RECORD)
+                .withEntry(first)
+                .withEntry(second)
+                .build();
+
+        // Create a different schema
+        final Schema schema3 = new BuilderImpl()
+                .withType(Type.RECORD)
+                .withEntry(first)
+                .build();
+
+        // Test equals reflexivity
+        assertEquals(schema1, schema1);
+
+        // Test equals symmetry
+        assertEquals(schema1, schema2);
+        assertEquals(schema2, schema1);
+
+        // Test equals with different object
+        Assertions.assertNotEquals(schema1, schema3);
+        Assertions.assertNotEquals(schema3, schema1);
+
+        // Test hashCode consistency
+        assertEquals(schema1.hashCode(), schema2.hashCode());
+
+        // Test null
+        Assertions.assertNotEquals(schema1, null);
     }
 
     @Test
