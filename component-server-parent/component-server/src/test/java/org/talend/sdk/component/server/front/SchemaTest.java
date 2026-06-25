@@ -30,8 +30,6 @@ import java.util.List;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.SchemaProperty;
@@ -724,9 +722,8 @@ class SchemaTest {
         // Serialize the schema to JSON
         String json = jsonb.toJson(schemaImpl);
 
-        // Deserialize using ObjectMapper (Jackson)
-        ObjectMapper mapper = new ObjectMapper();
-        Schema schema = mapper.readValue(json, Schema.class);
+        // Deserialize using JSON-B (Johnzon)
+        Schema schema = jsonb.fromJson(new StringReader(json), Schema.class);
 
         // ===== Validate top-level schema properties =====
         assertNotNull(schema);
