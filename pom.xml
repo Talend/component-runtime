@@ -1232,7 +1232,12 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>${maven-compiler-plugin.version}</version>
           <configuration>
-            <forceLegacyJavacApi>true</forceLegacyJavacApi>
+            <!-- forceLegacyJavacApi was a workaround for older Lombok versions that relied on
+                 com.sun.tools.javac internals. Under JDK 21 the legacy API has type-inference
+                 bugs (notably it ignores explicit imports of types whose simple name collides
+                 with a class in java.lang — e.g. our org.talend.sdk.component.api.record.Record
+                 vs JDK 16+ java.lang.Record — and silently resolves to java.lang.*).
+                 Lombok 1.18.30+ works with the modern API, so we drop the flag. -->
             <compilerId>javac</compilerId>
             <fork>true</fork>
             <compilerArgs>

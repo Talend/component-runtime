@@ -29,7 +29,7 @@
 
   <properties>
     <talend.build.name>${talend.build.name.base}.container.maven</talend.build.name>
-    <maven-dependency-tree.version>3.1.0</maven-dependency-tree.version>
+    <maven-dependency-tree.version>3.3.0</maven-dependency-tree.version>
     <maven-artifact-transfer.version>0.13.1</maven-artifact-transfer.version>
   </properties>
 
@@ -77,10 +77,26 @@
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-dependency-tree</artifactId>
       <version>${maven-dependency-tree.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.shared</groupId>
+      <artifactId>maven-artifact-transfer</artifactId>
+      <version>${maven-artifact-transfer.version}</version>
       <exclusions>
-        <!-- Brings ancient maven-core:3.0.5 which pulls org.sonatype.plexus:plexus-sec-dispatcher:1.3
-             whose DefaultSecDispatcher class clashes (same FQN, missing ctor) with the version
-             expected by shrinkwrap-resolver / mima at IT runtime. -->
+        <!-- maven-artifact-transfer is retired and drags an ancient maven-core:3.0 chain
+             (with maven-aether-provider:3.0 + sonatype plexus-sec-dispatcher:1.3 + old aether).
+             Those leak into consumers' runtime classpath and break shrinkwrap-resolver / mima
+             at IT runtime (split-package on org.apache.maven.repository.internal.*
+             hiding ModelCacheFactory; ctor mismatch on DefaultSecDispatcher). We only use
+             org.apache.maven.shared.transfer.artifact.resolve.* which doesn't need any of these. -->
+        <exclusion>
+          <groupId>org.apache.maven</groupId>
+          <artifactId>maven-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.maven</groupId>
+          <artifactId>maven-aether-provider</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>org.sonatype.plexus</groupId>
           <artifactId>plexus-sec-dispatcher</artifactId>
@@ -89,12 +105,11 @@
           <groupId>org.sonatype.plexus</groupId>
           <artifactId>plexus-cipher</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.sonatype.aether</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.shared</groupId>
-      <artifactId>maven-artifact-transfer</artifactId>
-      <version>${maven-artifact-transfer.version}</version>
     </dependency>
   </dependencies>
 </project>
