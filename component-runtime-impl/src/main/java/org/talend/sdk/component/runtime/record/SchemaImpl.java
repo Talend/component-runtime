@@ -99,10 +99,9 @@ public class SchemaImpl implements Schema {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof SchemaImpl)) {
+        if (!(obj instanceof SchemaImpl other)) {
             return false;
         }
-        final SchemaImpl other = (SchemaImpl) obj;
         if (!other.canEqual(this)) {
             return false;
         }

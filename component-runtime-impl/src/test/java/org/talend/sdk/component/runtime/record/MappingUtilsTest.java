@@ -115,8 +115,8 @@ class MappingUtilsTest {
     @MethodSource("mapStringProvider")
     void mapString(final Class expectedType, final String inputValue, final Object expectedResult) {
         Object mapped = MappingUtils.coerce(expectedType, inputValue, "::testing::mapString");
-        if (expectedResult instanceof byte[]) {
-            Assertions.assertArrayEquals((byte[]) expectedResult, (byte[]) mapped);
+        if (expectedResult instanceof byte[] bytes) {
+            Assertions.assertArrayEquals(bytes, (byte[]) mapped);
         } else {
             Assertions.assertEquals(expectedResult, mapped);
         }

@@ -140,8 +140,8 @@ public class DiRowStructVisitor {
                         onBoolean(name, raw);
                         break;
                     case StudioTypes.DATE:
-                        if (raw instanceof Timestamp) {
-                            onInstant(name, (Timestamp) raw);
+                        if (raw instanceof Timestamp timestamp) {
+                            onInstant(name, timestamp);
                             break;
                         }
                         onDatetime(name, ((Date) raw).toInstant().atZone(UTC));
@@ -191,10 +191,10 @@ public class DiRowStructVisitor {
                     break;
                 case StudioTypes.BYTE_ARRAY:
                     final byte[] bytes;
-                    if (value instanceof byte[]) {
-                        bytes = (byte[]) value;
-                    } else if (value instanceof ByteBuffer) {
-                        bytes = ((ByteBuffer) value).array();
+                    if (value instanceof byte[] bytes1) {
+                        bytes = bytes1;
+                    } else if (value instanceof ByteBuffer byteBuffer) {
+                        bytes = byteBuffer.array();
                     } else {
                         log.warn("[visit] '{}' of type `id_byte[]` and content is contained in `{}`:"
                                 + " This should not happen! "
@@ -226,7 +226,7 @@ public class DiRowStructVisitor {
                     break;
                 case StudioTypes.DATE:
                     final ZonedDateTime dateTime;
-                    dateTime = ZonedDateTime.ofInstant(value instanceof Long ? ofEpochMilli((Long) value)
+                    dateTime = ZonedDateTime.ofInstant(value instanceof Long l ? ofEpochMilli(l)
                             : ((Date) value).toInstant(), UTC);
                     onDatetime(metaName, dateTime);
                     break;
@@ -563,7 +563,7 @@ public class DiRowStructVisitor {
     }
 
     private Schema elementSchema(final Type type, final Object value) {
-        if (type != ARRAY || !(value instanceof Collection)) {
+        if (type != ARRAY || !(value instanceof Collection<?> objects)) {
             return factory.newSchemaBuilder(type).build();
         }
 
@@ -572,8 +572,8 @@ public class DiRowStructVisitor {
 
         // we inherit the logic that we evaluate the type by its first element. (at least it's fast )
         // looks like we support only homogeneous structures
-        if (!((Collection<?>) value).isEmpty()) {
-            columnValue = ((Collection<?>) value).iterator().next();
+        if (!objects.isEmpty()) {
+            columnValue = objects.iterator().next();
             elementType = getTypeFromValue(columnValue);
         }
 

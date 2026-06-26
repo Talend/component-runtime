@@ -66,10 +66,10 @@ public class BeamComponentExtension implements ComponentExtension {
     @Override
     public <T> T unwrap(final Class<T> type, final Object... args) {
         if ("org.talend.sdk.component.design.extension.flows.FlowsFactory".equals(type.getName()) && args != null
-                && args.length == 1 && args[0] instanceof ComponentFamilyMeta.BaseMeta) {
+                && args.length == 1 && args[0] instanceof ComponentFamilyMeta.BaseMeta baseMeta) {
             if (args[0] instanceof ComponentFamilyMeta.ProcessorMeta) {
                 try {
-                    final FlowsFactory factory = FlowsFactory.get((ComponentFamilyMeta.BaseMeta) args[0]);
+                    final FlowsFactory factory = FlowsFactory.get(baseMeta);
                     factory.getOutputFlows();
                     return type.cast(factory);
                 } catch (final Exception e) { // no @ElementListener, let's default for native transforms
