@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.sample.feature.loadinganalysis.service;
 
+import static java.util.stream.Collectors.toList;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -396,7 +398,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
                 result = reader.lines()
                         .filter(line -> !line.isBlank()) // skip empty lines
                         .map(line -> line.substring(0, line.lastIndexOf(":"))) // remove last ':xxx'
-                        .collect(Collectors.toList());
+                        .collect(toList());
             }
 
         } catch (IOException e) {

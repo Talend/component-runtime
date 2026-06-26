@@ -107,7 +107,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         }
 
         if (value instanceof Collection collection) {
-            return collection.stream().map(v -> this.directMapping(v, entry)).collect(toList());
+            return collection.stream().map(v -> this.directMapping(v, entry)).toList();
         }
         if (value instanceof RecordImpl) {
             return new AvroRecord((Record) value).delegate;

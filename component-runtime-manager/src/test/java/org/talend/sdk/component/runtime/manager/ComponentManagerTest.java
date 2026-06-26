@@ -218,7 +218,6 @@ class ComponentManagerTest {
             final String pluginPath = plugin.getAbsolutePath();
             Thread[] th = new Thread[5];
             for (int ind = 0; ind < th.length; ind++) {
-                final int indice = ind;
                 th[ind] = new Thread(() -> {
                     manager.addPlugin(pluginPath);
                 });
