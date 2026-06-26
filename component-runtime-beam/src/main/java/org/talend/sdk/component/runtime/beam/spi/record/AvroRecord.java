@@ -295,12 +295,12 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
         if (value instanceof GenericArray && !GenericArray.class.isAssignableFrom(expectedType)) {
             if (ZonedDateTime.class == expectedType) {
-                List<Long> longs = (List) Collection.class.cast(value).stream().toList();
+                List<Long> longs = (List) ((Collection) value).stream().toList();
                 final Instant instant = Instant.ofEpochSecond(longs.get(0), longs.get(1));
                 return expectedType.cast(ZonedDateTime.ofInstant(instant, UTC));
             }
             if (Instant.class == expectedType) {
-                List<Long> longs = (List) Collection.class.cast(value).stream().toList();
+                List<Long> longs = (List) ((Collection) value).stream().toList();
                 final Instant instant = Instant.ofEpochSecond(longs.get(0), longs.get(1));
                 return expectedType.cast(instant);
             }
