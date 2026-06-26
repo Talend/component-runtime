@@ -259,7 +259,8 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
             if (databindJar != null) {
                 final String dbName = databindJar.getName();
                 // jackson-databind-<version>.jar
-                final String dbVersion = dbName.substring("jackson-databind-".length(), dbName.length() - ".jar".length());
+                final String dbVersion =
+                        dbName.substring("jackson-databind-".length(), dbName.length() - ".jar".length());
                 final String coreCoord = "com.fasterxml.jackson.core:jackson-core:" + dbVersion;
                 LOGGER.info("Aligning jackson-core on " + dbVersion + " to match jackson-databind...");
                 final File coreFile = resolver.resolve(coreCoord).withoutTransitivity().asSingleFile();
