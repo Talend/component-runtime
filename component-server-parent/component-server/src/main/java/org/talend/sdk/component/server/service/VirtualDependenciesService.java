@@ -226,7 +226,8 @@ public class VirtualDependenciesService {
         mainAttributes.putValue("Created-By", "Talend Component Kit Server");
         mainAttributes.putValue("Talend-Time", Long.toString(System.currentTimeMillis()));
         mainAttributes.putValue("Talend-Family-Name", family);
-        try (final JarOutputStream jar = new JarOutputStream(new BufferedOutputStream(outputStream), manifest)) {
+        try (final BufferedOutputStream buffered = new BufferedOutputStream(outputStream);
+                final JarOutputStream jar = new JarOutputStream(buffered, manifest)) {
             jar.putNextEntry(new JarEntry("TALEND-INF/local-configuration.properties"));
             userConfiguration.store(jar, "Configuration of the family " + family);
             jar.closeEntry();
@@ -299,9 +300,8 @@ public class VirtualDependenciesService {
         if (!Files.isDirectory(familyFolder)) {
             return emptyMap();
         }
-        try {
-            return Files
-                    .list(familyFolder)
+        try (final Stream<Path> files = Files.list(familyFolder)) {
+            return files
                     .filter(file -> file.getFileName().toString().endsWith(".jar"))
                     .collect(toMap(it -> {
                         try {

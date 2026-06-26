@@ -32,6 +32,7 @@ import javax.json.JsonArrayBuilder;
 import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
+import javax.json.JsonReader;
 import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.json.spi.JsonProvider;
@@ -75,8 +76,9 @@ public class SchemaConverter extends AbstractConverter {
     @Override
     public Object toObjectImpl(final String s) {
         if (!s.isEmpty()) {
-            final JsonObject json = JsonProvider.provider().createReader(new StringReader(s)).readObject();
-            return toSchema(json);
+            try (final JsonReader reader = JsonProvider.provider().createReader(new StringReader(s))) {
+                return toSchema(reader.readObject());
+            }
         }
         return null;
     }
