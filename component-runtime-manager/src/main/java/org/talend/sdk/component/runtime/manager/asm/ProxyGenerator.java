@@ -64,6 +64,7 @@ import static org.apache.xbean.asm9.Opcodes.PUTFIELD;
 import static org.apache.xbean.asm9.Opcodes.RETURN;
 import static org.apache.xbean.asm9.Opcodes.SIPUSH;
 import static org.apache.xbean.asm9.Opcodes.V1_8;
+import static org.apache.xbean.asm9.Opcodes.V21;
 
 import java.io.InputStream;
 import java.io.ObjectStreamException;
@@ -108,12 +109,38 @@ public class ProxyGenerator implements Serializable {
     }
 
     private int determineDefaultJavaVersion() {
-        final String javaVersionProp = System.getProperty("java.version", "1.8");
-        if (javaVersionProp.startsWith("1.8")) { // we don't support earlier
+        final String javaVersionProp = System.getProperty("java.version", "21");
+        // Legacy "1.x" naming (Java 8 and below)
+        if (javaVersionProp.startsWith("1.")) {
+            // anything older than 1.8 is unsupported; bump to the minimum
             return V1_8;
         }
-        // add java 9 test when upgrading asm
-        return V1_8; // return higher one
+        // Modern naming: "9", "10", ..., "17", "21", possibly followed by "." or "-"
+        final int sep = indexOfNonDigit(javaVersionProp);
+        final String majorStr = sep < 0 ? javaVersionProp : javaVersionProp.substring(0, sep);
+        final int major;
+        try {
+            major = Integer.parseInt(majorStr);
+        } catch (final NumberFormatException e) {
+            return V21; // safe fallback aligned with the project baseline (Java 21)
+        }
+        if (major <= 8) {
+            return V1_8;
+        }
+        // ASM Vxx opcodes are sequential: V1_8 = 52, V9 = 53, ... so Vmajor = 44 + major.
+        // Cap at V21 to stay within the project's compilation baseline and avoid
+        // emitting class files newer than the runtime we have validated.
+        final int capped = Math.min(major, 21);
+        return 44 + capped;
+    }
+
+    private static int indexOfNonDigit(final String s) {
+        for (int i = 0; i < s.length(); i++) {
+            if (!Character.isDigit(s.charAt(i))) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private void createSerialisation(final ClassWriter cw, final String pluginId, final String key) {

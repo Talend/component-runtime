@@ -243,6 +243,44 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
                     }
                 });
 
+        // Align jackson-core with jackson-databind that Spark depends on.
+        // Maven dependency mediation lets avro:1.11.x (a nearer transitive) downgrade
+        // jackson-core to 2.14.3 while spark itself drags jackson-databind 2.15.x,
+        // producing NoClassDefFoundError: com/fasterxml/jackson/core/StreamReadConstraints
+        // at driver boot. Resolve jackson-core explicitly at the version chosen for
+        // jackson-databind so the right jar lands in sparkHome/jars/.
+        try {
+            final File databindJar = Stream
+                    .of(libFolder.listFiles((d, name) -> name.startsWith("jackson-databind-")))
+                    .filter(java.util.Objects::nonNull)
+                    .flatMap(Stream::of)
+                    .findFirst()
+                    .orElse(null);
+            if (databindJar != null) {
+                final String dbName = databindJar.getName();
+                // jackson-databind-<version>.jar
+                final String dbVersion =
+                        dbName.substring("jackson-databind-".length(), dbName.length() - ".jar".length());
+                final String coreCoord = "com.fasterxml.jackson.core:jackson-core:" + dbVersion;
+                LOGGER.info("Aligning jackson-core on " + dbVersion + " to match jackson-databind...");
+                final File coreFile = resolver.resolve(coreCoord).withoutTransitivity().asSingleFile();
+                Files
+                        .copy(coreFile.toPath(), new File(libFolder, coreFile.getName()).toPath(),
+                                StandardCopyOption.REPLACE_EXISTING);
+                // Drop any older jackson-core jars that may shadow the aligned one in spark/jars/*
+                final File[] olderCores = libFolder.listFiles((d, name) -> name.startsWith("jackson-core-")
+                        && !name.equals(coreFile.getName()));
+                if (olderCores != null) {
+                    for (final File f : olderCores) {
+                        LOGGER.info("Removing mismatched jackson-core: " + f.getName());
+                        f.delete();
+                    }
+                }
+            }
+        } catch (final Exception e) {
+            LOGGER.warn("Could not align jackson-core with jackson-databind: " + e.getMessage(), e);
+        }
+
         // Add logging dependencies separately to ensure they are included
         Stream
                 .of("org.apache.logging.log4j:log4j-slf4j-impl:" + log4j2Version,

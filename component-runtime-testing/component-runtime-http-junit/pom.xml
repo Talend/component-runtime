@@ -29,6 +29,7 @@
 
   <properties>
     <netty.version>4.1.135.Final</netty.version>
+    <bouncycastle.version>1.78.1</bouncycastle.version>
     <talend.build.name>${talend.build.name.base}.junit.http</talend.build.name>
   </properties>
 
@@ -115,6 +116,18 @@
       <groupId>org.apache.tomee</groupId>
       <artifactId>ziplock</artifactId>
       <version>${ziplock.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <!--
+      Bouncy Castle is required by io.netty.handler.ssl.util.SelfSignedCertificate on JDK 17+
+      because the legacy OpenJdkSelfSignedCertGenerator relies on sun.security.x509 internals
+      that have been encapsulated/moved. Without BC on the classpath the HTTPS tests fail
+      with "No provider succeeded to generate a self-signed certificate".
+    -->
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcpkix-jdk18on</artifactId>
+      <version>${bouncycastle.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
