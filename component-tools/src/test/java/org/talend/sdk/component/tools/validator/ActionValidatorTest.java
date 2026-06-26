@@ -415,6 +415,7 @@ class ActionValidatorTest {
     @ConditionalOutput("outflow-1")
     static class AvailableOutputProcessor implements Serializable {
 
+        @SuppressWarnings("java:S1068")
         private ConfigurationAO config;
 
         @ElementListener

@@ -115,6 +115,7 @@ public class BulkReadResourceImpl implements BulkReadResource {
                             "{\"code\":\"UNAUTHORIZED\",\"description\":\"Forbidden endpoint in bulk mode.\"}"))
                             .readObject());
 
+    @SuppressWarnings("java:S1068")
     private final BulkResponses.Result forbiddenResponse =
             new BulkResponses.Result(Response.Status.FORBIDDEN.getStatusCode(), emptyMap(),
                     Json.createReader(new StringReader(

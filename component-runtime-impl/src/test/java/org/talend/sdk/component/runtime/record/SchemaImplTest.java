@@ -459,7 +459,6 @@ class SchemaImplTest {
         final Schema emptySchema = new BuilderImpl() //
                 .withType(Type.RECORD) //
                 .build();
-        List<Entry> ordered = emptySchema.getEntriesOrdered();
         RecordBuilderFactory factory = new RecordBuilderFactoryImpl("test");
         Record record = factory.newRecordBuilder(emptySchema).build();
         Assertions.assertNotNull(record);

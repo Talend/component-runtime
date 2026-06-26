@@ -86,8 +86,6 @@ class TaCoKitGuessSchemaTest {
 
     private final Pattern schemaPattern = Pattern.compile("(\\[\\{.*\"talendType\".*\\}])");
 
-    private final Pattern logPattern = Pattern.compile("^\\[\\s*(INFO|WARN|ERROR|DEBUG|TRACE)\\s*]");
-
     private final static java.io.PrintStream stdout = System.out;
 
     @BeforeAll

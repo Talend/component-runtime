@@ -35,6 +35,7 @@ import lombok.Data;
 @Emitter(family = "complex", name = "demo")
 public class ComplexComponent implements Serializable {
 
+    @SuppressWarnings("java:S1068")
     private final ComplexDataSet dataset;
 
     public ComplexComponent(@Option("dataset") final ComplexDataSet dataset) {

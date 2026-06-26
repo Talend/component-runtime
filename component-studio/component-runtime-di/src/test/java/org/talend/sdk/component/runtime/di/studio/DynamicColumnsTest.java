@@ -41,9 +41,7 @@ import java.util.PrimitiveIterator;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.json.JsonBuilderFactory;
 import javax.json.bind.Jsonb;
-import javax.json.spi.JsonProvider;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -81,7 +79,6 @@ import org.talend.sdk.component.runtime.output.Branches;
 import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
-import org.talend.sdk.component.runtime.record.RecordConverters;
 import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry;
 
 import routines.system.Dynamic;
@@ -282,14 +279,9 @@ public class DynamicColumnsTest {
 
         final Map<Class<?>, Object> servicesMapper =
                 manager.findPlugin(mapperMapper.plugin()).get().get(AllServices.class).getServices();
-        final Jsonb jsonbMapper = (Jsonb) servicesMapper.get(Jsonb.class);
-        final JsonProvider jsonProvider = (JsonProvider) servicesMapper.get(JsonProvider.class);
-        final JsonBuilderFactory jsonBuilderFactory =
-                (JsonBuilderFactory) servicesMapper.get(JsonBuilderFactory.class);
         final RecordBuilderFactory recordBuilderMapper =
                 (RecordBuilderFactory) servicesMapper.get(RecordBuilderFactory.class);
         builderFactory = recordBuilderMapper;
-        final RecordConverters converters = new RecordConverters();
         final MappingMetaRegistry registry = new MappingMetaRegistry();
 
         Object dataMapper;

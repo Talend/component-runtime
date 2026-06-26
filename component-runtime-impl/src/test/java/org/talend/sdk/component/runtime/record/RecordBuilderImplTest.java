@@ -68,11 +68,6 @@ class RecordBuilderImplTest {
                         .build())
                 .build();
         assertEquals(schema, new RecordImpl.BuilderImpl(schema).withString("name", "ok").build().getSchema());
-
-        Schema.EntriesOrder e = Schema.EntriesOrder.of(new RecordImpl.BuilderImpl().getCurrentEntries()
-                .stream()
-                .map(Schema.Entry::getName)
-                .toList());
     }
 
     @Test
@@ -437,11 +432,9 @@ class RecordBuilderImplTest {
         assertEquals(time.toInstant(), record.getInstant("time"));
 
         int nano = time.toInstant().getNano();
-        long natime = time.toInstant().toEpochMilli();/// 1000 * 1000_000_000 +nano;
         long ntime = time.toInstant().getEpochSecond();
 
         Instant back1 = Instant.ofEpochSecond(ntime, nano);
-        Instant back2 = Instant.ofEpochSecond(natime, nano);
         assertEquals(time.toInstant(), back1);
 
     }

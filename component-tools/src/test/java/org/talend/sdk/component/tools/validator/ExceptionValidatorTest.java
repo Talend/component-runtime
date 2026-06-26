@@ -27,6 +27,7 @@ import org.talend.sdk.component.tools.ComponentValidator.Configuration;
 
 class ExceptionValidatorTest {
 
+    @SuppressWarnings("java:S1068")
     private File fileC1;
 
     @Test

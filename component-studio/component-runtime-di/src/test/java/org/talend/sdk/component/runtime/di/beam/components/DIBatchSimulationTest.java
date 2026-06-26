@@ -33,10 +33,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
-import javax.json.spi.JsonProvider;
 
 import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.transforms.Create;
@@ -238,14 +236,9 @@ class DIBatchSimulationTest {
         final Map<Class<?>, Object> servicesMapper =
                 manager.findPlugin(mapperMapper.plugin()).get().get(ComponentManager.AllServices.class).getServices();
         final Jsonb jsonbMapper = (Jsonb) servicesMapper.get(Jsonb.class);
-        final JsonProvider jsonProvider = (JsonProvider) servicesMapper.get(JsonProvider.class);
-        final JsonBuilderFactory jsonBuilderFactory =
-                (JsonBuilderFactory) servicesMapper.get(JsonBuilderFactory.class);
         final RecordBuilderFactory recordBuilderMapper =
                 (RecordBuilderFactory) servicesMapper.get(RecordBuilderFactory.class);
         final RecordConverters converters = new RecordConverters();
-
-        final RecordConverters.MappingMetaRegistry registry = new RecordConverters.MappingMetaRegistry();
 
         Object dataMapper;
         while ((dataMapper = inputMapper.next()) != null) {

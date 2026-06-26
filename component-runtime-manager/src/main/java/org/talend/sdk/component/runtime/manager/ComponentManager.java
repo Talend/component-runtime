@@ -295,7 +295,7 @@ public class ComponentManager implements AutoCloseable {
         }
 
         static {
-            ComponentManager manager = SingletonHolder.buildNewComponentManager();
+            ComponentManager manager = SingletonHolder.buildNewComponentManager(); // NOSONAR
         }
 
     }

@@ -81,6 +81,7 @@ public class JdbcSource extends PTransform<PBegin, PCollection<JsonObject>> {
 
         private static final long serialVersionUID = 1L;
 
+        @SuppressWarnings("java:S1068")
         private transient PCollection<JsonObject> collection;
 
         private Coder<JsonObject> delegate;

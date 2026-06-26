@@ -91,6 +91,7 @@ public class MapperWithCheckpoint implements Serializable {
 
         private int current = 0;
 
+        @SuppressWarnings("java:S1068")
         private boolean newBookmark = false;
 
         public MapperWithCheckpointWorker(final RecordBuilderFactory recordBuilderFactory, int partition,

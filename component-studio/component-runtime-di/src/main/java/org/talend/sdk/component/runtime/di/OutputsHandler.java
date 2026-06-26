@@ -17,9 +17,7 @@ package org.talend.sdk.component.runtime.di;
 
 import java.util.Map;
 
-import javax.json.JsonBuilderFactory;
 import javax.json.bind.Jsonb;
-import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
@@ -28,16 +26,10 @@ import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegis
 
 public class OutputsHandler extends BaseIOHandler {
 
-    private final JsonProvider jsonProvider;
-
-    private final JsonBuilderFactory jsonBuilderFactory;
-
     private final MappingMetaRegistry registry = new MappingMetaRegistry();
 
     public OutputsHandler(final Jsonb jsonb, final Map<Class<?>, Object> servicesMapper) {
         super(jsonb, servicesMapper);
-        this.jsonProvider = (JsonProvider) servicesMapper.get(JsonProvider.class);
-        this.jsonBuilderFactory = (JsonBuilderFactory) servicesMapper.get(JsonBuilderFactory.class);
     }
 
     public OutputFactory asOutputFactory() {

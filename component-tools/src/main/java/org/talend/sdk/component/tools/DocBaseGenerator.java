@@ -374,8 +374,7 @@ public abstract class DocBaseGenerator extends BaseTask {
                 UIInfo uiInfo = new UIInfo(currentSectionName, paramLayouts);
                 uiparams.put(path, uiInfo);
                 if (param.getNestedParameters().size() > 0) {
-                    Set<String> subLayouts =
-                            recurseUIParam(param.getNestedParameters(), uiparams, sectionType, param, paramLayouts);
+                    recurseUIParam(param.getNestedParameters(), uiparams, sectionType, param, paramLayouts);
                     // uiInfo.addNestedLayouts(subLayouts);
                 }
             }

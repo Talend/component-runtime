@@ -99,8 +99,6 @@ public class OpenAPIGenerator {
         final ApiModel api = getApiModel(apiType, openapi);
 
         log.warn("[generate] {}", api.getInfo());
-        final String defaultUrl = api.getDefaultUrl();
-
         final String pck = '/' + basePackage.replace('.', '/') + '/';
         final String javaBase = build.getMainJavaDirectory() + pck;
         final String resourcesBase = build.getMainResourcesDirectory() + pck;
