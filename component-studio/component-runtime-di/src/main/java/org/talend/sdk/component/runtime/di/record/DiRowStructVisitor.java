@@ -123,8 +123,7 @@ public class DiRowStructVisitor {
                     case StudioTypes.BYTE:
                         onInt(name, ((Byte) raw).intValue());
                         break;
-                    case StudioTypes.INTEGER:
-                    case StudioTypes.SHORT:
+                    case StudioTypes.INTEGER, StudioTypes.SHORT:
                         onInt(name, raw);
                         break;
                     case StudioTypes.LONG:
@@ -185,8 +184,7 @@ public class DiRowStructVisitor {
                     // so we can pick the entry from the schema
                     onArray(rowStructSchema.getEntry(metaName), (Collection) value);
                     break;
-                case StudioTypes.STRING:
-                case StudioTypes.CHARACTER:
+                case StudioTypes.STRING, StudioTypes.CHARACTER:
                     onString(metaName, value);
                     break;
                 case StudioTypes.BYTE_ARRAY:
@@ -204,9 +202,7 @@ public class DiRowStructVisitor {
                     }
                     onBytes(metaName, bytes);
                     break;
-                case StudioTypes.BYTE:
-                case StudioTypes.SHORT:
-                case StudioTypes.INTEGER:
+                case StudioTypes.BYTE, StudioTypes.SHORT, StudioTypes.INTEGER:
                     onInt(metaName, value);
                     break;
                 case StudioTypes.LONG:
@@ -301,9 +297,7 @@ public class DiRowStructVisitor {
                     case StudioTypes.LIST:
                         schema.withEntry(toCollectionEntry(name, originalDbColumnName, raw));
                         break;
-                    case StudioTypes.OBJECT:
-                    case StudioTypes.STRING:
-                    case StudioTypes.CHARACTER:
+                    case StudioTypes.OBJECT, StudioTypes.STRING, StudioTypes.CHARACTER:
                         schema.withEntry(toEntry(name, STRING, originalDbColumnName, isNullable, comment, isKey, length,
                                 precision, defaultValue, null, studioType));
                         break;
@@ -312,9 +306,7 @@ public class DiRowStructVisitor {
                                 toEntry(name, DECIMAL, originalDbColumnName, isNullable, comment, isKey, length,
                                         precision, defaultValue, null, studioType));
                         break;
-                    case StudioTypes.INTEGER:
-                    case StudioTypes.SHORT:
-                    case StudioTypes.BYTE:
+                    case StudioTypes.INTEGER, StudioTypes.SHORT, StudioTypes.BYTE:
                         schema.withEntry(
                                 toEntry(name, INT, originalDbColumnName, isNullable, comment, isKey, null, null,
                                         defaultValue, null, studioType));
@@ -388,9 +380,7 @@ public class DiRowStructVisitor {
                 case StudioTypes.LIST:
                     schema.withEntry(toCollectionEntry(metaName, metaOriginalName, value));
                     break;
-                case StudioTypes.OBJECT:
-                case StudioTypes.STRING:
-                case StudioTypes.CHARACTER:
+                case StudioTypes.OBJECT, StudioTypes.STRING, StudioTypes.CHARACTER:
                     schema.withEntry(
                             toEntry(metaName, STRING, metaOriginalName, metaIsNullable, comment,
                                     metaIsKey, null, null, defaultValue, metaPattern, metaStudioType));
@@ -404,9 +394,7 @@ public class DiRowStructVisitor {
                     schema.withEntry(toEntry(metaName, BYTES, metaOriginalName, metaIsNullable, comment,
                             metaIsKey, null, null, defaultValue, null, metaStudioType));
                     break;
-                case StudioTypes.BYTE:
-                case StudioTypes.SHORT:
-                case StudioTypes.INTEGER:
+                case StudioTypes.BYTE, StudioTypes.SHORT, StudioTypes.INTEGER:
                     schema.withEntry(toEntry(metaName, INT, metaOriginalName, metaIsNullable, comment,
                             metaIsKey, null, null, defaultValue, null, metaStudioType, logicalType));
                     break;

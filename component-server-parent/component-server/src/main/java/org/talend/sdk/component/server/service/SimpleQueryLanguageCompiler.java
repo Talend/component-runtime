@@ -184,8 +184,7 @@ public class SimpleQueryLanguageCompiler {
                     }
                     final String string = new String(buffer, actualFrom, idx - actualFrom);
                     switch (string) {
-                        case "AND":
-                        case "OR":
+                        case "AND", "OR":
                             return new Token(idx, TokenType.COMBINER, string);
                         default:
                             return new Token(idx, TokenType.VALUE, string);

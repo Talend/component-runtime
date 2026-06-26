@@ -85,8 +85,7 @@ public class SchemalessJsonToIndexedRecord extends PTransform<PCollection<JsonOb
                         return INT;
                     }
                     return DOUBLE;
-                case FALSE:
-                case TRUE:
+                case FALSE, TRUE:
                     return BOOLEAN;
                 case NULL:
                     return NULL;

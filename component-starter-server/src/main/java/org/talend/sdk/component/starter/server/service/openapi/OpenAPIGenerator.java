@@ -279,9 +279,7 @@ public class OpenAPIGenerator {
                 getObject(it, "schema").map(this::mapJavaType).orElse("String"),
                 getObject(it, "schema").map(schema -> schema.get("default")).map(defaultValue -> {
                     switch (defaultValue.getValueType()) {
-                        case TRUE:
-                        case FALSE:
-                        case NUMBER:
+                        case TRUE, FALSE, NUMBER:
                             return String.valueOf(defaultValue);
                         case STRING:
                             return ((JsonString) defaultValue).getString();
@@ -299,8 +297,7 @@ public class OpenAPIGenerator {
                 return "org.talend.sdk.component.api.service.http.Path";
             case "header":
                 return "org.talend.sdk.component.api.service.http.Header";
-            case "body":
-            case "formData":
+            case "body", "formData":
                 return null;
             default:
                 throw new IllegalArgumentException("Unsupported parameter: " + type + "(" + name + ")");
@@ -315,8 +312,7 @@ public class OpenAPIGenerator {
                 return "@Path(\"" + name + "\") ";
             case "header":
                 return "@Header(\"" + name + "\") ";
-            case "body":
-            case "formData":
+            case "body", "formData":
                 return "";
             default:
                 throw new IllegalArgumentException("Unsupported parameter: " + type + "(" + name + ")");

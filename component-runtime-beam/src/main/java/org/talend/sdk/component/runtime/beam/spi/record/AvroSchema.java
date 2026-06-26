@@ -333,9 +333,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                 }
                 return Type.BYTES;
             // very unlikely to happen but treat all available types
-            case MAP:
-            case UNION:
-            case NULL:
+            case MAP, UNION, NULL:
                 log.warn("[doMapType] unmanaged avro type {}. Storing as Object.", schema.getType());
                 // the storage will be an object so returning record kind...
                 return Type.RECORD;

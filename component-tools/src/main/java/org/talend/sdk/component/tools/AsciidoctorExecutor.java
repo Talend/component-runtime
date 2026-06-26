@@ -181,8 +181,7 @@ public class AsciidoctorExecutor implements AutoCloseable {
             extractResources(workDir, log);
         }
         switch (backend.toLowerCase(ENGLISH)) {
-            case "html":
-            case "html5":
+            case "html", "html5":
                 if (!attributes.containsKey("stylesheet")) {
                     attrs.attribute("stylesheet", "talend.css");
                 }

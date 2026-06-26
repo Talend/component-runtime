@@ -84,9 +84,7 @@ public class DefaultValueInspector {
                 return null;
             case ENUM:
                 return ((Enum) instance).name();
-            case STRING:
-            case NUMBER:
-            case BOOLEAN:
+            case STRING, NUMBER, BOOLEAN:
                 return String.valueOf(instance);
             case ARRAY: // can be enhanced
                 if (!param.getNestedParameters().isEmpty()) {

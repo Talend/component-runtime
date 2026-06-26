@@ -380,8 +380,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                         .withVar(path + ".length")
                         .withValue(value instanceof String ? Integer.parseInt(String.valueOf(value)) : value)
                         .build();
-            case "contains":
-            case "contains(lowercase=true)":
+            case "contains", "contains(lowercase=true)":
                 final UiSchema.ConditionValuesBuilder in = new UiSchema.ConditionBuilder().withOperator("in");
                 final Object val =
                         strategy.endsWith("(lowercase=true)") ? ((String) value).toLowerCase(ROOT) : value;

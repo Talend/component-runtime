@@ -304,10 +304,7 @@ public class ParameterModelService {
         }
         if (type instanceof Class aClass) {
             switch (findType(type)) {
-                case ENUM:
-                case STRING:
-                case NUMBER:
-                case BOOLEAN:
+                case ENUM, STRING, NUMBER, BOOLEAN:
                     return singletonList(buildParameter(name, prefix, new ParameterMeta.Source() {
 
                         @Override
