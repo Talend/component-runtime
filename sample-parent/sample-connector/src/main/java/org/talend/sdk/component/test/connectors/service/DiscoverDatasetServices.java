@@ -35,7 +35,7 @@ public class DiscoverDatasetServices {
      *
      */
 
-    public final static String DISCOVER_DATASET = "action_DISCOVER_DATASET";
+    public static final String DISCOVER_DATASET = "action_DISCOVER_DATASET";
 
     /**
      * DiscoverDataset action

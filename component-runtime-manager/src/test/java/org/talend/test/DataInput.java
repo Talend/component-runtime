@@ -77,7 +77,7 @@ public class DataInput implements Serializable {
 
     private final String tableName;
 
-    public DataInput(final @Option("tableName") String tableName, final Jsonb jsonb, final I18nService i18n) {
+    public DataInput(@Option("tableName") final String tableName, final Jsonb jsonb, final I18nService i18n) {
         this.tableName = tableName;
         this.jsonb = jsonb;
         this.i18n = i18n;

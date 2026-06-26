@@ -101,7 +101,7 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
 
     protected abstract File getRoot();
 
-    protected final static String EXTRA_JVM_ARGS =
+    protected static final String EXTRA_JVM_ARGS =
             "--add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED";
 
     public T withSlaves(final int slaves) {

@@ -69,10 +69,10 @@ import lombok.RequiredArgsConstructor;
 public class BeamIOWrappingTest implements Serializable {
 
     @Rule
-    public transient final TestPipeline pipeline = TestPipeline.create();
+    public final transient TestPipeline pipeline = TestPipeline.create();
 
     @ClassRule
-    public static transient final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
+    public static final transient TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
 
     @Test
     public void nativeBeamPipeline() {
