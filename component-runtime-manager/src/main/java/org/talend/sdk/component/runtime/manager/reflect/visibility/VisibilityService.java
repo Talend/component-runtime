@@ -218,7 +218,7 @@ public class VisibilityService {
         private Object mapValue(final JsonValue value) {
             switch (value.getValueType()) {
                 case ARRAY:
-                    return value.asJsonArray().stream().map(this::mapValue).collect(toList());
+                    return value.asJsonArray().stream().map(this::mapValue).toList();
                 case STRING:
                     return ((JsonString) value).getString();
                 case TRUE:

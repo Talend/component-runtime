@@ -40,12 +40,12 @@ class OrderedMapTest {
 
         container.addValue(f1);
         container.addValue(f2);
-        List<Schema.Entry> entries = container.streams().collect(Collectors.toList());
+        List<Schema.Entry> entries = container.streams().toList();
         Assertions.assertEquals("f1", entries.get(0).getName());
         Assertions.assertEquals("f2", entries.get(1).getName());
 
         container.swap("f1", "f2");
-        List<Schema.Entry> entries2 = container.streams().collect(Collectors.toList());
+        List<Schema.Entry> entries2 = container.streams().toList();
         Assertions.assertEquals("f2", entries2.get(0).getName());
         Assertions.assertEquals("f1", entries2.get(1).getName());
 

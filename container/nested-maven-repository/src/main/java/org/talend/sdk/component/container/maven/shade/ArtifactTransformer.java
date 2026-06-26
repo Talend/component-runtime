@@ -17,7 +17,6 @@ package org.talend.sdk.component.container.maven.shade;
 
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static lombok.AccessLevel.NONE;
 
@@ -228,10 +227,10 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
     private ArtifactFilter getFilter() {
         final List<ArtifactFilter> filters = new ArrayList<>(2);
         if (include != null) {
-            filters.add(new IncludesArtifactFilter(Stream.of(include.split(",")).collect(toList())));
+            filters.add(new IncludesArtifactFilter(Stream.of(include.split(",")).toList()));
         }
         if (exclude != null) {
-            filters.add(new ExcludesArtifactFilter(Stream.of(exclude.split(",")).collect(toList())));
+            filters.add(new ExcludesArtifactFilter(Stream.of(exclude.split(",")).toList()));
         }
         if (scope != null) {
             filters
@@ -246,7 +245,7 @@ public abstract class ArtifactTransformer implements ResourceTransformer {
                                     return !delegate.include(artifact);
                                 }
                             } : newScopeFilter(singleScope))
-                            .collect(toList()));
+                            .toList());
         }
         return new AndArtifactFilter(filters);
     }

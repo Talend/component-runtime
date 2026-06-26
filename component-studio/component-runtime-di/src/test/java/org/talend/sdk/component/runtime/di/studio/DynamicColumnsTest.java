@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.di.studio;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -394,7 +393,7 @@ public class DynamicColumnsTest {
             assertEquals(Double.MIN_VALUE, record.getDouble("double_min"));
             assertEquals(Double.MAX_VALUE, record.getDouble("double_max"));
             assertEquals(String.format("zorglub-is-still-alive-%05d", counter), new String(record.getBytes("bytes0")));
-            assertEquals(IntStream.range(0, counter + 1).boxed().collect(toList()),
+            assertEquals(IntStream.range(0, counter + 1).boxed().toList(),
                     record.getArray(Integer.class, "array0"));
             assertEquals(StudioTypes.DATE, record.getSchema().getEntry("date0").getProp(STUDIO_TYPE));
             assertTrue(ZonedDateTime.now().toEpochSecond() >= record.getDateTime("date0").toEpochSecond());
@@ -522,7 +521,7 @@ public class DynamicColumnsTest {
                             .withName("array0")
                             .withType(Type.ARRAY)
                             .withElementSchema(builderFactory.newSchemaBuilder(Type.INT).build())
-                            .build(), IntStream.range(0, i + 1).boxed().collect(toList()))
+                            .build(), IntStream.range(0, i + 1).boxed().toList())
                     .withDateTime("date0", ZonedDateTime.now())
                     .withString(builderFactory.newEntryBuilder()
                             .withName("dynBigDecimal")

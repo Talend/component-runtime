@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.record;
 
 import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -341,7 +340,7 @@ class RecordConvertersTest {
                                     .build(),
                             () -> jsonb, () -> new RecordBuilderFactoryImpl("test"));
             final Collection<Record> list = record.getArray(Record.class, "list");
-            assertEquals(asList("a", "b"), list.stream().map(it -> it.getString("name")).collect(toList()));
+            assertEquals(asList("a", "b"), list.stream().map(it -> it.getString("name")).toList());
         }
     }
 
@@ -365,7 +364,7 @@ class RecordConvertersTest {
             // // FIXME: 7/9/21 : TCOMP-1956
             Assertions.assertNotNull(schema.getEntry("name1"));
             Assertions.assertNotNull(schema.getEntry("name2"));
-            assertEquals(asList("a", "b"), list.stream().map(it -> it.getString("name")).collect(toList()));
+            assertEquals(asList("a", "b"), list.stream().map(it -> it.getString("name")).toList());
         }
     }
 
@@ -412,7 +411,7 @@ class RecordConvertersTest {
                             .stream()
                             .flatMap(a -> a.stream())
                             .flatMap(bd -> Stream.of(bd))
-                            .collect(toList()));
+                            .toList());
         }
     }
 
@@ -450,8 +449,8 @@ class RecordConvertersTest {
         Iterator<Boolean> itBool = record.getArray(Boolean.class, "jsonBoolValue").iterator();
         assertTrue(itBool.next());
         assertFalse(itBool.next());
-        assertEquals(Arrays.stream(intAry).collect(toList()),
-                record.getArray(Integer.class, "intAryValue").stream().collect(toList()));
+        assertEquals(Arrays.stream(intAry).toList(),
+                record.getArray(Integer.class, "intAryValue").stream().toList());
         //
         final PojoWrapper wrapper = (PojoWrapper) converter
                 .toType(new MappingMetaRegistry(), record, PojoWrapper.class,
@@ -472,8 +471,8 @@ class RecordConvertersTest {
                 ((JsonObject) wrapper.getJsonAryValue()[0]).getString("string"));
         assertEquals(jsonObj1.getJsonNumber("number").doubleValue(),
                 ((JsonObject) wrapper.getJsonAryValue()[0]).getJsonNumber("number").doubleValue());
-        assertEquals(Arrays.stream(intAry).collect(toList()),
-                Arrays.stream(wrapper.getIntAryValue()).collect(toList()));
+        assertEquals(Arrays.stream(intAry).toList(),
+                Arrays.stream(wrapper.getIntAryValue()).toList());
     }
 
     @Data

@@ -61,7 +61,7 @@ class MvnDependencyListLocalRepositoryResolverTest {
                     new MvnDependencyListLocalRepositoryResolver("TALEND-INF/dependencies.txt", d -> null)
                             .resolve(tempLoader, "foo/bar/dummy/1.0.0/dummy-1.0.0.jar")
                             .map(Artifact::toPath)
-                            .collect(toList());
+                            .toList();
             assertEquals(asList("org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar",
                     "org/apache/tomee/javaee-api/7.0-1/javaee-api-7.0-1.jar"), toResolve);
         }
@@ -91,7 +91,7 @@ class MvnDependencyListLocalRepositoryResolverTest {
                     new MvnDependencyListLocalRepositoryResolver("TALEND-INF/dependencies.txt", d -> null)
                             .resolve(tempLoader, "foo/bar/dummy/1.0.0-TCOMP-2285/dummy-1.0.0-TCOMP-2285.jar")
                             .map(Artifact::toPath)
-                            .collect(toList());
+                            .toList();
             assertEquals(asList("org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar",
                     "org/apache/tomee/javaee-api/7.0-1/javaee-api-7.0-1.jar"), toResolve);
         }

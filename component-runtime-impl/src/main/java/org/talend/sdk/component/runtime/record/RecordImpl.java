@@ -158,7 +158,7 @@ public final class RecordImpl implements Record {
                     final List<Entry> fields = this.providedSchema.naturalOrder()
                             .getFieldsOrder()
                             .map(n -> this.getEntryWithErrorIfAny(this.providedSchema.getEntry(n)))
-                            .collect(Collectors.toList());
+                            .toList();
                     this.orderState = new OrderState(fields);
                 }
             }
@@ -236,7 +236,7 @@ public final class RecordImpl implements Record {
             }
 
             final BuilderImpl builder =
-                    new BuilderImpl(this.providedSchema.getAllEntries().collect(Collectors.toList()), this.values);
+                    new BuilderImpl(this.providedSchema.getAllEntries().toList(), this.values);
             return builder.removeEntry(schemaEntry);
         }
 
@@ -267,7 +267,7 @@ public final class RecordImpl implements Record {
             }
 
             final BuilderImpl builder =
-                    new BuilderImpl(this.providedSchema.getAllEntries().collect(Collectors.toList()),
+                    new BuilderImpl(this.providedSchema.getAllEntries().toList(),
                             this.values);
             return builder.updateEntryByName(name, schemaEntry);
         }
@@ -698,7 +698,7 @@ public final class RecordImpl implements Record {
 
             public Comparator<Entry> buildComparator() {
                 final List<String> orderedFields =
-                        this.orderedEntries.streams().map(Entry::getName).collect(Collectors.toList());
+                        this.orderedEntries.streams().map(Entry::getName).toList();
                 return EntriesOrder.of(orderedFields);
             }
         }

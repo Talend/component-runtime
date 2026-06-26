@@ -82,7 +82,7 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
                         // if we have multiple tabs, priority is MAIN/ADVANCED pair first
                         // but if they are not present then we use all layouts in "String" order
                         final List<String> tabs = (layouts.containsKey("Main") ? Stream.of("Main", "Advanced")
-                                : layouts.keySet().stream().sorted(String::compareToIgnoreCase)).collect(toList());
+                                : layouts.keySet().stream().sorted(String::compareToIgnoreCase)).toList();
 
                         final UiSchema schema = newUiSchema(context);
                         schema.setTitle(null);

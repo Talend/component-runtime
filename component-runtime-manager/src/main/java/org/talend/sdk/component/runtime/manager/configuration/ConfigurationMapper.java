@@ -19,7 +19,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.lang.reflect.Field;
@@ -79,7 +78,7 @@ public class ConfigurationMapper {
                                         param.getNestedParameters()
                                                 .stream()
                                                 .filter(p -> !isPrimitive(p))
-                                                .collect(toList()),
+                                                .toList(),
                                         item, indexes));
                                 return res;
                             })

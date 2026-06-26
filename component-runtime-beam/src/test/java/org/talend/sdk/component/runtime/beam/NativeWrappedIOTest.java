@@ -18,7 +18,6 @@ package org.talend.sdk.component.runtime.beam;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
 import static lombok.AccessLevel.PRIVATE;
 import static org.junit.Assert.assertEquals;
 
@@ -139,7 +138,7 @@ public class NativeWrappedIOTest {
             isolatedPackages = Stream
                     .concat(Stream.of(packageName), Stream.of(packages))
                     .filter(Objects::nonNull)
-                    .collect(toList());
+                    .toList();
             if (isolatedPackages.isEmpty()) {
                 isolatedPackages = null;
             }

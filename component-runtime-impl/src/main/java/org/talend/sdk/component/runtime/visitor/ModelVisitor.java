@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.runtime.visitor;
 
-import static java.util.stream.Collectors.toList;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -161,7 +159,7 @@ public class ModelVisitor {
 
     private void validateEmitter(final Class<?> input) {
         final List<Method> producers =
-                Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(Producer.class)).collect(toList());
+                Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(Producer.class)).toList();
         if (producers.size() != 1) {
             throw new IllegalArgumentException(input + " must have a single @Producer method");
         }
@@ -178,7 +176,7 @@ public class ModelVisitor {
         final List<Method> driverRunners = Stream
                 .of(standalone.getMethods())
                 .filter(m -> m.isAnnotationPresent(RunAtDriver.class))
-                .collect(toList());
+                .toList();
         if (driverRunners.size() != 1) {
             throw new IllegalArgumentException(standalone + " must have a single @RunAtDriver method");
         }
@@ -193,7 +191,7 @@ public class ModelVisitor {
 
     private void validateProcessor(final Class<?> input) {
         final List<Method> afterGroups =
-                Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(AfterGroup.class)).collect(toList());
+                Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(AfterGroup.class)).toList();
         afterGroups.forEach(m -> {
             final List<Parameter> invalidParams = Stream.of(m.getParameters()).peek(p -> {
                 if (p.isAnnotationPresent(Output.class) && !validOutputParam(p)) {
@@ -203,7 +201,7 @@ public class ModelVisitor {
                     .filter(p -> !p.isAnnotationPresent(Output.class))
                     .filter(p -> !p.isAnnotationPresent(LastGroup.class))
                     .filter(p -> !Parameters.isGroupBuffer(p.getParameterizedType()))
-                    .collect(toList());
+                    .toList();
             if (!invalidParams.isEmpty()) {
                 throw new IllegalArgumentException("Parameter of AfterGroup method need to be annotated with Output");
             }
@@ -232,7 +230,7 @@ public class ModelVisitor {
         final List<Method> producers = Stream
                 .of(input.getMethods())
                 .filter(m -> m.isAnnotationPresent(ElementListener.class))
-                .collect(toList());
+                .toList();
         if (producers.size() > 1) {
             throw new IllegalArgumentException(input + " must have a single @ElementListener method");
         }
@@ -272,7 +270,7 @@ public class ModelVisitor {
         List<Method> markedMethods = Stream
                 .of(type.getMethods())
                 .filter(m -> m.isAnnotationPresent(AfterVariableContainer.class))
-                .collect(toList());
+                .toList();
         if (markedMethods.size() > 1) {
             String methods = markedMethods.stream().map(Method::toGenericString).collect(Collectors.joining(","));
             throw new IllegalArgumentException("The methods can't have more than 1 after variable container. "
@@ -331,7 +329,7 @@ public class ModelVisitor {
                 .filter(annotation -> !SUPPORTED_AFTER_VARIABLES_TYPES.contains(annotation.type()))
                 .map(annotation -> "The after variable with name '" + annotation.value() + "' has incorrect type: '"
                         + annotation.type() + "'")
-                .collect(toList());
+                .toList();
         if (!incorrectDeclarations.isEmpty()) {
             String message = incorrectDeclarations
                     .stream()

@@ -18,7 +18,6 @@ package org.talend.sdk.component.starter.server.service.facet.component;
 import static java.util.Collections.emptyList;
 import static java.util.Locale.ENGLISH;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.starter.server.service.Strings.capitalize;
 
@@ -154,7 +153,7 @@ public class ComponentGenerator {
         if (sources != null && !sources.isEmpty()) {
             files
                     .addAll(createSourceFiles(tuple, iconResourcesDirectory, sources, mainJava, serviceName)
-                            .collect(toList()));
+                            .toList());
 
             messageProperties.put(tuple + ".source", new TreeMap<String, String>() {
 
@@ -180,7 +179,7 @@ public class ComponentGenerator {
         if (processors != null && !processors.isEmpty()) {
             files
                     .addAll(createProcessorFiles(tuple, iconResourcesDirectory, processors, mainJava, serviceName)
-                            .collect(toList()));
+                            .toList());
             messageProperties.put(tuple + ".output", new TreeMap<String, String>() {
 
                 {
@@ -223,7 +222,7 @@ public class ComponentGenerator {
                 }
             });
         }
-        files.addAll(generateProperties(build.getMainResourcesDirectory(), messageProperties).collect(toList()));
+        files.addAll(generateProperties(build.getMainResourcesDirectory(), messageProperties).toList());
         return files.stream();
     }
 
@@ -306,7 +305,7 @@ public class ComponentGenerator {
                         generateModel(null, processorPackage, mainJava, e.getValue().getStructure(), outputClassName,
                                 files);
                         return new Connection(e.getKey(), javaName, outputClassName, isDefault(e.getKey()));
-                    }).sorted(connectionComparator).collect(toList()) : emptyList();
+                    }).sorted(connectionComparator).toList() : emptyList();
 
             final List<Connection> inputNames = processor.getInputStructures() != null
                     ? processor.getInputStructures().entrySet().stream().map(e -> {
@@ -319,7 +318,7 @@ public class ComponentGenerator {
                         generateModel(null, processorPackage, mainJava, e.getValue().getStructure(), inputClassName,
                                 files);
                         return new Connection(e.getKey(), javaName, inputClassName, isDefault(e.getKey()));
-                    }).sorted(connectionComparator).collect(toList())
+                    }).sorted(connectionComparator).toList()
                     : emptyList();
 
             generateConfiguration(null, processorPackage, mainJava, processor.getConfiguration(),
@@ -440,7 +439,7 @@ public class ComponentGenerator {
                                                             generateModel((root == null ? "" : root) + capitalize(cn),
                                                                     pck, mainJava, e.getNestedType(), cn, files);
                                                         }), false))
-                                                .collect(toList()));
+                                                .toList());
                                     }
                                 }
                             })));
@@ -485,7 +484,7 @@ public class ComponentGenerator {
                                             }
                                             return new Property(name, capitalize(name), javaConfigType,
                                                     isCredential(name, e.getType()));
-                                        }).collect(toList()) : emptyList();
+                                        }).toList() : emptyList();
 
                                 imports.sort(String::compareTo);
                                 put("imports", imports);

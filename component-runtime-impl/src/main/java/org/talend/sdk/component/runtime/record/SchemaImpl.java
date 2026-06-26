@@ -71,8 +71,8 @@ public class SchemaImpl implements Schema {
     SchemaImpl(final SchemaImpl.BuilderImpl builder) {
         this.type = builder.type;
         this.elementSchema = builder.elementSchema;
-        this.entries = unmodifiableList(builder.entries.streams().collect(toList()));
-        this.metadataEntries = unmodifiableList(builder.metadataEntries.streams().collect(toList()));
+        this.entries = unmodifiableList(builder.entries.streams().toList());
+        this.metadataEntries = unmodifiableList(builder.metadataEntries.streams().toList());
         this.props = builder.props;
         entriesOrder = EntriesOrder.of(getFieldsOrder());
         getAllEntries().forEach(e -> entryMap.put(e.getName(), e));

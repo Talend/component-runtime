@@ -86,7 +86,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                                         val.setValue((String) entry.get("id"));
                                         return val;
                                     })
-                                    .collect(toList());
+                                    .toList();
                         })
                         .orElse(emptyList()));
     }
@@ -140,7 +140,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                                 .setPath(path.endsWith("[]") ? path.substring(0, path.length() - "[]".length()) : path);
                         return parameter;
                     })
-                    .collect(toList());
+                    .toList();
 
             // if we are empty and there was no "empty" object then fail
             if (!propertiesPrefix.startsWith("$") && resolvedParams.isEmpty()
@@ -149,7 +149,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                         + ref.getFamily() + "/" + ref.getType() + "/" + ref.getName());
             }
             return resolvedParams.stream();
-        }).collect(toList())).orElse(null);
+        }).toList()).orElse(null);
     }
 
     protected UiSchema newUiSchema(final PropertyContext<?> ctx) {

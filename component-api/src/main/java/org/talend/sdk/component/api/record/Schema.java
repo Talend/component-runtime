@@ -532,7 +532,7 @@ public interface Schema {
             if (fields == null || fields.isEmpty()) {
                 fieldsOrder = new OrderedMap<>(Function.identity());
             } else {
-                final List<String> fieldList = Arrays.stream(fields.split(",")).collect(Collectors.toList());
+                final List<String> fieldList = Arrays.stream(fields.split(",")).toList();
                 fieldsOrder = new OrderedMap<>(Function.identity(), fieldList);
             }
         }

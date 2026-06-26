@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.server.test.custom;
 
-import static java.util.stream.Collectors.toList;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -53,7 +51,7 @@ public class CustomService implements Serializable {
                                         .of("i.m.a.virtual.configuration.entry",
                                                 "i.m.another.virtual.configuration.entry")
                                         .map(key -> new SuggestionValues.Item(key, configuration.get(key))))
-                        .collect(toList()));
+                        .toList());
     }
 
     @Action("unknownException")

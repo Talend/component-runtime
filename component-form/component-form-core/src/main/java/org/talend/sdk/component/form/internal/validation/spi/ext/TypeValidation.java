@@ -16,7 +16,6 @@
 package org.talend.sdk.component.form.internal.validation.spi.ext;
 
 import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -83,7 +82,7 @@ public class TypeValidation implements ValidationExtension {
                     .concat(Stream.of(types), Stream.of(JsonValue.ValueType.NULL))
                     .distinct()
                     .sorted(comparing(JsonValue.ValueType::name))
-                    .collect(toList());
+                    .toList();
         }
 
         @Override
