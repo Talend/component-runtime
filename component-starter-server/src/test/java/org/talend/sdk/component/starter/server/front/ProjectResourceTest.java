@@ -335,10 +335,19 @@ class ProjectResourceTest {
         Stream
                 .of("component-api", "<source>17</source>", "<trimStackTrace>false</trimStackTrace>")
                 .forEach(token -> assertTrue(files.get("application/pom.xml").contains(token), token));
-        assertEquals("= A Talend generated Component Starter Project\n" + "\n" + "== Test\n" + "\n"
-                + "=== Talend Component Kit Testing\n" + "\n"
-                + "Talend Component Kit Testing skeleton generator. For each component selected it generates an associated test suffixed with `Test`.\n"
-                + "\n" + "\n", files.get("application/README.adoc"));
+        assertEquals(
+                """
+                = A Talend generated Component Starter Project
+
+                == Test
+
+                === Talend Component Kit Testing
+
+                Talend Component Kit Testing skeleton generator. For each component selected it generates an associated test suffixed with `Test`.
+
+
+                """,
+                files.get("application/README.adoc"));
     }
 
     @Test
@@ -376,9 +385,12 @@ class ProjectResourceTest {
         final ProjectModel projectModel = new ProjectModel();
         projectModel.setFacets(singletonList("Travis CI"));
         final Map<String, String> files = createZip(projectModel, target);
+        final String travisContent = files.get("application/.travis.yml");
 
         assertTrue(files.get("application/README.adoc").contains("=== Travis CI\n"));
-        assertTrue(files.get("application/.travis.yml").contains("language: java"));
+        assertTrue(travisContent.contains("language: java"));
+        assertTrue(travisContent.contains("jdk:\n  - oraclejdk8"), travisContent);
+        assertTrue(travisContent.contains("directories:\n    - \"$HOME/.m2\""), travisContent);
     }
 
     @Test
