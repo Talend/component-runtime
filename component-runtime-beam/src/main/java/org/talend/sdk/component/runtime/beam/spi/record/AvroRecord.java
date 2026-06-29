@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static org.talend.sdk.component.api.record.SchemaCompanionUtil.sanitizeName;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
 
@@ -107,7 +108,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         }
 
         if (value instanceof Collection collection) {
-            return collection.stream().map(v -> this.directMapping(v, entry)).toList();
+            return collection.stream().map(v -> this.directMapping(v, entry)).collect(toList());
         }
         if (value instanceof RecordImpl) {
             return new AvroRecord((Record) value).delegate;
@@ -222,7 +223,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     private <T> Collection<T> doMapCollection(final Class<T> type, final Collection<?> collection,
             final org.apache.avro.Schema elementType) {
         return ofNullable(collection)
-                .map(c -> c.stream().map(item -> doMap(type, elementType, item)).toList())
+                .map(c -> c.stream().map(item -> doMap(type, elementType, item)).collect(toList()))
                 .orElse(null);
     }
 
