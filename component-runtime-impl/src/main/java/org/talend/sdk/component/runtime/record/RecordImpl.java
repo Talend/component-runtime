@@ -222,7 +222,7 @@ public final class RecordImpl implements Record {
         @Override
         public List<Entry> getCurrentEntries() {
             if (this.providedSchema != null) {
-                return Collections.unmodifiableList(this.providedSchema.getAllEntries().collect(Collectors.toList()));
+                return providedSchema.getAllEntries().toList();
             }
             return this.entries.streams().collect(Collectors.toList());
         }

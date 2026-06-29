@@ -430,7 +430,7 @@ public class ContainerManager implements Lifecycle {
     }
 
     public List<String> getRuntimeClasspath() {
-        return Collections.unmodifiableList(runtimeClasspath);
+        return runtimeClasspath.stream().toList();
     }
 
     private void getSystemInformations() {
