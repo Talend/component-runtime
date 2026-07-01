@@ -20,13 +20,6 @@ module.exports = {
   devServer: {
     setupMiddlewares: setupBackend,
     host: "0.0.0.0",
-    proxy: {
-      "/api": {
-        target: process.env.API_URL || "http://localhost:10101",
-        changeOrigin: true,
-        secure: false,
-      },
-    },
     historyApiFallback: true,
   },
   resolve: {
