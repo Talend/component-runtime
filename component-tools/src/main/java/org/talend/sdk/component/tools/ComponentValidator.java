@@ -77,7 +77,7 @@ public class ComponentValidator extends BaseTask {
         super(classes);
         this.configuration = configuration;
         this.sourceRoot = sourceRoot;
-        this.validator = new SvgValidator();
+        this.validator = new SvgValidator(this.configuration.isValidateLegacyIcons());
 
         try {
             this.log = log instanceof Log log1 ? log1 : new ReflectiveLog(log);

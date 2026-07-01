@@ -80,7 +80,7 @@ class SvgValidatorTest {
     }
 
     private List<String> doValidate(final String name, final int count, final Boolean legacyMode) {
-        final List<String> errors = new SvgValidator().validate(icon(name)).toList();
+        final List<String> errors = new SvgValidator(legacyMode).validate(icon(name)).toList();
         assertEquals(count, errors.size());
         return errors;
     }
