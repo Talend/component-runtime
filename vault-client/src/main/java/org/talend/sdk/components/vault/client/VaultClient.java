@@ -61,8 +61,6 @@ import javax.inject.Inject;
 import javax.json.bind.annotation.JsonbProperty;
 import javax.servlet.ServletContext;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -143,20 +141,12 @@ public class VaultClient {
     private String passthroughRegex;
 
     @Inject
-    @Documentation("Timeout in milliseconds for the Vault ping (connectivity check). "
-            + "Applied as both connect and read timeout on the health check request.")
-    @ConfigProperty(name = "talend.vault.cache.vault.ping.timeout", defaultValue = "2000")
-    private Integer pingTimeoutMs;
-
-    @Inject
     private Cache<String, DecryptedValue> cache;
 
     @Inject
     private Clock clock;
 
     private final AtomicReference<Authentication> authToken = new AtomicReference<>();
-
-    private Client pingClient;
 
     private ScheduledExecutorService scheduledExecutorService;
 
@@ -176,10 +166,6 @@ public class VaultClient {
     @PostConstruct
     private void init() {
         compiledPassthroughRegex = Pattern.compile(passthroughRegex);
-        pingClient = ClientBuilder.newBuilder()
-                .connectTimeout(pingTimeoutMs, MILLISECONDS)
-                .readTimeout(pingTimeoutMs, MILLISECONDS)
-                .build();
     }
 
     @PreDestroy
@@ -190,7 +176,6 @@ public class VaultClient {
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        pingClient.close();
     }
 
     // as deprecation was introduced since = "17", can ignore it for now...
@@ -228,8 +213,7 @@ public class VaultClient {
         }
         Response response = null;
         try {
-            response = pingClient
-                    .target(setup.getVaultUrl())
+            response = vault
                     .path("v1/sys/health")
                     .request()
                     .get();
