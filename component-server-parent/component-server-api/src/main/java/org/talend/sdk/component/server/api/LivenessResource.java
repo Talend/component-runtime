@@ -26,7 +26,6 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
-import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.talend.sdk.component.server.front.model.HealthStatus;
 
@@ -39,15 +38,13 @@ public interface LivenessResource {
     @Operation(operationId = "getLiveness",
             description = "Liveness probe: returns 200 when the JVM is healthy (no fatal error recorded). "
                     + "Returns 503 with a cause when a VirtualMachineError (e.g. OutOfMemoryError) has been intercepted.")
-    @APIResponses({
             @APIResponse(responseCode = "200",
                     description = "Application is healthy.",
                     content = @Content(mediaType = APPLICATION_JSON,
-                            schema = @Schema(implementation = HealthStatus.class))),
+                            schema = @Schema(implementation = HealthStatus.class)))
             @APIResponse(responseCode = "503",
                     description = "Application has encountered a fatal error.",
                     content = @Content(mediaType = APPLICATION_JSON,
                             schema = @Schema(implementation = HealthStatus.class)))
-    })
     Response getLiveness();
 }

@@ -26,7 +26,6 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
-import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.talend.sdk.component.server.front.model.HealthStatus;
 
@@ -39,15 +38,13 @@ public interface ReadinessResource {
     @Operation(operationId = "getReadiness",
             description = "Readiness probe: returns 200 when the component index is loaded and the server is ready "
                     + "to serve traffic. Returns 503 with a cause otherwise.")
-    @APIResponses({
             @APIResponse(responseCode = "200",
                     description = "Server is ready.",
                     content = @Content(mediaType = APPLICATION_JSON,
-                            schema = @Schema(implementation = HealthStatus.class))),
+                            schema = @Schema(implementation = HealthStatus.class)))
             @APIResponse(responseCode = "503",
                     description = "Server is not ready.",
                     content = @Content(mediaType = APPLICATION_JSON,
                             schema = @Schema(implementation = HealthStatus.class)))
-    })
     Response getReadiness();
 }

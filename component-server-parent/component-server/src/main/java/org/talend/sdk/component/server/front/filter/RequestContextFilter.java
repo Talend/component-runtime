@@ -37,8 +37,8 @@ public class RequestContextFilter implements Filter {
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
-        if (request instanceof HttpServletRequest) {
-            RequestContextHolder.set(((HttpServletRequest) request).getRequestURI());
+        if (request instanceof HttpServletRequest servletRequest) {
+            RequestContextHolder.set(servletRequest.getRequestURI());
         }
         try {
             chain.doFilter(request, response);
