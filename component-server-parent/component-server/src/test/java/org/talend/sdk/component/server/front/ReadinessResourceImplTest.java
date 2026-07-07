@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.server.front.model.HealthStatus;
 import org.talend.sdk.component.server.service.ComponentManagerService;
 import org.talend.sdk.components.vault.client.VaultClient;
@@ -36,6 +37,9 @@ class ReadinessResourceImplTest {
 
     @Mock
     private ComponentManagerService componentManagerService;
+
+    @Mock
+    private ComponentServerConfiguration configuration;
 
     @Mock
     private VaultClient vaultClient;
@@ -68,7 +72,7 @@ class ReadinessResourceImplTest {
     @Test
     void returns200WhenIndexReadyAndVaultReachable() {
         when(componentManagerService.isStarted()).thenReturn(true);
-        when(vaultClient.ping()).thenReturn(true);
+        when(configuration.getHealthVaultEnabled()).thenReturn(false);
 
         final Response response = readinessResource.getReadiness();
 
@@ -80,6 +84,7 @@ class ReadinessResourceImplTest {
     @Test
     void returns503WhenVaultNotReachable() {
         when(componentManagerService.isStarted()).thenReturn(true);
+        when(configuration.getHealthVaultEnabled()).thenReturn(true);
         when(vaultClient.ping()).thenReturn(false);
 
         final Response response = readinessResource.getReadiness();
@@ -93,6 +98,7 @@ class ReadinessResourceImplTest {
     @Test
     void returns503WhenVaultThrows() {
         when(componentManagerService.isStarted()).thenReturn(true);
+        when(configuration.getHealthVaultEnabled()).thenReturn(true);
         when(vaultClient.ping()).thenThrow(new RuntimeException("connection refused"));
 
         final Response response = readinessResource.getReadiness();
