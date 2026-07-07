@@ -30,6 +30,8 @@ import javax.ws.rs.ext.Provider;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
+import org.talend.sdk.component.server.service.FatalState;
+import org.talend.sdk.component.server.service.RequestContextHolder;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,6 +43,9 @@ public class DefaultExceptionHandler implements ExceptionMapper<Throwable> {
     @Inject
     private ComponentServerConfiguration configuration;
 
+    @Inject
+    private FatalState fatalState;
+
     private boolean replaceException;
 
     @PostConstruct
@@ -50,6 +55,12 @@ public class DefaultExceptionHandler implements ExceptionMapper<Throwable> {
 
     @Override
     public Response toResponse(final Throwable exception) {
+        if (exception instanceof VirtualMachineError) {
+            final String requestPath = RequestContextHolder.get();
+            final String cause = exception.getClass().getSimpleName() + " during request "
+                    + (requestPath != null ? requestPath : "(unknown)") + ": " + exception.getMessage();
+            fatalState.markFatal(cause);
+        }
         log.error("[DefaultExceptionHandler#toResponse] Throwable: ", exception);
         final Response response;
         if (exception instanceof WebApplicationException) {

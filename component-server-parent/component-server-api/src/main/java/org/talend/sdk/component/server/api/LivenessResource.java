@@ -30,22 +30,22 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.talend.sdk.component.server.front.model.HealthStatus;
 
-@Path("health")
+@Path("liveness")
 @Tag(name = "Health", description = "Kubernetes liveness probe endpoint.")
-public interface HealthResource {
+public interface LivenessResource {
 
     @GET
     @Produces(APPLICATION_JSON)
     @Operation(operationId = "getLiveness",
-            description = "Liveness probe: returns 200 when the server is healthy (heap, component index, Vault). "
-                    + "Returns 503 with a cause when any check fails.")
+            description = "Liveness probe: returns 200 when the JVM is healthy (no fatal error recorded). "
+                    + "Returns 503 with a cause when a VirtualMachineError (e.g. OutOfMemoryError) has been intercepted.")
     @APIResponses({
             @APIResponse(responseCode = "200",
-                    description = "Server is healthy.",
+                    description = "JVM is healthy.",
                     content = @Content(mediaType = APPLICATION_JSON,
                             schema = @Schema(implementation = HealthStatus.class))),
             @APIResponse(responseCode = "503",
-                    description = "Server is not healthy.",
+                    description = "JVM has encountered a fatal error.",
                     content = @Content(mediaType = APPLICATION_JSON,
                             schema = @Schema(implementation = HealthStatus.class)))
     })

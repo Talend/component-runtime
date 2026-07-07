@@ -18,6 +18,7 @@ package org.talend.sdk.component.server.front;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
@@ -28,18 +29,19 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.server.front.model.HealthStatus;
 
 @MonoMeecrowaveConfig
-class HealthResourceImplIT {
+class LivenessResourceImplIT {
 
     @Inject
     private WebTarget base;
 
     @Test
-    void livenessReturns200WhenHealthy() {
-        final Response response = base.path("health").request(APPLICATION_JSON_TYPE).get();
+    void livenessReturns200WhenNoFatalError() {
+        final Response response = base.path("liveness").request(APPLICATION_JSON_TYPE).get();
         assertEquals(200, response.getStatus());
         final HealthStatus status = response.readEntity(HealthStatus.class);
         assertNotNull(status);
         assertEquals("UP", status.getStatus());
+        assertNull(status.getCause());
     }
 
     @Test
@@ -52,12 +54,12 @@ class HealthResourceImplIT {
     }
 
     @Test
-    void healthAndReadinessAreIndependentFromEnvironment() {
+    void livenessAndReadinessAreIndependentFromEnvironment() {
         final Response envResponse = base.path("environment").request(APPLICATION_JSON_TYPE).get();
         assertEquals(200, envResponse.getStatus());
 
-        final Response healthResponse = base.path("health").request(APPLICATION_JSON_TYPE).get();
-        assertEquals(200, healthResponse.getStatus());
+        final Response livenessResponse = base.path("liveness").request(APPLICATION_JSON_TYPE).get();
+        assertEquals(200, livenessResponse.getStatus());
 
         final Response readinessResponse = base.path("readiness").request(APPLICATION_JSON_TYPE).get();
         assertEquals(200, readinessResponse.getStatus());

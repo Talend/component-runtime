@@ -141,6 +141,12 @@ public class VaultClient {
     private String passthroughRegex;
 
     @Inject
+    @Documentation("Timeout in milliseconds for the Vault ping (connectivity check). "
+            + "Applied as both connect and read timeout on the health check request.")
+    @ConfigProperty(name = "talend.vault.cache.vault.ping.timeout", defaultValue = "2000")
+    private Integer pingTimeoutMs;
+
+    @Inject
     private Cache<String, DecryptedValue> cache;
 
     @Inject
@@ -211,12 +217,22 @@ public class VaultClient {
         if ("no-vault".equals(setup.getVaultUrl())) {
             return true;
         }
+        Response response = null;
         try {
-            vault.path("v1/sys/health").request().get().close();
+            response = vault
+                    .path("v1/sys/health")
+                    .request()
+                    .property("javax.ws.rs.client.connectTimeout", pingTimeoutMs)
+                    .property("javax.ws.rs.client.readTimeout", pingTimeoutMs)
+                    .get();
             return true;
         } catch (final javax.ws.rs.ProcessingException e) {
             log.warn("Vault ping failed: {}", e.getMessage());
             return false;
+        } finally {
+            if (response != null) {
+                response.close();
+            }
         }
     }
 

@@ -19,22 +19,28 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
-import org.talend.sdk.component.server.api.HealthResource;
+import org.talend.sdk.component.server.api.LivenessResource;
 import org.talend.sdk.component.server.front.model.HealthStatus;
-import org.talend.sdk.component.server.service.HealthService;
+import org.talend.sdk.component.server.service.FatalState;
 
 @ApplicationScoped
-public class HealthResourceImpl implements HealthResource {
+public class LivenessResourceImpl implements LivenessResource {
+
+    private static final String STATUS_UP = "UP";
+
+    private static final String STATUS_DOWN = "DOWN";
 
     @Inject
-    private HealthService healthService;
+    private FatalState fatalState;
 
     @Override
     public Response getLiveness() {
-        final HealthStatus status = healthService.checkLiveness();
-        if ("UP".equals(status.getStatus())) {
-            return Response.ok(status).build();
+        if (fatalState.hasFatalError()) {
+            return Response
+                    .status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(new HealthStatus(STATUS_DOWN, fatalState.getCause()))
+                    .build();
         }
-        return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(status).build();
+        return Response.ok(new HealthStatus(STATUS_UP, null)).build();
     }
 }
