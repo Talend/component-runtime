@@ -27,12 +27,16 @@ import javax.ws.rs.core.Response;
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.server.front.model.HealthStatus;
+import org.talend.sdk.component.server.service.FatalState;
 
 @MonoMeecrowaveConfig
 class LivenessResourceImplIT {
 
     @Inject
     private WebTarget base;
+
+    @Inject
+    private FatalState fatalState;
 
     @Test
     void livenessReturns200WhenNoFatalError() {
@@ -63,5 +67,21 @@ class LivenessResourceImplIT {
 
         final Response readinessResponse = base.path("readiness").request(APPLICATION_JSON_TYPE).get();
         assertEquals(200, readinessResponse.getStatus());
+    }
+
+    @Test
+    void livenessReturns503WhenFatalErrorRecorded() {
+        fatalState.markFatal("simulated OOM during test");
+        try {
+            final Response response = base.path("liveness").request(APPLICATION_JSON_TYPE).get();
+            assertEquals(503, response.getStatus());
+            final HealthStatus status = response.readEntity(HealthStatus.class);
+            assertNotNull(status);
+            assertEquals("DOWN", status.getStatus());
+            assertNotNull(status.getCause());
+        } finally {
+            // reset the singleton state so other tests are not affected
+            fatalState.reset();
+        }
     }
 }

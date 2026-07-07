@@ -61,6 +61,8 @@ import javax.inject.Inject;
 import javax.json.bind.annotation.JsonbProperty;
 import javax.servlet.ServletContext;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -154,6 +156,8 @@ public class VaultClient {
 
     private final AtomicReference<Authentication> authToken = new AtomicReference<>();
 
+    private Client pingClient;
+
     private ScheduledExecutorService scheduledExecutorService;
 
     private Pattern compiledPassthroughRegex;
@@ -172,6 +176,10 @@ public class VaultClient {
     @PostConstruct
     private void init() {
         compiledPassthroughRegex = Pattern.compile(passthroughRegex);
+        pingClient = ClientBuilder.newBuilder()
+                .connectTimeout(pingTimeoutMs, MILLISECONDS)
+                .readTimeout(pingTimeoutMs, MILLISECONDS)
+                .build();
     }
 
     @PreDestroy
@@ -182,6 +190,7 @@ public class VaultClient {
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+        pingClient.close();
     }
 
     // as deprecation was introduced since = "17", can ignore it for now...
@@ -219,11 +228,10 @@ public class VaultClient {
         }
         Response response = null;
         try {
-            response = vault
+            response = pingClient
+                    .target(setup.getVaultUrl())
                     .path("v1/sys/health")
                     .request()
-                    .property("javax.ws.rs.client.connectTimeout", pingTimeoutMs)
-                    .property("javax.ws.rs.client.readTimeout", pingTimeoutMs)
                     .get();
             return true;
         } catch (final javax.ws.rs.ProcessingException e) {

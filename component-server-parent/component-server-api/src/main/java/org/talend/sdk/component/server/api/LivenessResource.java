@@ -41,11 +41,11 @@ public interface LivenessResource {
                     + "Returns 503 with a cause when a VirtualMachineError (e.g. OutOfMemoryError) has been intercepted.")
     @APIResponses({
             @APIResponse(responseCode = "200",
-                    description = "JVM is healthy.",
+                    description = "Application is healthy.",
                     content = @Content(mediaType = APPLICATION_JSON,
                             schema = @Schema(implementation = HealthStatus.class))),
             @APIResponse(responseCode = "503",
-                    description = "JVM has encountered a fatal error.",
+                    description = "Application has encountered a fatal error.",
                     content = @Content(mediaType = APPLICATION_JSON,
                             schema = @Schema(implementation = HealthStatus.class)))
     })

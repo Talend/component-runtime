@@ -55,4 +55,11 @@ public class FatalState {
     public String getCause() {
         return fatalCause.get();
     }
+
+    /**
+     * Resets the fatal state. Intended for use in tests only — never call in production code.
+     */
+    public void reset() {
+        fatalCause.set(null);
+    }
 }

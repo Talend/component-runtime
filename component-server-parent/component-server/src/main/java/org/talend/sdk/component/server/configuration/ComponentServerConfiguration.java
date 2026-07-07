@@ -202,10 +202,10 @@ public class ComponentServerConfiguration {
     private Optional<String> pluginsReloadFileMarker;
 
     @Inject
-    @Documentation("Minimum percentage of available JVM heap required for the liveness probe to report UP. "
-            + "If the available heap drops below this threshold the health endpoint returns 503.")
-    @ConfigProperty(name = "talend.server.health.memory.threshold", defaultValue = "10")
-    private Integer healthMemoryThreshold;
+    @Documentation("Whether the Vault connectivity check is included in the readiness probe. "
+            + "Set to true only when this server instance uses Vault for credential decryption.")
+    @ConfigProperty(name = "talend.server.health.vault.enabled", defaultValue = "false")
+    private Boolean healthVaultEnabled;
 
     @PostConstruct
     private void init() {

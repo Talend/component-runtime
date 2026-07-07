@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.server.api.ReadinessResource;
+import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.server.front.model.HealthStatus;
 import org.talend.sdk.component.server.service.ComponentManagerService;
 import org.talend.sdk.components.vault.client.VaultClient;
@@ -43,6 +44,9 @@ public class ReadinessResourceImpl implements ReadinessResource {
     private ComponentManagerService componentManagerService;
 
     @Inject
+    private ComponentServerConfiguration configuration;
+
+    @Inject
     private VaultClient vaultClient;
 
     private final AtomicBoolean cachedVaultResult = new AtomicBoolean(true);
@@ -57,9 +61,11 @@ public class ReadinessResourceImpl implements ReadinessResource {
                     .entity(new HealthStatus(STATUS_DOWN, "Component index not ready"))
                     .build();
         }
-        final HealthStatus vaultStatus = checkVaultCached();
-        if (STATUS_DOWN.equals(vaultStatus.getStatus())) {
-            return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(vaultStatus).build();
+        if (configuration.getHealthVaultEnabled()) {
+            final HealthStatus vaultStatus = checkVaultCached();
+            if (STATUS_DOWN.equals(vaultStatus.getStatus())) {
+                return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(vaultStatus).build();
+            }
         }
         return Response.ok(new HealthStatus(STATUS_UP, null)).build();
     }
@@ -71,16 +77,19 @@ public class ReadinessResourceImpl implements ReadinessResource {
                     ? new HealthStatus(STATUS_UP, null)
                     : new HealthStatus(STATUS_DOWN, "Vault is not reachable");
         }
-        lastVaultCheck.set(now);
         try {
             final boolean reachable = vaultClient.ping();
             cachedVaultResult.set(reachable);
+            lastVaultCheck.set(now);
             if (!reachable) {
                 log.warn("Readiness check: Vault is not reachable");
                 return new HealthStatus(STATUS_DOWN, "Vault is not reachable");
             }
+        } catch (final VirtualMachineError vme) {
+            throw vme;
         } catch (final Throwable t) {
             cachedVaultResult.set(false);
+            lastVaultCheck.set(now);
             final String cause = "Vault connectivity check failed: " + t.getMessage();
             log.warn("Readiness check failed: {}", cause);
             return new HealthStatus(STATUS_DOWN, cause);
