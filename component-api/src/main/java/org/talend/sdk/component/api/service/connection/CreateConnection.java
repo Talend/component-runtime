@@ -29,6 +29,7 @@ import org.talend.sdk.component.api.service.ActionType;
 @Retention(RUNTIME)
 @Documentation("Mark an action works for creating runtime connection, returning a runtime connection object like jdbc connection if database family. "
         + "Its parameter MUST be a datastore. Datastore is configuration type annotated with @DataStore. "
+        + "The `value` String parameter value must match the runtime class constructor parameter name of the component configuration class to correctly apply @ActiveIf for UI. "
         + "The functionality is for the Studio only, studio will use the runtime connection object when use existed connection, and no effect for cloud platform.")
 public @interface CreateConnection {
 
