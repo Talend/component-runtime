@@ -223,8 +223,7 @@ public class SomeInputMapper implements Serializable {
 }
 ----
 
- Note:
- The `@Option` value String parameter in the `@CreateConnection` method should match the name of runtime class constructor parameter for the Configuration class
+NOTE: The `@Option` value String parameter in the `@CreateConnection` method should match the name of runtime class constructor parameter for the Configuration class
 
 == How does the component server interact with datasets and datastores
 
