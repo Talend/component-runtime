@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.sample.other;
 
-import static java.util.stream.Collectors.toList;
-
 import java.io.Serializable;
 import java.util.stream.IntStream;
 
@@ -37,6 +35,7 @@ import lombok.Data;
 @Emitter(family = "complex", name = "demo")
 public class ComplexComponent implements Serializable {
 
+    @SuppressWarnings("java:S1068")
     private final ComplexDataSet dataset;
 
     public ComplexComponent(@Option("dataset") final ComplexDataSet dataset) {
@@ -81,7 +80,7 @@ public class ComplexComponent implements Serializable {
             return new Values(IntStream
                     .range(1, 11)
                     .mapToObj(i -> new Values.Item("file_" + i, "/opt/sample/file_" + i + ".txt"))
-                    .collect(toList()));
+                    .toList());
         }
     }
 }

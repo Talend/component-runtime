@@ -43,9 +43,6 @@ public class ParameterSetterTest {
 
     protected static RecordBuilderFactory builderFactory;
 
-    // do the same thing with studio
-    private static final Map<String, Object> globalMap = Collections.synchronizedMap(new HashMap<>());
-
     @BeforeAll
     static void forceManagerInit() {
         final ComponentManager manager = ComponentManager.instance();
@@ -77,7 +74,7 @@ public class ParameterSetterTest {
         setter.change("configuration.preparedStatementParameters[0].dataValue", new java.math.BigDecimal("456"));
         setter.change("configuration.preparedStatementParameters[1].dataValue", "abc1");
         JDBCRowConfig config =
-                TestOutputComponent.class.cast(Delegated.class.cast(processor).getDelegate()).getConfiguration();
+                ((TestOutputComponent) ((Delegated) processor).getDelegate()).getConfiguration();
         Assertions.assertEquals(new java.math.BigDecimal("456"),
                 config.getPreparedStatementParameters().get(0).getDataValue());
         Assertions.assertEquals("abc1", config.getPreparedStatementParameters().get(1).getDataValue());

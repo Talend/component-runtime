@@ -52,25 +52,25 @@ public class MappingUtils {
             return null;
         }
         // datetime cases from Long
-        if (Long.class.isInstance(value) && expectedType != Long.class) {
+        if (value instanceof Long && expectedType != Long.class) {
             if (ZonedDateTime.class == expectedType) {
-                final long epochMilli = Number.class.cast(value).longValue();
+                final long epochMilli = ((Number) value).longValue();
                 return ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMilli), UTC);
             }
             if (Date.class == expectedType) {
-                return new Date(Number.class.cast(value).longValue());
+                return new Date(((Number) value).longValue());
             }
             if (Instant.class == expectedType) {
-                return Instant.ofEpochMilli(Number.class.cast(value).longValue());
+                return Instant.ofEpochMilli(((Number) value).longValue());
             }
         }
 
         // non-matching types
         if (!expectedType.isInstance(value)) {
             // number classes mapping
-            if (Number.class.isInstance(value)
+            if (value instanceof Number number
                     && Number.class.isAssignableFrom(PRIMITIVE_WRAPPER_MAP.getOrDefault(expectedType, expectedType))) {
-                return mapNumber(expectedType, Number.class.cast(value));
+                return mapNumber(expectedType, number);
             }
             // mapping primitive <-> Class
             if (isAssignableTo(value.getClass(), expectedType)) {
@@ -80,21 +80,21 @@ public class MappingUtils {
                 return String.valueOf(value);
             }
             // TCOMP-2293 support Instant
-            if (Instant.class.isInstance(value)) {
+            if (value instanceof Instant instant1) {
                 if (ZonedDateTime.class == expectedType) {
-                    return ZonedDateTime.ofInstant((Instant) value, UTC);
+                    return ZonedDateTime.ofInstant(instant1, UTC);
                 } else if (java.util.Date.class == expectedType) {
-                    return java.sql.Timestamp.from((Instant) value);
+                    return java.sql.Timestamp.from(instant1);
                 } else if (Long.class == expectedType) {
-                    return ((Instant) value).toEpochMilli();
+                    return instant1.toEpochMilli();
                 }
             }
-            if (Timestamp.class.isInstance(value)
+            if (value instanceof Timestamp
                     && (java.util.Date.class == expectedType || Instant.class == expectedType)) {
                 return value;
             }
-            if (value instanceof long[]) {
-                final Instant instant = Instant.ofEpochSecond(((long[]) value)[0], ((long[]) value)[1]);
+            if (value instanceof long[] longs) {
+                final Instant instant = Instant.ofEpochSecond(longs[0], longs[1]);
                 if (ZonedDateTime.class == expectedType) {
                     return ZonedDateTime.ofInstant(instant, UTC);
                 }
@@ -104,7 +104,7 @@ public class MappingUtils {
             }
 
             // mainly for CSV incoming data where everything is mapped to String
-            if (String.class.isInstance(value)) {
+            if (value instanceof String) {
                 return mapString(expectedType, String.valueOf(value));
             }
 
@@ -118,28 +118,28 @@ public class MappingUtils {
 
     public static <T> Object mapPrimitiveWrapper(final Class<T> expected, final Object value) {
         if (char.class == expected || Character.class == expected) {
-            return expected.isPrimitive() ? Character.class.cast(value).charValue() : value;
+            return expected.isPrimitive() ? ((Character) value).charValue() : value;
         }
         if (Boolean.class == expected || boolean.class == expected) {
-            return expected.isPrimitive() ? Boolean.class.cast(value).booleanValue() : value;
+            return expected.isPrimitive() ? ((Boolean) value).booleanValue() : value;
         }
         if (Integer.class == expected || int.class == expected) {
-            return expected.isPrimitive() ? Integer.class.cast(value).intValue() : value;
+            return expected.isPrimitive() ? ((Integer) value).intValue() : value;
         }
         if (Long.class == expected || long.class == expected) {
-            return expected.isPrimitive() ? Long.class.cast(value).longValue() : value;
+            return expected.isPrimitive() ? ((Long) value).longValue() : value;
         }
         if (Short.class == expected || short.class == expected) {
-            return expected.isPrimitive() ? Short.class.cast(value).shortValue() : value;
+            return expected.isPrimitive() ? ((Short) value).shortValue() : value;
         }
         if (Byte.class == expected || byte.class == expected) {
-            return expected.isPrimitive() ? Byte.class.cast(value).byteValue() : value;
+            return expected.isPrimitive() ? ((Byte) value).byteValue() : value;
         }
         if (Float.class == expected || float.class == expected) {
-            return expected.isPrimitive() ? Float.class.cast(value).floatValue() : value;
+            return expected.isPrimitive() ? ((Float) value).floatValue() : value;
         }
         if (Double.class == expected || double.class == expected) {
-            return expected.isPrimitive() ? Double.class.cast(value).doubleValue() : value;
+            return expected.isPrimitive() ? ((Double) value).doubleValue() : value;
         }
 
         throw new IllegalArgumentException(String.format("Can't convert %s to %s.", value, expected));

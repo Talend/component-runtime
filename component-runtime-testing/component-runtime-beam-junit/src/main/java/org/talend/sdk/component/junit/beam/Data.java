@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.junit.beam;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
@@ -107,11 +106,10 @@ public class Data {
                                 final List<Record> list = entry
                                         .getValue()
                                         .stream()
-                                        .map(it -> Record.class
-                                                .cast(converters
-                                                        .toRecord(REGISTRY, it, () -> jsonb,
-                                                                () -> recordBuilderFactory)))
-                                        .collect(toList());
+                                        .map(it -> (Record) converters
+                                                .toRecord(REGISTRY, it, () -> jsonb,
+                                                        () -> recordBuilderFactory))
+                                        .toList();
                                 aggregator
                                         .withArray(recordBuilderFactory
                                                 .newEntryBuilder()
@@ -176,10 +174,9 @@ public class Data {
                 try {
                     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     final Record record = object.getArray(Record.class, e.getName()).iterator().next();
-                    final JsonObject jsonObject = JsonObject.class
-                            .cast(converters
-                                    .toType(registry, record, JsonObject.class, this::getJsonBuilder,
-                                            this::getJsonProvider, this::getJsonb, this::getRecordBuilderFactory));
+                    final JsonObject jsonObject = (JsonObject) converters
+                            .toType(registry, record, JsonObject.class, this::getJsonBuilder,
+                                    this::getJsonProvider, this::getJsonb, this::getRecordBuilderFactory);
                     if (Record.class == jsonbCoder.getType()) {
                         return (T) new RecordConverters()
                                 .toRecord(REGISTRY, jsonObject, this::getJsonb, this::getRecordBuilderFactory);

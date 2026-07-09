@@ -42,10 +42,9 @@ class JavaProxyEnricherFactoryTest {
     void serialization() throws IOException, ClassNotFoundException {
 
         final Translator translator = builder.create(Translator.class, loader);
-        final Translator proxyBased = Translator.class
-                .cast(proxyFactory
-                        .asSerializable(loader, getClass().getSimpleName(), Translator.class.getName(),
-                                translator, true));
+        final Translator proxyBased = (Translator) proxyFactory
+                .asSerializable(loader, getClass().getSimpleName(), Translator.class.getName(),
+                        translator, true);
         assertEquals("ok", proxyBased.message());
 
         DynamicContainerFinder.SERVICES.put(Translator.class, proxyBased);
@@ -64,10 +63,9 @@ class JavaProxyEnricherFactoryTest {
     void serializationOnSerial() throws IOException, ClassNotFoundException {
 
         final SerialTranslator translatorInstance = builder.create(SerialTranslator.class, loader);
-        final SerialTranslator proxyBased = SerialTranslator.class
-                .cast(proxyFactory
-                        .asSerializable(loader, getClass().getSimpleName(), SerialTranslator.class.getName(),
-                                translatorInstance, true));
+        final SerialTranslator proxyBased = (SerialTranslator) proxyFactory
+                .asSerializable(loader, getClass().getSimpleName(), SerialTranslator.class.getName(),
+                        translatorInstance, true);
         assertEquals("serial ok", proxyBased.message());
 
         DynamicContainerFinder.SERVICES.put(SerialTranslator.class, proxyBased);
@@ -84,16 +82,15 @@ class JavaProxyEnricherFactoryTest {
 
     @Test
     void defaultMethod() {
-        final SomeDefault proxyBased = SomeDefault.class
-                .cast(proxyFactory
-                        .asSerializable(loader, getClass().getSimpleName(), SomeDefault.class.getName(),
-                                new SomeDefault() {
+        final SomeDefault proxyBased = (SomeDefault) proxyFactory
+                .asSerializable(loader, getClass().getSimpleName(), SomeDefault.class.getName(),
+                        new SomeDefault() {
 
-                                    @Override
-                                    public String get() {
-                                        return "ok";
-                                    }
-                                }));
+                            @Override
+                            public String get() {
+                                return "ok";
+                            }
+                        });
         assertEquals("ok", proxyBased.get());
     }
 

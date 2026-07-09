@@ -77,8 +77,8 @@ public final class TalendIO {
             String maxRecords = null;
             String maxDurationMs = null;
             boolean hasInternalConfParams = false;
-            if (PartitionMapperImpl.class.isInstance(mapper)) {
-                Map<String, String> conf = PartitionMapperImpl.class.cast(mapper).getInternalConfiguration();
+            if (mapper instanceof PartitionMapperImpl partitionMapper) {
+                Map<String, String> conf = partitionMapper.getInternalConfiguration();
                 hasInternalConfParams = conf.keySet()
                         .stream()
                         .filter(k -> k.equals("$maxRecords") || k.equals("$maxDurationMs"))
@@ -109,7 +109,7 @@ public final class TalendIO {
         return new Write(output);
     }
 
-    public static abstract class Base<A extends PInput, B extends POutput, D extends Lifecycle>
+    public abstract static class Base<A extends PInput, B extends POutput, D extends Lifecycle>
             extends PTransform<A, B> {
 
         protected D delegate;
@@ -164,8 +164,8 @@ public final class TalendIO {
         private InfiniteRead(final Mapper delegate, final long maxRecordCount, final long maxDuration) {
             super(delegate);
             // ensure we consider localConfiguration
-            final Map<String, String> internalConf = PartitionMapperImpl.class.isInstance(delegate)
-                    ? PartitionMapperImpl.class.cast(delegate).getInternalConfiguration()
+            final Map<String, String> internalConf = delegate instanceof PartitionMapperImpl partitionMapper
+                    ? partitionMapper.getInternalConfiguration()
                     : emptyMap();
             StopConfiguration fromLocalConf =
                     (StopConfiguration) Streaming.loadStopStrategy(delegate.plugin(), internalConf);
@@ -344,7 +344,7 @@ public final class TalendIO {
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-            return mapper.equals(UnBoundedSourceImpl.class.cast(o).mapper);
+            return mapper.equals(((UnBoundedSourceImpl) o).mapper);
         }
 
         @Override
@@ -398,7 +398,7 @@ public final class TalendIO {
         @Override
         public boolean advance() {
             final Object next = input.next();
-            if (next != null && !Record.class.isInstance(next)) {
+            if (next != null && !(next instanceof Record)) {
                 if (converter == null) {
                     synchronized (this) {
                         if (converter == null) {
@@ -453,7 +453,7 @@ public final class TalendIO {
         @Override
         public boolean advance() {
             final Object next = input.next();
-            if (next != null && !Record.class.isInstance(next)) {
+            if (next != null && !(next instanceof Record)) {
                 if (converter == null) {
                     synchronized (this) {
                         if (converter == null) {

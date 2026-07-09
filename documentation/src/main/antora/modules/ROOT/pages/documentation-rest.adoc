@@ -383,7 +383,7 @@ public Ui getNewComponentModelForm() {
 
 @GET
 @Path("{id}")
-public Ui editComponentModelForm(final @PathParam("id") final String id) {
+public Ui editComponentModelForm(@PathParam("id") final String id) {
     final ComponentModel component = findComponent(id);
     final Ui spec = getNewComponentModelForm();
     spec.setProperties(component);

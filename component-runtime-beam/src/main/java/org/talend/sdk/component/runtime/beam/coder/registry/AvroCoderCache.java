@@ -45,7 +45,7 @@ class AvroCoderCache {
                 public synchronized AvroCoder<IndexedRecord> get(final Object key) {
                     AvroCoder<IndexedRecord> coder = super.get(key);
                     if (coder == null) {
-                        final Schema schema = Schema.class.cast(key);
+                        final Schema schema = (Schema) key;
                         coder = AvroCoder.of(IndexedRecord.class, schema);
                         put(schema, coder);
                     }

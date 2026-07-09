@@ -272,7 +272,7 @@ public class ComponentManagerService {
                 })
                 .filter(Objects::nonNull)
                 .findFirst()
-                .map(ts -> FileTime.class.cast(ts).toMillis())
+                .map(ts -> ((FileTime) ts).toMillis())
                 .orElse(0L);
         log.debug("[readPluginsTimestamp] Latest: {}.", Instant.ofEpochMilli(last));
         return last;
@@ -414,7 +414,7 @@ public class ComponentManagerService {
                     .stream()
                     .flatMap(c -> c.getActions().stream())
                     .map(actionDao::createOrUpdate)
-                    .collect(toList());
+                    .toList();
 
             final Collection<String> families = plugin
                     .get(ContainerComponentRegistry.class)
@@ -422,18 +422,18 @@ public class ComponentManagerService {
                     .values()
                     .stream()
                     .map(componentFamilyDao::createOrUpdate)
-                    .collect(toList());
+                    .toList();
 
             final Collection<String> configs = ofNullable(plugin.get(RepositoryModel.class))
                     .map(r -> r
                             .getFamilies()
                             .stream()
                             .flatMap(f -> configAsStream(f.getConfigs().get().stream()))
-                            .collect(toList()))
+                            .toList())
                     .orElse(emptyList())
                     .stream()
                     .map(configurationDao::createOrUpdate)
-                    .collect(toList());
+                    .toList();
 
             return () -> {
                 virtualDependenciesService.onUnDeploy(plugin);

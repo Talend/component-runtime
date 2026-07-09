@@ -44,7 +44,7 @@ public class SVG2Png implements Runnable {
         this.iconsFolder = iconsFolder;
         this.activeWorkarounds = activeWorkarounds;
         try {
-            this.log = Log.class.isInstance(log) ? Log.class.cast(log) : new ReflectiveLog(log);
+            this.log = log instanceof Log log1 ? log1 : new ReflectiveLog(log);
         } catch (final NoSuchMethodException e) {
             throw new IllegalArgumentException(e);
         }

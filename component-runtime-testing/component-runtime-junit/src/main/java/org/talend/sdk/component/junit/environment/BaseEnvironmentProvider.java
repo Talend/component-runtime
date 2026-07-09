@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.junit.environment;
 
-import static java.util.stream.Collectors.toList;
-
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.stream.Stream;
@@ -30,7 +28,7 @@ public abstract class BaseEnvironmentProvider implements EnvironmentProvider {
                 .filter(a -> a.annotationType() == EnvironmentConfigurations.class)
                 .findFirst()
                 .map(config -> {
-                    final EnvironmentConfigurations configurations = EnvironmentConfigurations.class.cast(config);
+                    final EnvironmentConfigurations configurations = (EnvironmentConfigurations) config;
                     return Stream
                             .of(configurations.value())
                             .filter(c -> c.environment().equals(getName())
@@ -47,7 +45,7 @@ public abstract class BaseEnvironmentProvider implements EnvironmentProvider {
                                             System.clearProperty(p.value());
                                         }
                                     };
-                                }).collect(toList());
+                                }).toList();
                                 return (AutoCloseable) () -> releases.forEach(Runnable::run);
                             })
                             .orElseGet(() -> () -> {

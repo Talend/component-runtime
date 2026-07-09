@@ -32,10 +32,9 @@ public class CxfExtractor {
 
     public DestinationRegistry getRegistry() {
         try {
-            final HTTPTransportFactory transportFactory = HTTPTransportFactory.class
-                    .cast(bus
-                            .getExtension(DestinationFactoryManager.class)
-                            .getDestinationFactory("http://cxf.apache.org/transports/http" + "/configuration"));
+            final HTTPTransportFactory transportFactory = (HTTPTransportFactory) bus
+                    .getExtension(DestinationFactoryManager.class)
+                    .getDestinationFactory("http://cxf.apache.org/transports/http" + "/configuration");
             return transportFactory.getRegistry();
         } catch (final BusException e) {
             throw new IllegalStateException(e);

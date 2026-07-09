@@ -146,7 +146,7 @@ class Npm {
             for (final String entry : base.list()) {
                 if ('package.json' == entry) { // rewritten so updated on the fly
                     def content = jsonb.toJson(pck).getBytes(StandardCharsets.UTF_8)
-                    def archiveEntry = new TarArchiveEntry('package/package.json');
+                    def archiveEntry = new TarArchiveEntry('package/package.json')
                     archiveEntry.setSize(content.length)
                     tarGz.putArchiveEntry(archiveEntry)
                     tarGz.write(content)
@@ -160,7 +160,7 @@ class Npm {
 
 See https://talend.github.io/component-runtime/
 """.getBytes(StandardCharsets.UTF_8)
-            def archiveEntry = new TarArchiveEntry('package/readme.md');
+            def archiveEntry = new TarArchiveEntry('package/readme.md')
             archiveEntry.setSize(content.length)
             tarGz.putArchiveEntry(archiveEntry)
             tarGz.write(content)
@@ -239,9 +239,9 @@ See https://talend.github.io/component-runtime/
 
     private void doTarGz(tarGz, file, prefix) throws IOException {
         def path = file.getPath().replace(prefix, '').replace(File.separator, '/')
-        def archiveEntry = new TarArchiveEntry(file, "package/${path}");
+        def archiveEntry = new TarArchiveEntry(file, "package/${path}")
         if (path.endsWith('.sh')) {
-            archiveEntry.setMode(0755);
+            archiveEntry.setMode(0755)
         }
         tarGz.putArchiveEntry(archiveEntry)
         if (file.isDirectory()) {

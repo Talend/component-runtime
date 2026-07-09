@@ -18,7 +18,6 @@ package org.talend.sdk.component.runtime.manager.chain;
 import static java.net.URLEncoder.encode;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -127,7 +126,7 @@ class JobTest {
                     .run();
 
             final LocalPartitionMapper mapper =
-                    LocalPartitionMapper.class.cast(manager.findMapper("lifecycle", "countdown", 1, emptyMap()).get());
+                    (LocalPartitionMapper) manager.findMapper("lifecycle", "countdown", 1, emptyMap()).get();
 
             assertEquals(asList("start", "produce(1)", "produce(0)", "produce(null)", "stop"),
                     ((Supplier<List<String>>) mapper.getDelegate()).get());
@@ -158,7 +157,7 @@ class JobTest {
                     .property("streaming.maxRecords", "2")
                     .run();
             final LocalPartitionMapper mapper =
-                    LocalPartitionMapper.class.cast(manager.findMapper("lifecycle", "countdown", 1, emptyMap()).get());
+                    (LocalPartitionMapper) manager.findMapper("lifecycle", "countdown", 1, emptyMap()).get();
             assertEquals(asList("start", "produce(4)", "produce(3)", "stop"),
                     ((Supplier<List<String>>) mapper.getDelegate()).get());
         }
@@ -187,7 +186,7 @@ class JobTest {
                     .build()
                     .run();
             // {"cumulatedSize":15}.length x2
-            assertEquals(asList(15, 30), outputs.stream().map(json -> json.getInt("cumulatedSize")).collect(toList()));
+            assertEquals(asList(15, 30), outputs.stream().map(json -> json.getInt("cumulatedSize")).toList());
         }
     }
 

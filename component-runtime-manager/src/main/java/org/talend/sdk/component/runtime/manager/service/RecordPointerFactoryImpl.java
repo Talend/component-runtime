@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.runtime.manager.service;
 
-import static java.util.stream.Collectors.toList;
-
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -67,7 +65,7 @@ public class RecordPointerFactoryImpl implements RecordPointerFactory, Serializa
                     return s;
                 }
                 return s.replace("~1", "/").replace("~0", "~");
-            }).collect(toList());
+            }).toList();
         }
 
         @Override
@@ -105,8 +103,7 @@ public class RecordPointerFactoryImpl implements RecordPointerFactory, Serializa
 
         private Object getValue(final Object value, final String referenceToken, final int currentPosition,
                 final int referencePosition) {
-            if (Record.class.isInstance(value)) {
-                final Record record = Record.class.cast(value);
+            if (value instanceof Record record) {
                 final Object nestedVal = getRecordEntry(referenceToken, record);
                 if (nestedVal != null) {
                     return nestedVal;
@@ -114,7 +111,7 @@ public class RecordPointerFactoryImpl implements RecordPointerFactory, Serializa
                 throw new IllegalArgumentException(
                         "'" + record + "' contains no value for name '" + referenceToken + "'");
             }
-            if (Collection.class.isInstance(value)) {
+            if (value instanceof Collection array) {
                 if (referenceToken.startsWith("+") || referenceToken.startsWith("-")) {
                     throw new IllegalArgumentException(
                             "An array index must not start with '" + referenceToken.charAt(0) + "'");
@@ -123,14 +120,13 @@ public class RecordPointerFactoryImpl implements RecordPointerFactory, Serializa
                     throw new IllegalArgumentException("An array index must not start with a leading '0'");
                 }
 
-                final Collection<?> array = Collection.class.cast(value);
                 try {
                     final int arrayIndex = Integer.parseInt(referenceToken);
                     if (arrayIndex >= array.size()) {
                         throw new IllegalArgumentException(
                                 "'" + array + "' contains no element for index " + arrayIndex);
                     }
-                    return List.class.isInstance(array) ? List.class.cast(array).get(arrayIndex)
+                    return array instanceof List list ? list.get(arrayIndex)
                             : new ArrayList<>(array).get(arrayIndex);
                 } catch (final NumberFormatException e) {
                     throw new IllegalArgumentException("'" + referenceToken + "' is no valid array index", e);
@@ -189,7 +185,7 @@ public class RecordPointerFactoryImpl implements RecordPointerFactory, Serializa
             if (obj == null || getClass() != obj.getClass()) {
                 return false;
             }
-            return pointer.equals(RecordPointerImpl.class.cast(obj).pointer);
+            return pointer.equals(((RecordPointerImpl) obj).pointer);
         }
 
         @Override

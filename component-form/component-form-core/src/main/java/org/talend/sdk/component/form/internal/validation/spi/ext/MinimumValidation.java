@@ -36,7 +36,7 @@ public class MinimumValidation implements ValidationExtension {
                     .ofNullable(model.getSchema().get("minimum"))
                     .filter(v -> v.getValueType() == JsonValue.ValueType.NUMBER)
                     .map(m -> new Impl(model.toPointer(), model.getValueProvider(),
-                            JsonNumber.class.cast(m).doubleValue()));
+                            ((JsonNumber) m).doubleValue()));
         }
         return Optional.empty();
     }

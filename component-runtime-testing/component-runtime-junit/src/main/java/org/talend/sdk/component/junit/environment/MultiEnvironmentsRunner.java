@@ -32,8 +32,7 @@ public class MultiEnvironmentsRunner extends DelegatingRunner {
     @Override
     public void run(final RunNotifier notifier) {
         configuration.stream().forEach(e -> {
-            if (DecoratingEnvironmentProvider.class.isInstance(e)) {
-                final DecoratingEnvironmentProvider dep = DecoratingEnvironmentProvider.class.cast(e);
+            if (e instanceof DecoratingEnvironmentProvider dep) {
                 if (!dep.isActive()) {
                     notifier.fireTestFinished(Description.createTestDescription(getTestClass(), dep.getName()));
                     return;

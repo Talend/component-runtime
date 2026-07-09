@@ -18,7 +18,6 @@ package org.talend.sdk.component.server.front;
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.util.Collection;
@@ -124,7 +123,7 @@ public class ActionResourceImpl implements ActionResource {
         return new ActionList(Stream
                 .concat(findDeployedActions(typeMatcher, componentMatcher, locale),
                         findVirtualActions(typeMatcher, componentMatcher, locale))
-                .collect(toList()));
+                .toList());
     }
 
     private CompletableFuture<Response> doExecuteLocalAction(final String family, final String type,
@@ -176,16 +175,15 @@ public class ActionResourceImpl implements ActionResource {
             // check org.talend.sdk.component.server.service.ComponentManagerService.readCurrentLocale if you change it
         }, Runnable::run).exceptionally(e -> {
             final Throwable cause;
-            if (ExecutionException.class.isInstance(e.getCause())) {
+            if (e.getCause() instanceof ExecutionException) {
                 cause = e.getCause().getCause();
             } else {
                 cause = e.getCause();
             }
-            if (WebApplicationException.class.isInstance(cause)) {
-                final WebApplicationException wae = WebApplicationException.class.cast(cause);
+            if (cause instanceof WebApplicationException wae) {
                 final Response response = wae.getResponse();
                 String message = "";
-                if (ErrorPayload.class.isInstance(wae.getResponse().getEntity())) {
+                if (wae.getResponse().getEntity() instanceof ErrorPayload) {
                     throw wae; // already logged and setup broken so just rethrow
                 } else {
                     try {
@@ -212,19 +210,18 @@ public class ActionResourceImpl implements ActionResource {
 
     private Response onError(final Throwable re) {
         log.warn(re.getMessage(), re);
-        if (WebApplicationException.class.isInstance(re.getCause())) {
-            return WebApplicationException.class.cast(re.getCause()).getResponse();
+        if (re.getCause() instanceof WebApplicationException wae) {
+            return wae.getResponse();
         }
 
-        if (ComponentException.class.isInstance(re)) {
-            final ComponentException ce = (ComponentException) re;
+        if (re instanceof ComponentException ce) {
             throw new WebApplicationException(Response
                     .status(ce.getErrorOrigin() == ComponentException.ErrorOrigin.USER ? 400
                             : ce.getErrorOrigin() == ComponentException.ErrorOrigin.BACKEND ? 456 : 520,
                             "Unexpected callback error")
                     .entity(new ErrorPayload(ErrorDictionary.ACTION_ERROR,
                             "Action execution failed with: " + ofNullable(re.getMessage())
-                                    .orElseGet(() -> NullPointerException.class.isInstance(re) ? "unexpected null"
+                                    .orElseGet(() -> re instanceof NullPointerException ? "unexpected null"
                                             : "no error message")))
                     .build());
         }
@@ -233,7 +230,7 @@ public class ActionResourceImpl implements ActionResource {
                 .status(520, "Unexpected callback error")
                 .entity(new ErrorPayload(ErrorDictionary.ACTION_ERROR,
                         "Action execution failed with: " + ofNullable(re.getMessage())
-                                .orElseGet(() -> NullPointerException.class.isInstance(re) ? "unexpected null"
+                                .orElseGet(() -> re instanceof NullPointerException ? "unexpected null"
                                         : "no error message")))
                 .build());
     }
@@ -262,6 +259,6 @@ public class ActionResourceImpl implements ActionResource {
                         .map(s -> new ActionItem(s.getFamily(), s.getType(), s.getAction(),
                                 propertiesService
                                         .buildProperties(s.getParameters().get(), c.getLoader(), locale, null)
-                                        .collect(toList()))));
+                                        .toList())));
     }
 }

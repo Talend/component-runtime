@@ -68,11 +68,6 @@ class RecordBuilderImplTest {
                         .build())
                 .build();
         assertEquals(schema, new RecordImpl.BuilderImpl(schema).withString("name", "ok").build().getSchema());
-
-        Schema.EntriesOrder e = Schema.EntriesOrder.of(new RecordImpl.BuilderImpl().getCurrentEntries()
-                .stream()
-                .map(Schema.Entry::getName)
-                .collect(Collectors.toList()));
     }
 
     @Test
@@ -437,11 +432,9 @@ class RecordBuilderImplTest {
         assertEquals(time.toInstant(), record.getInstant("time"));
 
         int nano = time.toInstant().getNano();
-        long natime = time.toInstant().toEpochMilli();/// 1000 * 1000_000_000 +nano;
         long ntime = time.toInstant().getEpochSecond();
 
         Instant back1 = Instant.ofEpochSecond(ntime, nano);
-        Instant back2 = Instant.ofEpochSecond(natime, nano);
         assertEquals(time.toInstant(), back1);
 
     }
@@ -862,14 +855,14 @@ class RecordBuilderImplTest {
         // Then order is preserved in the builder
         Assertions.assertEquals(3, builder.getCurrentEntries().size());
         final List<String> builderEntriesName =
-                builder.getCurrentEntries().stream().map(Entry::getName).collect(Collectors.toList());
+                builder.getCurrentEntries().stream().map(Entry::getName).toList();
         assertEquals(Arrays.asList("firstColumn_renamed", "secondColumn", "thirdColumn"), builderEntriesName);
 
         // Then order is also preserved in the built Record
         final Record outputRecord = builder.build();
         final Schema outputRecordSchema = outputRecord.getSchema();
         final List<String> outputEntriesName =
-                outputRecordSchema.getEntriesOrdered().stream().map(Schema.Entry::getName).collect(Collectors.toList());
+                outputRecordSchema.getEntriesOrdered().stream().map(Schema.Entry::getName).toList();
 
         assertEquals(Arrays.asList("firstColumn_renamed", "secondColumn", "thirdColumn"), outputEntriesName);
     }
@@ -1058,7 +1051,7 @@ class RecordBuilderImplTest {
                 .before("_30")
                 .withString("_53", "53")
                 .build();
-        assertTrue(RecordImpl.class.isInstance(record));
+        assertTrue(record instanceof RecordImpl);
         assertEquals("_00,_10,_20,_25,_53,_30,_40,_50,_55", getSchemaFields(record.getSchema()));
         assertEquals("_00,_10,_20,_25,_53,_30,_40,_50,_55", record.getSchema().naturalOrder().toFields());
         assertEquals("0,10,20,25,53,30,40,50,55", getRecordValues(record));

@@ -48,7 +48,7 @@ public class SchemaRegistryCoder extends CustomCoder<Record> {
         final org.talend.sdk.component.api.record.Schema schema =
                 value == null ? Schemas.EMPTY_RECORD : value.getSchema();
         final Schema avro =
-                value == null ? AvroSchemas.getEmptySchema() : Unwrappable.class.cast(schema).unwrap(Schema.class);
+                value == null ? AvroSchemas.getEmptySchema() : ((Unwrappable) schema).unwrap(Schema.class);
         final String id = generateRecordName(avro.getFields());
         // write the id first
         outputStream.write(id.getBytes(StandardCharsets.UTF_8));
@@ -57,7 +57,7 @@ public class SchemaRegistryCoder extends CustomCoder<Record> {
         // then the record with the default avro coder
         registry().putIfAbsent(id, schema);
         if (value != null) {
-            getCoder(avro).encode(Unwrappable.class.cast(value).unwrap(IndexedRecord.class), outputStream);
+            getCoder(avro).encode(((Unwrappable) value).unwrap(IndexedRecord.class), outputStream);
         }
         outputStream.flush();
     }
@@ -74,7 +74,7 @@ public class SchemaRegistryCoder extends CustomCoder<Record> {
         if (schema == null) {
             throw new IllegalStateException("Invalid schema id: '" + id + "'");
         }
-        final Schema unwrappedSchema = Unwrappable.class.cast(schema).unwrap(Schema.class);
+        final Schema unwrappedSchema = ((Unwrappable) schema).unwrap(Schema.class);
         if (Schemas.EMPTY_RECORD == schema) {
             return new AvroRecord(EMPTY_RECORD);
         }
@@ -89,7 +89,7 @@ public class SchemaRegistryCoder extends CustomCoder<Record> {
 
     @Override
     public boolean equals(final Object obj) {
-        return SchemaRegistryCoder.class.isInstance(obj);
+        return obj instanceof SchemaRegistryCoder;
     }
 
     private SchemaRegistry registry() { // don't serialize

@@ -71,22 +71,22 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                         .map(v -> v.get("items"))
                         .filter(Collection.class::isInstance)
                         .map(c -> {
-                            final Collection<?> dynamicValues = Collection.class.cast(c);
+                            final Collection<?> dynamicValues = (Collection) c;
                             return dynamicValues
                                     .stream()
                                     .filter(Map.class::isInstance)
-                                    .filter(m -> Map.class.cast(m).get("id") != null
-                                            && Map.class.cast(m).get("id") instanceof String)
+                                    .filter(m -> ((Map) m).get("id") != null
+                                            && ((Map) m).get("id") instanceof String)
                                     .map(Map.class::cast)
                                     .map(entry -> {
                                         final UiSchema.NameValue val = new UiSchema.NameValue();
                                         val
                                                 .setName(entry.get("label") == null ? (String) entry.get("id")
-                                                        : String.class.cast(entry.get("label")));
-                                        val.setValue(String.class.cast(entry.get("id")));
+                                                        : (String) entry.get("label"));
+                                        val.setValue((String) entry.get("id"));
                                         return val;
                                     })
-                                    .collect(toList());
+                                    .toList();
                         })
                         .orElse(emptyList()));
     }
@@ -140,7 +140,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                                 .setPath(path.endsWith("[]") ? path.substring(0, path.length() - "[]".length()) : path);
                         return parameter;
                     })
-                    .collect(toList());
+                    .toList();
 
             // if we are empty and there was no "empty" object then fail
             if (!propertiesPrefix.startsWith("$") && resolvedParams.isEmpty()
@@ -149,7 +149,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                         + ref.getFamily() + "/" + ref.getType() + "/" + ref.getName());
             }
             return resolvedParams.stream();
-        }).collect(toList())).orElse(null);
+        }).toList()).orElse(null);
     }
 
     protected UiSchema newUiSchema(final PropertyContext<?> ctx) {
@@ -330,7 +330,6 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                             .collect(toList());
                     final Map<String, Collection<Object>> condition = values.size() == 1 ? values.iterator().next()
                             : new UiSchema.ConditionBuilder().withOperator("or").withValues(values).build();
-                    final UiSchema.ConditionValuesBuilder rootBuilder;
                     if (!shouldBe) { // no need to add the wrapper if we test true (default)
                         return new UiSchema.ConditionBuilder()
                                 .withOperator("==")
@@ -378,13 +377,12 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                 return new UiSchema.ConditionBuilder()
                         .withOperator("===")
                         .withVar(path + ".length")
-                        .withValue(String.class.isInstance(value) ? Integer.parseInt(String.valueOf(value)) : value)
+                        .withValue(value instanceof String ? Integer.parseInt(String.valueOf(value)) : value)
                         .build();
-            case "contains":
-            case "contains(lowercase=true)":
+            case "contains", "contains(lowercase=true)":
                 final UiSchema.ConditionValuesBuilder in = new UiSchema.ConditionBuilder().withOperator("in");
                 final Object val =
-                        strategy.endsWith("(lowercase=true)") ? String.class.cast(value).toLowerCase(ROOT) : value;
+                        strategy.endsWith("(lowercase=true)") ? ((String) value).toLowerCase(ROOT) : value;
                 if (def != null && "array".equalsIgnoreCase(def.getType())) {
                     in.withVar(path).withValue(val).up();
                 } else {

@@ -21,7 +21,6 @@ import static java.util.Comparator.comparing;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.io.File;
@@ -85,9 +84,8 @@ public class SearchIndexation {
         final String latest = args[1];
         log.info("[main] sitemap: {}; latest: {}.", siteMapFile.toString(), latest);
         final String urlMarker = "/component-runtime/";
-        final SiteMap siteMap = SiteMap.class
-                .cast(new SiteMapParser(false /* we index a local file with remote urls */)
-                        .parseSiteMap(siteMapFile.toURI().toURL()));
+        final SiteMap siteMap = (SiteMap) new SiteMapParser(false /* we index a local file with remote urls */)
+                .parseSiteMap(siteMapFile.toURI().toURL());
         final ExecutorService pool = Executors.newFixedThreadPool(Integer.getInteger("talend.algolia.indexation", 256));
         final List<Future<List<JsonObject>>> updates = siteMap.getSiteMapUrls().stream().filter(url -> {
             // filter not indexed pages
@@ -160,7 +158,7 @@ public class SearchIndexation {
                 log.warn(target + ": " + e.getMessage());
                 return Collections.<JsonObject> emptyList();
             }
-        })).collect(toList());
+        })).toList();
         pool.shutdown();
 
         // await

@@ -18,7 +18,6 @@ package org.talend.sdk.component.maven;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
@@ -109,11 +108,10 @@ public class IconReporterMojo extends ClasspathMojoBase {
             executeInLoader();
         }
 
-        final AtomicInteger counter = AtomicInteger.class
-                .cast(session
-                        .getRequest()
-                        .getData()
-                        .computeIfAbsent(getClass().getName() + ".counter", k -> new AtomicInteger()));
+        final AtomicInteger counter = (AtomicInteger) session
+                .getRequest()
+                .getData()
+                .computeIfAbsent(getClass().getName() + ".counter", k -> new AtomicInteger());
         if (counter.incrementAndGet() != reactorProjects.size()) {
             getLog().debug("Not yet at the end of the build, skipping rendering");
             return;
@@ -128,7 +126,7 @@ public class IconReporterMojo extends ClasspathMojoBase {
     @Override // todo: findIcon != default but no @Icon
     protected void doExecute() {
         final ExecutionClassLoader loader =
-                ExecutionClassLoader.class.cast(Thread.currentThread().getContextClassLoader());
+                (ExecutionClassLoader) Thread.currentThread().getContextClassLoader();
         final AnnotationFinder finder = new AnnotationFinder(
                 new CompositeArchive(Stream.of(classes).map(c -> new FileArchive(loader, c)).toArray(Archive[]::new)));
 
@@ -164,7 +162,7 @@ public class IconReporterMojo extends ClasspathMojoBase {
                 final boolean isCustom = iconFinder.isCustom(iconFinder.extractIcon(elt));
                 final String name = iconFinder.findIcon(elt);
                 return new IconModel(project.getArtifactId(), name, findIcon(name), isCustom);
-            }).collect(toList());
+            }).toList();
             final GlobalReporter reporter = getReporter();
             synchronized (reporter) {
                 reporter.icons.addAll(foundIcons);
@@ -207,11 +205,10 @@ public class IconReporterMojo extends ClasspathMojoBase {
 
     private GlobalReporter getReporter() {
         synchronized (session) {
-            return GlobalReporter.class
-                    .cast(session
-                            .getRequest()
-                            .getData()
-                            .computeIfAbsent(getClass().getName() + ".reporter", k -> new GlobalReporter()));
+            return (GlobalReporter) session
+                    .getRequest()
+                    .getData()
+                    .computeIfAbsent(getClass().getName() + ".reporter", k -> new GlobalReporter());
         }
     }
 

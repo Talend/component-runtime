@@ -86,7 +86,10 @@ public class AsciidoctorExecutor implements AutoCloseable {
         final Path adoc = PathFactory.get(args[0]).toAbsolutePath();
         final File output =
                 adoc.getParent().resolve(args.length > 1 ? args[1] : args[0].replace(".adoc", ".pdf")).toFile();
-        final List<String> lines = Files.lines(adoc).collect(toList());
+        final List<String> lines;
+        try (final Stream<String> stream = Files.lines(adoc)) {
+            lines = stream.collect(toList());
+        }
         final String version = lines
                 .stream()
                 .filter(it -> it.startsWith("v"))
@@ -179,8 +182,7 @@ public class AsciidoctorExecutor implements AutoCloseable {
             extractResources(workDir, log);
         }
         switch (backend.toLowerCase(ENGLISH)) {
-            case "html":
-            case "html5":
+            case "html", "html5":
                 if (!attributes.containsKey("stylesheet")) {
                     attrs.attribute("stylesheet", "talend.css");
                 }
@@ -284,18 +286,21 @@ public class AsciidoctorExecutor implements AutoCloseable {
         return asciidoctor == null ? asciidoctor = Asciidoctor.Factory.create() : asciidoctor;
     }
 
+    @SuppressWarnings("java:S6201")
+    // unconditional patterns in instanceof are not supported in -source 17
+    // TODO: remove the @SuppressWarnings and apply S6201 when java 21+ only is supported.
     @Override
     public void close() {
         onClose.run();
         if (asciidoctor != null && !Boolean.getBoolean("talend.component.tools.jruby.teardown.skip")) {
-            if (AutoCloseable.class.isInstance(asciidoctor)) {
+            if (asciidoctor instanceof AutoCloseable) {
                 try {
-                    AutoCloseable.class.cast(asciidoctor).close();
+                    ((AutoCloseable) asciidoctor).close();
                 } catch (final Exception e) {
                     throw new IllegalStateException(e);
                 }
-            } else if (org.asciidoctor.jruby.internal.JRubyAsciidoctor.class.isInstance(asciidoctor)) {
-                JRubyAsciidoctor.class.cast(asciidoctor).getRubyRuntime().tearDown();
+            } else if (asciidoctor instanceof JRubyAsciidoctor jRubyAsciidoctor) {
+                jRubyAsciidoctor.getRubyRuntime().tearDown();
             }
         }
     }

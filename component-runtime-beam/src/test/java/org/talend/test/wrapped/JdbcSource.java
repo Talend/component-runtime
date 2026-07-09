@@ -81,6 +81,7 @@ public class JdbcSource extends PTransform<PBegin, PCollection<JsonObject>> {
 
         private static final long serialVersionUID = 1L;
 
+        @SuppressWarnings("java:S1068")
         private transient PCollection<JsonObject> collection;
 
         private Coder<JsonObject> delegate;
@@ -159,7 +160,7 @@ public class JdbcSource extends PTransform<PBegin, PCollection<JsonObject>> {
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-            return Objects.equals(delegate(), WorkAroundCoder.class.cast(o).delegate());
+            return Objects.equals(delegate(), ((WorkAroundCoder) o).delegate());
         }
 
         @Override

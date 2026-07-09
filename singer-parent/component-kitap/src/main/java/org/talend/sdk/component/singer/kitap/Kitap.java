@@ -19,7 +19,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static java.util.Spliterators.spliteratorUnknownSize;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.StringReader;
@@ -100,7 +99,7 @@ public final class Kitap implements Runnable {
         final List<String> missingConfigs = Stream
                 .concat(args.getComponentFamily().isPresent() ? Stream.of("family") : Stream.empty(), Stream.of("name"))
                 .filter(key -> !componentConfig.containsKey(key))
-                .collect(toList());
+                .toList();
         if (!missingConfigs.isEmpty()) {
             throw new IllegalArgumentException("Missing component configuration entries: " + missingConfigs);
         }
@@ -201,11 +200,10 @@ public final class Kitap implements Runnable {
                 .collect(toMap(Map.Entry::getKey, e -> {
                     switch (e.getValue().getValueType()) {
                         case STRING:
-                            return JsonString.class.cast(e.getValue()).getString();
+                            return ((JsonString) e.getValue()).getString();
                         case NUMBER:
-                            return String.valueOf(JsonNumber.class.cast(e.getValue()).doubleValue());
-                        case TRUE:
-                        case FALSE:
+                            return String.valueOf(((JsonNumber) e.getValue()).doubleValue());
+                        case TRUE, FALSE:
                             return String.valueOf(JsonValue.TRUE.equals(e.getValue()));
                         default:
                             throw new IllegalArgumentException("Unsupported json entry: " + e);
@@ -269,7 +267,7 @@ public final class Kitap implements Runnable {
 
         @Override
         public Record next() {
-            return Record.class.cast(next);
+            return (Record) next;
         }
     }
 }

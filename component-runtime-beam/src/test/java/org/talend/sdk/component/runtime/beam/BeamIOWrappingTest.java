@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.beam;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
@@ -70,10 +69,10 @@ import lombok.RequiredArgsConstructor;
 public class BeamIOWrappingTest implements Serializable {
 
     @Rule
-    public transient final TestPipeline pipeline = TestPipeline.create();
+    public final transient TestPipeline pipeline = TestPipeline.create();
 
     @ClassRule
-    public static transient final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
+    public static final transient TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
 
     @Test
     public void nativeBeamPipeline() {
@@ -126,7 +125,7 @@ public class BeamIOWrappingTest implements Serializable {
     public static class BeamSource extends DelegatingTransform<PBegin, PCollection<Sample>> {
 
         public BeamSource(@Option("values") final Collection<String> values) {
-            super(Create.of(values.stream().map(Sample::new).collect(toList())).withCoder(new SampleCoder()));
+            super(Create.of(values.stream().map(Sample::new).toList()).withCoder(new SampleCoder()));
         }
 
         private static class SampleCoder extends Coder<Sample> {

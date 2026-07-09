@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.beam.transform.avro;
 
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
 
 import javax.json.JsonArray;
 import javax.json.JsonNumber;
@@ -78,16 +77,15 @@ public class SchemalessJsonToIndexedRecord extends PTransform<PCollection<JsonOb
                 case STRING:
                     return STRING;
                 case NUMBER:
-                    final Number number = JsonNumber.class.cast(element).numberValue();
-                    if (Long.class.isInstance(number)) {
+                    final Number number = ((JsonNumber) element).numberValue();
+                    if (number instanceof Long) {
                         return LONG;
                     }
-                    if (Integer.class.isInstance(number)) {
+                    if (number instanceof Integer) {
                         return INT;
                     }
                     return DOUBLE;
-                case FALSE:
-                case TRUE:
+                case FALSE, TRUE:
                     return BOOLEAN;
                 case NULL:
                     return NULL;
@@ -98,7 +96,7 @@ public class SchemalessJsonToIndexedRecord extends PTransform<PCollection<JsonOb
                             .stream()
                             .map(it -> new Schema.Field(it.getKey(),
                                     guessSchema(buildNextName(recordName, it.getKey()), it.getValue()), null, null))
-                            .collect(toList()));
+                            .toList());
                     return record;
                 case ARRAY:
                     final JsonArray array = element.asJsonArray();

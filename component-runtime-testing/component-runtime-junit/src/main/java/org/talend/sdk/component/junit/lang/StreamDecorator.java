@@ -54,17 +54,17 @@ public class StreamDecorator implements InvocationHandler {
                 }
             });
             if (stream) {
-                if (Stream.class.isInstance(result)) {
-                    return decorate(Stream.class.cast(result), Stream.class, leafDecorator);
+                if (result instanceof Stream stream1) {
+                    return decorate(stream1, Stream.class, leafDecorator);
                 }
-                if (IntStream.class.isInstance(result)) {
-                    return decorate(IntStream.class.cast(result), IntStream.class, leafDecorator);
+                if (result instanceof IntStream intStream) {
+                    return decorate(intStream, IntStream.class, leafDecorator);
                 }
-                if (LongStream.class.isInstance(result)) {
-                    return decorate(LongStream.class.cast(result), LongStream.class, leafDecorator);
+                if (result instanceof LongStream longStream) {
+                    return decorate(longStream, LongStream.class, leafDecorator);
                 }
-                if (DoubleStream.class.isInstance(result)) {
-                    return decorate(DoubleStream.class.cast(result), DoubleStream.class, leafDecorator);
+                if (result instanceof DoubleStream doubleStream) {
+                    return decorate(doubleStream, DoubleStream.class, leafDecorator);
                 }
             }
             return result;

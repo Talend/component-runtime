@@ -54,7 +54,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TimeZone;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -138,7 +137,7 @@ class AvroRecordTest {
                 .withDateTime("fromDate", date)
                 .build();
 
-        final IndexedRecord unwrap = Unwrappable.class.cast(record).unwrap(IndexedRecord.class);
+        final IndexedRecord unwrap = ((Unwrappable) record).unwrap(IndexedRecord.class);
         Assertions.assertNotNull(unwrap);
 
         final Field fromZonedDateTimeField = unwrap.getSchema().getField("fromZonedDateTime");
@@ -188,7 +187,7 @@ class AvroRecordTest {
                 .withInt("age", 22)
                 .build();
 
-        IndexedRecord unwrap = Unwrappable.class.cast(record).unwrap(IndexedRecord.class);
+        IndexedRecord unwrap = ((Unwrappable) record).unwrap(IndexedRecord.class);
 
         Assertions.assertNotNull(unwrap);
 
@@ -248,7 +247,7 @@ class AvroRecordTest {
                 .withDateTime("date", new Date(instant.toEpochMilli()))
                 .build();
 
-        IndexedRecord unwrap = Unwrappable.class.cast(record).unwrap(IndexedRecord.class);
+        IndexedRecord unwrap = ((Unwrappable) record).unwrap(IndexedRecord.class);
         Integer unixEpochDays = (Integer) unwrap.get(0);
 
         LocalDate date = LocalDate.of(2015, 11, 3);
@@ -375,10 +374,9 @@ class AvroRecordTest {
     @Test
     void recordEntryFromName() {
         assertEquals("{\"record\": {\"name\": \"ok\"}}",
-                Unwrappable.class
-                        .cast(new AvroRecordBuilder()
-                                .withRecord("record", new AvroRecordBuilder().withString("name", "ok").build())
-                                .build())
+                ((Unwrappable) new AvroRecordBuilder()
+                        .withRecord("record", new AvroRecordBuilder().withString("name", "ok").build())
+                        .build())
                         .unwrap(IndexedRecord.class)
                         .toString());
     }
@@ -675,14 +673,12 @@ class AvroRecordTest {
         final Date date = new Date(new java.text.SimpleDateFormat("yyyy-MM-dd").parse("2018-12-6").getTime());
         final Date datetime = new Date();
         final Date time = new Date(1000 * 60 * 60 * 15 + 1000 * 60 * 20 + 39000); // 15:20:39
-        final Instant timestamp = java.sql.Timestamp.valueOf("2021-04-19 13:37:07.752345").toInstant();
         builder.withDateTime("t_date", date);
         builder.withDateTime("t_datetime", datetime);
         builder.withDateTime("t_time", time);
         final Record rec = builder.build();
         final Pipeline pipeline = Pipeline.create();
-        final PCollection<Record> input = pipeline.apply(Create.of(asList(rec)).withCoder(SchemaRegistryCoder.of())); //
-        final PCollection<Record> output = input.apply(new RecordToRecord());
+        pipeline.apply(Create.of(asList(rec)).withCoder(SchemaRegistryCoder.of())).apply(new RecordToRecord());
         assertEquals(org.apache.beam.sdk.PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
     }
 
@@ -721,9 +717,7 @@ class AvroRecordTest {
         // should not use ReflectData for any GenericRecord implements
         // ReflectData.get().addLogicalTypeConversion(new Conversions.DecimalConversion());
 
-        final PCollection<Record> input =
-                pipeline.apply(Create.of(asList(rec1, rec2)).withCoder(SchemaRegistryCoder.of())); //
-        final PCollection<Record> output = input.apply(new RecordToRecord());
+        pipeline.apply(Create.of(asList(rec1, rec2)).withCoder(SchemaRegistryCoder.of())).apply(new RecordToRecord());
         assertEquals(org.apache.beam.sdk.PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
     }
 
@@ -751,9 +745,7 @@ class AvroRecordTest {
 
         final Pipeline pipeline = Pipeline.create();
 
-        final PCollection<Record> input =
-                pipeline.apply(Create.of(asList(rec1, rec2)).withCoder(SchemaRegistryCoder.of())); //
-        final PCollection<Record> output = input.apply(new RecordToRecord());
+        pipeline.apply(Create.of(asList(rec1, rec2)).withCoder(SchemaRegistryCoder.of())).apply(new RecordToRecord());
         assertEquals(org.apache.beam.sdk.PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
     }
 
@@ -846,22 +838,22 @@ class AvroRecordTest {
         avro.put(4, myMap);
         final Record record = new AvroRecord(avro);
         // check avro schema mappings
-        final List<Entry> entries = record.getSchema().getAllEntries().collect(Collectors.toList());
+        final List<Entry> entries = record.getSchema().getAllEntries().toList();
         assertEquals(Schema.Type.BYTES, entries.get(0).getType());
         assertEquals(Schema.Type.DECIMAL, entries.get(1).getType());
         assertEquals(Schema.Type.STRING, entries.get(2).getType());
         assertEquals(Schema.Type.STRING, entries.get(3).getType());
         assertEquals(Schema.Type.RECORD, entries.get(4).getType());
         // check avro record
-        assertTrue(byte[].class.isInstance(record.getBytes("field01")));
+        assertTrue(record.getBytes("field01") instanceof byte[]);
         assertEquals("11.22", new String(record.getBytes("field01")));
-        assertTrue(BigDecimal.class.isInstance(record.getDecimal("field02")));
+        assertTrue(record.getDecimal("field02") instanceof BigDecimal);
         assertEquals(new BigDecimal("11.22"), record.getDecimal("field02"));
-        assertTrue(String.class.isInstance(record.getString("field03")));
+        assertTrue(record.getString("field03") instanceof String);
         assertEquals("012-345-678-901", record.getString("field03"));
-        assertTrue(String.class.isInstance(record.getString("field04")));
+        assertTrue(record.getString("field04") instanceof String);
         assertEquals("THREE", record.getString("field04"));
-        assertTrue(Map.class.isInstance(record.get(Object.class, "field05")));
+        assertTrue(record.get(Object.class, "field05") instanceof Map);
         assertThrows(IllegalArgumentException.class, () -> record.getRecord("field05"));
     }
 

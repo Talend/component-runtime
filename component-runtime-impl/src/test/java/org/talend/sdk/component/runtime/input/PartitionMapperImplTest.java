@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.runtime.input;
 
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -47,7 +46,7 @@ public class PartitionMapperImplTest {
         final List<Mapper> split = mapper.split(3);
         assertEquals(3, split.stream().distinct().count());
         split.forEach(s -> {
-            assertTrue(PartitionMapperImpl.class.isInstance(s));
+            assertTrue(s instanceof PartitionMapperImpl);
             assertNotSame(mapper, s);
             assertInput(s);
         });
@@ -66,7 +65,7 @@ public class PartitionMapperImplTest {
                 new PartitionMapperImpl("Root", "Test", null, "Plugin", true, internalConfiguration,
                         new SampleMapper());
         final Input input = mapper.create();
-        assertTrue(StreamingInputImpl.class.isInstance(input));
+        assertTrue(input instanceof StreamingInputImpl);
         assertEquals("1000", mapper.getInternalConfiguration().get("$maxRecords"));
     }
 
@@ -81,8 +80,8 @@ public class PartitionMapperImplTest {
     }
 
     private void assertInput(final Mapper mapper) {
-        assertTrue(Input.class.isInstance(mapper.create()));
-        assertTrue(Record.class.isInstance(mapper.create().next())); // it was a sample in
+        assertTrue(mapper.create() instanceof Input);
+        assertTrue(mapper.create().next() instanceof Record); // it was a sample in
     }
 
     public static class SampleMapper implements Serializable {
@@ -94,7 +93,7 @@ public class PartitionMapperImplTest {
 
         @Split
         public Collection<SampleMapper> split(@PartitionSize final int partitions) {
-            return IntStream.range(0, partitions).mapToObj(i -> new SampleMapper()).collect(toList());
+            return IntStream.range(0, partitions).mapToObj(i -> new SampleMapper()).toList();
         }
 
         @Emitter

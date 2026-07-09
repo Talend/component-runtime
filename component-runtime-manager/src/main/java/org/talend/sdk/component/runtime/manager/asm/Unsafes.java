@@ -146,9 +146,8 @@ public final class Unsafes {
                     final Method putBoolean =
                             UNSAFE.getClass().getDeclaredMethod("putBoolean", Object.class, long.class, boolean.class);
                     objectFieldOffset.setAccessible(true);
-                    final long accOffset = Long.class
-                            .cast(objectFieldOffset
-                                    .invoke(UNSAFE, AccessibleObject.class.getDeclaredField("override")));
+                    final long accOffset = (Long) objectFieldOffset
+                            .invoke(UNSAFE, AccessibleObject.class.getDeclaredField("override"));
                     putBoolean
                             .invoke(UNSAFE,
                                     rootLoaderClass
@@ -183,10 +182,8 @@ public final class Unsafes {
      */
     public static <T> Class<T> defineAndLoadClass(final ClassLoader classLoader, final String proxyName,
             final byte[] proxyBytes) {
-        if (ConfigurableClassLoader.class.isInstance(classLoader)) {
-            return (Class<T>) ConfigurableClassLoader.class
-                    .cast(classLoader)
-                    .registerBytecode(proxyName.replace('/', '.'), proxyBytes);
+        if (classLoader instanceof ConfigurableClassLoader configurableClassLoader) {
+            return (Class<T>) configurableClassLoader.registerBytecode(proxyName.replace('/', '.'), proxyBytes);
         }
         Class<?> clazz = classLoader.getClass();
 
@@ -224,7 +221,7 @@ public final class Unsafes {
 
             return (Class<T>) Class.forName(definedClass.getName(), true, classLoader);
         } catch (final InvocationTargetException le) {
-            if (LinkageError.class.isInstance(le.getCause())) {
+            if (le.getCause() instanceof LinkageError) {
                 try {
                     return (Class<T>) Class.forName(proxyName.replace('/', '.'), true, classLoader);
                 } catch (ClassNotFoundException e) {

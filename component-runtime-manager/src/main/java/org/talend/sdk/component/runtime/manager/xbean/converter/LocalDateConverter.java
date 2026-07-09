@@ -31,6 +31,6 @@ public class LocalDateConverter extends AbstractConverter {
         if (text.isEmpty()) {
             return null;
         }
-        return ZonedDateTime.class.cast(new ZonedDateTimeConverter().toObjectImpl(text)).toLocalDate();
+        return ((ZonedDateTime) new ZonedDateTimeConverter().toObjectImpl(text)).toLocalDate();
     }
 }

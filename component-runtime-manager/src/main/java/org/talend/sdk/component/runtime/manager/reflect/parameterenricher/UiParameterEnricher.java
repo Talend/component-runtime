@@ -21,7 +21,6 @@ import static java.util.Collections.singletonMap;
 import static java.util.Locale.ENGLISH;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.lang.annotation.Annotation;
@@ -66,13 +65,13 @@ public class UiParameterEnricher extends BaseParameterEnricher {
             final String prefix = META_PREFIX + annotation.annotationType().getSimpleName().toLowerCase(ENGLISH) + "::";
             if (GridLayouts.class == annotation.annotationType()) {
                 return Stream
-                        .of(GridLayouts.class.cast(annotation).value())
+                        .of(((GridLayouts) annotation).value())
                         .flatMap(a -> toConfig(a, prefix.substring(0, prefix.length() - 3) + "::").entrySet().stream())
                         .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
             }
             if (DateTime.class == annotation.annotationType()) {
                 final String key = META_PREFIX + "datetime";
-                final DateTime dateTime = DateTime.class.cast(annotation);
+                final DateTime dateTime = (DateTime) annotation;
                 final Map<String, String> dtmap = new HashMap<>();
                 if (parameterType == LocalTime.class) {
                     dtmap.put(key, "time");
@@ -108,7 +107,7 @@ public class UiParameterEnricher extends BaseParameterEnricher {
 
     private Map<String, String> toConfig(final Annotation annotation, final String prefix) {
         if (GridLayout.class == annotation.annotationType()) {
-            final GridLayout layout = GridLayout.class.cast(annotation);
+            final GridLayout layout = (GridLayout) annotation;
             return Stream
                     .of(layout.names())
                     .flatMap(name -> Stream
@@ -130,13 +129,13 @@ public class UiParameterEnricher extends BaseParameterEnricher {
                                                     .of(component.getMethods())
                                                     .filter(mtd -> mtd.getDeclaringClass() == component
                                                             && "value".equals(mtd.getName()))
-                                                    .collect(toList());
+                                                    .toList();
                                             final StringBuilder builder = new StringBuilder("");
                                             for (int i = 0; i < length; i++) {
                                                 final Object annot = Array.get(invoke, i);
                                                 mtds
                                                         .forEach(p -> builder
-                                                                .append(toString(Annotation.class.cast(annot), p,
+                                                                .append(toString((Annotation) annot, p,
                                                                         o -> null)));
                                                 if (i + 1 < length) {
                                                     builder.append('|');
@@ -166,7 +165,7 @@ public class UiParameterEnricher extends BaseParameterEnricher {
             if (custom != null) {
                 return custom;
             }
-            if (String.class.isInstance(invoke)) {
+            if (invoke instanceof String) {
                 final String string = String.valueOf(invoke);
                 if (string.startsWith("local_configuration:")) {
                     return getContext()
@@ -177,11 +176,11 @@ public class UiParameterEnricher extends BaseParameterEnricher {
                 }
                 return string;
             }
-            if (Class.class.isInstance(invoke)) {
-                return Class.class.cast(invoke).getSimpleName().toLowerCase(ENGLISH);
+            if (invoke instanceof Class aClass) {
+                return aClass.getSimpleName().toLowerCase(ENGLISH);
             }
-            if (String[].class.isInstance(invoke)) {
-                return Stream.of(String[].class.cast(invoke)).collect(joining(","));
+            if (invoke instanceof String[] strings) {
+                return Stream.of(strings).collect(joining(","));
             }
             return String.valueOf(invoke);
         } catch (final InvocationTargetException | IllegalAccessException e) {

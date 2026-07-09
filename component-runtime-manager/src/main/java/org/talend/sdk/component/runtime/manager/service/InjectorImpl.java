@@ -86,13 +86,12 @@ public class InjectorImpl implements Serializable, Injector {
                 })
                 .forEach(field -> {
                     Object value = services.get(field.getType());
-                    if (value == null && ParameterizedType.class.isInstance(field.getGenericType())) {
-                        final ParameterizedType pt = ParameterizedType.class.cast(field.getGenericType());
-                        if (Class.class.isInstance(pt.getRawType())
-                                && Collection.class.isAssignableFrom(Class.class.cast(pt.getRawType()))) {
+                    if (value == null && field.getGenericType() instanceof ParameterizedType pt) {
+                        if (pt.getRawType() instanceof Class clazz
+                                && Collection.class.isAssignableFrom(clazz)) {
                             final Type serviceType = pt.getActualTypeArguments()[0];
-                            if (Class.class.isInstance(serviceType)) {
-                                final Class<?> serviceClass = Class.class.cast(serviceType);
+                            if (serviceType instanceof Class stClass) {
+                                final Class<?> serviceClass = stClass;
                                 value = services
                                         .entrySet()
                                         .stream()
@@ -115,7 +114,7 @@ public class InjectorImpl implements Serializable, Injector {
                 .filter(field -> field.isAnnotationPresent(Configuration.class))
                 .peek(field -> {
                     if (Supplier.class != field.getType()
-                            || !ParameterizedType.class.isInstance(field.getGenericType())) {
+                            || !(field.getGenericType() instanceof ParameterizedType)) {
                         throw new IllegalArgumentException("Field " + field + " is not a Supplier<X>,\n"
                                 + "it will not be injected otherwise it wouldn't be up to date,\n"
                                 + "did you mean Supplier<" + field.getType() + "> ?");
@@ -128,8 +127,8 @@ public class InjectorImpl implements Serializable, Injector {
                 })
                 .forEach(field -> {
                     try {
-                        final Class<?> configClass = Class.class
-                                .cast(ParameterizedType.class.cast(field.getGenericType()).getActualTypeArguments()[0]);
+                        final Class<?> configClass =
+                                (Class) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
                         final ClassLoader loader = Thread.currentThread().getContextClassLoader();
                         final Supplier<?> supplier = () -> {
                             try {

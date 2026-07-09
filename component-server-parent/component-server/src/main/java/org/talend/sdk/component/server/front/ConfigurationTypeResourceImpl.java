@@ -18,7 +18,6 @@ package org.talend.sdk.component.server.front;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
@@ -190,15 +189,14 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
             return migrated;
         } catch (final Exception e) {
             // contract of migrate() do not impose to throw a ComponentException, so not likely to happen...
-            if (ComponentException.class.isInstance(e)) {
-                final ComponentException ce = (ComponentException) e;
+            if (e instanceof ComponentException ce) {
                 throw new WebApplicationException(Response
                         .status(ce.getErrorOrigin() == ComponentException.ErrorOrigin.USER ? 400
                                 : ce.getErrorOrigin() == ComponentException.ErrorOrigin.BACKEND ? 456 : 520,
                                 "Unexpected migration error")
                         .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED,
                                 "Migration execution failed with: " + ofNullable(e.getMessage())
-                                        .orElseGet(() -> NullPointerException.class.isInstance(e) ? "unexpected null"
+                                        .orElseGet(() -> e instanceof NullPointerException ? "unexpected null"
                                                 : "no error message")))
                         .build());
             }
@@ -206,7 +204,7 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
                     .status(520, "Unexpected migration error")
                     .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED,
                             "Migration execution failed with: " + ofNullable(e.getMessage())
-                                    .orElseGet(() -> NullPointerException.class.isInstance(e) ? "unexpected null"
+                                    .orElseGet(() -> e instanceof NullPointerException ? "unexpected null"
                                             : "no error message")))
                     .build());
         }
@@ -245,7 +243,7 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
                                             forcedPrefix + p.getPath().substring(prefixLen), p.getName(),
                                             p.getDisplayName(), p.getType(), p.getDefaultValue(), p.getValidation(),
                                             p.getMetadata(), p.getPlaceholder(), p.getProposalDisplayNames()))
-                                    .collect(toList()));
+                                    .toList());
                 }
 
                 node.setEdges(c.getChildConfigs().stream().map(Config::getId).collect(toSet()));

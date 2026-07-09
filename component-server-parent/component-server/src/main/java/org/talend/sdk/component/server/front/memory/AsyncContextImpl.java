@@ -63,11 +63,14 @@ public class AsyncContextImpl implements AsyncContext {
         return this;
     }
 
+    @SuppressWarnings("java:S6201")
+    // unconditional patterns in instanceof are not supported in -source 17
+    // TODO: remove the @SuppressWarnings and apply S6201 when java 21+ only is supported.
     public void onError(final Throwable throwable) {
         final AsyncEvent event = new AsyncEvent(this, request, response, throwable);
         executeOnListeners(l -> l.onError(event), null);
-        if (!response.isCommitted() && HttpServletResponse.class.isInstance(response)) {
-            final HttpServletResponse http = HttpServletResponse.class.cast(response);
+        if (!response.isCommitted() && response instanceof HttpServletResponse) {
+            final HttpServletResponse http = (HttpServletResponse) response;
             http.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
         complete();
@@ -106,11 +109,9 @@ public class AsyncContextImpl implements AsyncContext {
     @Override
     public void dispatch() {
         final ServletRequest servletRequest = getRequest();
-        if (!HttpServletRequest.class.isInstance(servletRequest)) {
+        if (!(servletRequest instanceof HttpServletRequest sr)) {
             throw new IllegalStateException("Not a http request: " + servletRequest);
         }
-
-        final HttpServletRequest sr = HttpServletRequest.class.cast(servletRequest);
 
         String path = sr.getRequestURI();
         final String cpath = sr.getContextPath();
@@ -128,11 +129,10 @@ public class AsyncContextImpl implements AsyncContext {
     @Override
     public void dispatch(final ServletContext context, final String path) {
         final ServletRequest servletRequest = getRequest();
-        if (!HttpServletRequest.class.isInstance(servletRequest)) {
+        if (!(servletRequest instanceof HttpServletRequest request)) {
             throw new IllegalStateException("Not a http request: " + servletRequest);
         }
 
-        final HttpServletRequest request = HttpServletRequest.class.cast(servletRequest);
         if (request.getAttribute(ASYNC_REQUEST_URI) == null) {
             request.setAttribute(ASYNC_REQUEST_URI, request.getRequestURI());
             request.setAttribute(ASYNC_CONTEXT_PATH, request.getContextPath());

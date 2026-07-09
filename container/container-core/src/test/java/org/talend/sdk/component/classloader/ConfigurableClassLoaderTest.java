@@ -18,7 +18,6 @@ package org.talend.sdk.component.classloader;
 import static java.lang.ClassLoader.getSystemClassLoader;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -182,7 +181,7 @@ class ConfigurableClassLoaderTest {
                 final Object jarLocation =
                         aClass.getMethod("jarLocation", Class.class).invoke(null, ConfigurableClassLoaderTest.class);
                 assertNotNull(jarLocation);
-                assertTrue(File.class.isInstance(jarLocation));
+                assertTrue(jarLocation instanceof File);
             } catch (final Exception e) {
                 fail("JarLocation should be loaded from the nested jar");
             }
@@ -272,7 +271,7 @@ class ConfigurableClassLoaderTest {
 
             final List<XMLOutputFactory> factories = StreamSupport
                     .stream(ServiceLoader.load(XMLOutputFactory.class, loader).spliterator(), false)
-                    .collect(toList());
+                    .toList();
             assertEquals(1, factories.size());
             final Class<? extends XMLOutputFactory> firstClass = factories.iterator().next().getClass();
             assertEquals("com.ctc.wstx.stax.WstxOutputFactory", firstClass.getName());
@@ -297,7 +296,7 @@ class ConfigurableClassLoaderTest {
             // this is in the (test) classloader but not available to the classloader
             final List<TestEngine> junitEngines = StreamSupport
                     .stream(ServiceLoader.load(TestEngine.class, loader).spliterator(), false)
-                    .collect(toList());
+                    .toList();
             assertTrue(junitEngines.isEmpty());
         }
     }

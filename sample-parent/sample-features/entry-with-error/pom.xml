@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>sample-features</artifactId>
-    <version>1.93.0-SNAPSHOT</version>
+    <version>1.94.0-SNAPSHOT</version>
   </parent>
 
   <groupId>org.talend.sdk.component.sample.feature</groupId>
@@ -60,10 +60,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.talend.sdk.component</groupId>

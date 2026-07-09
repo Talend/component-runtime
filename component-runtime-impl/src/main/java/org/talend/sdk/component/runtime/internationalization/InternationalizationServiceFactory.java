@@ -157,7 +157,7 @@ public class InternationalizationServiceFactory {
                     if (String.class == p.getType()) {
                         return params -> new Locale(ofNullable(params[idx]).map(String::valueOf).orElse("en"));
                     }
-                    return params -> Locale.class.cast(params[idx]);
+                    return params -> (Locale) params[idx];
                 }
             }
             return p -> localeSupplier.get();

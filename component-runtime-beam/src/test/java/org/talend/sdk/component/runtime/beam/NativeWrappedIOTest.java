@@ -18,7 +18,6 @@ package org.talend.sdk.component.runtime.beam;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
 import static lombok.AccessLevel.PRIVATE;
 import static org.junit.Assert.assertEquals;
 
@@ -82,7 +81,7 @@ public class NativeWrappedIOTest {
                     .withIsolatedPackage(JdbcSource.class.getPackage().getName(), JdbcIO.class.getPackage().getName());
 
     @Rule
-    public transient final TestPipeline pipeline = TestPipeline.create();
+    public final transient TestPipeline pipeline = TestPipeline.create();
 
     @Test
     public void dofn() {
@@ -94,11 +93,10 @@ public class NativeWrappedIOTest {
         config.setQuery("SELECT * FROM   INFORMATION_SCHEMA.TABLES");
         final Map<String, String> map = SimpleFactory.configurationByExample().forInstance(config).configured().toMap();
         final String plugin = COMPONENTS.getTestPlugins().iterator().next();
-        final PTransform<PBegin, PCollection<JsonObject>> jdbc = PTransform.class
-                .cast(COMPONENTS
-                        .asManager()
-                        .createComponent("Jdbc", "Input", ComponentManager.ComponentType.MAPPER, 1, map)
-                        .orElseThrow(() -> new IllegalArgumentException("no jdbc input")));
+        final PTransform<PBegin, PCollection<JsonObject>> jdbc = (PTransform) COMPONENTS
+                .asManager()
+                .createComponent("Jdbc", "Input", ComponentManager.ComponentType.MAPPER, 1, map)
+                .orElseThrow(() -> new IllegalArgumentException("no jdbc input"));
         PAssert
                 .that(pipeline.apply(jdbc).setCoder(JsonpJsonObjectCoder.of(plugin)))
                 .satisfies((SerializableFunction<Iterable<JsonObject>, Void>) input -> {
@@ -112,11 +110,10 @@ public class NativeWrappedIOTest {
     @Test
     public void source() {
         final String plugin = COMPONENTS.getTestPlugins().iterator().next();
-        final PTransform<PBegin, PCollection<JsonObject>> jdbc = PTransform.class
-                .cast(COMPONENTS
-                        .asManager()
-                        .createComponent("beamtest", "source", ComponentManager.ComponentType.MAPPER, 1, emptyMap())
-                        .orElseThrow(() -> new IllegalArgumentException("no beamtest#source component")));
+        final PTransform<PBegin, PCollection<JsonObject>> jdbc = (PTransform) COMPONENTS
+                .asManager()
+                .createComponent("beamtest", "source", ComponentManager.ComponentType.MAPPER, 1, emptyMap())
+                .orElseThrow(() -> new IllegalArgumentException("no beamtest#source component"));
         PAssert
                 .that(pipeline.apply(jdbc).setCoder(JsonpJsonObjectCoder.of(plugin)))
                 .satisfies((SerializableFunction<Iterable<JsonObject>, Void>) input -> {
@@ -141,7 +138,7 @@ public class NativeWrappedIOTest {
             isolatedPackages = Stream
                     .concat(Stream.of(packageName), Stream.of(packages))
                     .filter(Objects::nonNull)
-                    .collect(toList());
+                    .toList();
             if (isolatedPackages.isEmpty()) {
                 isolatedPackages = null;
             }
@@ -200,7 +197,7 @@ public class NativeWrappedIOTest {
         }
 
         private Set<String> getTestPlugins() {
-            return new HashSet<>(EmbeddedComponentManager.class.cast(asManager()).testPlugins);
+            return new HashSet<>(((EmbeddedComponentManager) asManager()).testPlugins);
         }
 
         static class PreState {

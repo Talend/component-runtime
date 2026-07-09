@@ -19,7 +19,6 @@ import static java.util.Collections.singleton;
 import static java.util.Collections.singletonMap;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
 import static org.talend.sdk.component.maven.api.Audience.Type.TALEND_INTERNAL;
 
@@ -138,8 +137,8 @@ public class WebsiteBuilderMojo extends ComponentDependenciesBase {
                         final Wrapper wrapper = super.find(name, scopes);
                         return s -> {
                             final Object call = wrapper.call(s);
-                            if (Collection.class.isInstance(call) && !DecoratedCollection.class.isInstance(call)) {
-                                return new DecoratedCollection<>(Collection.class.cast(call));
+                            if (call instanceof Collection collection && !(call instanceof DecoratedCollection)) {
+                                return new DecoratedCollection<>(collection);
                             }
                             return call;
                         };
@@ -258,7 +257,11 @@ public class WebsiteBuilderMojo extends ComponentDependenciesBase {
 
             @Override
             public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
-                if (Files.list(dir).count() == 0) {
+                final boolean empty;
+                try (final Stream<Path> entries = Files.list(dir)) {
+                    empty = entries.findAny().isEmpty();
+                }
+                if (empty) {
                     Files.delete(dir);
                 }
                 return super.postVisitDirectory(dir, exc);
@@ -364,17 +367,21 @@ public class WebsiteBuilderMojo extends ComponentDependenciesBase {
         }
 
         try {
-            Files.list(templatesDir).filter(it -> it.endsWith(".mustache")).forEach(template -> {
-                final String name = template.getFileName().toString();
-                try (final Reader tpl = Files.newBufferedReader(template);
-                        final Writer writer = Files
-                                .newBufferedWriter(
-                                        dir.resolve(name.substring(0, name.length() - "mustache".length()) + "html"))) {
-                    mustacheFactory.compile(tpl, dir.getFileName().toString() + '_' + name).execute(writer, context);
-                } catch (final IOException e) {
-                    throw new IllegalStateException(e);
-                }
-            });
+            try (final Stream<Path> templates = Files.list(templatesDir)) {
+                templates.filter(it -> it.endsWith(".mustache")).forEach(template -> {
+                    final String name = template.getFileName().toString();
+                    try (final Reader tpl = Files.newBufferedReader(template);
+                            final Writer writer = Files
+                                    .newBufferedWriter(
+                                            dir.resolve(name.substring(0, name.length() - "mustache".length())
+                                                    + "html"))) {
+                        mustacheFactory.compile(tpl, dir.getFileName().toString() + '_' + name)
+                                .execute(writer, context);
+                    } catch (final IOException e) {
+                        throw new IllegalStateException(e);
+                    }
+                });
+            }
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
@@ -409,7 +416,7 @@ public class WebsiteBuilderMojo extends ComponentDependenciesBase {
                 .filter(it -> "jar".equals(it.getPackaging()))
                 .map(project -> new Project(project, toCarPath(project)))
                 .filter(p -> Files.exists(p.car))
-                .collect(toList());
+                .toList();
     }
 
     private Path mkdirs(final Path root) {

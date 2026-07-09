@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.runtime.beam.transform;
 
-import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -41,7 +40,7 @@ public class RecordBranchFilterTest implements Serializable {
     @Test
     public void test() {
         PAssert.that(buildBasePipeline(pipeline).apply(RecordBranchFilter.of(null, "b1"))).satisfies(values -> {
-            final List<Record> items = StreamSupport.stream(values.spliterator(), false).collect(toList());
+            final List<Record> items = StreamSupport.stream(values.spliterator(), false).toList();
             assertEquals(2, items.size());
             items.forEach(item -> {
                 assertNull(item.get(Object.class, "b2"));
@@ -49,7 +48,7 @@ public class RecordBranchFilterTest implements Serializable {
                 final Object b1 = item.get(Object.class, "b1");
                 assertNotNull(b1);
 
-                final Collection<Record> records = Collection.class.cast(b1);
+                final Collection<Record> records = (Collection) b1;
                 assertNotNull(records.stream().map(r -> r.getString("foo")).findFirst().get());
             });
             return null;

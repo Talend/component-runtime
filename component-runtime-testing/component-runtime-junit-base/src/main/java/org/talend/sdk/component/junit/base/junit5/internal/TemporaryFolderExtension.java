@@ -39,7 +39,7 @@ public class TemporaryFolderExtension implements BeforeAllCallback, AfterAllCall
 
     @Override
     public void afterAll(final ExtensionContext context) {
-        TemporaryFolder.class.cast(context.getStore(NAMESPACE).get(TemporaryFolder.class.getName())).delete();
+        ((TemporaryFolder) context.getStore(NAMESPACE).get(TemporaryFolder.class.getName())).delete();
     }
 
     @Override

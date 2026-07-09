@@ -83,7 +83,7 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
     public long assess() {
         lazyInit();
         if (assessor != null) {
-            return Number.class.cast(doInvoke(assessor)).longValue();
+            return ((Number) doInvoke(assessor)).longValue();
         }
         return 1;
     }
@@ -105,7 +105,7 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
         // note: we can surely mutualize/cache the reflection a bit here but let's wait
         // to see it is useful before doing it,
         // java 7/8 made enough progress to probably make it smooth OOTB
-        final Serializable input = Serializable.class.cast(doInvoke(inputFactory));
+        final Serializable input = (Serializable) doInvoke(inputFactory);
         log.debug("[PartitionMapperImpl#create] isStream? {}.", isStream());
         if (isStream()) {
             return new StreamingInputImpl(rootName(), inputName, plugin(), input,
@@ -190,7 +190,7 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
             try (final ObjectInputStream ois = new EnhancedObjectInputStream(new ByteArrayInputStream(value),
                     ContainerFinder.Instance.get().find(plugin).classloader())) {
                 final Object obj = ois.readObject();
-                return Serializable.class.cast(obj);
+                return (Serializable) obj;
             }
         }
     }

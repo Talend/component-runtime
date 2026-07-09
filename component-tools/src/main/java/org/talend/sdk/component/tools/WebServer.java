@@ -47,7 +47,7 @@ public class WebServer implements Runnable {
         this.serverArguments = serverArguments;
         this.port = port;
         try {
-            this.log = Log.class.isInstance(log) ? Log.class.cast(log) : new ReflectiveLog(log);
+            this.log = log instanceof Log log1 ? log1 : new ReflectiveLog(log);
         } catch (final NoSuchMethodException e) {
             throw new IllegalArgumentException(e);
         }
@@ -124,7 +124,7 @@ public class WebServer implements Runnable {
             reset("talend.component.server.component.coordinates", originalCompSystProp);
             reset("component.manager.classpath.skip", skipClasspathSystProp);
             reset("component.manager.callers.skip", skipCallersSystProp);
-            ofNullable(ref.get()).ifPresent(mw -> StandardServer.class.cast(mw.getTomcat().getServer()).stopAwait());
+            ofNullable(ref.get()).ifPresent(mw -> ((StandardServer) mw.getTomcat().getServer()).stopAwait());
         }
     }
 

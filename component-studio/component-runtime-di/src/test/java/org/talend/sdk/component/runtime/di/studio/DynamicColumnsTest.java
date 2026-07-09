@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.di.studio;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -42,9 +41,7 @@ import java.util.PrimitiveIterator;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.json.JsonBuilderFactory;
 import javax.json.bind.Jsonb;
-import javax.json.spi.JsonProvider;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -82,7 +79,6 @@ import org.talend.sdk.component.runtime.output.Branches;
 import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
-import org.talend.sdk.component.runtime.record.RecordConverters;
 import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry;
 
 import routines.system.Dynamic;
@@ -205,13 +201,12 @@ public class DynamicColumnsTest {
             }
 
             JobStateAware.init(processor, globalMap);
-            final Jsonb jsonbProcessor = Jsonb.class
-                    .cast(manager
-                            .findPlugin(processor.plugin())
-                            .get()
-                            .get(AllServices.class)
-                            .getServices()
-                            .get(Jsonb.class));
+            final Jsonb jsonbProcessor = (Jsonb) manager
+                    .findPlugin(processor.plugin())
+                    .get()
+                    .get(AllServices.class)
+                    .getServices()
+                    .get(Jsonb.class);
 
             final AutoChunkProcessor processorProcessor = new AutoChunkProcessor(100, processor);
 
@@ -284,21 +279,16 @@ public class DynamicColumnsTest {
 
         final Map<Class<?>, Object> servicesMapper =
                 manager.findPlugin(mapperMapper.plugin()).get().get(AllServices.class).getServices();
-        final Jsonb jsonbMapper = Jsonb.class.cast(servicesMapper.get(Jsonb.class));
-        final JsonProvider jsonProvider = JsonProvider.class.cast(servicesMapper.get(JsonProvider.class));
-        final JsonBuilderFactory jsonBuilderFactory =
-                JsonBuilderFactory.class.cast(servicesMapper.get(JsonBuilderFactory.class));
         final RecordBuilderFactory recordBuilderMapper =
-                RecordBuilderFactory.class.cast(servicesMapper.get(RecordBuilderFactory.class));
+                (RecordBuilderFactory) servicesMapper.get(RecordBuilderFactory.class);
         builderFactory = recordBuilderMapper;
-        final RecordConverters converters = new RecordConverters();
         final MappingMetaRegistry registry = new MappingMetaRegistry();
 
         Object dataMapper;
         while ((dataMapper = inputMapper.next()) != null) {
-            row1 = row1Struct.class.cast(registry.find(row1Struct.class).newInstance(Record.class.cast(dataMapper)));
+            row1 = (row1Struct) registry.find(row1Struct.class).newInstance((Record) dataMapper);
 
-            assertTrue(row1Struct.class.isInstance(row1));
+            assertTrue(row1 instanceof row1Struct);
 
             sourceData.add(row1);
             inputsHandlerProcessor.reset();
@@ -314,8 +304,8 @@ public class DynamicColumnsTest {
     }
 
     private void doClose(final Map<String, Object> globalMap) {
-        final Mapper mapperMapper = Mapper.class.cast(globalMap.remove("mapperMapper"));
-        final Input inputMapper = Input.class.cast(globalMap.remove("inputMapper"));
+        final Mapper mapperMapper = (Mapper) globalMap.remove("mapperMapper");
+        final Input inputMapper = (Input) globalMap.remove("inputMapper");
         try {
             if (inputMapper != null) {
                 inputMapper.stop();
@@ -333,7 +323,7 @@ public class DynamicColumnsTest {
         }
 
         final AutoChunkProcessor processorProcessor =
-                AutoChunkProcessor.class.cast(globalMap.remove("processorProcessor"));
+                (AutoChunkProcessor) globalMap.remove("processorProcessor");
         try {
             if (processorProcessor != null) {
                 processorProcessor.stop();
@@ -395,7 +385,7 @@ public class DynamicColumnsTest {
             assertEquals(Double.MIN_VALUE, record.getDouble("double_min"));
             assertEquals(Double.MAX_VALUE, record.getDouble("double_max"));
             assertEquals(String.format("zorglub-is-still-alive-%05d", counter), new String(record.getBytes("bytes0")));
-            assertEquals(IntStream.range(0, counter + 1).boxed().collect(toList()),
+            assertEquals(IntStream.range(0, counter + 1).boxed().toList(),
                     record.getArray(Integer.class, "array0"));
             assertEquals(StudioTypes.DATE, record.getSchema().getEntry("date0").getProp(STUDIO_TYPE));
             assertTrue(ZonedDateTime.now().toEpochSecond() >= record.getDateTime("date0").toEpochSecond());
@@ -523,7 +513,7 @@ public class DynamicColumnsTest {
                             .withName("array0")
                             .withType(Type.ARRAY)
                             .withElementSchema(builderFactory.newSchemaBuilder(Type.INT).build())
-                            .build(), IntStream.range(0, i + 1).boxed().collect(toList()))
+                            .build(), IntStream.range(0, i + 1).boxed().toList())
                     .withDateTime("date0", ZonedDateTime.now())
                     .withString(builderFactory.newEntryBuilder()
                             .withName("dynBigDecimal")

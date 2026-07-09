@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-server-parent</artifactId>
-    <version>1.93.0-SNAPSHOT</version>
+    <version>1.94.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-server</artifactId>
@@ -189,6 +189,12 @@
       <artifactId>component-runtime-beam</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>

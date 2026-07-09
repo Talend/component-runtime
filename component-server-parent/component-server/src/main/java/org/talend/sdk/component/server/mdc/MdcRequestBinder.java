@@ -51,8 +51,8 @@ public class MdcRequestBinder implements Filter {
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
-        if (HttpServletRequest.class.isInstance(request)) {
-            ThreadContext.putAll(createContext(HttpServletRequest.class.cast(request)));
+        if (request instanceof HttpServletRequest httpServletRequest) {
+            ThreadContext.putAll(createContext(httpServletRequest));
         }
         chain.doFilter(request, response);
     }

@@ -45,7 +45,7 @@ public class ResourceProxy implements Filter {
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
-        final HttpServletRequest http = HttpServletRequest.class.cast(request);
+        final HttpServletRequest http = (HttpServletRequest) request;
         final String uri = http.getRequestURI().substring(http.getContextPath().length());
         if (uri.startsWith("/main-")) {
             if (uri.endsWith(".js") && uiConfiguration.getJsLocation().isPresent()) {

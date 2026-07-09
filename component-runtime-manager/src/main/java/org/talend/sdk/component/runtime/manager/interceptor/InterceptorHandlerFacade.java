@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.manager.interceptor;
 
 import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -87,17 +86,17 @@ public class InterceptorHandlerFacade implements InterceptorHandler {
                                 }
                                 throw new IllegalArgumentException("No handler for " + a);
                             }))
-                    .collect(toList());
+                    .toList();
             if (handlers.isEmpty()) {
                 return (mtd, arguments) -> doInvoke(method, args);
             }
 
             // init all InvokerHandler
             final List<InvokerHandler> invokerHandlers =
-                    handlers.stream().filter(i -> i.invoker).map(InvokerHandler.class::cast).collect(toList());
+                    handlers.stream().filter(i -> i.invoker).map(InvokerHandler.class::cast).toList();
             if (invokerHandlers.isEmpty() && handlers.size() > 1) {
                 throw new IllegalArgumentException("Interceptors not compatible for " + m + ": "
-                        + handlers.stream().filter(i -> !invokerHandlers.contains(i)).collect(toList()));
+                        + handlers.stream().filter(i -> !invokerHandlers.contains(i)).toList());
             }
             if (invokerHandlers.isEmpty()) {
                 return handlers.iterator().next()::invoke;
@@ -105,7 +104,7 @@ public class InterceptorHandlerFacade implements InterceptorHandler {
 
             if (invokerHandlers.size() != handlers.size()) {
                 throw new IllegalArgumentException("Some handlers don't take an invoker as parameter for method " + m
-                        + ": " + handlers.stream().filter(i -> !invokerHandlers.contains(i)).collect(toList()));
+                        + ": " + handlers.stream().filter(i -> !invokerHandlers.contains(i)).toList());
             }
             for (int i = 0; i < invokerHandlers.size(); i++) {
                 final InvokerHandler invokerHandler = invokerHandlers.get(i);
@@ -135,8 +134,8 @@ public class InterceptorHandlerFacade implements InterceptorHandler {
             return method.invoke(delegate, args);
         } catch (final InvocationTargetException ite) {
             final Throwable cause = ite.getCause();
-            if (RuntimeException.class.isInstance(cause)) {
-                throw RuntimeException.class.cast(cause);
+            if (cause instanceof RuntimeException runtimeException) {
+                throw runtimeException;
             }
             throw new IllegalStateException(cause.getMessage());
         } catch (final IllegalAccessException e) {
@@ -162,7 +161,7 @@ public class InterceptorHandlerFacade implements InterceptorHandler {
                 final Map<Class<?>, Object> services) {
             try {
                 final Object[] args = buildArgs(invoker, delegate, services);
-                this.delegate = InterceptorHandler.class.cast(constructor.newInstance(args));
+                this.delegate = (InterceptorHandler) constructor.newInstance(args);
             } catch (final InstantiationException | IllegalAccessException e) {
                 throw new IllegalStateException(e);
             } catch (final InvocationTargetException e) {

@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.manager.service.http;
 
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.of;
 import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
 
@@ -62,7 +61,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
     public static <T> Collection<String> createErrors(final Class<T> api) {
         final Collection<String> errors = new ArrayList<>();
         final Collection<Method> methods =
-                of(api.getMethods()).filter(m -> m.getDeclaringClass() == api && !m.isDefault()).collect(toList());
+                of(api.getMethods()).filter(m -> m.getDeclaringClass() == api && !m.isDefault()).toList();
 
         if (!HttpClient.class.isAssignableFrom(api)) {
             errors.add(api.getCanonicalName() + " should extends HttpClient");
@@ -72,7 +71,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                         .stream()
                         .filter(m -> !m.isAnnotationPresent(Request.class))
                         .map(m -> "No @Request on " + m)
-                        .collect(toList()));
+                        .toList());
         return errors;
     }
 
@@ -92,7 +91,7 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                                         .distinct()
                                         .toArray(Class[]::new),
                                 handler));
-        HttpClient.class.cast(instance).base(base);
+        ((HttpClient) instance).base(base);
         return instance;
     }
 

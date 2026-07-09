@@ -84,7 +84,7 @@ class UiSpecMapperImplTest {
     }
 
     @Data
-    public static abstract class BaseModel {
+    public abstract static class BaseModel {
 
         @View.Skip
         private String id;

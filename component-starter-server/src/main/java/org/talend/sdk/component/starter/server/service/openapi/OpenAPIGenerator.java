@@ -99,8 +99,6 @@ public class OpenAPIGenerator {
         final ApiModel api = getApiModel(apiType, openapi);
 
         log.warn("[generate] {}", api.getInfo());
-        final String defaultUrl = api.getDefaultUrl();
-
         final String pck = '/' + basePackage.replace('.', '/') + '/';
         final String javaBase = build.getMainJavaDirectory() + pck;
         final String resourcesBase = build.getMainResourcesDirectory() + pck;
@@ -141,8 +139,10 @@ public class OpenAPIGenerator {
                         renderer.render("generator/openapi/connection.mustache", new ConnectionModel(basePackage))));
         payloads
                 .add(new FacetGenerator.InMemoryFile(resourcesBaseFolder + "connection/Messages.properties",
-                        "APIConnection.baseUrl._displayName = Base URL\n"
-                                + "APIConnection.baseUrl._placeholder = Base URL...\n"));
+                        """
+                        APIConnection.baseUrl._displayName = Base URL
+                        APIConnection.baseUrl._placeholder = Base URL...
+                        """));
 
         final Collection<Option> options = operations
                 .stream()
@@ -265,8 +265,8 @@ public class OpenAPIGenerator {
                                                             final String name = it.getString("name");
                                                             return mapParameter(it, type, name);
                                                         }))
-                                        .collect(toList()))))
-                .collect(toList());
+                                        .toList())))
+                .toList();
     }
 
     private Parameter mapParameter(final JsonObject it, final String type, final String name) {
@@ -277,12 +277,10 @@ public class OpenAPIGenerator {
                 getObject(it, "schema").map(this::mapJavaType).orElse("String"),
                 getObject(it, "schema").map(schema -> schema.get("default")).map(defaultValue -> {
                     switch (defaultValue.getValueType()) {
-                        case TRUE:
-                        case FALSE:
-                        case NUMBER:
+                        case TRUE, FALSE, NUMBER:
                             return String.valueOf(defaultValue);
                         case STRING:
-                            return JsonString.class.cast(defaultValue).getString();
+                            return ((JsonString) defaultValue).getString();
                         default:
                             return null;
                     }
@@ -297,8 +295,7 @@ public class OpenAPIGenerator {
                 return "org.talend.sdk.component.api.service.http.Path";
             case "header":
                 return "org.talend.sdk.component.api.service.http.Header";
-            case "body":
-            case "formData":
+            case "body", "formData":
                 return null;
             default:
                 throw new IllegalArgumentException("Unsupported parameter: " + type + "(" + name + ")");
@@ -313,8 +310,7 @@ public class OpenAPIGenerator {
                 return "@Path(\"" + name + "\") ";
             case "header":
                 return "@Header(\"" + name + "\") ";
-            case "body":
-            case "formData":
+            case "body", "formData":
                 return "";
             default:
                 throw new IllegalArgumentException("Unsupported parameter: " + type + "(" + name + ")");

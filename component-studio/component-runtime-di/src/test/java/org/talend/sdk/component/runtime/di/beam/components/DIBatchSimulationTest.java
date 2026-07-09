@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.di.beam.components;
 
 import static java.util.Collections.singletonMap;
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -34,10 +33,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
-import javax.json.spi.JsonProvider;
 
 import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.transforms.Create;
@@ -93,7 +90,7 @@ class DIBatchSimulationTest {
         doDi(manager, sourceData, new ArrayList<>(),
                 manager.findProcessor("DIBatchSimulationTest", "passthroughoutput", 1, new HashMap<>()),
                 manager.findMapper("DIBatchSimulationTest", "from", 1, singletonMap("count", "0")).map(m -> {
-                    assertTrue(QueueMapper.class.isInstance(m), m.getClass().getName());
+                    assertTrue(m instanceof QueueMapper, m.getClass().getName());
                     return m;
                 }));
         assertEquals(0, sourceData.size());
@@ -109,7 +106,7 @@ class DIBatchSimulationTest {
         doDi(manager, sourceData, processorData,
                 manager.findProcessor("DIBatchSimulationTest", "passthroughoutput", 1, new HashMap<>()),
                 manager.findMapper("DIBatchSimulationTest", "from", 1, singletonMap("count", "1000")).map(m -> {
-                    assertTrue(QueueMapper.class.isInstance(m), m.getClass().getName());
+                    assertTrue(m instanceof QueueMapper, m.getClass().getName());
                     return m;
                 }));
 
@@ -127,7 +124,7 @@ class DIBatchSimulationTest {
 
         doDi(manager, sourceData, processorData,
                 manager.findProcessor("DIBatchSimulationTest", "to", 1, new HashMap<>()).map(p -> {
-                    assertTrue(QueueOutput.class.isInstance(p), p.getClass().getName());
+                    assertTrue(p instanceof QueueOutput, p.getClass().getName());
                     return p;
                 }), manager.findMapper("DIBatchSimulationTest", "passthroughinput", 1, singletonMap("count", "1000")));
 
@@ -143,7 +140,7 @@ class DIBatchSimulationTest {
         final Collection<Object> sourceData = new ArrayList<>();
         doDi(manager, sourceData, new ArrayList<>(),
                 manager.findProcessor("DIBatchSimulationTest", "to", 1, new HashMap<>()).map(p -> {
-                    assertTrue(QueueOutput.class.isInstance(p), p.getClass().getName());
+                    assertTrue(p instanceof QueueOutput, p.getClass().getName());
                     return p;
                 }), manager.findMapper("DIBatchSimulationTest", "passthroughinput", 1, singletonMap("count", "0")));
         assertEquals(0, sourceData.size());
@@ -159,7 +156,7 @@ class DIBatchSimulationTest {
 
         doDi(manager, sourceData, processorData,
                 manager.findProcessor("DIBatchSimulationTest", "to", 1, new HashMap<>()).map(p -> {
-                    assertTrue(QueueOutput.class.isInstance(p), p.getClass().getName());
+                    assertTrue(p instanceof QueueOutput, p.getClass().getName());
                     return p;
                 }), manager.findMapper("DIBatchSimulationTest", "from", 1, singletonMap("count", "1000")));
 
@@ -175,13 +172,12 @@ class DIBatchSimulationTest {
             final Processor processor = proc.orElseThrow(() -> new IllegalStateException("scanning failed"));
             JobStateAware.init(processor, globalMap);
 
-            final Jsonb jsonbProcessor = Jsonb.class
-                    .cast(manager
-                            .findPlugin(processor.plugin())
-                            .get()
-                            .get(ComponentManager.AllServices.class)
-                            .getServices()
-                            .get(Jsonb.class));
+            final Jsonb jsonbProcessor = (Jsonb) manager
+                    .findPlugin(processor.plugin())
+                    .get()
+                    .get(ComponentManager.AllServices.class)
+                    .getServices()
+                    .get(Jsonb.class);
             final AutoChunkProcessor processorProcessor = new AutoChunkProcessor(100, processor);
 
             processorProcessor.start();
@@ -239,22 +235,17 @@ class DIBatchSimulationTest {
 
         final Map<Class<?>, Object> servicesMapper =
                 manager.findPlugin(mapperMapper.plugin()).get().get(ComponentManager.AllServices.class).getServices();
-        final Jsonb jsonbMapper = Jsonb.class.cast(servicesMapper.get(Jsonb.class));
-        final JsonProvider jsonProvider = JsonProvider.class.cast(servicesMapper.get(JsonProvider.class));
-        final JsonBuilderFactory jsonBuilderFactory =
-                JsonBuilderFactory.class.cast(servicesMapper.get(JsonBuilderFactory.class));
+        final Jsonb jsonbMapper = (Jsonb) servicesMapper.get(Jsonb.class);
         final RecordBuilderFactory recordBuilderMapper =
-                RecordBuilderFactory.class.cast(servicesMapper.get(RecordBuilderFactory.class));
+                (RecordBuilderFactory) servicesMapper.get(RecordBuilderFactory.class);
         final RecordConverters converters = new RecordConverters();
-
-        final RecordConverters.MappingMetaRegistry registry = new RecordConverters.MappingMetaRegistry();
 
         Object dataMapper;
         while ((dataMapper = inputMapper.next()) != null) {
             final String jsonValueMapper;
-            if (javax.json.JsonValue.class.isInstance(dataMapper)) {
-                jsonValueMapper = javax.json.JsonValue.class.cast(dataMapper).toString();
-            } else if (org.talend.sdk.component.api.record.Record.class.isInstance(dataMapper)) {
+            if (dataMapper instanceof javax.json.JsonValue jsonValue) {
+                jsonValueMapper = jsonValue.toString();
+            } else if (dataMapper instanceof org.talend.sdk.component.api.record.Record) {
                 jsonValueMapper = jsonbMapper
                         .toJson(converters
                                 .toRecord(new RecordConverters.MappingMetaRegistry(), dataMapper, () -> jsonbMapper,
@@ -279,8 +270,8 @@ class DIBatchSimulationTest {
     }
 
     private void doClose(final Map<String, Object> globalMap) {
-        final Mapper mapperMapper = Mapper.class.cast(globalMap.remove("mapperMapper"));
-        final Input inputMapper = Input.class.cast(globalMap.remove("inputMapper"));
+        final Mapper mapperMapper = (Mapper) globalMap.remove("mapperMapper");
+        final Input inputMapper = (Input) globalMap.remove("inputMapper");
         try {
             if (inputMapper != null) {
                 inputMapper.stop();
@@ -298,7 +289,7 @@ class DIBatchSimulationTest {
         }
 
         final AutoChunkProcessor processorProcessor =
-                AutoChunkProcessor.class.cast(globalMap.remove("processorProcessor"));
+                (AutoChunkProcessor) globalMap.remove("processorProcessor");
         try {
             if (processorProcessor != null) {
                 processorProcessor.stop();
@@ -343,7 +334,7 @@ class DIBatchSimulationTest {
                             .of(IntStream
                                     .range(0, count)
                                     .mapToObj(i -> new Record("id_" + i, "record_" + i))
-                                    .collect(toList()))
+                                    .toList())
                             .withCoder(SerializableCoder.of(Record.class)));
         }
     }

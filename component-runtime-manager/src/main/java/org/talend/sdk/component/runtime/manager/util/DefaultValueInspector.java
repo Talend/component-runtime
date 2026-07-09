@@ -49,16 +49,15 @@ public class DefaultValueInspector {
         }
 
         final Type javaType = param.getJavaType();
-        if (Class.class.isInstance(javaType)) {
+        if (javaType instanceof Class) {
             return new Instance(tryCreatingObjectInstance(javaType), true);
-        } else if (ParameterizedType.class.isInstance(javaType)) {
-            final ParameterizedType pt = ParameterizedType.class.cast(javaType);
+        } else if (javaType instanceof ParameterizedType pt) {
             final Type rawType = pt.getRawType();
-            if (Class.class.isInstance(rawType) && Collection.class.isAssignableFrom(Class.class.cast(rawType))
+            if (rawType instanceof Class aClass && Collection.class.isAssignableFrom(aClass)
                     && pt.getActualTypeArguments().length == 1
-                    && Class.class.isInstance(pt.getActualTypeArguments()[0])) {
+                    && pt.getActualTypeArguments()[0] instanceof Class) {
                 final Object instance = tryCreatingObjectInstance(pt.getActualTypeArguments()[0]);
-                final Class<?> collectionType = Class.class.cast(rawType);
+                final Class<?> collectionType = aClass;
                 if (Set.class == collectionType) {
                     return new Instance(singleton(instance), true);
                 }
@@ -84,15 +83,13 @@ public class DefaultValueInspector {
             case OBJECT:
                 return null;
             case ENUM:
-                return Enum.class.cast(instance).name();
-            case STRING:
-            case NUMBER:
-            case BOOLEAN:
+                return ((Enum) instance).name();
+            case STRING, NUMBER, BOOLEAN:
                 return String.valueOf(instance);
             case ARRAY: // can be enhanced
                 if (!param.getNestedParameters().isEmpty()) {
                     return null;
-                } else if (Collection.class.isInstance(instance)) {
+                } else if (instance instanceof Collection) {
                     return ((Collection<Object>) instance).stream().map(String::valueOf).collect(joining(","));
                 } else { // primitives
                     return String.valueOf(instance);
@@ -106,7 +103,7 @@ public class DefaultValueInspector {
         if (param.getPath().startsWith("$") || param.getName().startsWith("$")) { // virtual param
             return null;
         }
-        if (Collection.class.isInstance(rootInstance)) {
+        if (rootInstance instanceof Collection) {
             return findCollectionField(rootInstance, param);
         }
         Class<?> current = rootInstance.getClass();
@@ -126,7 +123,7 @@ public class DefaultValueInspector {
     }
 
     private Object findCollectionField(final Object rootInstance, final ParameterMeta param) {
-        final Collection<?> collection = Collection.class.cast(rootInstance);
+        final Collection<?> collection = (Collection) rootInstance;
         if (!collection.isEmpty()) {
             final Object next = collection.iterator().next();
             if (param.getPath().endsWith("[${index}]")) {
@@ -142,7 +139,7 @@ public class DefaultValueInspector {
     }
 
     private Object tryCreatingObjectInstance(final Type javaType) {
-        final Class<?> type = Class.class.cast(javaType);
+        final Class<?> type = (Class) javaType;
         if (type.isPrimitive()) {
             if (int.class == type) {
                 return 0;

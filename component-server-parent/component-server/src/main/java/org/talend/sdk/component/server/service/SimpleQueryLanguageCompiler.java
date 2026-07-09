@@ -145,10 +145,10 @@ public class SimpleQueryLanguageCompiler {
                         .orElseThrow(() -> new IllegalArgumentException("Missing evaluator for '" + mapName + "'"));
                 return new ComparePredicate<>(comparator, t -> {
                     final Object map = evaluator.apply(t);
-                    if (!Map.class.isInstance(map)) {
+                    if (!(map instanceof Map map1)) {
                         throw new IllegalArgumentException(map + " is not a map");
                     }
-                    return Map.class.cast(map).get(mapKey);
+                    return map1.get(mapKey);
                 }, expectedValue);
             }
         }
@@ -184,8 +184,7 @@ public class SimpleQueryLanguageCompiler {
                     }
                     final String string = new String(buffer, actualFrom, idx - actualFrom);
                     switch (string) {
-                        case "AND":
-                        case "OR":
+                        case "AND", "OR":
                             return new Token(idx, TokenType.COMBINER, string);
                         default:
                             return new Token(idx, TokenType.VALUE, string);

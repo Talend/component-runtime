@@ -18,7 +18,6 @@ package org.talend.sdk.component.tools.validator;
 import java.io.File;
 import java.net.URL;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
@@ -28,6 +27,7 @@ import org.talend.sdk.component.tools.ComponentValidator.Configuration;
 
 class ExceptionValidatorTest {
 
+    @SuppressWarnings("java:S1068")
     private File fileC1;
 
     @Test
@@ -46,7 +46,7 @@ class ExceptionValidatorTest {
         final ExceptionValidator validator = new ExceptionValidator(helper, configuration);
 
         final Stream<String> validate = validator.validate(null, null);
-        final List<String> errors = validate.collect(Collectors.toList());
+        final List<String> errors = validate.toList();
         Assertions.assertFalse(errors.isEmpty());
 
     }

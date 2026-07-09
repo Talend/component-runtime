@@ -23,7 +23,6 @@ import static java.util.Collections.singletonMap;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -48,7 +47,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.json.bind.Jsonb;
@@ -155,7 +153,7 @@ class UiSpecServiceTest {
     void paramResolutionToParent() throws Exception {
         final ConfigTypeNode node = load("param-resolution-to-parent.json", ConfigTypeNode.class);
         final Ui payload = service.convert("test", "en", node, null).toCompletableFuture().get();
-        final List<UiSchema> rootItems = List.class.cast(payload.getUiSchema().iterator().next().getItems());
+        final List<UiSchema> rootItems = (List) payload.getUiSchema().iterator().next().getItems();
         final UiSchema.Trigger trigger = rootItems
                 .stream()
                 .filter(it -> "configuration.customObjectName".equals(it.getKey()))
@@ -234,8 +232,8 @@ class UiSpecServiceTest {
                 .orElseThrow(NoSuchElementException::new);
         final Map<String, Collection<Object>> condition = schema.getCondition();
         final Collection<Object> and = condition.get("and");
-        and.forEach(it -> assertFalse(Collection.class.isInstance(it)));
-        final Map<String, Collection<Object>> firstCond = Map.class.cast(and.iterator().next());
+        and.forEach(it -> assertFalse(it instanceof Collection));
+        final Map<String, Collection<Object>> firstCond = (Map) and.iterator().next();
         assertEquals(asList(singletonMap("var", "conf.str"), "value"), firstCond.get("==="));
     }
 
@@ -288,7 +286,7 @@ class UiSpecServiceTest {
                         .getItems()
                         .stream()
                         .map(UiSchema::getTitle)
-                        .collect(toList()));
+                        .toList());
     }
 
     @Test
@@ -311,12 +309,6 @@ class UiSpecServiceTest {
     @Test
     void optionsOrder() throws Exception {
         final ConfigTypeNode node = load("optionsorder.json", ConfigTypeNode.class);
-        final SimplePropertyDefinition root = node
-                .getProperties()
-                .stream()
-                .filter(it -> it.getPath().equals("configuration"))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("bad config"));
         final Ui payload = service.convert("FileIO", "en", node, null).toCompletableFuture().get();
         final List<String> actualOrder = payload
                 .getUiSchema()
@@ -327,7 +319,7 @@ class UiSpecServiceTest {
                 .map(UiSchema::getKey)
                 .filter(Objects::nonNull)
                 .map(s -> s.substring(s.lastIndexOf('.') + 1))
-                .collect(toList());
+                .toList();
         assertEquals(asList("region", "unknownRegion", "bucket", "object", "encryptDataAtRest", "kmsForDataAtRest",
                 "format", "recordDelimiter", "specificRecordDelimiter", "fieldDelimiter", "specificFieldDelimiter",
                 "limit"), actualOrder);
@@ -462,7 +454,7 @@ class UiSpecServiceTest {
 
         assertEquals(5, tableDataSetMain.getItems().size());
         assertEquals(asList("dataStore", "commonConfig", "Query", "Ordered", "Order"),
-                tableDataSetMain.getItems().stream().map(UiSchema::getTitle).collect(toList()));
+                tableDataSetMain.getItems().stream().map(UiSchema::getTitle).toList());
 
         final Iterator<UiSchema> mainIt = tableDataSetMain.getItems().iterator();
         final UiSchema dataStore = mainIt.next();
@@ -471,7 +463,7 @@ class UiSpecServiceTest {
         final UiSchema credentials = dataStoreIt.next();
         assertEquals("columns", credentials.getWidget());
         assertEquals(asList("Username", "Password"),
-                credentials.getItems().stream().map(UiSchema::getTitle).collect(toList()));
+                credentials.getItems().stream().map(UiSchema::getTitle).toList());
 
         final UiSchema tableDataSetAdvanced = tableDataSetIt.next();
         assertEquals("Advanced", tableDataSetAdvanced.getTitle());
@@ -539,7 +531,7 @@ class UiSpecServiceTest {
         assertEquals("SuggestionForJdbcDrivers", driverTrigger.getAction());
         assertNull(driverTrigger.getRemote());
         assertEquals(singletonList("currentValue/configuration.driver"),
-                driverTrigger.getParameters().stream().map(it -> it.getKey() + '/' + it.getPath()).collect(toList()));
+                driverTrigger.getParameters().stream().map(it -> it.getKey() + '/' + it.getPath()).toList());
 
         assertEquals("change", triggers.next().getOnEvent());
     }
@@ -581,7 +573,7 @@ class UiSpecServiceTest {
         assertProperty(jsonSchema.getProperties().get("configuration"), "object", "Configuration", p -> {
             final Map<String, JsonSchema> nestedProperties = p.getProperties();
             assertEquals(2, nestedProperties.size());
-            assertTrue(TreeMap.class.isInstance(nestedProperties));
+            assertTrue(nestedProperties instanceof TreeMap);
             assertEquals(asList("connection", "query"), new ArrayList<>(nestedProperties.keySet()));
             assertProperty(nestedProperties.get("query"), "object", "query", q -> {
                 final Map<String, JsonSchema> queryNestedProperties = q.getProperties();
@@ -611,13 +603,13 @@ class UiSpecServiceTest {
     @Test
     void properties() throws Exception {
         final Ui payload = service.convert(load("jdbc.json"), "en", null).toCompletableFuture().get();
-        final Map<String, Object> properties = Map.class.cast(payload.getProperties());
+        final Map<String, Object> properties = (Map) payload.getProperties();
         assertEquals(1, properties.size());
 
-        final Map<String, Object> configuration = Map.class.cast(properties.get("configuration"));
+        final Map<String, Object> configuration = (Map) properties.get("configuration");
         assertEquals(2, configuration.size());
 
-        final Map<String, Object> connection = Map.class.cast(configuration.get("connection"));
+        final Map<String, Object> connection = (Map) configuration.get("connection");
         assertEquals(2, connection.size());
 
         assertEquals("", connection.get("password"));
@@ -658,7 +650,7 @@ class UiSpecServiceTest {
                                     .getTitleMap()
                                     .stream()
                                     .map(UiSchema.NameValue.class::cast)
-                                    .collect(Collectors.toList());
+                                    .toList();
                             assertEquals(1, titleMap.size());
                             final UiSchema.NameValue firstTitleMap = titleMap.iterator().next();
                             assertEquals("some.driver.Jdbc", firstTitleMap.getValue());
@@ -758,10 +750,10 @@ class UiSpecServiceTest {
     }
 
     private Object read(final Object rootMap, final String path) {
-        Map<String, ?> current = Map.class.cast(rootMap);
+        Map<String, ?> current = (Map) rootMap;
         final String[] split = path.split("\\.");
         for (int i = 0; i < split.length - 1; i++) {
-            current = Map.class.cast(current.get(split[i]));
+            current = (Map) current.get(split[i]);
         }
         return current.get(split[split.length - 1]);
     }

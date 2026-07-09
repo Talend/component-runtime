@@ -20,7 +20,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.io.BufferedReader;
@@ -47,7 +46,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
@@ -95,7 +93,7 @@ public abstract class DocBaseGenerator extends BaseTask {
         this.locale = locale;
         this.output = output;
         try {
-            this.log = Log.class.isInstance(log) ? Log.class.cast(log) : new ReflectiveLog(log);
+            this.log = log instanceof Log log1 ? log1 : new ReflectiveLog(log);
         } catch (final NoSuchMethodException e) {
             throw new IllegalArgumentException(e);
         }
@@ -153,7 +151,7 @@ public abstract class DocBaseGenerator extends BaseTask {
         final Collection<String> docKeys = Stream
                 .of(getComponentPrefix(component), component.getSimpleName())
                 .map(it -> it + "._documentation")
-                .collect(toList());
+                .toList();
         return ofNullable(findResourceBundle(component))
                 .map(bundle -> docKeys
                         .stream()
@@ -180,7 +178,7 @@ public abstract class DocBaseGenerator extends BaseTask {
     }
 
     private Collection<ParameterMeta> sort(final Collection<ParameterMeta> parameterMetas) {
-        return parameterMetas.stream().sorted(comparing(ParameterMeta::getPath)).collect(toList());
+        return parameterMetas.stream().sorted(comparing(ParameterMeta::getPath)).toList();
     }
 
     protected void write(final File output, final String content) {
@@ -376,8 +374,7 @@ public abstract class DocBaseGenerator extends BaseTask {
                 UIInfo uiInfo = new UIInfo(currentSectionName, paramLayouts);
                 uiparams.put(path, uiInfo);
                 if (param.getNestedParameters().size() > 0) {
-                    Set<String> subLayouts =
-                            recurseUIParam(param.getNestedParameters(), uiparams, sectionType, param, paramLayouts);
+                    recurseUIParam(param.getNestedParameters(), uiparams, sectionType, param, paramLayouts);
                     // uiInfo.addNestedLayouts(subLayouts);
                 }
             }
@@ -398,7 +395,7 @@ public abstract class DocBaseGenerator extends BaseTask {
                     .keySet()
                     .stream()
                     .filter(k -> k.startsWith("tcomp::ui::gridlayout::"))
-                    .collect(Collectors.toList());
+                    .toList();
             if (definedLayouts.isEmpty()) {
                 // If no layout defined, we take main if exists in parent
                 if (parentLayouts.contains("tcomp::ui::gridlayout::Main::value")) {
@@ -417,7 +414,7 @@ public abstract class DocBaseGenerator extends BaseTask {
                                     .list(new StringTokenizer(layoutConfig, "|"))
                                     .stream()
                                     .flatMap(p -> Collections.list(new StringTokenizer(p.toString(), ",")).stream())
-                                    .collect(Collectors.toList())
+                                    .toList()
                                     .contains(param);
 
                             if (isInThisLayout) {
@@ -560,18 +557,15 @@ public abstract class DocBaseGenerator extends BaseTask {
             }
 
             switch (p.getType()) {
-                case NUMBER:
-                case BOOLEAN:
-                case STRING:
-                case ENUM:
+                case NUMBER, BOOLEAN, STRING, ENUM:
                     return ofNullable(instance.getValue())
                             .map(String::valueOf)
                             .map(it -> it.isEmpty() ? "<empty>" : it)
                             .orElse(null);
                 case ARRAY:
                     return String
-                            .valueOf(Collection.class.isInstance(instance.getValue())
-                                    ? Collection.class.cast(instance.getValue()).size()
+                            .valueOf(instance.getValue() instanceof Collection collection
+                                    ? collection.size()
                                     : Array.getLength(instance.getValue()));
                 case OBJECT:
                 default:
@@ -588,7 +582,7 @@ public abstract class DocBaseGenerator extends BaseTask {
                                 metadata.get(it.replace("::target", "::value")),
                                 Boolean.parseBoolean(metadata.get(it.replace("::target", "::negate"))),
                                 metadata.get(it.replace("::target", "::evaluationStrategy")));
-                    }).collect(toList());
+                    }).toList();
             return new Conditions(path, globalOperator, conditionEntries);
         }
 

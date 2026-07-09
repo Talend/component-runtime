@@ -85,10 +85,10 @@ public class AutoValueFluentApiFactory implements Serializable {
                                         m.getName().startsWith("with") ? m.getName().substring("with".length())
                                                 : m.getName().substring("set".length())),
                                 identity(), (method1, method2) -> {
-                                    if (Class.class.isInstance(method1.getGenericParameterTypes()[0])) {
+                                    if (method1.getGenericParameterTypes()[0] instanceof Class) {
                                         return method1;
                                     }
-                                    if (Class.class.isInstance(method2.getGenericParameterTypes()[0])) {
+                                    if (method2.getGenericParameterTypes()[0] instanceof Class) {
                                         return method2;
                                     }
                                     if (method1.toGenericString().compareTo(method2.toGenericString()) < 0) {
@@ -131,10 +131,10 @@ public class AutoValueFluentApiFactory implements Serializable {
     }
 
     private Object createObjectValue(final Map<String, Object> config, final Type paramType, final String prefix) {
-        if (!Class.class.isInstance(paramType)) {
+        if (!(paramType instanceof Class aClass)) {
             throw new IllegalArgumentException("Unsupported type: " + paramType);
         }
-        final Method factory = findFactory(Class.class.cast(paramType), "create");
+        final Method factory = findFactory(aClass, "create");
         final List<Map.Entry<String, Object>> params = Stream
                 .of(factory.getParameters())
                 .map(p -> new AbstractMap.SimpleEntry<>(p.getName(),
@@ -164,14 +164,13 @@ public class AutoValueFluentApiFactory implements Serializable {
         if (String.class == type) { // fast path
             return v;
         }
-        if (Class.class.isInstance(type) && Class.class.cast(type).isInstance(v)) {
+        if (type instanceof Class aClass1 && aClass1.isInstance(v)) {
             return v;
         }
-        if (ParameterizedType.class.isInstance(type)) {
-            final ParameterizedType pt = ParameterizedType.class.cast(type);
+        if (type instanceof ParameterizedType pt) {
             final Type raw = pt.getRawType();
             // we know what we do if we use that
-            if (Class.class.isInstance(raw) && Class.class.cast(raw).isInstance(v)) {
+            if (raw instanceof Class aClass && aClass.isInstance(v)) {
                 return v;
             }
         }

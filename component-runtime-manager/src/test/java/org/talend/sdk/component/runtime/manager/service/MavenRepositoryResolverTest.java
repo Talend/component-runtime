@@ -55,8 +55,6 @@ class MavenRepositoryResolverTest {
 
     };
 
-    private final PathHandler handler = new PathHandlerImpl();
-
     private final PathHandler handlerNoExistCheck = new PathHandlerImpl() {
 
         @Override
@@ -270,7 +268,6 @@ class MavenRepositoryResolverTest {
     @Test
     void discoverFromEnvironment() throws IOException {
         Files.createDirectories(repository.resolve("repository"));
-        final String vm2 = System.getenv("M2_HOME");
         final Path m2 = resolver.discover();
         assertNotNull(m2);
         assertEquals(repository.resolve("repository"), m2);

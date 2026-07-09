@@ -130,8 +130,8 @@ public class EnvironmentalContext implements TestTemplateInvocationContext {
         }
 
         private boolean isActive() {
-            return DecoratingEnvironmentProvider.class.isInstance(provider)
-                    && DecoratingEnvironmentProvider.class.cast(provider).isActive();
+            return provider instanceof DecoratingEnvironmentProvider decoratingEnvironmentProvider
+                    && decoratingEnvironmentProvider.isActive();
         }
 
         @Override

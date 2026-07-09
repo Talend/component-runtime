@@ -555,7 +555,7 @@ public class CarMain {
         HttpURLConnection conn = null;
         try {
             final URL url = new URL(getNexusUploadUrl(nexusVersion, serverUrl, repositoryName, path));
-            conn = HttpURLConnection.class.cast(url.openConnection());
+            conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setRequestMethod("GET");
             if (basicAuth != null) {
@@ -762,8 +762,6 @@ public class CarMain {
         System.out.println("Sending GET request to " + url.getPath());
         final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setDoInput(true);
-        final String userpass = username + ":" + password;
-        final String basicAuth = "Basic " + Base64.getEncoder().encodeToString(userpass.getBytes());
         conn.setRequestMethod("GET");
         if (auth != null) {
             conn.setRequestProperty("Authorization", auth);

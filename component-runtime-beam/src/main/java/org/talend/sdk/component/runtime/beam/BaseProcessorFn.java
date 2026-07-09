@@ -65,9 +65,8 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
 
     BaseProcessorFn(final Processor processor) {
         this.processor = processor;
-        if (ProcessorImpl.class.isInstance(processor)) {
-            ProcessorImpl.class
-                    .cast(processor)
+        if (processor instanceof ProcessorImpl processor1) {
+            processor1
                     .getInternalConfiguration()
                     .entrySet()
                     .stream()
@@ -277,7 +276,7 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
         }
 
         private Record toRecord(final Object value) {
-            return Record.class.cast(converters.toRecord(registry, value, () -> jsonb, () -> recordBuilderFactory));
+            return (Record) converters.toRecord(registry, value, () -> jsonb, () -> recordBuilderFactory);
         }
     }
 }

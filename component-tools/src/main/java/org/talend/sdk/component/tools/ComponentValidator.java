@@ -19,7 +19,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.of;
 import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
 
@@ -81,13 +80,13 @@ public class ComponentValidator extends BaseTask {
         this.validator = new SvgValidator(this.configuration.isValidateLegacyIcons());
 
         try {
-            this.log = Log.class.isInstance(log) ? Log.class.cast(log) : new ReflectiveLog(log);
+            this.log = log instanceof Log log1 ? log1 : new ReflectiveLog(log);
         } catch (final NoSuchMethodException e) {
             throw new IllegalArgumentException(e);
         }
         this.extensions = StreamSupport
                 .stream(ServiceLoader.load(ValidationExtension.class).spliterator(), false)
-                .collect(toList());
+                .toList();
     }
 
     @Override
@@ -96,7 +95,7 @@ public class ComponentValidator extends BaseTask {
         final List<Class<?>> components = ComponentHelper
                 .componentMarkers()
                 .flatMap(a -> finder.findAnnotatedClasses(a).stream())
-                .collect(toList());
+                .toList();
         components.forEach(c -> log.debug("Found component: " + c));
 
         final Set<String> errors = new LinkedHashSet<>();
@@ -148,7 +147,7 @@ public class ComponentValidator extends BaseTask {
 
         if (!errors.isEmpty()) {
             final List<String> preparedErrors =
-                    errors.stream().map(it -> it.replace("java.lang.", "").replace("java.util.", "")).collect(toList());
+                    errors.stream().map(it -> it.replace("java.lang.", "").replace("java.util.", "")).toList();
             preparedErrors.forEach(log::error);
             throw new IllegalStateException(
                     "Some error were detected:" + preparedErrors.stream().collect(joining("\n- ", "\n- ", "")));
@@ -245,7 +244,7 @@ public class ComponentValidator extends BaseTask {
         final Collection<String> missingKeys = of(keys)
                 .map(key -> key.replace("${family}", family))
                 .filter(k -> !bundle.containsKey(k))
-                .collect(toList());
+                .toList();
         if (!missingKeys.isEmpty()) {
             return baseName + " is missing the key(s): " + String.join("\n", missingKeys);
         }

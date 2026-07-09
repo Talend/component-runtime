@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.json.bind.annotation.JsonbTransient;
 
@@ -50,7 +49,7 @@ import org.talend.sdk.component.runtime.record.RecordImpl;
 
 public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
-    public final static ZoneId UTC = ZoneId.of("UTC");
+    public static final ZoneId UTC = ZoneId.of("UTC");
 
     private static final RecordConverters RECORD_CONVERTERS = new RecordConverters();
 
@@ -68,14 +67,13 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
                 .getSchema()
                 .getFields()
                 .stream()
-                .filter(f -> org.joda.time.DateTime.class.isInstance(delegate.get(f.pos())))
+                .filter(f -> delegate.get(f.pos()) instanceof org.joda.time.DateTime)
                 .forEach(f -> delegate
-                        .put(f.pos(), org.joda.time.DateTime.class.cast(delegate.get(f.pos())).getMillis()));
+                        .put(f.pos(), ((org.joda.time.DateTime) delegate.get(f.pos())).getMillis()));
     }
 
     public AvroRecord(final Record record) {
-        if (record instanceof AvroRecord) {
-            final AvroRecord avr = (AvroRecord) record;
+        if (record instanceof AvroRecord avr) {
             this.delegate = avr.delegate;
             this.schema = avr.schema;
             return;
@@ -105,41 +103,41 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         // RecordImpl store BigDecimal directly, no any convert as not necessary, so here need to convert to string for
         // beam's AvroCoder which cloud platform use
         // also here for any Collection<BigDecimal> as Array type
-        if (value instanceof BigDecimal) {
-            return BigDecimal.class.cast(value).toString();
+        if (value instanceof BigDecimal bigDecimal) {
+            return bigDecimal.toString();
         }
 
-        if (value instanceof Collection) {
-            return Collection.class.cast(value).stream().map(v -> this.directMapping(v, entry)).collect(toList());
+        if (value instanceof Collection collection) {
+            return collection.stream().map(v -> this.directMapping(v, entry)).collect(toList());
         }
         if (value instanceof RecordImpl) {
             return new AvroRecord((Record) value).delegate;
         }
         if (value instanceof Record) {
-            return Unwrappable.class.cast(value).unwrap(IndexedRecord.class);
+            return ((Unwrappable) value).unwrap(IndexedRecord.class);
         }
-        if (value instanceof ZonedDateTime) {
-            return ZonedDateTime.class.cast(value).toInstant().toEpochMilli();
+        if (value instanceof ZonedDateTime dateTime) {
+            return dateTime.toInstant().toEpochMilli();
         }
-        if (value instanceof Date) {
-            return Date.class.cast(value).getTime();
+        if (value instanceof Date date) {
+            return date.getTime();
         }
-        if (value instanceof byte[]) {
-            return ByteBuffer.wrap(byte[].class.cast(value));
+        if (value instanceof byte[] bytes) {
+            return ByteBuffer.wrap(bytes);
         }
 
-        if (value instanceof Long) {
+        if (value instanceof Long l) {
             String logicalType = entry.getLogicalType();
             if (logicalType != null) {
                 if (SchemaProperty.LogicalType.DATE.key().equals(logicalType)) {
                     return Math.toIntExact(
-                            Instant.ofEpochMilli((Long) value)
+                            Instant.ofEpochMilli(l)
                                     .atZone(UTC)
                                     .toLocalDate()
                                     .toEpochDay()); // Avro stores dates as int
                 } else if (LogicalType.TIME.key().equals(logicalType)) {
                     // QTDI-1252: Avro time-millis logical type stores int milliseconds from 0:00:00 not from Unix Epoch
-                    final Instant instant = Instant.ofEpochMilli((Long) value);
+                    final Instant instant = Instant.ofEpochMilli(l);
                     final ZonedDateTime zonedDateTime = instant.atZone(UTC);
                     return Math.toIntExact(zonedDateTime.toLocalTime().toNanoOfDay() / 1_000_000);
                 }
@@ -213,7 +211,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final AvroRecord that = AvroRecord.class.cast(o);
+        final AvroRecord that = (AvroRecord) o;
         return Objects.equals(delegate, that.delegate);
     }
 
@@ -245,12 +243,13 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             return expectedType.cast(value);
         }
 
-        if (value instanceof IndexedRecord && (Record.class == expectedType || Object.class == expectedType)) {
-            return expectedType.cast(new AvroRecord(IndexedRecord.class.cast(value)));
+        if (value instanceof IndexedRecord indexedRecord
+                && (Record.class == expectedType || Object.class == expectedType)) {
+            return expectedType.cast(new AvroRecord(indexedRecord));
         }
 
-        if (value instanceof ByteBuffer && byte[].class == expectedType) {
-            return expectedType.cast(ByteBuffer.class.cast(value).array());
+        if (value instanceof ByteBuffer byteBuffer && byte[].class == expectedType) {
+            return expectedType.cast(byteBuffer.array());
         }
 
         final org.apache.avro.Schema fieldSchema = unwrapUnion(fieldSchemaRaw);
@@ -297,29 +296,29 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
         if (value instanceof GenericArray && !GenericArray.class.isAssignableFrom(expectedType)) {
             if (ZonedDateTime.class == expectedType) {
-                List<Long> longs = (List) Collection.class.cast(value).stream().collect(Collectors.toList());
+                List<Long> longs = (List) ((Collection) value).stream().toList();
                 final Instant instant = Instant.ofEpochSecond(longs.get(0), longs.get(1));
                 return expectedType.cast(ZonedDateTime.ofInstant(instant, UTC));
             }
             if (Instant.class == expectedType) {
-                List<Long> longs = (List) Collection.class.cast(value).stream().collect(Collectors.toList());
+                List<Long> longs = (List) ((Collection) value).stream().toList();
                 final Instant instant = Instant.ofEpochSecond(longs.get(0), longs.get(1));
                 return expectedType.cast(instant);
             }
             final Class<?> itemType = expectedType == Collection.class ? Object.class : expectedType;
             return expectedType
-                    .cast(doMapCollection(itemType, Collection.class.cast(value), fieldSchema.getElementType()));
+                    .cast(doMapCollection(itemType, (Collection) value, fieldSchema.getElementType()));
         }
 
-        if (value instanceof org.joda.time.DateTime && ZonedDateTime.class == expectedType) {
-            final long epochMilli = org.joda.time.DateTime.class.cast(value).getMillis();
+        if (value instanceof org.joda.time.DateTime dateTime && ZonedDateTime.class == expectedType) {
+            final long epochMilli = dateTime.getMillis();
             return expectedType.cast(ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(epochMilli), UTC));
         }
 
         if (org.apache.avro.Schema.Type.FIXED.equals(fieldSchema.getType()) && value != null) {
             final String logicalType =
                     fieldSchema.getLogicalType() != null ? fieldSchema.getLogicalType().getName() : "";
-            final byte[] bytes = GenericData.Fixed.class.cast(value).bytes();
+            final byte[] bytes = ((GenericData.Fixed) value).bytes();
             if (LogicalTypes.decimal(1).getName().equals(logicalType)) {
                 return RECORD_CONVERTERS.coerce(expectedType, new String(bytes), fieldSchema.getName());
             }
@@ -338,7 +337,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         if (value instanceof Utf8 && Object.class == expectedType) {
             return expectedType.cast(value.toString());
         }
-        if (Collection.class.isAssignableFrom(expectedType) && value instanceof Collection) {
+        if (Collection.class.isAssignableFrom(expectedType) && value instanceof Collection collection) {
             final org.apache.avro.Schema elementType = fieldSchema.getElementType();
             final org.apache.avro.Schema elementSchema = unwrapUnion(elementType);
             Class<?> toType = Object.class;
@@ -347,7 +346,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             } else if (elementSchema.getType() == org.apache.avro.Schema.Type.ARRAY) {
                 toType = Collection.class;
             }
-            final Collection<?> objects = this.doMapCollection(toType, Collection.class.cast(value), elementSchema);
+            final Collection<?> objects = this.doMapCollection(toType, collection, elementSchema);
             return expectedType.cast(objects);
         }
         return expectedType.cast(value);

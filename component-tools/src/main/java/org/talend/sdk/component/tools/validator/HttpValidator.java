@@ -17,7 +17,6 @@ package org.talend.sdk.component.tools.validator;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
@@ -34,7 +33,7 @@ public class HttpValidator implements Validator {
                 .filter(c -> HttpClient.class.isAssignableFrom(c)
                         && finder.findAnnotatedMethods(Request.class).isEmpty())
                 .map(c -> c.getCanonicalName() + " extends HttpClient should use @Request on methods")
-                .collect(Collectors.toList());
+                .toList();
 
         List<String> methodError = finder
                 .findAnnotatedMethods(Request.class) //
@@ -43,7 +42,7 @@ public class HttpValidator implements Validator {
                 .distinct() //
                 .flatMap(c -> HttpClientFactoryImpl.createErrors(c).stream())
                 .sorted()
-                .collect(Collectors.toList());
+                .toList();
 
         return Stream.concat(classErrors.stream(), methodError.stream());
 

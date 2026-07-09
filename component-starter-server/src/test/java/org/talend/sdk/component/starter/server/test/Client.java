@@ -48,8 +48,7 @@ public class Client {
 
         @Override
         public void afterAll(final ExtensionContext context) {
-            javax.ws.rs.client.Client.class
-                    .cast(context.getStore(NAMESPACE).get(javax.ws.rs.client.Client.class.getName()))
+            ((javax.ws.rs.client.Client) context.getStore(NAMESPACE).get(javax.ws.rs.client.Client.class.getName()))
                     .close();
         }
 

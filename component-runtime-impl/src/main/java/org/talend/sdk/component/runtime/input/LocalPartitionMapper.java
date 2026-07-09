@@ -61,7 +61,7 @@ public class LocalPartitionMapper extends Named implements Mapper, Delegated {
 
     @Override
     public Input create() {
-        return Input.class.isInstance(input) ? Input.class.cast(input)
+        return input instanceof Input input1 ? input1
                 : new InputImpl(rootName(), name(), plugin(), input);
     }
 
@@ -124,7 +124,7 @@ public class LocalPartitionMapper extends Named implements Mapper, Delegated {
         private Serializable loadDelegate() throws IOException, ClassNotFoundException {
             try (final ObjectInputStream ois = new EnhancedObjectInputStream(new ByteArrayInputStream(input),
                     ContainerFinder.Instance.get().find(plugin).classloader())) {
-                return Serializable.class.cast(ois.readObject());
+                return (Serializable) ois.readObject();
             }
         }
     }

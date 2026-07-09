@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.avro.Schema.Type.NULL;
 import static org.apache.avro.Schema.Type.UNION;
@@ -145,7 +144,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                     .getNonNullFields() //
                     .filter(f -> !AvroSchema.isMetadata(f)) // only data fields
                     .map(this::fromAvro) //
-                    .collect(toList());
+                    .toList();
         }
         return entries;
     }
@@ -165,7 +164,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                         .getNonNullFields() //
                         .filter(AvroSchema::isMetadata) // only metadata fields
                         .map(this::fromAvro) //
-                        .collect(Collectors.toList());
+                        .toList();
             }
         }
 
@@ -334,9 +333,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                 }
                 return Type.BYTES;
             // very unlikely to happen but treat all available types
-            case MAP:
-            case UNION:
-            case NULL:
+            case MAP, UNION, NULL:
                 log.warn("[doMapType] unmanaged avro type {}. Storing as Object.", schema.getType());
                 // the storage will be an object so returning record kind...
                 return Type.RECORD;

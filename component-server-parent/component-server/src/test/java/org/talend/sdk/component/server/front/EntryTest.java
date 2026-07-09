@@ -26,8 +26,6 @@ import java.util.Map;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.api.record.SchemaProperty.LogicalType;
@@ -123,8 +121,7 @@ class EntryTest {
         try (Jsonb jsonb = JsonbBuilder.create()) {
             String json = jsonb.toJson(entryImpl);
 
-            ObjectMapper mapper = new ObjectMapper();
-            Entry entry = mapper.readValue(json, Entry.class);
+            Entry entry = jsonb.fromJson(json, Entry.class);
 
             assertEquals("_field", entry.getName());
             assertEquals("éèfield", entry.getRawName());

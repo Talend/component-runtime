@@ -18,7 +18,6 @@ package org.talend.sdk.component.runtime.output;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.runtime.reflect.Parameters.isGroupBuffer;
 
@@ -116,27 +115,25 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
     @Override
     public void beforeGroup() {
         if (beforeGroup == null) {
-            beforeGroup = findMethods(BeforeGroup.class).collect(toList());
-            afterGroup = findMethods(AfterGroup.class).collect(toList());
+            beforeGroup = findMethods(BeforeGroup.class).toList();
+            afterGroup = findMethods(AfterGroup.class).toList();
             process = findMethods(ElementListener.class).findFirst().orElse(null);
 
             // IMPORTANT: ensure you call only once the create(....), see studio integration (mojo)
             parameterBuilderProcess = process == null ? emptyList()
-                    : Stream.of(process.getParameters()).map(this::buildProcessParamBuilder).collect(toList());
+                    : Stream.of(process.getParameters()).map(this::buildProcessParamBuilder).toList();
             parameterBuilderAfterGroup = afterGroup
                     .stream()
                     .map(after -> new AbstractMap.SimpleEntry<>(after, Stream.of(after.getParameters())
                             .map(param -> {
                                 if (isGroupBuffer(param.getParameterizedType())) {
-                                    expectedRecordType = Class.class
-                                            .cast(ParameterizedType.class
-                                                    .cast(param.getParameterizedType())
-                                                    .getActualTypeArguments()[0]);
+                                    expectedRecordType = (Class) ((ParameterizedType) param.getParameterizedType())
+                                            .getActualTypeArguments()[0];
                                     return (Function<OutputFactory, Object>) o -> records;
                                 }
                                 return toOutputParamBuilder(param);
                             })
-                            .collect(toList())))
+                            .toList()))
                     .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
             forwardReturn = process != null && process.getReturnType() != void.class;
 
@@ -320,7 +317,7 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
             throws IOException, ClassNotFoundException {
         try (final ObjectInputStream ois = new EnhancedObjectInputStream(new ByteArrayInputStream(value),
                 ContainerFinder.Instance.get().find(plugin).classloader())) {
-            return Serializable.class.cast(ois.readObject());
+            return (Serializable) ois.readObject();
         }
     }
 

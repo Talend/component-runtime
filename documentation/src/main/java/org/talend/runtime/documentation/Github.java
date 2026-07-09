@@ -20,7 +20,6 @@ import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.CompletableFuture.allOf;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
@@ -89,7 +88,7 @@ public class Github {
                     .map(repo -> toStage(pool,
                             () -> contributors(client, token,
                                     "https://api.github.com/repos/talend/" + repo + "/contributors")
-                                    .collect(toList()))));
+                                    .toList())));
 
             return allOf(contributorLookups)
                     .thenApply(ignored -> toArray(Stream
@@ -109,11 +108,11 @@ public class Github {
                                     .map(this::getResult)
                                     .filter(Objects::nonNull)
                                     .sorted(comparing(Contributor::getCommits).reversed())
-                                    .collect(toList())))
+                                    .toList()))
                     .get();
         } catch (final ExecutionException ee) {
-            if (WebApplicationException.class.isInstance(ee.getCause())) {
-                final Response response = WebApplicationException.class.cast(ee.getCause()).getResponse();
+            if (ee.getCause() instanceof WebApplicationException wae) {
+                final Response response = wae.getResponse();
                 if (response != null && response.getEntity() != null) {
                     log.error(response.readEntity(String.class));
                 }
@@ -203,8 +202,7 @@ public class Github {
     private String normalizeLogin(final String login) {
         if (login != null) {
             switch (login.toLowerCase(ROOT)) {
-                case "jsomsanith-tlnd":
-                case "jso-technologies":
+                case "jsomsanith-tlnd", "jso-technologies":
                     return "jsomsanith";
                 case "toutpt":
                     return "jmfrancois";

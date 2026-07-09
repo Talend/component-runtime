@@ -234,7 +234,7 @@ public class DocumentationResourceImpl implements DocumentationResource {
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-            final DocKey docKey = DocKey.class.cast(o);
+            final DocKey docKey = (DocKey) o;
             return id.equals(docKey.id) && language.equals(docKey.language) && segment == docKey.segment;
         }
 
@@ -253,7 +253,7 @@ public class DocumentationResourceImpl implements DocumentationResource {
     String selectById(final String name, final String value, final DocumentationSegment segment) {
         final List<String> lines;
         try (final BufferedReader reader = new BufferedReader(new StringReader(value))) {
-            lines = reader.lines().collect(toList());
+            lines = reader.lines().toList();
         } catch (final IOException e) {
             throw new IllegalArgumentException(e);
         }

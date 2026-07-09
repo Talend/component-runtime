@@ -26,7 +26,6 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.avro.AvroTypeException;
 import org.apache.avro.LogicalTypes;
@@ -191,7 +190,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
         final Unwrappable unwrappable;
         switch (entry.getType()) {
             case RECORD:
-                unwrappable = Unwrappable.class.cast(entry.getElementSchema());
+                unwrappable = (Unwrappable) entry.getElementSchema();
                 break;
             case ARRAY:
                 unwrappable = new Unwrappable() {
@@ -200,8 +199,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
                     public <T> T unwrap(final Class<T> type) {
                         return type
                                 .cast(org.apache.avro.Schema
-                                        .createArray(Unwrappable.class
-                                                .cast(entry.getElementSchema())
+                                        .createArray(((Unwrappable) entry.getElementSchema())
                                                 .unwrap(org.apache.avro.Schema.class)));
                     }
                 };
@@ -242,9 +240,9 @@ public class AvroSchemaBuilder implements Schema.Builder {
                 unwrappable = !entry.isNullable() ? DECIMAL_SCHEMA : DECIMAL_SCHEMA_NULLABLE;
                 break;
             default:
-                unwrappable = Unwrappable.class.cast(new AvroSchemaBuilder().withType(entry.getType()).build());
+                unwrappable = (Unwrappable) new AvroSchemaBuilder().withType(entry.getType()).build();
         }
-        final org.apache.avro.Schema schema = Unwrappable.class.cast(unwrappable).unwrap(org.apache.avro.Schema.class);
+        final org.apache.avro.Schema schema = ((Unwrappable) unwrappable).unwrap(org.apache.avro.Schema.class);
         return AvroHelper.toField(schema, entry);
     }
 
@@ -407,7 +405,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
                     return new AvroSchema(AvroSchemas.getEmptySchema());
                 }
                 final List<Field> avroFields =
-                        this.fields.streams().map(this::entryToAvroField).collect(Collectors.toList());
+                        this.fields.streams().map(this::entryToAvroField).toList();
                 final org.apache.avro.Schema record = org.apache.avro.Schema
                         .createRecord(SchemaIdGenerator.generateRecordName(avroFields), null, "talend.component.schema",
                                 false);
@@ -431,7 +429,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
                 }
                 // FIXME: 7/12/21 => TCOMP-1957
                 final org.apache.avro.Schema elementType = elementSchema == EMPTY_RECORD ? AvroSchemas.getEmptySchema()
-                        : Unwrappable.class.cast(elementSchema).unwrap(org.apache.avro.Schema.class);
+                        : ((Unwrappable) elementSchema).unwrap(org.apache.avro.Schema.class);
                 return new AvroSchema(org.apache.avro.Schema.createArray(elementType));
             default:
                 throw new IllegalArgumentException("Unsupported: " + type);

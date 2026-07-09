@@ -22,7 +22,6 @@ import static java.util.Collections.singletonList;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.comparingInt;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.lang.reflect.AnnotatedElement;
@@ -81,7 +80,7 @@ public class UiSpecMapperImpl implements UiSpecMapper {
                 return () -> Ui
                         .ui()
                         .withJsonSchema(ui.getJsonSchema())
-                        .withUiSchema(ui.getUiSchema().stream().map(it -> it.copy(true)).collect(toList()))
+                        .withUiSchema(ui.getUiSchema().stream().map(it -> it.copy(true)).toList())
                         .withProperties(emptyMap())
                         .build();
             }
@@ -136,7 +135,7 @@ public class UiSpecMapperImpl implements UiSpecMapper {
                 final int pos = ofNullable(it.getAnnotation(View.Schema.class)).map(View.Schema::position).orElse(-1);
                 positions.put(it.getName(), pos < 0 ? Integer.MAX_VALUE : pos);
                 return generateUiSchemas(nextKey, it, it.getType(), isDynamic);
-            }).collect(toList()));
+            }).toList());
             current = current.getSuperclass();
         }
         return applyConfig(element, builder, isDynamic)
@@ -293,7 +292,7 @@ public class UiSpecMapperImpl implements UiSpecMapper {
     private boolean isIncluded(final Field field) {
         // parameterized type are relationships -> specific pages
         return !"$jacocoData".equals(field.getName()) && !field.isAnnotationPresent(View.Skip.class)
-                && Class.class.isInstance(field.getGenericType());
+                && field.getGenericType() instanceof Class;
     }
 
     private static class Key {
@@ -315,7 +314,7 @@ public class UiSpecMapperImpl implements UiSpecMapper {
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-            final Key key = Key.class.cast(o);
+            final Key key = (Key) o;
             return model.equals(key.model);
         }
 

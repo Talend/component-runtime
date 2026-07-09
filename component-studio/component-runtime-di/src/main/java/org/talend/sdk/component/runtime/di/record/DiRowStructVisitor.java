@@ -109,7 +109,7 @@ public class DiRowStructVisitor {
                         onArray(rowStructSchema.getEntry(name), (Collection) raw);
                         break;
                     case StudioTypes.BYTE_ARRAY:
-                        onBytes(name, byte[].class.cast(raw));
+                        onBytes(name, (byte[]) raw);
                         break;
                     case StudioTypes.CHARACTER:
                         onString(name, String.valueOf(raw));
@@ -118,13 +118,12 @@ public class DiRowStructVisitor {
                         onString(name, raw);
                         break;
                     case StudioTypes.BIGDECIMAL:
-                        onDecimal(name, BigDecimal.class.cast(raw));
+                        onDecimal(name, (BigDecimal) raw);
                         break;
                     case StudioTypes.BYTE:
-                        onInt(name, Byte.class.cast(raw).intValue());
+                        onInt(name, ((Byte) raw).intValue());
                         break;
-                    case StudioTypes.INTEGER:
-                    case StudioTypes.SHORT:
+                    case StudioTypes.INTEGER, StudioTypes.SHORT:
                         onInt(name, raw);
                         break;
                     case StudioTypes.LONG:
@@ -140,14 +139,14 @@ public class DiRowStructVisitor {
                         onBoolean(name, raw);
                         break;
                     case StudioTypes.DATE:
-                        if (Timestamp.class.isInstance(raw)) {
-                            onInstant(name, (Timestamp) raw);
+                        if (raw instanceof Timestamp timestamp) {
+                            onInstant(name, timestamp);
                             break;
                         }
-                        onDatetime(name, Date.class.cast(raw).toInstant().atZone(UTC));
+                        onDatetime(name, ((Date) raw).toInstant().atZone(UTC));
                         break;
                     case StudioTypes.DOCUMENT:
-                        if (Document.class.cast(raw).getDocument() == null) {
+                        if (((Document) raw).getDocument() == null) {
                             log.trace("[visit] Skipping field {} with null value.", name);
                             continue; // loop
                         }
@@ -185,16 +184,15 @@ public class DiRowStructVisitor {
                     // so we can pick the entry from the schema
                     onArray(rowStructSchema.getEntry(metaName), (Collection) value);
                     break;
-                case StudioTypes.STRING:
-                case StudioTypes.CHARACTER:
+                case StudioTypes.STRING, StudioTypes.CHARACTER:
                     onString(metaName, value);
                     break;
                 case StudioTypes.BYTE_ARRAY:
                     final byte[] bytes;
-                    if (byte[].class.isInstance(value)) {
-                        bytes = byte[].class.cast(value);
-                    } else if (ByteBuffer.class.isInstance(value)) {
-                        bytes = ByteBuffer.class.cast(value).array();
+                    if (value instanceof byte[] bytes1) {
+                        bytes = bytes1;
+                    } else if (value instanceof ByteBuffer byteBuffer) {
+                        bytes = byteBuffer.array();
                     } else {
                         log.warn("[visit] '{}' of type `id_byte[]` and content is contained in `{}`:"
                                 + " This should not happen! "
@@ -204,9 +202,7 @@ public class DiRowStructVisitor {
                     }
                     onBytes(metaName, bytes);
                     break;
-                case StudioTypes.BYTE:
-                case StudioTypes.SHORT:
-                case StudioTypes.INTEGER:
+                case StudioTypes.BYTE, StudioTypes.SHORT, StudioTypes.INTEGER:
                     onInt(metaName, value);
                     break;
                 case StudioTypes.LONG:
@@ -219,15 +215,15 @@ public class DiRowStructVisitor {
                     onDouble(metaName, value);
                     break;
                 case StudioTypes.BIGDECIMAL:
-                    onDecimal(metaName, BigDecimal.class.cast(value));
+                    onDecimal(metaName, (BigDecimal) value);
                     break;
                 case StudioTypes.BOOLEAN:
                     onBoolean(metaName, value);
                     break;
                 case StudioTypes.DATE:
                     final ZonedDateTime dateTime;
-                    dateTime = ZonedDateTime.ofInstant(value instanceof Long ? ofEpochMilli(Long.class.cast(value))
-                            : Date.class.cast(value).toInstant(), UTC);
+                    dateTime = ZonedDateTime.ofInstant(value instanceof Long l ? ofEpochMilli(l)
+                            : ((Date) value).toInstant(), UTC);
                     onDatetime(metaName, dateTime);
                     break;
                 case StudioTypes.DOCUMENT:
@@ -301,9 +297,7 @@ public class DiRowStructVisitor {
                     case StudioTypes.LIST:
                         schema.withEntry(toCollectionEntry(name, originalDbColumnName, raw));
                         break;
-                    case StudioTypes.OBJECT:
-                    case StudioTypes.STRING:
-                    case StudioTypes.CHARACTER:
+                    case StudioTypes.OBJECT, StudioTypes.STRING, StudioTypes.CHARACTER:
                         schema.withEntry(toEntry(name, STRING, originalDbColumnName, isNullable, comment, isKey, length,
                                 precision, defaultValue, null, studioType));
                         break;
@@ -312,9 +306,7 @@ public class DiRowStructVisitor {
                                 toEntry(name, DECIMAL, originalDbColumnName, isNullable, comment, isKey, length,
                                         precision, defaultValue, null, studioType));
                         break;
-                    case StudioTypes.INTEGER:
-                    case StudioTypes.SHORT:
-                    case StudioTypes.BYTE:
+                    case StudioTypes.INTEGER, StudioTypes.SHORT, StudioTypes.BYTE:
                         schema.withEntry(
                                 toEntry(name, INT, originalDbColumnName, isNullable, comment, isKey, null, null,
                                         defaultValue, null, studioType));
@@ -388,9 +380,7 @@ public class DiRowStructVisitor {
                 case StudioTypes.LIST:
                     schema.withEntry(toCollectionEntry(metaName, metaOriginalName, value));
                     break;
-                case StudioTypes.OBJECT:
-                case StudioTypes.STRING:
-                case StudioTypes.CHARACTER:
+                case StudioTypes.OBJECT, StudioTypes.STRING, StudioTypes.CHARACTER:
                     schema.withEntry(
                             toEntry(metaName, STRING, metaOriginalName, metaIsNullable, comment,
                                     metaIsKey, null, null, defaultValue, metaPattern, metaStudioType));
@@ -404,9 +394,7 @@ public class DiRowStructVisitor {
                     schema.withEntry(toEntry(metaName, BYTES, metaOriginalName, metaIsNullable, comment,
                             metaIsKey, null, null, defaultValue, null, metaStudioType));
                     break;
-                case StudioTypes.BYTE:
-                case StudioTypes.SHORT:
-                case StudioTypes.INTEGER:
+                case StudioTypes.BYTE, StudioTypes.SHORT, StudioTypes.INTEGER:
                     schema.withEntry(toEntry(metaName, INT, metaOriginalName, metaIsNullable, comment,
                             metaIsKey, null, null, defaultValue, null, metaStudioType, logicalType));
                     break;
@@ -443,31 +431,31 @@ public class DiRowStructVisitor {
     }
 
     private void onInt(final String name, final Object value) {
-        recordBuilder.withInt(name, Integer.class.cast(MappingUtils.coerce(Integer.class, value, name)));
+        recordBuilder.withInt(name, (Integer) MappingUtils.coerce(Integer.class, value, name));
     }
 
     private void onLong(final String name, final Object value) {
-        recordBuilder.withLong(name, Long.class.cast(MappingUtils.coerce(Long.class, value, name)));
+        recordBuilder.withLong(name, (Long) MappingUtils.coerce(Long.class, value, name));
     }
 
     private void onFloat(final String name, final Object value) {
-        recordBuilder.withFloat(name, Float.class.cast(MappingUtils.coerce(Float.class, value, name)));
+        recordBuilder.withFloat(name, (Float) MappingUtils.coerce(Float.class, value, name));
     }
 
     private void onDouble(final String name, final Object value) {
-        recordBuilder.withDouble(name, Double.class.cast(MappingUtils.coerce(Double.class, value, name)));
+        recordBuilder.withDouble(name, (Double) MappingUtils.coerce(Double.class, value, name));
     }
 
     private void onBoolean(final String name, final Object value) {
-        recordBuilder.withBoolean(name, Boolean.class.cast(MappingUtils.coerce(Boolean.class, value, name)));
+        recordBuilder.withBoolean(name, (Boolean) MappingUtils.coerce(Boolean.class, value, name));
     }
 
     private void onString(final String name, final Object value) {
-        recordBuilder.withString(name, String.class.cast(MappingUtils.coerce(String.class, value, name)));
+        recordBuilder.withString(name, (String) MappingUtils.coerce(String.class, value, name));
     }
 
     private void onDocument(final String name, final Object raw) {
-        recordBuilder.withString(name, Document.class.cast(raw).getDocument().toString());
+        recordBuilder.withString(name, ((Document) raw).getDocument().toString());
     }
 
     private void onDecimal(final String name, final BigDecimal value) {
@@ -491,7 +479,7 @@ public class DiRowStructVisitor {
     }
 
     private void onObject(final String name, final Object value) {
-        if (Record.class.isInstance(value)) {// keep old action here
+        if (value instanceof Record) {// keep old action here
             recordBuilder.withString(name, jsonb.toJson(value));
             return;
         }
@@ -563,7 +551,7 @@ public class DiRowStructVisitor {
     }
 
     private Schema elementSchema(final Type type, final Object value) {
-        if (type != ARRAY || !(value instanceof Collection)) {
+        if (type != ARRAY || !(value instanceof Collection<?> objects)) {
             return factory.newSchemaBuilder(type).build();
         }
 
@@ -572,8 +560,8 @@ public class DiRowStructVisitor {
 
         // we inherit the logic that we evaluate the type by its first element. (at least it's fast )
         // looks like we support only homogeneous structures
-        if (!((Collection<?>) value).isEmpty()) {
-            columnValue = ((Collection<?>) value).iterator().next();
+        if (!objects.isEmpty()) {
+            columnValue = objects.iterator().next();
             elementType = getTypeFromValue(columnValue);
         }
 
@@ -586,34 +574,34 @@ public class DiRowStructVisitor {
     }
 
     private Schema.Type getTypeFromValue(final Object value) {
-        if (String.class.isInstance(value)) {
+        if (value instanceof String) {
             return STRING;
         }
-        if (Integer.class.isInstance(value)) {
+        if (value instanceof Integer) {
             return INT;
         }
-        if (Long.class.isInstance(value)) {
+        if (value instanceof Long) {
             return LONG;
         }
-        if (Float.class.isInstance(value)) {
+        if (value instanceof Float) {
             return FLOAT;
         }
-        if (BigDecimal.class.isInstance(value)) {
+        if (value instanceof BigDecimal) {
             return DECIMAL;
         }
-        if (Double.class.isInstance(value)) {
+        if (value instanceof Double) {
             return DOUBLE;
         }
-        if (Boolean.class.isInstance(value)) {
+        if (value instanceof Boolean) {
             return BOOLEAN;
         }
-        if (Date.class.isInstance(value) || ZonedDateTime.class.isInstance(value)) {
+        if (value instanceof Date || value instanceof ZonedDateTime) {
             return DATETIME;
         }
-        if (byte[].class.isInstance(value)) {
+        if (value instanceof byte[]) {
             return BYTES;
         }
-        if (Collection.class.isInstance(value)) {
+        if (value instanceof Collection) {
             return ARRAY;
         }
         return STRING;

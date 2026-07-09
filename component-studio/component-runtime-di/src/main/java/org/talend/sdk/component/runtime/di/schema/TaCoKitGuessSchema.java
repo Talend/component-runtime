@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.di.schema;
 
 import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.api.exception.DiscoverSchemaException.HandleErrorWith.EXCEPTION;
 import static org.talend.sdk.component.api.exception.DiscoverSchemaException.HandleErrorWith.EXECUTE_LIFECYCLE;
@@ -174,10 +173,10 @@ public class TaCoKitGuessSchema {
 
     private DiscoverSchemaException transformException(final Exception e) {
         DiscoverSchemaException discoverSchemaException;
-        if (e instanceof DiscoverSchemaException) {
-            discoverSchemaException = DiscoverSchemaException.class.cast(e);
-        } else if (e instanceof ComponentException) {
-            discoverSchemaException = new DiscoverSchemaException((ComponentException) e);
+        if (e instanceof DiscoverSchemaException schemaException) {
+            discoverSchemaException = schemaException;
+        } else if (e instanceof ComponentException componentException) {
+            discoverSchemaException = new DiscoverSchemaException(componentException);
         } else {
             discoverSchemaException = new DiscoverSchemaException(e.getMessage(), e.getStackTrace(), EXCEPTION);
         }
@@ -253,12 +252,12 @@ public class TaCoKitGuessSchema {
         }
         final Object schemaResult =
                 actionRef.getInvoker().apply(buildActionConfig(actionRef, configuration, schema, branch));
-        if (schemaResult instanceof Schema) {
-            final Schema result = (Schema) schemaResult;
+        if (schemaResult instanceof Schema schema1) {
+            final Schema result = schema1;
             if (result.getEntries().isEmpty()) {
                 throw new DiscoverSchemaException(ERROR_NO_AVAILABLE_SCHEMA_FOUND, EXCEPTION);
             } else {
-                fromSchema(Schema.class.cast(schemaResult));
+                fromSchema(schema1);
             }
         }
     }
@@ -353,7 +352,7 @@ public class TaCoKitGuessSchema {
         final ComponentFamilyMeta.BaseMeta<?> componentMeta = findComponent(familyMeta);
 
         // dataset name should be the same as DiscoverSchema action name
-        final Collection<ParameterMeta> metas = toStream(componentMeta.getParameterMetas().get()).collect(toList());
+        final Collection<ParameterMeta> metas = toStream(componentMeta.getParameterMetas().get()).toList();
         return ofNullable(metas
                 .stream()
                 .filter(p -> DATASET.equals(p.getMetadata().get(TCOMP_CONFIGURATIONTYPE_TYPE))
@@ -468,8 +467,8 @@ public class TaCoKitGuessSchema {
                         : buildActionConfig(actionRef, configuration, schema, "INPUT");
         final Object schemaResult = actionRef.getInvoker().apply(actionConfiguration);
 
-        if (schemaResult instanceof Schema) {
-            return fromSchema(Schema.class.cast(schemaResult));
+        if (schemaResult instanceof Schema schema1) {
+            return fromSchema(schema1);
 
         } else {
             log.error(ERROR_INSTANCE_SCHEMA);
@@ -501,8 +500,7 @@ public class TaCoKitGuessSchema {
     public Collection<Column> getFixedSchema(final String execute) {
         SchemaConverter sc = new SchemaConverter();
         Object o = sc.toObjectImpl(execute);
-        if (o instanceof Schema) {
-            final Schema schema = Schema.class.cast(o);
+        if (o instanceof Schema schema) {
             final Collection<Schema.Entry> entries = schema.getEntries();
             if (entries == null || entries.isEmpty()) {
                 log.info(NO_COLUMN_FOUND_BY_GUESS_SCHEMA);
@@ -661,8 +659,8 @@ public class TaCoKitGuessSchema {
         final Mapper mapper = componentManager
                 .findMapper(family, componentName, version, configuration)
                 .orElseThrow(() -> new IllegalArgumentException("Can't find " + family + "#" + componentName));
-        if (JobStateAware.class.isInstance(mapper)) {
-            JobStateAware.class.cast(mapper).setState(new JobStateAware.State());
+        if (mapper instanceof JobStateAware jobStateAware) {
+            jobStateAware.setState(new JobStateAware.State());
         }
         Input input = null;
         try {
@@ -675,10 +673,10 @@ public class TaCoKitGuessSchema {
             if (rowObject == null) {
                 return false;
             }
-            if (rowObject instanceof Record) {
-                return fromSchema(Record.class.cast(rowObject).getSchema());
-            } else if (rowObject instanceof java.util.Map) {
-                return guessInputSchemaThroughResults(input, (java.util.Map) rowObject);
+            if (rowObject instanceof Record record) {
+                return fromSchema(record.getSchema());
+            } else if (rowObject instanceof Map map) {
+                return guessInputSchemaThroughResults(input, map);
             } else if (rowObject instanceof java.util.Collection) {
                 throw new Exception("Can't guess schema from a Collection");
             } else {
@@ -707,12 +705,12 @@ public class TaCoKitGuessSchema {
      * @return true if completed; false if one more result row is needed.
      */
     public boolean guessSchemaThroughResult(final Object rowObject) throws Exception {
-        if (rowObject instanceof java.util.Map) {
-            return guessSchemaThroughResult((java.util.Map) rowObject);
-        } else if (rowObject instanceof Schema) {
-            return fromSchema(Schema.class.cast(rowObject));
-        } else if (rowObject instanceof Record) {
-            return fromSchema(Record.class.cast(rowObject).getSchema());
+        if (rowObject instanceof Map map) {
+            return guessSchemaThroughResult(map);
+        } else if (rowObject instanceof Schema schema) {
+            return fromSchema(schema);
+        } else if (rowObject instanceof Record record) {
+            return fromSchema(record.getSchema());
         } else if (rowObject instanceof java.util.Collection) {
             throw new Exception("Can't guess schema from a Collection");
         } else {
@@ -764,8 +762,8 @@ public class TaCoKitGuessSchema {
 
     public void fromOutputEmitterPojo(final Processor processor, final String outBranchName) {
         Object o = processor;
-        while (Delegated.class.isInstance(o)) {
-            o = Delegated.class.cast(o).getDelegate();
+        while (o instanceof Delegated delegated) {
+            o = delegated.getDelegate();
         }
         final ClassLoader classLoader = o.getClass().getClassLoader();
         final Thread thread = Thread.currentThread();
@@ -780,13 +778,12 @@ public class TaCoKitGuessSchema {
                             .filter(i -> m.getParameters()[i].isAnnotationPresent(Output.class)
                                     && outBranchName.equals(m.getParameters()[i].getAnnotation(Output.class).value()))
                             .mapToObj(i -> m.getGenericParameterTypes()[i])
-                            .filter(t -> ParameterizedType.class.isInstance(t)
-                                    && ParameterizedType.class.cast(t).getRawType() == OutputEmitter.class
-                                    && ParameterizedType.class.cast(t).getActualTypeArguments().length == 1)
-                            .map(p -> ParameterizedType.class.cast(p).getActualTypeArguments()[0]))
+                            .filter(t -> t instanceof ParameterizedType parameterizedType
+                                    && parameterizedType.getRawType() == OutputEmitter.class
+                                    && parameterizedType.getActualTypeArguments().length == 1)
+                            .map(p -> ((ParameterizedType) p).getActualTypeArguments()[0]))
                     .findFirst();
-            if (type.isPresent() && Class.class.isInstance(type.get())) {
-                final Class<?> clazz = Class.class.cast(type.get());
+            if (type.isPresent() && type.get() instanceof Class clazz) {
                 if (clazz != JsonObject.class) {
                     guessSchemaThroughResultClass(clazz);
                 }
@@ -831,9 +828,9 @@ public class TaCoKitGuessSchema {
                 continue;
             }
             final String type;
-            if (Record.class.isInstance(rowObject)) {
+            if (rowObject instanceof Record) {
                 type = getTalendType(Object.class);
-            } else if (JsonObject.class.isInstance(rowObject)) {
+            } else if (rowObject instanceof JsonObject) {
                 // can't judge by the result variable, since common map may contains JsonValue
                 type = getTalendType((JsonValue) result);
             } else {
@@ -869,15 +866,14 @@ public class TaCoKitGuessSchema {
 
     protected String getTalendType(final JsonValue value) {
         switch (value.getValueType()) {
-            case TRUE:
-            case FALSE:
+            case TRUE, FALSE:
                 return javaTypesManager.BOOLEAN.getId();
             case NUMBER:
-                final Number number = JsonNumber.class.cast(value).numberValue();
-                if (Long.class.isInstance(number)) {
+                final Number number = ((JsonNumber) value).numberValue();
+                if (number instanceof Long) {
                     return javaTypesManager.LONG.getId();
                 }
-                if (BigDecimal.class.isInstance(number)) {
+                if (number instanceof BigDecimal) {
                     return javaTypesManager.BIGDECIMAL.getId();
                 } else {
                     return javaTypesManager.DOUBLE.getId();

@@ -32,15 +32,14 @@ import lombok.NoArgsConstructor;
 public class Parameters {
 
     public static boolean isGroupBuffer(final Type type) {
-        if (!ParameterizedType.class.isInstance(type)) {
+        if (!(type instanceof ParameterizedType parameterizedType)) {
             return false;
         }
-        final ParameterizedType parameterizedType = ParameterizedType.class.cast(type);
-        if (!Class.class.isInstance(parameterizedType.getRawType())
+        if (!(parameterizedType.getRawType() instanceof Class)
                 || parameterizedType.getActualTypeArguments().length != 1) {
             return false;
         }
-        final Class<?> containerType = Class.class.cast(parameterizedType.getRawType());
+        final Class<?> containerType = (Class) parameterizedType.getRawType();
         return Collection.class.isAssignableFrom(containerType)
                 && asList(Record.class, JsonObject.class).contains(parameterizedType.getActualTypeArguments()[0]);
     }
