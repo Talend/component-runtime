@@ -153,8 +153,7 @@ public class VaultClient {
     private Pattern compiledPassthroughRegex;
 
     private final Predicate<Throwable> shouldRetry = cause -> {
-        if (WebApplicationException.class.isInstance(cause)) {
-            final WebApplicationException wae = WebApplicationException.class.cast(cause);
+        if (cause instanceof WebApplicationException wae) {
             final Response response = wae.getResponse();
             if (response == null) {
                 // no response information: don't make the retry loop NPE, keep retrying as a
@@ -418,14 +417,13 @@ public class VaultClient {
 
     private Authentication handleAuthException(final Throwable e) {
         final Throwable cause = unwrap(e);
-        if (WebApplicationException.class.isInstance(cause)) {
-            final WebApplicationException wae = WebApplicationException.class.cast(cause);
+        if (cause instanceof WebApplicationException wae) {
             final Response response = wae.getResponse();
             // if the response is null we cannot extract status/entity, fall back to the
             // null-safe throwError(Throwable) below (avoids an NPE that would mask the cause).
             if (response != null) {
                 String message = "";
-                if (ErrorPayload.class.isInstance(response.getEntity())) {
+                if (response.getEntity() instanceof ErrorPayload) {
                     throw wae; // already logged and setup broken so just rethrow
                 }
                 try {
