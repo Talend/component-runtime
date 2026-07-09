@@ -11,6 +11,7 @@ import org.talend.sdk.component.api.record.Record;
 
 @Documentation("TODO fill the documentation for this source")
 public class MycompSource implements Serializable {
+    @SuppressWarnings("java:S1068")
     private final MycompSourceConfiguration configuration;
     private final TestService service;
 

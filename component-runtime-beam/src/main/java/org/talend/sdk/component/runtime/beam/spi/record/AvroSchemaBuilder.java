@@ -26,7 +26,6 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.avro.AvroTypeException;
 import org.apache.avro.LogicalTypes;
@@ -406,7 +405,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
                     return new AvroSchema(AvroSchemas.getEmptySchema());
                 }
                 final List<Field> avroFields =
-                        this.fields.streams().map(this::entryToAvroField).collect(Collectors.toList());
+                        this.fields.streams().map(this::entryToAvroField).toList();
                 final org.apache.avro.Schema record = org.apache.avro.Schema
                         .createRecord(SchemaIdGenerator.generateRecordName(avroFields), null, "talend.component.schema",
                                 false);

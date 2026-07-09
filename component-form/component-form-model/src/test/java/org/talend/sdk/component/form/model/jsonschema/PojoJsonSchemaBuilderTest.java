@@ -53,15 +53,19 @@ class PojoJsonSchemaBuilderTest {
 
     public static class Form1 {
 
+        @SuppressWarnings("java:S1068")
         private String name;
 
+        @SuppressWarnings("java:S1068")
         private int age;
     }
 
     public static class Form2 {
 
+        @SuppressWarnings("java:S1068")
         private String name;
 
+        @SuppressWarnings("java:S1068")
         private Form1 form1;
     }
 }

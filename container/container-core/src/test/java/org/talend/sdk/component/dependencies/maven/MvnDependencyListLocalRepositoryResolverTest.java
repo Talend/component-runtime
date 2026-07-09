@@ -17,7 +17,6 @@ package org.talend.sdk.component.dependencies.maven;
 
 import static java.lang.ClassLoader.getSystemClassLoader;
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
@@ -61,7 +60,7 @@ class MvnDependencyListLocalRepositoryResolverTest {
                     new MvnDependencyListLocalRepositoryResolver("TALEND-INF/dependencies.txt", d -> null)
                             .resolve(tempLoader, "foo/bar/dummy/1.0.0/dummy-1.0.0.jar")
                             .map(Artifact::toPath)
-                            .collect(toList());
+                            .toList();
             assertEquals(asList("org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar",
                     "org/apache/tomee/javaee-api/7.0-1/javaee-api-7.0-1.jar"), toResolve);
         }
@@ -91,7 +90,7 @@ class MvnDependencyListLocalRepositoryResolverTest {
                     new MvnDependencyListLocalRepositoryResolver("TALEND-INF/dependencies.txt", d -> null)
                             .resolve(tempLoader, "foo/bar/dummy/1.0.0-TCOMP-2285/dummy-1.0.0-TCOMP-2285.jar")
                             .map(Artifact::toPath)
-                            .collect(toList());
+                            .toList();
             assertEquals(asList("org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar",
                     "org/apache/tomee/javaee-api/7.0-1/javaee-api-7.0-1.jar"), toResolve);
         }
@@ -115,7 +114,7 @@ class MvnDependencyListLocalRepositoryResolverTest {
                     new MvnDependencyListLocalRepositoryResolver("TALEND-INF/dependencies.txt", d -> null)
                             .resolve(tempLoader, "foo/bar/dummy/1.0.0/dummy-1.0.0.jar")
                             .map(Artifact::toPath)
-                            .collect(toList());
+                            .toList();
             assertEquals(asList("org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar",
                     "org/apache/tomee/javaee-api/7.0-1/javaee-api-7.0-1.jar"), toResolve);
         }

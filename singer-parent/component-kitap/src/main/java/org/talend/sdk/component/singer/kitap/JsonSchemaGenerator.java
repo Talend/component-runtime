@@ -51,8 +51,7 @@ public class JsonSchemaGenerator implements Supplier<JsonObject> {
     private Map.Entry<String, JsonValue> toJson(final Schema.Entry entry) {
         final JsonObject schema;
         switch (entry.getType()) {
-            case BYTES:
-            case STRING:
+            case BYTES, STRING:
                 schema = jsonBuilderFactory.createObjectBuilder()
                         .add("type", types("string", entry.isNullable()))
                         .build();
@@ -75,14 +74,12 @@ public class JsonSchemaGenerator implements Supplier<JsonObject> {
                         .add("type", types("boolean", entry.isNullable()))
                         .build();
                 break;
-            case FLOAT:
-            case DOUBLE:
+            case FLOAT, DOUBLE:
                 schema = jsonBuilderFactory.createObjectBuilder()
                         .add("type", types("number", entry.isNullable()))
                         .build();
                 break;
-            case INT:
-            case LONG:
+            case INT, LONG:
                 schema = jsonBuilderFactory.createObjectBuilder()
                         .add("type", types("integer", entry.isNullable()))
                         .build();

@@ -18,7 +18,6 @@ package org.talend.sdk.component.runtime.output;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.runtime.reflect.Parameters.isGroupBuffer;
 
@@ -116,13 +115,13 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
     @Override
     public void beforeGroup() {
         if (beforeGroup == null) {
-            beforeGroup = findMethods(BeforeGroup.class).collect(toList());
-            afterGroup = findMethods(AfterGroup.class).collect(toList());
+            beforeGroup = findMethods(BeforeGroup.class).toList();
+            afterGroup = findMethods(AfterGroup.class).toList();
             process = findMethods(ElementListener.class).findFirst().orElse(null);
 
             // IMPORTANT: ensure you call only once the create(....), see studio integration (mojo)
             parameterBuilderProcess = process == null ? emptyList()
-                    : Stream.of(process.getParameters()).map(this::buildProcessParamBuilder).collect(toList());
+                    : Stream.of(process.getParameters()).map(this::buildProcessParamBuilder).toList();
             parameterBuilderAfterGroup = afterGroup
                     .stream()
                     .map(after -> new AbstractMap.SimpleEntry<>(after, Stream.of(after.getParameters())
@@ -134,7 +133,7 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
                                 }
                                 return toOutputParamBuilder(param);
                             })
-                            .collect(toList())))
+                            .toList()))
                     .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
             forwardReturn = process != null && process.getReturnType() != void.class;
 

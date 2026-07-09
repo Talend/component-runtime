@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.runtime.beam.transform;
 
-import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -43,7 +42,7 @@ public class RecordBranchUnwrapperTest implements Serializable {
         PAssert
                 .that(buildBasePipeline(pipeline).apply(RecordBranchMapper.of(null, "b1", "other")))
                 .satisfies(values -> {
-                    final List<Record> items = StreamSupport.stream(values.spliterator(), false).collect(toList());
+                    final List<Record> items = StreamSupport.stream(values.spliterator(), false).toList();
                     assertEquals(2, items.size());
                     items.forEach(item -> {
                         final Collection<Record> other = item.getArray(Record.class, "other");

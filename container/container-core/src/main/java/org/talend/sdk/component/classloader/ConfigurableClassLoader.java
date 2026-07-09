@@ -20,7 +20,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.enumeration;
 import static java.util.Collections.list;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static lombok.AccessLevel.PRIVATE;
 import static org.talend.sdk.component.jar.Jars.toPath;
 
@@ -178,8 +177,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
             final CodeSource codeSource;
             try {
                 urlConnection = url.openConnection();
-                if (urlConnection instanceof JarURLConnection) {
-                    final JarURLConnection juc = (JarURLConnection) urlConnection;
+                if (urlConnection instanceof JarURLConnection juc) {
                     manifest = juc.getManifest();
 
                     final Certificate[] certificates = juc.getCertificates();
@@ -446,8 +444,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
     private InputStream getInputStream(final URL resource) throws IOException {
         final URLConnection urlc = resource.openConnection();
         final InputStream is = urlc.getInputStream();
-        if (urlc instanceof JarURLConnection) {
-            final JarURLConnection juc = (JarURLConnection) urlc;
+        if (urlc instanceof JarURLConnection juc) {
             final JarFile jar = juc.getJarFile();
             synchronized (closeables) {
                 if (!closeables.containsKey(jar)) {
@@ -474,7 +471,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
             return delegates;
         }
         final Collection<URL> aggregated = new ArrayList<>(list(delegates));
-        aggregated.addAll(nested.stream().map(r -> nestedResourceToURL(name, r)).collect(toList()));
+        aggregated.addAll(nested.stream().map(r -> nestedResourceToURL(name, r)).toList());
         return enumeration(aggregated);
     }
 
@@ -530,7 +527,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
                                     .map(ByteArrayInputStream::new)
                                     .map(InputStream.class::cast))
                             .orElseGet(Stream::empty))
-                    .collect(toList());
+                    .toList();
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
@@ -807,10 +804,9 @@ public class ConfigurableClassLoader extends URLClassLoader {
                     final String pckName = name.substring(0, i);
                     final Package pck = super.getPackage(pckName);
                     if (pck == null) {
-                        if (!(connection instanceof JarURLConnection)) {
+                        if (!(connection instanceof JarURLConnection urlConnection)) {
                             doDefinePackage(null, null, pckName);
                         } else {
-                            final JarURLConnection urlConnection = (JarURLConnection) connection;
                             doDefinePackage(urlConnection.getManifest(), urlConnection.getJarFileURL(), pckName);
                         }
                     }
@@ -831,8 +827,8 @@ public class ConfigurableClassLoader extends URLClassLoader {
                     }
                     bytes = outputStream.toByteArray();
                 }
-                final Certificate[] certificates = connection instanceof JarURLConnection
-                        ? ((JarURLConnection) connection).getCertificates()
+                final Certificate[] certificates = connection instanceof JarURLConnection jarURLConnection
+                        ? jarURLConnection.getCertificates()
                         : NO_CERTIFICATES;
                 bytes = doTransform(resourceName, bytes);
                 clazz = super.defineClass(name, bytes, 0, bytes.length, new CodeSource(url, certificates));

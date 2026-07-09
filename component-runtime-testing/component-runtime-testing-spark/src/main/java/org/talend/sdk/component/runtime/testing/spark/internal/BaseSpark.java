@@ -21,7 +21,6 @@ import static java.util.Locale.ENGLISH;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.ziplock.JarLocation.jarLocation;
 
@@ -102,7 +101,7 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
 
     protected abstract File getRoot();
 
-    protected final static String EXTRA_JVM_ARGS =
+    protected static final String EXTRA_JVM_ARGS =
             "--add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED";
 
     public T withSlaves(final int slaves) {
@@ -196,7 +195,7 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
                         () -> isOpen(host, slavePort), "org.apache.spark.deploy.worker.Worker", "--host", host,
                         "--port", Integer.toString(slavePort), "--webui-port", Integer.toString(slavePort + 1),
                         getSparkMaster());
-            }).collect(toList());
+            }).toList();
             slaves.stream().peek(s -> closingTasks.add(s::close)).map(m -> new Thread(m::close)).forEach(t -> {
                 Runtime.getRuntime().addShutdownHook(t);
                 closingTasks.add(() -> Runtime.getRuntime().removeShutdownHook(t));
@@ -305,8 +304,9 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
                 fail(e.getMessage());
             }
 
-            try (final JarOutputStream file = new JarOutputStream(new FileOutputStream(new File(sparkHome,
-                    version.libFolder() + "/spark-assembly-" + sparkVersion + "-hadoop2.6.0.jar")))) {
+            try (final FileOutputStream fos = new FileOutputStream(new File(sparkHome,
+                    version.libFolder() + "/spark-assembly-" + sparkVersion + "-hadoop2.6.0.jar"));
+                    final JarOutputStream file = new JarOutputStream(fos)) {
                 file.putNextEntry(new ZipEntry("META-INF/marker"));
                 file.write("just to let spark find the jar".getBytes(StandardCharsets.UTF_8));
             } catch (final IOException e) {
@@ -452,6 +452,9 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
                         args == null ? Stream.empty() : Stream.of(args))
                 .toArray(String[]::new);
         LOGGER.info("Submitting: " + asList(submitArgs));
+        // Monitor is a long-running Thread; closed in the success branch below
+        // and via the cleanup task / shutdown hook fallback (see config.cleanupTasks).
+        @SuppressWarnings({ "resource", "java:S2095" })
         final SparkProcessMonitor monitor = new SparkProcessMonitor(config.get(),
                 "spark-submit-" + main.getSimpleName() + "-monitor", () -> true, submitArgs);
         final Thread hook = new Thread(monitor::close);
@@ -629,7 +632,7 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
                                         .of(new File(System.getProperty("java.home"), "bin/java").getAbsolutePath(),
                                                 "-cp", classpath),
                                         Stream.of(mainAndArgs))
-                                .collect(toList()));
+                                .toList());
                 final Map<String, String> environment = builder.environment();
                 final String jvmVersion = System.getProperty("java.version", "1.8");
                 // poor check - suppose using at least jvm 8...

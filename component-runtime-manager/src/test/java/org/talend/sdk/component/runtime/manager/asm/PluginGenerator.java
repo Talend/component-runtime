@@ -33,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -97,7 +96,6 @@ public class PluginGenerator {
                             }
                         } else {
                             try {
-                                final FileReader reader = new FileReader(clazz);
                                 outputStream.putNextEntry(new JarEntry('/' + clazz.getName()));
                                 outputStream.write(Files.readAllBytes(clazz.getAbsoluteFile().toPath()));
                                 outputStream.closeEntry();

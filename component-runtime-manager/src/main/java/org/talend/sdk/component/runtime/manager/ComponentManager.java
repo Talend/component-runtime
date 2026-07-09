@@ -295,7 +295,7 @@ public class ComponentManager implements AutoCloseable {
         }
 
         static {
-            ComponentManager manager = SingletonHolder.buildNewComponentManager();
+            ComponentManager manager = SingletonHolder.buildNewComponentManager(); // NOSONAR
         }
 
     }
@@ -416,13 +416,13 @@ public class ComponentManager implements AutoCloseable {
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 
         internationalizationServiceFactory = new InternationalizationServiceFactory(getLocalSupplier());
-        customizers = toStream(loadServiceProviders(Customizer.class, tccl)).collect(toList()); // must stay first
+        customizers = toStream(loadServiceProviders(Customizer.class, tccl)).toList(); // must stay first
         if (!customizers.isEmpty()) {
             customizers.forEach(c -> c.setCustomizers(customizers));
         }
         if (!Boolean.getBoolean("talend.component.manager.classpathcontributor.skip")) {
             classpathContributors =
-                    toStream(loadServiceProviders(ContainerClasspathContributor.class, tccl)).collect(toList());
+                    toStream(loadServiceProviders(ContainerClasspathContributor.class, tccl)).toList();
         } else {
             classpathContributors = emptyList();
         }
@@ -519,8 +519,8 @@ public class ComponentManager implements AutoCloseable {
         this.extensions = toStream(loadServiceProviders(ComponentExtension.class, tccl))
                 .filter(ComponentExtension::isActive)
                 .sorted(comparing(ComponentExtension::priority))
-                .collect(toList());
-        this.transformers = extensions.stream().flatMap(e -> e.getTransformers().stream()).collect(toList());
+                .toList();
+        this.transformers = extensions.stream().flatMap(e -> e.getTransformers().stream()).toList();
 
         final Iterator<RecordBuilderFactoryProvider> recordBuilderFactoryIterator =
                 ServiceLoader.load(RecordBuilderFactoryProvider.class, tccl).iterator();
@@ -737,7 +737,7 @@ public class ComponentManager implements AutoCloseable {
                         return id;
                     })
                     .filter(Objects::nonNull)
-                    .collect(toList());
+                    .toList();
         }
         return emptyList();
     }
@@ -807,14 +807,12 @@ public class ComponentManager implements AutoCloseable {
      */
     public static Map<String, String> jsonToMap(final JsonValue jsonValue, final String path) {
         final Map<String, String> result = new HashMap<>();
-        if (jsonValue instanceof JsonObject) {
-            JsonObject jsonObj = (JsonObject) jsonValue;
+        if (jsonValue instanceof JsonObject jsonObj) {
             for (String key : jsonObj.keySet()) {
                 String newPath = path.isEmpty() ? key : path + "." + key;
                 result.putAll(jsonToMap(jsonObj.get(key), newPath));
             }
-        } else if (jsonValue instanceof JsonArray) {
-            JsonArray jsonArray = (JsonArray) jsonValue;
+        } else if (jsonValue instanceof JsonArray jsonArray) {
             for (int i = 0; i < jsonArray.size(); i++) {
                 String newPath = path + "[" + i + "]";
                 result.putAll(jsonToMap(jsonArray.get(i), newPath));
@@ -875,7 +873,7 @@ public class ComponentManager implements AutoCloseable {
             final int version, final Map<String, String> configuration) {
         return findComponentInternal(plugin, name, componentType, version, configuration)
                 // unwrap to access the actual instance which is the desired one
-                .map(i -> i instanceof Delegated ? ((Delegated) i).getDelegate() : i);
+                .map(i -> i instanceof Delegated delegated ? delegated.getDelegate() : i);
     }
 
     private Optional<Object> findComponentInternal(final String plugin, final String name,
@@ -1030,6 +1028,8 @@ public class ComponentManager implements AutoCloseable {
                 return pluginId;
             }
 
+            // Container lifecycle is owned by ContainerManager (registered on create, closed via removePlugin)
+            @SuppressWarnings({ "resource", "java:S2095" })
             final String id = this.container
                     .builder(pluginRootFile)
                     .withCustomizer(createContainerCustomizer(pluginRootFile))
@@ -1048,6 +1048,8 @@ public class ComponentManager implements AutoCloseable {
     }
 
     public String addWithLocationPlugin(final String location, final String pluginRootFile) {
+        // Container lifecycle is owned by ContainerManager (registered on create, closed via removePlugin)
+        @SuppressWarnings({ "resource", "java:S2095" })
         final String id = this.container
                 .builder(pluginRootFile)
                 .withCustomizer(createContainerCustomizer(location))
@@ -1059,6 +1061,8 @@ public class ComponentManager implements AutoCloseable {
     }
 
     protected String addPlugin(final String forcedId, final String pluginRootFile) {
+        // Container lifecycle is owned by ContainerManager (registered on create, closed via removePlugin)
+        @SuppressWarnings({ "resource", "java:S2095" })
         final String id = this.container
                 .builder(forcedId, pluginRootFile)
                 .withCustomizer(createContainerCustomizer(forcedId))
@@ -1074,7 +1078,7 @@ public class ComponentManager implements AutoCloseable {
                 .stream()
                 .flatMap(it -> it.findContributions(pluginId).stream())
                 .distinct()
-                .collect(toList())/* keep order */;
+                .toList()/* keep order */;
     }
 
     public void removePlugin(final String id) {
@@ -1156,7 +1160,7 @@ public class ComponentManager implements AutoCloseable {
             configurations
                     .addAll(toStream(
                             loadServiceProviders(LocalConfiguration.class, LocalConfiguration.class.getClassLoader()))
-                            .collect(toList()));
+                            .toList());
         }
         configurations.addAll(asList(new LocalConfiguration() {
 
@@ -1297,7 +1301,7 @@ public class ComponentManager implements AutoCloseable {
             }
         };
 
-        abstract public Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(ComponentFamilyMeta family);
+        public abstract Map<String, ? extends ComponentFamilyMeta.BaseMeta> findMeta(ComponentFamilyMeta family);
 
         abstract Class<? extends Lifecycle> runtimeType();
     }
@@ -1369,7 +1373,7 @@ public class ComponentManager implements AutoCloseable {
                                 } catch (final ClassNotFoundException e) {
                                     throw new IllegalArgumentException(e);
                                 }
-                            }).collect(toList());
+                            }).toList();
                     if (KnownClassesFilter.INSTANCE == filter) {
                         archive = new ClassesArchive(/* empty */);
                         optimizedFinder = new AnnotationFinder(archive) {
@@ -1388,7 +1392,7 @@ public class ComponentManager implements AutoCloseable {
                                             .flatMap(client -> Stream
                                                     .of(client.getMethods())
                                                     .filter(m -> m.isAnnotationPresent(annotation)))
-                                            .collect(toList());
+                                            .toList();
                                 }
                                 return super.findAnnotatedMethods(annotation);
                             }
@@ -1416,9 +1420,9 @@ public class ComponentManager implements AutoCloseable {
                     }
                 } : optimizedFinder;
             } finally {
-                if (archive instanceof AutoCloseable) {
+                if (archive instanceof AutoCloseable autoCloseable) {
                     try {
-                        ((AutoCloseable) archive).close();
+                        autoCloseable.close();
                     } catch (final Exception e) {
                         log.warn(e.getMessage());
                     }
@@ -1526,7 +1530,7 @@ public class ComponentManager implements AutoCloseable {
                                         .anyMatch(a -> a.annotationType().isAnnotationPresent(ActionType.class)))
                                 .map(serviceMethod -> createServiceMeta(container, services, componentDefaults, service,
                                         instance, serviceMethod, service))
-                                .collect(toList())));
+                                .toList()));
                 info("Added @Service " + service + " for container-id=" + container.getId());
             });
 
@@ -1788,7 +1792,7 @@ public class ComponentManager implements AutoCloseable {
                     } catch (final MalformedURLException e) {
                         throw new IllegalStateException(e);
                     }
-                }).collect(toList()));
+                }).toList());
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Error scanning " + module, e);
             }
@@ -1796,16 +1800,16 @@ public class ComponentManager implements AutoCloseable {
         }
 
         private URL archiveToUrl(final Archive mainArchive) {
-            if (mainArchive instanceof JarArchive) {
-                return ((JarArchive) mainArchive).getUrl();
-            } else if (mainArchive instanceof FileArchive) {
+            if (mainArchive instanceof JarArchive jarArchive) {
+                return jarArchive.getUrl();
+            } else if (mainArchive instanceof FileArchive fileArchive) {
                 try {
-                    return ((FileArchive) mainArchive).getDir().toURI().toURL();
+                    return fileArchive.getDir().toURI().toURL();
                 } catch (final MalformedURLException e) {
                     throw new IllegalStateException(e);
                 }
-            } else if (mainArchive instanceof NestedJarArchive) {
-                return ((NestedJarArchive) mainArchive).getRootMarker();
+            } else if (mainArchive instanceof NestedJarArchive entries) {
+                return entries.getRootMarker();
             }
             return null;
         }
@@ -1825,21 +1829,23 @@ public class ComponentManager implements AutoCloseable {
             final URL nestedJar =
                     loader.getParent().getResource(ConfigurableClassLoader.NESTED_MAVEN_REPOSITORY + module);
             if (nestedJar != null) {
-                InputStream nestedStream = null;
-                final JarInputStream jarStream;
+                final InputStream nestedStream;
                 try {
                     nestedStream = nestedJar.openStream();
-                    jarStream = new JarInputStream(nestedStream);
+                } catch (final IOException e) {
+                    throw new IllegalStateException(e);
+                }
+                try {
+                    final JarInputStream jarStream = new JarInputStream(nestedStream);
                     log.debug("Found a nested resource for " + module);
                     return new NestedJarArchive(nestedJar, jarStream, loader);
                 } catch (final IOException e) {
-                    if (nestedStream != null) {
-                        try { // normally not needed
-                            nestedStream.close();
-                        } catch (final IOException e1) {
-                            // no-op
-                        }
+                    try { // normally not needed
+                        nestedStream.close();
+                    } catch (final IOException e1) {
+                        // no-op
                     }
+                    throw new IllegalStateException(e);
                 }
             }
             throw new IllegalArgumentException(
@@ -2217,8 +2223,8 @@ public class ComponentManager implements AutoCloseable {
             return this.component == null || !component.equals(this.component.getName())
                     ? (this.component = new ComponentFamilyMeta(plugin, asList(components.categories()),
                             iconFinder.findIcon(familyAnnotationElement), comp,
-                            familyAnnotationElement instanceof Class
-                                    ? getPackage((Class) familyAnnotationElement)
+                            familyAnnotationElement instanceof Class aClass
+                                    ? getPackage(aClass)
                                     : ""))
                     : this.component;
         }

@@ -70,7 +70,7 @@ public class UIService {
     }
 
     @DiscoverSchemaExtended("dse")
-    public Schema guessSchemaExtended(final Schema incomingSchema, final @Option Config config,
+    public Schema guessSchemaExtended(final Schema incomingSchema, @Option final Config config,
             final String branch) {
         log.warn("[guessSchemaExtended] received : {}", config);
         return factory.newSchemaBuilder(Schema.Type.RECORD)

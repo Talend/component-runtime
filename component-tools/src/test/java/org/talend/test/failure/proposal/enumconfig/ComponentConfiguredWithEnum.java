@@ -38,6 +38,7 @@ import lombok.Data;
 @Processor(family = "test", name = "my")
 public class ComponentConfiguredWithEnum implements Serializable {
 
+    @SuppressWarnings("java:S1068")
     private final Foo foo;
 
     public ComponentConfiguredWithEnum(final Foo foo) {

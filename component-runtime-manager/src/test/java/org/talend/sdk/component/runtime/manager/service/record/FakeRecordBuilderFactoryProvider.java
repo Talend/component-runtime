@@ -29,8 +29,7 @@ public class FakeRecordBuilderFactoryProvider implements RecordBuilderFactoryPro
                         : "org.talend.sdk.component.runtime.beam.TalendIO";
 
         switch (System.getProperty("talend.component.beam.record.factory.impl", "auto")) {
-            case "memory":
-            case "default":
+            case "memory", "default":
                 return new RecordBuilderFactoryImpl(containerId);
             case "avro":
                 return new FakeRecordBuilderFactory(containerId);
