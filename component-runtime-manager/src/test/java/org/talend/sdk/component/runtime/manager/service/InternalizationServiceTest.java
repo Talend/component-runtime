@@ -26,7 +26,6 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
 
@@ -43,8 +42,7 @@ public class InternalizationServiceTest {
         try (final ComponentManager manager = new ComponentManager(deps, "META-INF/test/dependencies", null)) {
             manager.addPlugin(plugin.getAbsolutePath());
             try {
-                final Mapper mapper =
-                        manager.findMapper("db", "input", 1, emptyMap()).orElseThrow(IllegalStateException::new);
+                manager.findMapper("db", "input", 1, emptyMap()).orElseThrow(IllegalStateException::new);
             } catch (MissingResourceException e) {
                 fail("Bundle should have been loaded.");
             }

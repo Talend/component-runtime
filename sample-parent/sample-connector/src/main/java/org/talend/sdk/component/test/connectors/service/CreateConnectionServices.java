@@ -31,9 +31,9 @@ public class CreateConnectionServices {
      *
      */
 
-    public final static String CREATE_CONNECTION = "action_CREATE_CONNECTION";
+    public static final String CREATE_CONNECTION = "action_CREATE_CONNECTION";
 
-    public final static String CREATE_CONNECTION_ERROR = "action_CREATE_CONNECTION_ERROR";
+    public static final String CREATE_CONNECTION_ERROR = "action_CREATE_CONNECTION_ERROR";
 
     /**
      * Create Connection action

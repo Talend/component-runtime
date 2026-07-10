@@ -18,7 +18,6 @@ package org.talend.sdk.component.server.front;
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.util.Collection;
@@ -124,7 +123,7 @@ public class ActionResourceImpl implements ActionResource {
         return new ActionList(Stream
                 .concat(findDeployedActions(typeMatcher, componentMatcher, locale),
                         findVirtualActions(typeMatcher, componentMatcher, locale))
-                .collect(toList()));
+                .toList());
     }
 
     private CompletableFuture<Response> doExecuteLocalAction(final String family, final String type,
@@ -181,8 +180,7 @@ public class ActionResourceImpl implements ActionResource {
             } else {
                 cause = e.getCause();
             }
-            if (cause instanceof WebApplicationException) {
-                final WebApplicationException wae = (WebApplicationException) cause;
+            if (cause instanceof WebApplicationException wae) {
                 final Response response = wae.getResponse();
                 String message = "";
                 if (wae.getResponse().getEntity() instanceof ErrorPayload) {
@@ -212,12 +210,11 @@ public class ActionResourceImpl implements ActionResource {
 
     private Response onError(final Throwable re) {
         log.warn(re.getMessage(), re);
-        if (re.getCause() instanceof WebApplicationException) {
-            return ((WebApplicationException) re.getCause()).getResponse();
+        if (re.getCause() instanceof WebApplicationException wae) {
+            return wae.getResponse();
         }
 
-        if (re instanceof ComponentException) {
-            final ComponentException ce = (ComponentException) re;
+        if (re instanceof ComponentException ce) {
             throw new WebApplicationException(Response
                     .status(ce.getErrorOrigin() == ComponentException.ErrorOrigin.USER ? 400
                             : ce.getErrorOrigin() == ComponentException.ErrorOrigin.BACKEND ? 456 : 520,
@@ -262,6 +259,6 @@ public class ActionResourceImpl implements ActionResource {
                         .map(s -> new ActionItem(s.getFamily(), s.getType(), s.getAction(),
                                 propertiesService
                                         .buildProperties(s.getParameters().get(), c.getLoader(), locale, null)
-                                        .collect(toList()))));
+                                        .toList())));
     }
 }

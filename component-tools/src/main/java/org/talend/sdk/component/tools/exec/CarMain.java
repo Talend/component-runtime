@@ -762,8 +762,6 @@ public class CarMain {
         System.out.println("Sending GET request to " + url.getPath());
         final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setDoInput(true);
-        final String userpass = username + ":" + password;
-        final String basicAuth = "Basic " + Base64.getEncoder().encodeToString(userpass.getBytes());
         conn.setRequestMethod("GET");
         if (auth != null) {
             conn.setRequestProperty("Authorization", auth);

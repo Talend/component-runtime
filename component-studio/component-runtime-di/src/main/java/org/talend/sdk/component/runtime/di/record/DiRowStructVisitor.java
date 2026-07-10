@@ -123,8 +123,7 @@ public class DiRowStructVisitor {
                     case StudioTypes.BYTE:
                         onInt(name, ((Byte) raw).intValue());
                         break;
-                    case StudioTypes.INTEGER:
-                    case StudioTypes.SHORT:
+                    case StudioTypes.INTEGER, StudioTypes.SHORT:
                         onInt(name, raw);
                         break;
                     case StudioTypes.LONG:
@@ -140,8 +139,8 @@ public class DiRowStructVisitor {
                         onBoolean(name, raw);
                         break;
                     case StudioTypes.DATE:
-                        if (raw instanceof Timestamp) {
-                            onInstant(name, (Timestamp) raw);
+                        if (raw instanceof Timestamp timestamp) {
+                            onInstant(name, timestamp);
                             break;
                         }
                         onDatetime(name, ((Date) raw).toInstant().atZone(UTC));
@@ -185,16 +184,15 @@ public class DiRowStructVisitor {
                     // so we can pick the entry from the schema
                     onArray(rowStructSchema.getEntry(metaName), (Collection) value);
                     break;
-                case StudioTypes.STRING:
-                case StudioTypes.CHARACTER:
+                case StudioTypes.STRING, StudioTypes.CHARACTER:
                     onString(metaName, value);
                     break;
                 case StudioTypes.BYTE_ARRAY:
                     final byte[] bytes;
-                    if (value instanceof byte[]) {
-                        bytes = (byte[]) value;
-                    } else if (value instanceof ByteBuffer) {
-                        bytes = ((ByteBuffer) value).array();
+                    if (value instanceof byte[] bytes1) {
+                        bytes = bytes1;
+                    } else if (value instanceof ByteBuffer byteBuffer) {
+                        bytes = byteBuffer.array();
                     } else {
                         log.warn("[visit] '{}' of type `id_byte[]` and content is contained in `{}`:"
                                 + " This should not happen! "
@@ -204,9 +202,7 @@ public class DiRowStructVisitor {
                     }
                     onBytes(metaName, bytes);
                     break;
-                case StudioTypes.BYTE:
-                case StudioTypes.SHORT:
-                case StudioTypes.INTEGER:
+                case StudioTypes.BYTE, StudioTypes.SHORT, StudioTypes.INTEGER:
                     onInt(metaName, value);
                     break;
                 case StudioTypes.LONG:
@@ -226,7 +222,7 @@ public class DiRowStructVisitor {
                     break;
                 case StudioTypes.DATE:
                     final ZonedDateTime dateTime;
-                    dateTime = ZonedDateTime.ofInstant(value instanceof Long ? ofEpochMilli((Long) value)
+                    dateTime = ZonedDateTime.ofInstant(value instanceof Long l ? ofEpochMilli(l)
                             : ((Date) value).toInstant(), UTC);
                     onDatetime(metaName, dateTime);
                     break;
@@ -301,9 +297,7 @@ public class DiRowStructVisitor {
                     case StudioTypes.LIST:
                         schema.withEntry(toCollectionEntry(name, originalDbColumnName, raw));
                         break;
-                    case StudioTypes.OBJECT:
-                    case StudioTypes.STRING:
-                    case StudioTypes.CHARACTER:
+                    case StudioTypes.OBJECT, StudioTypes.STRING, StudioTypes.CHARACTER:
                         schema.withEntry(toEntry(name, STRING, originalDbColumnName, isNullable, comment, isKey, length,
                                 precision, defaultValue, null, studioType));
                         break;
@@ -312,9 +306,7 @@ public class DiRowStructVisitor {
                                 toEntry(name, DECIMAL, originalDbColumnName, isNullable, comment, isKey, length,
                                         precision, defaultValue, null, studioType));
                         break;
-                    case StudioTypes.INTEGER:
-                    case StudioTypes.SHORT:
-                    case StudioTypes.BYTE:
+                    case StudioTypes.INTEGER, StudioTypes.SHORT, StudioTypes.BYTE:
                         schema.withEntry(
                                 toEntry(name, INT, originalDbColumnName, isNullable, comment, isKey, null, null,
                                         defaultValue, null, studioType));
@@ -388,9 +380,7 @@ public class DiRowStructVisitor {
                 case StudioTypes.LIST:
                     schema.withEntry(toCollectionEntry(metaName, metaOriginalName, value));
                     break;
-                case StudioTypes.OBJECT:
-                case StudioTypes.STRING:
-                case StudioTypes.CHARACTER:
+                case StudioTypes.OBJECT, StudioTypes.STRING, StudioTypes.CHARACTER:
                     schema.withEntry(
                             toEntry(metaName, STRING, metaOriginalName, metaIsNullable, comment,
                                     metaIsKey, null, null, defaultValue, metaPattern, metaStudioType));
@@ -404,9 +394,7 @@ public class DiRowStructVisitor {
                     schema.withEntry(toEntry(metaName, BYTES, metaOriginalName, metaIsNullable, comment,
                             metaIsKey, null, null, defaultValue, null, metaStudioType));
                     break;
-                case StudioTypes.BYTE:
-                case StudioTypes.SHORT:
-                case StudioTypes.INTEGER:
+                case StudioTypes.BYTE, StudioTypes.SHORT, StudioTypes.INTEGER:
                     schema.withEntry(toEntry(metaName, INT, metaOriginalName, metaIsNullable, comment,
                             metaIsKey, null, null, defaultValue, null, metaStudioType, logicalType));
                     break;
@@ -563,7 +551,7 @@ public class DiRowStructVisitor {
     }
 
     private Schema elementSchema(final Type type, final Object value) {
-        if (type != ARRAY || !(value instanceof Collection)) {
+        if (type != ARRAY || !(value instanceof Collection<?> objects)) {
             return factory.newSchemaBuilder(type).build();
         }
 
@@ -572,8 +560,8 @@ public class DiRowStructVisitor {
 
         // we inherit the logic that we evaluate the type by its first element. (at least it's fast )
         // looks like we support only homogeneous structures
-        if (!((Collection<?>) value).isEmpty()) {
-            columnValue = ((Collection<?>) value).iterator().next();
+        if (!objects.isEmpty()) {
+            columnValue = objects.iterator().next();
             elementType = getTypeFromValue(columnValue);
         }
 

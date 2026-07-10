@@ -19,7 +19,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.io.ByteArrayInputStream;
@@ -116,6 +115,7 @@ public class BulkReadResourceImpl implements BulkReadResource {
                             "{\"code\":\"UNAUTHORIZED\",\"description\":\"Forbidden endpoint in bulk mode.\"}"))
                             .readObject());
 
+    @SuppressWarnings("java:S1068")
     private final BulkResponses.Result forbiddenResponse =
             new BulkResponses.Result(Response.Status.FORBIDDEN.getStatusCode(), emptyMap(),
                     Json.createReader(new StringReader(
@@ -148,7 +148,7 @@ public class BulkReadResourceImpl implements BulkReadResource {
                         return completedFuture(invalidResponse);
                     }
                     return doExecute(request, uriInfo);
-                }).collect(toList());
+                }).toList();
         return CompletableFuture
                 .allOf(responses.toArray(EMPTY_PROMISES))
                 .handle((ignored, error) -> new BulkResponses(responses.stream().map(it -> {
@@ -163,7 +163,7 @@ public class BulkReadResourceImpl implements BulkReadResource {
                                 .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, e.getMessage()))
                                 .build());
                     }
-                }).collect(toList())));
+                }).toList()));
     }
 
     private boolean isBlacklisted(final BulkRequests.Request request) {

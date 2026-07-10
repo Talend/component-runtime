@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DynamicDependenciesWithDatastoreService extends AbstractDynamicDependenciesService
         implements Serializable {
 
-    public final static String DEPENDENCY_WITHDATASTORE_ACTION = "DEPENDENCY_WITHDATASTORE_ACTION";
+    public static final String DEPENDENCY_WITHDATASTORE_ACTION = "DEPENDENCY_WITHDATASTORE_ACTION";
 
     @DynamicDependencies
     public List<String> getDynamicDependencies(@Option("theDatastore") final Datastore datastore) {
@@ -45,7 +45,7 @@ public class DynamicDependenciesWithDatastoreService extends AbstractDynamicDepe
     }
 
     @DiscoverSchemaExtended(DEPENDENCY_WITHDATASTORE_ACTION)
-    public Schema guessSchema4Input(final @Option("configuration") Config config) {
+    public Schema guessSchema4Input(@Option("configuration") final Config config) {
         return super.buildSchema();
     }
 

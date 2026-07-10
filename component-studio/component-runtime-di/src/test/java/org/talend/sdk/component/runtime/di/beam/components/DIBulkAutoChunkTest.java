@@ -37,9 +37,7 @@ import java.util.PrimitiveIterator;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.json.JsonBuilderFactory;
 import javax.json.bind.Jsonb;
-import javax.json.spi.JsonProvider;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -320,14 +318,9 @@ class DIBulkAutoChunkTest {
 
         final Map<Class<?>, Object> servicesMapper =
                 manager.findPlugin(mapperMapper.plugin()).get().get(ComponentManager.AllServices.class).getServices();
-        final Jsonb jsonbMapper = (Jsonb) servicesMapper.get(Jsonb.class);
-        final JsonProvider jsonProvider = (JsonProvider) servicesMapper.get(JsonProvider.class);
-        final JsonBuilderFactory jsonBuilderFactory =
-                (JsonBuilderFactory) servicesMapper.get(JsonBuilderFactory.class);
         final RecordBuilderFactory recordBuilderMapper =
                 (RecordBuilderFactory) servicesMapper.get(RecordBuilderFactory.class);
         builderFactory = recordBuilderMapper;
-        final RecordConverters converters = new RecordConverters();
         final RecordConverters.MappingMetaRegistry registry = new RecordConverters.MappingMetaRegistry();
 
         Object dataMapper;
@@ -559,10 +552,6 @@ class DIBulkAutoChunkTest {
     }
 
     //////////////////////////////////////////
-    private static final OutputFactory NO_OUTPUT = name -> value -> {
-        // no-op
-    };
-
     @Data
     @AllArgsConstructor
     @NoArgsConstructor

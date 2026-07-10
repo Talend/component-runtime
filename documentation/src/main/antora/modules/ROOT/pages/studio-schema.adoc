@@ -187,7 +187,7 @@ Prototype:
  * @return
  */
 @DiscoverSchemaExtended("full")
-public Schema guessMethodName(final Schema incomingSchema, final @Option("configuration") ConfigClass myConfig, final String branch) {...}
+public Schema guessMethodName(final Schema incomingSchema, @Option("configuration") final ConfigClass myConfig, final String branch) {...}
 
 @DiscoverSchemaExtended("incoming_schema")
 public Schema guessMethodName(final Schema incomingSchema, final @Option("configuration") ConfigClass myConfig) {...}

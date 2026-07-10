@@ -81,6 +81,7 @@ Boolean devBranch_dockerPush = false
 
 String skipOptions = "-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
 String deployOptions = "$skipOptions -Possrh -Prelease -Pgpg2 -Denforcer.skip=true"
+String nexusDeployOptions = "$skipOptions --activate-profiles private_repository -Denforcer.skip=true"
 
 
 pipeline {
@@ -283,7 +284,7 @@ pipeline {
           if (needQualify) {
             // Qualified version have to be released on talend_repository
             // Overwrite the deployOptions
-            deployOptions = "$skipOptions --activate-profiles private_repository -Denforcer.skip=true"
+            deployOptions = nexusDeployOptions
           }
 
           // hack to overwrite the skip of studio modules that we can't deploy in release mode into Sonatype repo
@@ -466,18 +467,37 @@ pipeline {
               """.stripIndent()
           }
         }
+        // Also deploy to internal Nexus on master/maintenance builds so that
+        // connectors-se Jenkins agents (which cannot reach central.sonatype.com)
+        // can resolve SNAPSHOT dependencies.
+        script {
+          if (stdBranch_buildOnly) {
+            withCredentials([nexusCredentials]) {
+              sh """\
+                #!/usr/bin/env bash
+                set -xe
+                mvn deploy ${nexusDeployOptions} \
+                            ${extraBuildParams} \
+                            --settings .jenkins/settings.xml
+                """.stripIndent()
+            }
+          }
+        }
         // Add description to job
         script {
           def repo
+          String nexusSnapshotUrl = 'https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/org/talend/sdk/component'
           if (devBranch_mavenDeploy) {
-            repo = ['artifacts-zl.talend.com',
-                    'https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/org/talend/sdk/component']
+            repo = ['artifacts-zl.talend.com', nexusSnapshotUrl]
           } else {
             repo = ['oss.sonatype.org',
                     'https://central.sonatype.com/repository/maven-snapshots/org/talend/sdk/component/']
           }
 
           JenkinsStatusController.jobDescriptionAppend("Maven artefact deployed as ${finalVersion} on [${repo[0]}](${repo[1]})  ")
+          if (stdBranch_buildOnly) {
+            JenkinsStatusController.jobDescriptionAppend("Maven artefact also deployed as ${finalVersion} on [artifacts-zl.talend.com](${nexusSnapshotUrl})  ")
+          }
         }
       }
     }

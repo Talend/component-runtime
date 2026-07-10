@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.manager.reflect;
 
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,7 +47,7 @@ public class ComponentMetadataService {
     public ComponentMetadataService() {
         this.enrichers = StreamSupport
                 .stream(ServiceLoader.load(ComponentMetadataEnricher.class).spliterator(), false)
-                .collect(toList());
+                .toList();
     }
 
     public Map<String, String> getMetadata(final Class<?> clazz) {

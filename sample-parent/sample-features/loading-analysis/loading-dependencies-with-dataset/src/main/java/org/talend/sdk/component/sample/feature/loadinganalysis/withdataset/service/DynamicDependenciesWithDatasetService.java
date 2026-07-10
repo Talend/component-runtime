@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class DynamicDependenciesWithDatasetService extends AbstractDynamicDependenciesService implements Serializable {
 
-    public final static String DEPENDENCY_WITHDATASET_ACTION = "DEPENDENCY_WITHDATASET_ACTION";
+    public static final String DEPENDENCY_WITHDATASET_ACTION = "DEPENDENCY_WITHDATASET_ACTION";
 
     @DynamicDependencies
     public List<String> getDynamicDependencies(@Option("theDataset") final Dataset dataset) {
@@ -44,7 +44,7 @@ public class DynamicDependenciesWithDatasetService extends AbstractDynamicDepend
     }
 
     @DiscoverSchemaExtended(DEPENDENCY_WITHDATASET_ACTION)
-    public Schema guessSchema4Input(final @Option("configuration") Config config) {
+    public Schema guessSchema4Input(@Option("configuration") final Config config) {
         return super.buildSchema();
     }
 

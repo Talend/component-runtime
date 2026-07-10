@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.remoteengine.customizer.lang;
 
-import static java.util.stream.Collectors.toList;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.io.BufferedReader;
@@ -63,7 +62,7 @@ public final class IO {
             throw new IllegalArgumentException("Missing file: " + dockerCompose);
         }
         try (final BufferedReader reader = Files.newBufferedReader(dockerCompose)) {
-            return reader.lines().collect(toList());
+            return reader.lines().toList();
         }
     }
 

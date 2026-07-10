@@ -35,6 +35,7 @@ import lombok.Data;
 @Processor(family = "test", name = "my")
 public class MissingDynamicValues implements Serializable {
 
+    @SuppressWarnings("java:S1068")
     private final Foo foo;
 
     public MissingDynamicValues(final Foo foo) {

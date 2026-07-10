@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.runtime.record;
 
-import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -71,8 +70,8 @@ public class SchemaImpl implements Schema {
     SchemaImpl(final SchemaImpl.BuilderImpl builder) {
         this.type = builder.type;
         this.elementSchema = builder.elementSchema;
-        this.entries = unmodifiableList(builder.entries.streams().collect(toList()));
-        this.metadataEntries = unmodifiableList(builder.metadataEntries.streams().collect(toList()));
+        this.entries = builder.entries.streams().toList();
+        this.metadataEntries = builder.metadataEntries.streams().toList();
         this.props = builder.props;
         entriesOrder = EntriesOrder.of(getFieldsOrder());
         getAllEntries().forEach(e -> entryMap.put(e.getName(), e));
@@ -99,10 +98,9 @@ public class SchemaImpl implements Schema {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof SchemaImpl)) {
+        if (!(obj instanceof SchemaImpl other)) {
             return false;
         }
-        final SchemaImpl other = (SchemaImpl) obj;
         if (!other.canEqual(this)) {
             return false;
         }

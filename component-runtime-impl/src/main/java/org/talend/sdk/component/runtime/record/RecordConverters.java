@@ -68,11 +68,11 @@ public class RecordConverters implements Serializable {
         if (data == null) {
             return null;
         }
-        if (data instanceof Record) {
-            return (Record) data;
+        if (data instanceof Record record) {
+            return record;
         }
-        if (data instanceof JsonObject) {
-            return json2Record(recordBuilderProvider.get(), (JsonObject) data);
+        if (data instanceof JsonObject jsonObject) {
+            return json2Record(recordBuilderProvider.get(), jsonObject);
         }
 
         final MappingMeta meta = registry.find(data.getClass());
@@ -82,8 +82,8 @@ public class RecordConverters implements Serializable {
 
         final Jsonb jsonb = jsonbProvider.get();
         if (!(data instanceof String) && !data.getClass().isPrimitive()
-                && jsonb instanceof PojoJsonbProvider) {
-            final Jsonb pojoMapper = ((PojoJsonbProvider) jsonb).get();
+                && jsonb instanceof PojoJsonbProvider pojoJsonbProvider) {
+            final Jsonb pojoMapper = pojoJsonbProvider.get();
             final OutputRecordHolder holder = new OutputRecordHolder(data);
             try (final OutputRecordHolder stream = holder) {
                 pojoMapper.toJson(data, stream);
@@ -120,8 +120,7 @@ public class RecordConverters implements Serializable {
                                     .build(), record);
                     break;
                 }
-                case TRUE:
-                case FALSE:
+                case TRUE, FALSE:
                     builder.withBoolean(key, JsonValue.TRUE.equals(value));
                     break;
                 case STRING:
@@ -172,17 +171,17 @@ public class RecordConverters implements Serializable {
     }
 
     private Object mapJson(final RecordBuilderFactory factory, final JsonValue it) {
-        if (it instanceof JsonObject) {
-            return json2Record(factory, (JsonObject) it);
+        if (it instanceof JsonObject jsonObject) {
+            return json2Record(factory, jsonObject);
         }
-        if (it instanceof JsonArray) {
-            return ((JsonArray) it).stream().map(i -> mapJson(factory, i)).collect(toList());
+        if (it instanceof JsonArray jsonValues) {
+            return jsonValues.stream().map(i -> mapJson(factory, i)).collect(toList());
         }
-        if (it instanceof JsonString) {
-            return ((JsonString) it).getString();
+        if (it instanceof JsonString jsonString) {
+            return jsonString.getString();
         }
-        if (it instanceof JsonNumber) {
-            return ((JsonNumber) it).numberValue();
+        if (it instanceof JsonNumber jsonNumber) {
+            return jsonNumber.numberValue();
         }
         if (JsonValue.FALSE.equals(it)) {
             return false;
@@ -237,8 +236,8 @@ public class RecordConverters implements Serializable {
                     .withElementSchema(toSchema(factory, collection.iterator().next()))
                     .build();
         }
-        if (next instanceof Record) {
-            return ((Record) next).getSchema();
+        if (next instanceof Record record) {
+            return record.getSchema();
         }
         throw new IllegalArgumentException("unsupported type for " + next);
     }
@@ -259,13 +258,12 @@ public class RecordConverters implements Serializable {
         }
 
         final JsonObject inputAsJson;
-        if (data instanceof JsonObject) {
+        if (data instanceof JsonObject jsonObject) {
             if (JsonObject.class == parameterType) {
                 return data;
             }
-            inputAsJson = (JsonObject) data;
-        } else if (data instanceof Record) {
-            final Record record = (Record) data;
+            inputAsJson = jsonObject;
+        } else if (data instanceof Record record) {
             if (!JsonObject.class.isAssignableFrom(parameterType)) {
                 final MappingMeta mappingMeta = registry.find(parameterType);
                 if (mappingMeta.isLinearMapping()) {

@@ -17,9 +17,7 @@ package org.talend.sdk.component.runtime.di;
 
 import java.util.Map;
 
-import javax.json.JsonBuilderFactory;
 import javax.json.bind.Jsonb;
-import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
@@ -28,16 +26,10 @@ import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegis
 
 public class OutputsHandler extends BaseIOHandler {
 
-    private final JsonProvider jsonProvider;
-
-    private final JsonBuilderFactory jsonBuilderFactory;
-
     private final MappingMetaRegistry registry = new MappingMetaRegistry();
 
     public OutputsHandler(final Jsonb jsonb, final Map<Class<?>, Object> servicesMapper) {
         super(jsonb, servicesMapper);
-        this.jsonProvider = (JsonProvider) servicesMapper.get(JsonProvider.class);
-        this.jsonBuilderFactory = (JsonBuilderFactory) servicesMapper.get(JsonBuilderFactory.class);
     }
 
     public OutputFactory asOutputFactory() {
@@ -46,8 +38,8 @@ public class OutputsHandler extends BaseIOHandler {
             if (ref != null && value != null) {
                 if (value instanceof javax.json.JsonValue) {
                     ref.add(jsonb.fromJson(value.toString(), ref.getType()));
-                } else if (value instanceof Record) {
-                    ref.add(registry.find(ref.getType()).newInstance((Record) value));
+                } else if (value instanceof Record record) {
+                    ref.add(registry.find(ref.getType()).newInstance(record));
                 } else {
                     ref.add(jsonb.fromJson(jsonb.toJson(value), ref.getType()));
                 }
@@ -67,8 +59,8 @@ public class OutputsHandler extends BaseIOHandler {
             if (ref != null && value != null) {
                 if (value instanceof javax.json.JsonValue) {
                     ref.add(jsonb.fromJson(value.toString(), ref.getType()));
-                } else if (value instanceof Record) {
-                    ref.add(((Record) value).getSchema());
+                } else if (value instanceof Record record) {
+                    ref.add(record.getSchema());
                 } else if (value instanceof Schema) {
                     ref.add(value);
                 } else {

@@ -32,6 +32,7 @@ import javax.json.JsonArrayBuilder;
 import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
+import javax.json.JsonReader;
 import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.json.spi.JsonProvider;
@@ -75,8 +76,9 @@ public class SchemaConverter extends AbstractConverter {
     @Override
     public Object toObjectImpl(final String s) {
         if (!s.isEmpty()) {
-            final JsonObject json = JsonProvider.provider().createReader(new StringReader(s)).readObject();
-            return toSchema(json);
+            try (final JsonReader reader = JsonProvider.provider().createReader(new StringReader(s))) {
+                return toSchema(reader.readObject());
+            }
         }
         return null;
     }
@@ -98,8 +100,8 @@ public class SchemaConverter extends AbstractConverter {
         this.addProps(builder::withProp, json);
 
         final JsonValue orderValue = json.get("order");
-        if (orderValue instanceof JsonString) {
-            final Schema.EntriesOrder order = Schema.EntriesOrder.of(((JsonString) orderValue).getString());
+        if (orderValue instanceof JsonString jsonString) {
+            final Schema.EntriesOrder order = Schema.EntriesOrder.of(jsonString.getString());
             return builder.build(order);
         } else {
             return builder.build();
@@ -109,11 +111,11 @@ public class SchemaConverter extends AbstractConverter {
     private void treatElementSchema(final JsonObject json,
             final Consumer<Schema> setter) {
         final JsonValue elementSchema = json.get(ELEMENT_SCHEMA);
-        if (elementSchema instanceof JsonObject) {
-            final Schema schema = this.toSchema((JsonObject) elementSchema);
+        if (elementSchema instanceof JsonObject jsonObject) {
+            final Schema schema = this.toSchema(jsonObject);
             setter.accept(schema);
-        } else if (elementSchema instanceof JsonString) {
-            final Schema.Type innerType = Schema.Type.valueOf(((JsonString) elementSchema).getString());
+        } else if (elementSchema instanceof JsonString jsonString) {
+            final Schema.Type innerType = Schema.Type.valueOf(jsonString.getString());
             setter.accept(this.factory.newSchemaBuilder(innerType).build());
         }
     }
