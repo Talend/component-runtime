@@ -466,6 +466,23 @@ pipeline {
               """.stripIndent()
           }
         }
+        // Also deploy to internal Nexus on master/maintenance builds so that
+        // connector-se Jenkins agents (which cannot reach central.sonatype.com)
+        // can resolve SNAPSHOT dependencies.
+        script {
+          if (stdBranch_buildOnly) {
+            String nexusDeployOptions = "$skipOptions --activate-profiles private_repository -Denforcer.skip=true"
+            withCredentials([nexusCredentials]) {
+              sh """\
+                #!/usr/bin/env bash
+                set -xe
+                mvn deploy ${nexusDeployOptions} \
+                            ${extraBuildParams} \
+                            --settings .jenkins/settings.xml
+                """.stripIndent()
+            }
+          }
+        }
         // Add description to job
         script {
           def repo
@@ -478,6 +495,9 @@ pipeline {
           }
 
           JenkinsStatusController.jobDescriptionAppend("Maven artefact deployed as ${finalVersion} on [${repo[0]}](${repo[1]})  ")
+          if (stdBranch_buildOnly) {
+            JenkinsStatusController.jobDescriptionAppend("Maven artefact also deployed as ${finalVersion} on [artifacts-zl.talend.com](https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/org/talend/sdk/component)  ")
+          }
         }
       }
     }
