@@ -135,6 +135,49 @@ Always depend on `component-runtime-junit` for new test code.
 
 ---
 
+## CI / Jenkinsfile patterns
+
+### Dual Maven deploy — Sonatype + internal Nexus
+
+When a stage must publish SNAPSHOTs to **both** `central.sonatype.com` (Sonatype OSS) and `artifacts-zl.talend.com` (internal Nexus), **two separate `mvn deploy` invocations are required**:
+
+- The first call uses `-Possrh -Psnapshot` (existing Sonatype deploy, unchanged).
+- The second call uses `-Pprivate_repository` — but this profile **overrides `snapshotRepository`**, so combining both profiles in a single call silently suppresses the Sonatype publish and only deploys to Nexus.
+
+```groovy
+// Sonatype deploy (existing — unchanged)
+mvn ... -Possrh -Psnapshot deploy
+
+// Internal Nexus deploy (new — runs after Sonatype)
+withCredentials([usernamePassword(credentialsId: 'nexusCredentials', ...)]) {
+    mvn ... --activate-profiles private_repository deploy
+}
+```
+
+If the first deploy fails, the second is never triggered — correct behavior.
+
+_Discovered: QTDI-3123, 2026-07-10_
+
+### `stdBranch_buildOnly` — master/maintenance build guard
+
+`stdBranch_buildOnly` is a boolean set by the CI framework that is `true` only for master/maintenance builds (not dev/PR builds). Always use this flag — not a branch name comparison — when adding deploy steps that must not run on PR builds:
+
+```groovy
+if (stdBranch_buildOnly) {
+    // runs on master/maintenance only
+}
+```
+
+_Discovered: QTDI-3123, 2026-07-10_
+
+### Nexus credentials — `nexusCredentials`
+
+`.jenkins/settings.xml` already has a `talend.snapshots` server entry. The credentials binding ID is `nexusCredentials`, which injects `NEXUS_USERNAME` and `NEXUS_PASSWORD`. **No `settings.xml` edits are needed** when adding a new deploy step targeting the internal Nexus — only add the `withCredentials` block in `Jenkinsfile`.
+
+_Discovered: QTDI-3123, 2026-07-10_
+
+---
+
 ## Coding rules delta
 
 No known repo-specific exceptions to the shared [coding-rules.md](https://github.com/Talend/di-ai-commons/blob/main/knowledge/rules/coding-rules.md).
