@@ -471,7 +471,7 @@ pipeline {
         // can resolve SNAPSHOT dependencies.
         script {
           if (stdBranch_buildOnly) {
-            String nexusDeployOptions = "$skipOptions --activate-profiles private_repository -Denforcer.skip=true"
+            def nexusDeployOptions = "$skipOptions --activate-profiles private_repository -Denforcer.skip=true"
             withCredentials([nexusCredentials]) {
               sh """\
                 #!/usr/bin/env bash
