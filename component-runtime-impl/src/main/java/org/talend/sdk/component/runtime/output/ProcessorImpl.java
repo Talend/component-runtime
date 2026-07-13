@@ -56,6 +56,7 @@ import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.LastGroup;
 import org.talend.sdk.component.api.processor.Output;
+import org.talend.sdk.component.api.processor.OutputIterator;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.LifecycleImpl;
@@ -150,10 +151,11 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
     private BiFunction<InputFactory, OutputFactory, Object> buildProcessParamBuilder(final Parameter parameter) {
         if (parameter.isAnnotationPresent(Output.class)) {
-            return (inputs, outputs) -> {
-                final String name = parameter.getAnnotation(Output.class).value();
-                return outputs.create(name);
-            };
+            final Output annotation = parameter.getAnnotation(Output.class);
+            if (annotation.iterator()) {
+                return (inputs, outputs) -> (OutputIterator) outputs.create(annotation.value());
+            }
+            return (inputs, outputs) -> outputs.create(annotation.value());
         }
 
         final Class<?> parameterType = parameter.getType();
@@ -167,8 +169,11 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
             if (parameter.isAnnotationPresent(LastGroup.class)) {
                 return false;
             }
-            final String name = parameter.getAnnotation(Output.class).value();
-            return outputs.create(name);
+            final Output annotation = parameter.getAnnotation(Output.class);
+            if (annotation.iterator()) {
+                return (OutputIterator) outputs.create(annotation.value());
+            }
+            return outputs.create(annotation.value());
         };
     }
 

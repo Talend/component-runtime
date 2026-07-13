@@ -91,19 +91,32 @@ public abstract class BaseIOHandler {
 
         private final Class<T> type;
 
+        private Iterator<T> source;
+
+        void setSource(final Iterator<T> source) {
+            // Close previous source if it implements AutoCloseable
+            closeSource();
+            this.source = source;
+        }
+
         private void reset() {
             values.clear();
+            closeSource();
+            this.source = null;
         }
 
         boolean hasNext() {
-            return values.size() != 0;
+            return !values.isEmpty()
+                    || (source != null && source.hasNext());
         }
 
         T next() {
-            if (hasNext()) {
+            if (!values.isEmpty()) {
                 return type.cast(values.poll());
             }
-
+            if (source != null && source.hasNext()) {
+                return type.cast(source.next());
+            }
             return null;
         }
 
@@ -113,6 +126,16 @@ public abstract class BaseIOHandler {
 
         Class<T> getType() {
             return type;
+        }
+
+        private void closeSource() {
+            if (source instanceof AutoCloseable) {
+                try {
+                    ((AutoCloseable) source).close();
+                } catch (final Exception e) {
+                    // best effort cleanup
+                }
+            }
         }
     }
 

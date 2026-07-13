@@ -35,7 +35,7 @@ import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.LastGroup;
 import org.talend.sdk.component.api.processor.Output;
-import org.talend.sdk.component.api.processor.OutputEmitter;
+import org.talend.sdk.component.api.processor.OutputIterator;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
@@ -233,6 +233,14 @@ class ProcessorBufferingTest {
         chunkProcessor.flush(outputFactory);
         chunkProcessor.stop();
 
+        // GC to reclaim input record objects from the loop
+        System.gc();
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
         final long memoryAfterGroup = usedMemoryMB();
         final long memoryDelta = memoryAfterGroup - memoryBefore;
 
@@ -284,29 +292,41 @@ class ProcessorBufferingTest {
     // --- Test components ---
 
     /**
-     * Processor that emits 100K records in @ElementListener via emit().
-     * Each record has enough data to create observable memory pressure.
+     * Processor that provides a lazy iterator in @ElementListener.
+     * Records are produced on-demand during the drain loop.
      */
     @Processor(name = "heavyEmitter", family = "ProcessorBufferingTest")
     public static class HeavyEmitterProcessor implements Serializable {
 
         @ElementListener
         public void onElement(@Input final Record input,
-                @Output final OutputEmitter<Record> output) {
-            for (int i = 0; i < RECORD_COUNT; i++) {
-                final Record record = builderFactory.newRecordBuilder()
-                        .withString("id", "out-" + i)
-                        .withString("name", "generated-record-with-some-payload-" + i)
-                        .withString("data", "additional-field-to-increase-memory-footprint-" + i)
-                        .build();
-                output.emit(record);
-            }
+                @Output(iterator = true) final OutputIterator<Record> output) {
+            output.setIterator(new java.util.Iterator<>() {
+
+                private int index = 0;
+
+                @Override
+                public boolean hasNext() {
+                    return index < RECORD_COUNT;
+                }
+
+                @Override
+                public Record next() {
+                    final Record record = builderFactory.newRecordBuilder()
+                            .withString("id", "out-" + index)
+                            .withString("name", "generated-record-with-some-payload-" + index)
+                            .withString("data", "additional-field-to-increase-memory-footprint-" + index)
+                            .build();
+                    index++;
+                    return record;
+                }
+            });
         }
     }
 
     /**
-     * Processor that accumulates inputs, then emits 100K records in @AfterGroup.
-     * Simulates the N:M batch pattern.
+     * Processor that accumulates inputs, then sets lazy iterators on MAIN and REJECT
+     * in @AfterGroup. Simulates the N:M batch pattern.
      */
     @Processor(name = "heavyAfterGroupEmitter", family = "ProcessorBufferingTest")
     public static class HeavyAfterGroupEmitterProcessor implements Serializable {
@@ -324,25 +344,63 @@ class ProcessorBufferingTest {
         }
 
         @AfterGroup
-        public void afterGroup(@Output("MAIN") final OutputEmitter<Record> main,
-                @Output("REJECT") final OutputEmitter<Record> reject,
+        public void afterGroup(@Output(value = "MAIN", iterator = true) final OutputIterator<Record> main,
+                @Output(value = "REJECT", iterator = true) final OutputIterator<Record> reject,
                 @LastGroup final boolean lastGroup) {
             if (!lastGroup) {
                 return;
             }
 
-            for (int i = 0; i < RECORD_COUNT; i++) {
-                final Record record = builderFactory.newRecordBuilder()
-                        .withString("id", "result-" + i)
-                        .withString("name", "processed-record-with-payload-" + i)
-                        .withString("data", "bulk-result-data-field-" + i)
-                        .build();
-                if (i % 10 == 0) {
-                    reject.emit(record);
-                } else {
-                    main.emit(record);
+            // MAIN gets records where index % 10 != 0
+            main.setIterator(new java.util.Iterator<>() {
+
+                private int index = 0;
+
+                @Override
+                public boolean hasNext() {
+                    while (index < RECORD_COUNT && index % 10 == 0) {
+                        index++;
+                    }
+                    return index < RECORD_COUNT;
                 }
-            }
+
+                @Override
+                public Record next() {
+                    final Record record = builderFactory.newRecordBuilder()
+                            .withString("id", "result-" + index)
+                            .withString("name", "processed-record-with-payload-" + index)
+                            .withString("data", "bulk-result-data-field-" + index)
+                            .build();
+                    index++;
+                    return record;
+                }
+            });
+
+            // REJECT gets records where index % 10 == 0
+            reject.setIterator(new java.util.Iterator<>() {
+
+                private int index = 0;
+
+                @Override
+                public boolean hasNext() {
+                    while (index < RECORD_COUNT && index % 10 != 0) {
+                        index++;
+                    }
+                    return index < RECORD_COUNT;
+                }
+
+                @Override
+                public Record next() {
+                    final Record record = builderFactory.newRecordBuilder()
+                            .withString("id", "reject-" + index)
+                            .withString("name", "rejected-record-" + index)
+                            .withString("data", "reject-data-" + index)
+                            .build();
+                    index++;
+                    return record;
+                }
+            });
+
             inputCount = 0;
         }
     }

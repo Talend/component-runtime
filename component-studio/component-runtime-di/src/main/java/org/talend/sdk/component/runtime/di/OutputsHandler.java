@@ -15,10 +15,13 @@
  */
 package org.talend.sdk.component.runtime.di;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.json.bind.Jsonb;
 
+import org.talend.sdk.component.api.processor.OutputEmitter;
+import org.talend.sdk.component.api.processor.OutputIterator;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.output.OutputFactory;
@@ -33,17 +36,9 @@ public class OutputsHandler extends BaseIOHandler {
     }
 
     public OutputFactory asOutputFactory() {
-        return name -> value -> {
+        return name -> {
             final BaseIOHandler.IO ref = connections.get(getActualName(name));
-            if (ref != null && value != null) {
-                if (value instanceof javax.json.JsonValue) {
-                    ref.add(jsonb.fromJson(value.toString(), ref.getType()));
-                } else if (value instanceof Record record) {
-                    ref.add(registry.find(ref.getType()).newInstance(record));
-                } else {
-                    ref.add(jsonb.fromJson(jsonb.toJson(value), ref.getType()));
-                }
-            }
+            return new OutputEmitterWithIterator(ref);
         };
     }
 
@@ -70,4 +65,53 @@ public class OutputsHandler extends BaseIOHandler {
         };
     }
 
+    private Object convert(final Object value, final BaseIOHandler.IO ref) {
+        if (value == null) {
+            return null;
+        } else if (value instanceof javax.json.JsonValue) {
+            return jsonb.fromJson(value.toString(), ref.getType());
+        } else if (value instanceof Record record) {
+            return registry.find(ref.getType()).newInstance(record);
+        } else {
+            return jsonb.fromJson(jsonb.toJson(value), ref.getType());
+        }
+    }
+
+    /**
+     * Internal class implementing both OutputEmitter and OutputIterator.
+     * Allows ProcessorImpl to cast to OutputIterator when iterator mode is active.
+     */
+    private class OutputEmitterWithIterator implements OutputEmitter, OutputIterator {
+
+        private final BaseIOHandler.IO ref;
+
+        OutputEmitterWithIterator(final BaseIOHandler.IO ref) {
+            this.ref = ref;
+        }
+
+        @Override
+        public void emit(final Object value) {
+            if (ref != null && value != null) {
+                ref.add(convert(value, ref));
+            }
+        }
+
+        @Override
+        public void setIterator(final Iterator iterator) {
+            if (ref != null) {
+                ref.setSource(new Iterator() {
+
+                    @Override
+                    public boolean hasNext() {
+                        return iterator.hasNext();
+                    }
+
+                    @Override
+                    public Object next() {
+                        return convert(iterator.next(), ref);
+                    }
+                });
+            }
+        }
+    }
 }
