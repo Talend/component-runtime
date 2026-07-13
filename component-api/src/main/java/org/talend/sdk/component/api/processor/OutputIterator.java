@@ -27,6 +27,12 @@ import java.util.Iterator;
  * rather than buffered entirely in memory.
  *
  * <p>
+ * <b>Important:</b> This interface is supported only in the Studio DI runtime.
+ * It is not supported in Beam-based runners (Cloud) where processors typically
+ * do not use TCK processor patterns. Using {@code OutputIterator} in a Beam
+ * pipeline will result in a {@code ClassCastException} at runtime.
+ *
+ * <p>
  * Example usage in a processor:
  * 
  * <pre>
