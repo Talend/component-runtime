@@ -312,13 +312,13 @@ class ProcessorBufferingTest {
 
                 @Override
                 public Record next() {
-                    final Record record = builderFactory.newRecordBuilder()
+                    final Record rec = builderFactory.newRecordBuilder()
                             .withString("id", "out-" + index)
                             .withString("name", "generated-record-with-some-payload-" + index)
                             .withString("data", "additional-field-to-increase-memory-footprint-" + index)
                             .build();
                     index++;
-                    return record;
+                    return rec;
                 }
             });
         }
@@ -366,13 +366,13 @@ class ProcessorBufferingTest {
 
                 @Override
                 public Record next() {
-                    final Record record = builderFactory.newRecordBuilder()
+                    final Record rec = builderFactory.newRecordBuilder()
                             .withString("id", "result-" + index)
                             .withString("name", "processed-record-with-payload-" + index)
                             .withString("data", "bulk-result-data-field-" + index)
                             .build();
                     index++;
-                    return record;
+                    return rec;
                 }
             });
 
@@ -391,13 +391,13 @@ class ProcessorBufferingTest {
 
                 @Override
                 public Record next() {
-                    final Record record = builderFactory.newRecordBuilder()
+                    final Record rec = builderFactory.newRecordBuilder()
                             .withString("id", "reject-" + index)
                             .withString("name", "rejected-record-" + index)
                             .withString("data", "reject-data-" + index)
                             .build();
                     index++;
-                    return record;
+                    return rec;
                 }
             });
 

@@ -54,8 +54,8 @@ public class OutputsHandler extends BaseIOHandler {
             if (ref != null && value != null) {
                 if (value instanceof javax.json.JsonValue) {
                     ref.add(jsonb.fromJson(value.toString(), ref.getType()));
-                } else if (value instanceof Record record) {
-                    ref.add(record.getSchema());
+                } else if (value instanceof Record rec) {
+                    ref.add(rec.getSchema());
                 } else if (value instanceof Schema) {
                     ref.add(value);
                 } else {
@@ -70,8 +70,8 @@ public class OutputsHandler extends BaseIOHandler {
             return null;
         } else if (value instanceof javax.json.JsonValue) {
             return jsonb.fromJson(value.toString(), ref.getType());
-        } else if (value instanceof Record record) {
-            return registry.find(ref.getType()).newInstance(record);
+        } else if (value instanceof Record rec) {
+            return registry.find(ref.getType()).newInstance(rec);
         } else {
             return jsonb.fromJson(jsonb.toJson(value), ref.getType());
         }
@@ -81,7 +81,7 @@ public class OutputsHandler extends BaseIOHandler {
      * Internal class implementing both OutputEmitter and OutputIterator.
      * Allows ProcessorImpl to cast to OutputIterator when iterator mode is active.
      */
-    private class OutputEmitterWithIterator implements OutputEmitter, OutputIterator {
+    private class OutputEmitterWithIterator<T> implements OutputEmitter<T>, OutputIterator<T> {
 
         private final BaseIOHandler.IO ref;
 
@@ -90,14 +90,14 @@ public class OutputsHandler extends BaseIOHandler {
         }
 
         @Override
-        public void emit(final Object value) {
+        public void emit(final T value) {
             if (ref != null && value != null) {
                 ref.add(convert(value, ref));
             }
         }
 
         @Override
-        public void setIterator(final Iterator iterator) {
+        public void setIterator(final Iterator<T> iterator) {
             if (ref != null) {
                 ref.setSource(new Iterator() {
 
