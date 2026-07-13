@@ -26,6 +26,4 @@ import java.lang.annotation.Target;
 public @interface Output {
 
     String value() default "__default__";
-
-    boolean iterator() default false;
 }

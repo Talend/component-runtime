@@ -151,11 +151,11 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
     private BiFunction<InputFactory, OutputFactory, Object> buildProcessParamBuilder(final Parameter parameter) {
         if (parameter.isAnnotationPresent(Output.class)) {
-            final Output annotation = parameter.getAnnotation(Output.class);
-            if (annotation.iterator()) {
-                return (inputs, outputs) -> (OutputIterator) outputs.create(annotation.value());
+            final String name = parameter.getAnnotation(Output.class).value();
+            if (OutputIterator.class == parameter.getType()) {
+                return (inputs, outputs) -> (OutputIterator) outputs.create(name);
             }
-            return (inputs, outputs) -> outputs.create(annotation.value());
+            return (inputs, outputs) -> outputs.create(name);
         }
 
         final Class<?> parameterType = parameter.getType();
@@ -169,11 +169,11 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
             if (parameter.isAnnotationPresent(LastGroup.class)) {
                 return false;
             }
-            final Output annotation = parameter.getAnnotation(Output.class);
-            if (annotation.iterator()) {
-                return (OutputIterator) outputs.create(annotation.value());
+            final String name = parameter.getAnnotation(Output.class).value();
+            if (OutputIterator.class == parameter.getType()) {
+                return (OutputIterator) outputs.create(name);
             }
-            return outputs.create(annotation.value());
+            return outputs.create(name);
         };
     }
 

@@ -197,7 +197,7 @@ public class ModelVisitor {
             final List<Parameter> invalidParams = Stream.of(m.getParameters()).peek(p -> {
                 if (p.isAnnotationPresent(Output.class) && !validOutputParam(p)) {
                     throw new IllegalArgumentException(
-                            "@Output parameter must be of type OutputEmitter or OutputIterator (with iterator = true)");
+                            "@Output parameter must be of type OutputEmitter or OutputIterator");
                 }
             })
                     .filter(p -> !p.isAnnotationPresent(Output.class))
@@ -246,7 +246,7 @@ public class ModelVisitor {
         if (!producers.isEmpty() && Stream.of(producers.get(0).getParameters()).peek(p -> {
             if (p.isAnnotationPresent(Output.class) && !validOutputParam(p)) {
                 throw new IllegalArgumentException(
-                        "@Output parameter must be of type OutputEmitter or OutputIterator (with iterator = true)");
+                        "@Output parameter must be of type OutputEmitter or OutputIterator");
             }
         }).filter(p -> !p.isAnnotationPresent(Output.class)).count() < 1) {
             throw new IllegalArgumentException(input + " doesn't have the input parameter on its producer method");
@@ -257,11 +257,7 @@ public class ModelVisitor {
         if (!(p.getParameterizedType() instanceof ParameterizedType pt)) {
             return false;
         }
-        final Output annotation = p.getAnnotation(Output.class);
-        if (annotation != null && annotation.iterator()) {
-            return OutputIterator.class == pt.getRawType();
-        }
-        return OutputEmitter.class == pt.getRawType();
+        return OutputEmitter.class == pt.getRawType() || OutputIterator.class == pt.getRawType();
     }
 
     private Stream<Class<? extends Annotation>> getPartitionMapperMethods(final boolean infinite) {

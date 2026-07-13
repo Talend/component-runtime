@@ -300,7 +300,7 @@ class ProcessorBufferingTest {
 
         @ElementListener
         public void onElement(@Input final Record input,
-                @Output(iterator = true) final OutputIterator<Record> output) {
+                @Output final OutputIterator<Record> output) {
             output.setIterator(new java.util.Iterator<>() {
 
                 private int index = 0;
@@ -344,8 +344,8 @@ class ProcessorBufferingTest {
         }
 
         @AfterGroup
-        public void afterGroup(@Output(value = "MAIN", iterator = true) final OutputIterator<Record> main,
-                @Output(value = "REJECT", iterator = true) final OutputIterator<Record> reject,
+        public void afterGroup(@Output("MAIN") final OutputIterator<Record> main,
+                @Output("REJECT") final OutputIterator<Record> reject,
                 @LastGroup final boolean lastGroup) {
             if (!lastGroup) {
                 return;

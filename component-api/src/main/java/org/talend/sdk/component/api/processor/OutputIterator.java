@@ -22,7 +22,7 @@ import java.util.Iterator;
  * instead of pushing them via {@link OutputEmitter#emit(Object)}.
  *
  * <p>
- * Used with {@code @Output(iterator = true)} to enable streaming:
+ * Used with {@code @Output} on an {@code OutputIterator} parameter to enable streaming:
  * records are produced on-demand during the consumer's drain loop,
  * rather than buffered entirely in memory.
  *
@@ -34,7 +34,7 @@ import java.util.Iterator;
  * 
  * &#64;ElementListener
  * public void process(@Input Record input,
- *         @Output(iterator = true) OutputIterator<Record> output) {
+ *         @Output OutputIterator<Record> output) {
  *     output.setIterator(myLazyIterator(input));
  * }
  * }
