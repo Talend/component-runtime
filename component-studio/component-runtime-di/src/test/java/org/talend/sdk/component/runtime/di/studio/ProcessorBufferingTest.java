@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.runtime.di.beam.components;
+package org.talend.sdk.component.runtime.di.studio;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
