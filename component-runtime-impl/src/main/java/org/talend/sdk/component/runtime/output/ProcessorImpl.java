@@ -153,7 +153,7 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
         if (parameter.isAnnotationPresent(Output.class)) {
             final String name = parameter.getAnnotation(Output.class).value();
             if (OutputIterator.class == parameter.getType()) {
-                return (inputs, outputs) -> (OutputIterator) outputs.create(name);
+                return (inputs, outputs) -> outputs.createIterator(name);
             }
             return (inputs, outputs) -> outputs.create(name);
         }
@@ -171,7 +171,7 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
             }
             final String name = parameter.getAnnotation(Output.class).value();
             if (OutputIterator.class == parameter.getType()) {
-                return (OutputIterator) outputs.create(name);
+                return outputs.createIterator(name);
             }
             return outputs.create(name);
         };

@@ -36,9 +36,39 @@ public class OutputsHandler extends BaseIOHandler {
     }
 
     public OutputFactory asOutputFactory() {
-        return name -> {
-            final BaseIOHandler.IO ref = connections.get(getActualName(name));
-            return new OutputEmitterWithIterator(ref);
+        return new OutputFactory() {
+
+            @Override
+            public OutputEmitter create(final String name) {
+                final BaseIOHandler.IO ref = connections.get(getActualName(name));
+                return value -> {
+                    if (ref != null && value != null) {
+                        ref.add(convert(value, ref));
+                    }
+                };
+            }
+
+            @Override
+            public OutputIterator createIterator(final String name) {
+                final BaseIOHandler.IO ref = connections.get(getActualName(name));
+                return iterator -> {
+                    if (ref == null) {
+                        return;
+                    }
+                    ref.setSource(new Iterator() {
+
+                        @Override
+                        public boolean hasNext() {
+                            return iterator.hasNext();
+                        }
+
+                        @Override
+                        public Object next() {
+                            return convert(iterator.next(), ref);
+                        }
+                    });
+                };
+            }
         };
     }
 
@@ -77,41 +107,4 @@ public class OutputsHandler extends BaseIOHandler {
         }
     }
 
-    /**
-     * Internal class implementing both OutputEmitter and OutputIterator.
-     * Allows ProcessorImpl to cast to OutputIterator when iterator mode is active.
-     */
-    private class OutputEmitterWithIterator<T> implements OutputEmitter<T>, OutputIterator<T> {
-
-        private final BaseIOHandler.IO ref;
-
-        OutputEmitterWithIterator(final BaseIOHandler.IO ref) {
-            this.ref = ref;
-        }
-
-        @Override
-        public void emit(final T value) {
-            if (ref != null && value != null) {
-                ref.add(convert(value, ref));
-            }
-        }
-
-        @Override
-        public void setIterator(final Iterator<T> iterator) {
-            if (ref != null) {
-                ref.setSource(new Iterator() {
-
-                    @Override
-                    public boolean hasNext() {
-                        return iterator.hasNext();
-                    }
-
-                    @Override
-                    public Object next() {
-                        return convert(iterator.next(), ref);
-                    }
-                });
-            }
-        }
-    }
 }

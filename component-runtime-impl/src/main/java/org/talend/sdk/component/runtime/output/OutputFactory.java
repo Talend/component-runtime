@@ -16,8 +16,23 @@
 package org.talend.sdk.component.runtime.output;
 
 import org.talend.sdk.component.api.processor.OutputEmitter;
+import org.talend.sdk.component.api.processor.OutputIterator;
 
 public interface OutputFactory {
 
     OutputEmitter create(String name);
+
+    /**
+     * Creates an {@link OutputIterator} for the given output branch name.
+     * Supported only in the Studio DI runtime. Other runtimes throw
+     * {@link UnsupportedOperationException} by default.
+     *
+     * @param name the output branch name
+     * @return an OutputIterator for lazy record streaming
+     * @throws UnsupportedOperationException if the runtime does not support iterator mode
+     */
+    default OutputIterator createIterator(String name) {
+        throw new UnsupportedOperationException(
+                "OutputIterator is only supported in the Studio DI runtime");
+    }
 }

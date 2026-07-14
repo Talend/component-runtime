@@ -29,7 +29,9 @@ import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.record.RecordConverters;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public abstract class BaseIOHandler {
 
     protected final Jsonb jsonb;
@@ -84,6 +86,19 @@ public abstract class BaseIOHandler {
         return "__default__".equals(name) ? "FLOW" : name;
     }
 
+    /**
+     * Represents a single output connection's data holder.
+     * Supports two modes (mutually exclusive per invocation):
+     * <ul>
+     * <li><b>Push mode</b> (default): records are added via {@link #add(Object)} into the internal queue.
+     * Used by {@code OutputEmitter.emit()}.</li>
+     * <li><b>Pull mode</b> (iterator): a lazy {@link Iterator} source is set via {@link #setSource(Iterator)}.
+     * Records are produced on-demand during the drain loop ({@link #hasNext()}/{@link #next()}).
+     * Used by {@code OutputIterator.setIterator()} in the Studio DI runtime.</li>
+     * </ul>
+     * Note: The {@code source} field is only used by {@code OutputsHandler}; {@code InputsHandler}
+     * uses only the queue-based push mode.
+     */
     @RequiredArgsConstructor
     static class IO<T> {
 
@@ -133,7 +148,7 @@ public abstract class BaseIOHandler {
                 try {
                     ((AutoCloseable) source).close();
                 } catch (final Exception e) {
-                    // best effort cleanup
+                    log.debug("Failed to close iterator source", e);
                 }
             }
         }
