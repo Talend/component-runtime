@@ -452,96 +452,39 @@ class ReflectionServiceTest {
                 () -> factory.apply(singletonMap("root.nesteds[0].value", "short")));
     }
 
-    @Test
-    void validationMinNumberKo() throws NoSuchMethodException {
-        final Function<Map<String, String>, Object[]> factory =
-                getComponentFactory(SomeValidationConstraintsConfig.class);
-        assertThrows(IllegalArgumentException.class,
-                () -> factory.apply(Map.of("root.numMin", "3", "root.numMax", "5")));
+    static Stream<Map<String, String>> validationConstraintsKoCases() {
+        return Stream.of(
+                Map.of("root.numMin", "3", "root.numMax", "5"),
+                Map.of("root.numMin", "7", "root.numMax", "15"),
+                Map.of("root.strMin", "ab", "root.strMax", "hi"),
+                Map.of("root.strMin", "hello", "root.strMax", "toolong"),
+                Map.of("root.listMin[0]", "a"),
+                Map.of("root.listMax[0]", "a", "root.listMax[1]", "b", "root.listMax[2]", "c",
+                        "root.listMax[3]", "d"));
     }
 
-    @Test
-    void validationMinNumberOk() throws NoSuchMethodException {
+    @ParameterizedTest
+    @MethodSource("validationConstraintsKoCases")
+    void validationConstraintsKo(final Map<String, String> params) throws NoSuchMethodException {
         final Function<Map<String, String>, Object[]> factory =
                 getComponentFactory(SomeValidationConstraintsConfig.class);
-        assertDoesNotThrow(() -> factory.apply(Map.of("root.numMin", "7", "root.numMax", "5")));
+        assertThrows(IllegalArgumentException.class, () -> factory.apply(params));
     }
 
-    @Test
-    void validationMaxNumberKo() throws NoSuchMethodException {
-        final Function<Map<String, String>, Object[]> factory =
-                getComponentFactory(SomeValidationConstraintsConfig.class);
-        assertThrows(IllegalArgumentException.class,
-                () -> factory.apply(Map.of("root.numMin", "7", "root.numMax", "15")));
+    static Stream<Map<String, String>> validationConstraintsOkCases() {
+        return Stream.of(
+                Map.of("root.numMin", "7", "root.numMax", "5"),
+                Map.of("root.strMin", "hello", "root.strMax", "hi"),
+                Map.of("root.listMin[0]", "a", "root.listMin[1]", "b"),
+                Map.of("root.listMax[0]", "a", "root.listMax[1]", "b"));
     }
 
-    @Test
-    void validationMaxNumberOk() throws NoSuchMethodException {
+    @ParameterizedTest
+    @MethodSource("validationConstraintsOkCases")
+    void validationConstraintsOk(final Map<String, String> params) throws NoSuchMethodException {
         final Function<Map<String, String>, Object[]> factory =
                 getComponentFactory(SomeValidationConstraintsConfig.class);
-        assertDoesNotThrow(() -> factory.apply(Map.of("root.numMin", "7", "root.numMax", "5")));
-    }
-
-    @Test
-    void validationMinStringLengthKo() throws NoSuchMethodException {
-        final Function<Map<String, String>, Object[]> factory =
-                getComponentFactory(SomeValidationConstraintsConfig.class);
-        assertThrows(IllegalArgumentException.class,
-                () -> factory.apply(Map.of("root.strMin", "ab", "root.strMax", "hi")));
-    }
-
-    @Test
-    void validationMinStringLengthOk() throws NoSuchMethodException {
-        final Function<Map<String, String>, Object[]> factory =
-                getComponentFactory(SomeValidationConstraintsConfig.class);
-        assertDoesNotThrow(() -> factory.apply(Map.of("root.strMin", "hello", "root.strMax", "hi")));
-    }
-
-    @Test
-    void validationMaxStringLengthKo() throws NoSuchMethodException {
-        final Function<Map<String, String>, Object[]> factory =
-                getComponentFactory(SomeValidationConstraintsConfig.class);
-        assertThrows(IllegalArgumentException.class,
-                () -> factory.apply(Map.of("root.strMin", "hello", "root.strMax", "toolong")));
-    }
-
-    @Test
-    void validationMaxStringLengthOk() throws NoSuchMethodException {
-        final Function<Map<String, String>, Object[]> factory =
-                getComponentFactory(SomeValidationConstraintsConfig.class);
-        assertDoesNotThrow(() -> factory.apply(Map.of("root.strMin", "hello", "root.strMax", "hi")));
-    }
-
-    @Test
-    void validationMinItemsKo() throws NoSuchMethodException {
-        final Function<Map<String, String>, Object[]> factory =
-                getComponentFactory(SomeValidationConstraintsConfig.class);
-        assertThrows(IllegalArgumentException.class,
-                () -> factory.apply(Map.of("root.listMin[0]", "a")));
-    }
-
-    @Test
-    void validationMinItemsOk() throws NoSuchMethodException {
-        final Function<Map<String, String>, Object[]> factory =
-                getComponentFactory(SomeValidationConstraintsConfig.class);
-        assertDoesNotThrow(() -> factory.apply(Map.of("root.listMin[0]", "a", "root.listMin[1]", "b")));
-    }
-
-    @Test
-    void validationMaxItemsKo() throws NoSuchMethodException {
-        final Function<Map<String, String>, Object[]> factory =
-                getComponentFactory(SomeValidationConstraintsConfig.class);
-        assertThrows(IllegalArgumentException.class, () -> factory
-                .apply(Map.of("root.listMax[0]", "a", "root.listMax[1]", "b", "root.listMax[2]", "c",
-                        "root.listMax[3]", "d")));
-    }
-
-    @Test
-    void validationMaxItemsOk() throws NoSuchMethodException {
-        final Function<Map<String, String>, Object[]> factory =
-                getComponentFactory(SomeValidationConstraintsConfig.class);
-        assertDoesNotThrow(
-                () -> factory.apply(Map.of("root.listMax[0]", "a", "root.listMax[1]", "b")));
+        assertDoesNotThrow(() -> factory.apply(params));
     }
 
     @Test
