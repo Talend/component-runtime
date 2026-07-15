@@ -941,12 +941,10 @@ public class ReflectionService {
         private void validateRuleUniqueItems(final ParameterMeta meta, final JsonValue value,
                 final Map<String, String> metadata) {
             final String unique = metadata.get("tcomp::validation::uniqueItems");
-            if (unique != null) {
-                if (value.getValueType() == JsonValue.ValueType.ARRAY) {
-                    final JsonArray array = value.asJsonArray();
-                    if (new HashSet<>(array).size() != array.size()) {
-                        errors.add(MESSAGES.uniqueItems(meta.getPath()));
-                    }
+            if (unique != null && value.getValueType() == JsonValue.ValueType.ARRAY) {
+                final JsonArray array = value.asJsonArray();
+                if (new HashSet<>(array).size() != array.size()) {
+                    errors.add(MESSAGES.uniqueItems(meta.getPath()));
                 }
             }
         }
