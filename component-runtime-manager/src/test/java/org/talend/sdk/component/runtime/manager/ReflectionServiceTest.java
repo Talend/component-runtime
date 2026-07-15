@@ -490,8 +490,8 @@ class ReflectionServiceTest {
     @Test
     void validationUniqueItemsKo() throws NoSuchMethodException {
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeUniquesConfig.class);
-        assertThrows(IllegalArgumentException.class,
-                () -> factory.apply(Map.of("root.tags[0]", "dup", "root.tags[1]", "dup")));
+        final Map<String, String> map = Map.of("root.tags[0]", "dup", "root.tags[1]", "dup");
+        assertThrows(IllegalArgumentException.class, () -> factory.apply(map));
     }
 
     @Test
@@ -503,8 +503,8 @@ class ReflectionServiceTest {
     @Test
     void validationPatternKo() throws NoSuchMethodException {
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig5.class);
-        assertThrows(IllegalArgumentException.class,
-                () -> factory.apply(Map.of("root.regex", "UPPERCASE")));
+        final Map<String, String> map = Map.of("root.regex", "UPPERCASE");
+        assertThrows(IllegalArgumentException.class, () -> factory.apply(map));
     }
 
     @Test
