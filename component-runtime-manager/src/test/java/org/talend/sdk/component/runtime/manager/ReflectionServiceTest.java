@@ -22,6 +22,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -314,12 +315,7 @@ class ReflectionServiceTest {
         // validation must not throw — QTDI-2489
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredWithDefaultConfig.class);
         // Provide only noDefault (truly required, no default)
-        factory.apply(new HashMap<String, String>() {
-
-            {
-                put("root.noDefault", "provided");
-            }
-        });
+        assertDoesNotThrow(() -> factory.apply(Map.of("root.noDefault", "provided")));
     }
 
     @Test
@@ -327,12 +323,7 @@ class ReflectionServiceTest {
         // Given a config missing the 'region' key, the resolved field value equals the declared default
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredWithDefaultConfig.class);
         final RequiredWithDefaultConfig result =
-                (RequiredWithDefaultConfig) factory.apply(new HashMap<String, String>() {
-
-                    {
-                        put("root.noDefault", "provided");
-                    }
-                })[0];
+                (RequiredWithDefaultConfig) factory.apply(Map.of("root.noDefault", "provided"))[0];
         assertEquals("DEFAULT", result.region);
     }
 
@@ -341,13 +332,7 @@ class ReflectionServiceTest {
         // Given a @Required field with no @DefaultValue and a missing key, validation must throw
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredWithDefaultConfig.class);
         final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> factory.apply(new HashMap<String, String>() {
-
-                    {
-                        put("root.region", "us-east-1");
-                        // noDefault intentionally absent
-                    }
-                }));
+                () -> factory.apply(Map.of("root.region", "us-east-1")));
         assertTrue(ex.getMessage().contains("root.noDefault"),
                 "Error message should mention the missing required field");
     }
@@ -356,26 +341,14 @@ class ReflectionServiceTest {
     void validationRequiredWithEmptyDefaultValuePasses() throws NoSuchMethodException {
         // Given a @Required + @DefaultValue("") field with an absent key, validation must not throw
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredWithDefaultConfig.class);
-        factory.apply(new HashMap<String, String>() {
-
-            {
-                put("root.noDefault", "provided");
-                // emptyDefault intentionally absent — default is ""
-            }
-        });
+        assertDoesNotThrow(() -> factory.apply(Map.of("root.noDefault", "provided")));
     }
 
     @Test
     void validationRequiredMultipleAbsentDefaultsPasses() throws NoSuchMethodException {
         // Given multiple @Required + @DefaultValue fields all absent, no exception is thrown
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredWithDefaultConfig.class);
-        factory.apply(new HashMap<String, String>() {
-
-            {
-                put("root.noDefault", "provided");
-                // both region and anotherField absent — each has a @DefaultValue
-            }
-        });
+        assertDoesNotThrow(() -> factory.apply(Map.of("root.noDefault", "provided")));
     }
 
     @Test
