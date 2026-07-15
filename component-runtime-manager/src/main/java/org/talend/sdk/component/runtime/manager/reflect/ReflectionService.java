@@ -913,9 +913,7 @@ public class ReflectionService {
                 return;
             }
 
-            if (Boolean.parseBoolean(meta.getMetadata().get("tcomp::validation::required"))
-                    && value == JsonValue.NULL
-                    && meta.getMetadata().get("tcomp::ui::defaultvalue::value") == null) {
+            if (isRequiredAndMissingWithoutDefault(meta, value)) {
                 errors.add(MESSAGES.required(meta.getPath()));
             }
             final Map<String, String> metadata = meta.getMetadata();
@@ -1001,6 +999,13 @@ public class ReflectionService {
                     }
                 }
             }
+        }
+
+        private static boolean isRequiredAndMissingWithoutDefault(final ParameterMeta meta,
+                final JsonValue value) {
+            return Boolean.parseBoolean(meta.getMetadata().get("tcomp::validation::required"))
+                    && value == JsonValue.NULL
+                    && meta.getMetadata().get("tcomp::ui::defaultvalue::value") == null;
         }
 
         private void throwIfFailed() {
