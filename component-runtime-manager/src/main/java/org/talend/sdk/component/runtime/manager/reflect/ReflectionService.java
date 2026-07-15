@@ -917,86 +917,110 @@ public class ReflectionService {
                 errors.add(MESSAGES.required(meta.getPath()));
             }
             final Map<String, String> metadata = meta.getMetadata();
-            {
-                final String min = metadata.get("tcomp::validation::min");
-                if (min != null) {
-                    final double bound = Double.parseDouble(min);
-                    if (value.getValueType() == JsonValue.ValueType.NUMBER
-                            && ((JsonNumber) value).doubleValue() < bound) {
-                        errors.add(MESSAGES.min(meta.getPath(), bound, ((JsonNumber) value).doubleValue()));
+            validateRuleMin(meta, value, metadata);
+            validateRuleMax(meta, value, metadata);
+            validateRuleMinLength(meta, value, metadata);
+            validateRuleMaxLength(meta, value, metadata);
+            validateRuleMinItems(meta, value, metadata);
+            validateRuleMaxItems(meta, value, metadata);
+            validateRuleUniqueItems(meta, value, metadata);
+            validateRulePattern(meta, value, metadata);
+        }
+
+        private void validateRulePattern(final ParameterMeta meta, final JsonValue value,
+                final Map<String, String> metadata) {
+            final String pattern = metadata.get("tcomp::validation::pattern");
+            if (pattern != null && value.getValueType() == JsonValue.ValueType.STRING) {
+                final String val = ((JsonString) value).getString();
+                if (!new JavascriptRegex(pattern).test(val)) {
+                    errors.add(MESSAGES.pattern(meta.getPath(), pattern));
+                }
+            }
+        }
+
+        private void validateRuleUniqueItems(final ParameterMeta meta, final JsonValue value,
+                final Map<String, String> metadata) {
+            final String unique = metadata.get("tcomp::validation::uniqueItems");
+            if (unique != null) {
+                if (value.getValueType() == JsonValue.ValueType.ARRAY) {
+                    final JsonArray array = value.asJsonArray();
+                    if (new HashSet<>(array).size() != array.size()) {
+                        errors.add(MESSAGES.uniqueItems(meta.getPath()));
                     }
                 }
             }
-            {
-                final String max = metadata.get("tcomp::validation::max");
-                if (max != null) {
-                    final double bound = Double.parseDouble(max);
-                    if (value.getValueType() == JsonValue.ValueType.NUMBER
-                            && ((JsonNumber) value).doubleValue() > bound) {
-                        errors.add(MESSAGES.max(meta.getPath(), bound, ((JsonNumber) value).doubleValue()));
-                    }
+        }
+
+        private void validateRuleMaxItems(final ParameterMeta meta, final JsonValue value,
+                final Map<String, String> metadata) {
+            final String max = metadata.get("tcomp::validation::maxItems");
+            if (max != null) {
+                final double bound = Double.parseDouble(max);
+                if (value.getValueType() == JsonValue.ValueType.ARRAY && value.asJsonArray().size() > bound) {
+                    errors.add(MESSAGES.maxItems(meta.getPath(), bound, value.asJsonArray().size()));
                 }
             }
-            {
-                final String min = metadata.get("tcomp::validation::minLength");
-                if (min != null) {
-                    final double bound = Double.parseDouble(min);
-                    if (value.getValueType() == JsonValue.ValueType.STRING) {
-                        final String val = ((JsonString) value).getString();
-                        if (val.length() < bound) {
-                            errors.add(MESSAGES.minLength(meta.getPath(), bound, val.length()));
-                        }
-                    }
+        }
+
+        private void validateRuleMinItems(final ParameterMeta meta, final JsonValue value,
+                final Map<String, String> metadata) {
+            final String min = metadata.get("tcomp::validation::minItems");
+            if (min != null) {
+                final double bound = Double.parseDouble(min);
+                if (value.getValueType() == JsonValue.ValueType.ARRAY && value.asJsonArray().size() < bound) {
+                    errors.add(MESSAGES.minItems(meta.getPath(), bound, value.asJsonArray().size()));
                 }
             }
-            {
-                final String max = metadata.get("tcomp::validation::maxLength");
-                if (max != null) {
-                    final double bound = Double.parseDouble(max);
-                    if (value.getValueType() == JsonValue.ValueType.STRING) {
-                        final String val = ((JsonString) value).getString();
-                        if (val.length() > bound) {
-                            errors.add(MESSAGES.maxLength(meta.getPath(), bound, val.length()));
-                        }
-                    }
-                }
-            }
-            {
-                final String min = metadata.get("tcomp::validation::minItems");
-                if (min != null) {
-                    final double bound = Double.parseDouble(min);
-                    if (value.getValueType() == JsonValue.ValueType.ARRAY && value.asJsonArray().size() < bound) {
-                        errors.add(MESSAGES.minItems(meta.getPath(), bound, value.asJsonArray().size()));
-                    }
-                }
-            }
-            {
-                final String max = metadata.get("tcomp::validation::maxItems");
-                if (max != null) {
-                    final double bound = Double.parseDouble(max);
-                    if (value.getValueType() == JsonValue.ValueType.ARRAY && value.asJsonArray().size() > bound) {
-                        errors.add(MESSAGES.maxItems(meta.getPath(), bound, value.asJsonArray().size()));
-                    }
-                }
-            }
-            {
-                final String unique = metadata.get("tcomp::validation::uniqueItems");
-                if (unique != null) {
-                    if (value.getValueType() == JsonValue.ValueType.ARRAY) {
-                        final JsonArray array = value.asJsonArray();
-                        if (new HashSet<>(array).size() != array.size()) {
-                            errors.add(MESSAGES.uniqueItems(meta.getPath()));
-                        }
-                    }
-                }
-            }
-            {
-                final String pattern = metadata.get("tcomp::validation::pattern");
-                if (pattern != null && value.getValueType() == JsonValue.ValueType.STRING) {
+        }
+
+        private void validateRuleMaxLength(final ParameterMeta meta, final JsonValue value,
+                final Map<String, String> metadata) {
+            final String max = metadata.get("tcomp::validation::maxLength");
+            if (max != null) {
+                final double bound = Double.parseDouble(max);
+                if (value.getValueType() == JsonValue.ValueType.STRING) {
                     final String val = ((JsonString) value).getString();
-                    if (!new JavascriptRegex(pattern).test((CharSequence) val)) {
-                        errors.add(MESSAGES.pattern(meta.getPath(), pattern));
+                    if (val.length() > bound) {
+                        errors.add(MESSAGES.maxLength(meta.getPath(), bound, val.length()));
                     }
+                }
+            }
+        }
+
+        private void validateRuleMinLength(final ParameterMeta meta, final JsonValue value,
+                final Map<String, String> metadata) {
+            final String min = metadata.get("tcomp::validation::minLength");
+            if (min != null) {
+                final double bound = Double.parseDouble(min);
+                if (value.getValueType() == JsonValue.ValueType.STRING) {
+                    final String val = ((JsonString) value).getString();
+                    if (val.length() < bound) {
+                        errors.add(MESSAGES.minLength(meta.getPath(), bound, val.length()));
+                    }
+                }
+            }
+        }
+
+        private void validateRuleMax(final ParameterMeta meta, final JsonValue value,
+                final Map<String, String> metadata) {
+            final String max = metadata.get("tcomp::validation::max");
+            if (max != null) {
+                final double bound = Double.parseDouble(max);
+                if (value.getValueType() == JsonValue.ValueType.NUMBER
+                        && ((JsonNumber) value).doubleValue() > bound) {
+                    errors.add(MESSAGES.max(meta.getPath(), bound, ((JsonNumber) value).doubleValue()));
+                }
+            }
+        }
+
+        private void validateRuleMin(final ParameterMeta meta, final JsonValue value,
+                final Map<String, String> metadata) {
+            final String min = metadata.get("tcomp::validation::min");
+            if (min != null) {
+                final double bound = Double.parseDouble(min);
+                if (value.getValueType() == JsonValue.ValueType.NUMBER
+                        && ((JsonNumber) value).doubleValue() < bound) {
+                    errors.add(MESSAGES.min(meta.getPath(), bound, ((JsonNumber) value).doubleValue()));
                 }
             }
         }
