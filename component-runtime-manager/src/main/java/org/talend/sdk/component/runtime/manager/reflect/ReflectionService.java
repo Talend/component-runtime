@@ -914,7 +914,8 @@ public class ReflectionService {
             }
 
             if (Boolean.parseBoolean(meta.getMetadata().get("tcomp::validation::required"))
-                    && value == JsonValue.NULL) {
+                    && value == JsonValue.NULL
+                    && meta.getMetadata().get("tcomp::ui::defaultvalue::value") == null) {
                 errors.add(MESSAGES.required(meta.getPath()));
             }
             final Map<String, String> metadata = meta.getMetadata();

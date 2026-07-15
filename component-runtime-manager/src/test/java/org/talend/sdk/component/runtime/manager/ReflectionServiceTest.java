@@ -64,6 +64,7 @@ import org.talend.sdk.component.api.configuration.constraint.Pattern;
 import org.talend.sdk.component.api.configuration.constraint.Required;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.widget.DateTime;
 import org.talend.sdk.component.api.service.cache.LocalCache;
 import org.talend.sdk.component.api.service.configuration.Configuration;
@@ -305,6 +306,76 @@ class ReflectionServiceTest {
             }
         });
         assertThrows(IllegalArgumentException.class, () -> factory.apply(emptyMap()));
+    }
+
+    @Test
+    void validationRequiredWithDefaultValueMissingKeyPasses() throws NoSuchMethodException {
+        // Given an existing config missing a key for a @Required + @DefaultValue field,
+        // validation must not throw — QTDI-2489
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredWithDefaultConfig.class);
+        // Provide only noDefault (truly required, no default)
+        factory.apply(new HashMap<String, String>() {
+
+            {
+                put("root.noDefault", "provided");
+            }
+        });
+    }
+
+    @Test
+    void validationRequiredWithDefaultValueResolvedValue() throws NoSuchMethodException {
+        // Given a config missing the 'region' key, the resolved field value equals the declared default
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredWithDefaultConfig.class);
+        final RequiredWithDefaultConfig result =
+                (RequiredWithDefaultConfig) factory.apply(new HashMap<String, String>() {
+
+                    {
+                        put("root.noDefault", "provided");
+                    }
+                })[0];
+        assertEquals("DEFAULT", result.region);
+    }
+
+    @Test
+    void validationRequiredNoDefaultValueMissingKeyFails() throws NoSuchMethodException {
+        // Given a @Required field with no @DefaultValue and a missing key, validation must throw
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredWithDefaultConfig.class);
+        final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> factory.apply(new HashMap<String, String>() {
+
+                    {
+                        put("root.region", "us-east-1");
+                        // noDefault intentionally absent
+                    }
+                }));
+        assertTrue(ex.getMessage().contains("root.noDefault"),
+                "Error message should mention the missing required field");
+    }
+
+    @Test
+    void validationRequiredWithEmptyDefaultValuePasses() throws NoSuchMethodException {
+        // Given a @Required + @DefaultValue("") field with an absent key, validation must not throw
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredWithDefaultConfig.class);
+        factory.apply(new HashMap<String, String>() {
+
+            {
+                put("root.noDefault", "provided");
+                // emptyDefault intentionally absent — default is ""
+            }
+        });
+    }
+
+    @Test
+    void validationRequiredMultipleAbsentDefaultsPasses() throws NoSuchMethodException {
+        // Given multiple @Required + @DefaultValue fields all absent, no exception is thrown
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredWithDefaultConfig.class);
+        factory.apply(new HashMap<String, String>() {
+
+            {
+                put("root.noDefault", "provided");
+                // both region and anotherField absent — each has a @DefaultValue
+            }
+        });
     }
 
     @Test
@@ -1013,6 +1084,28 @@ class ReflectionServiceTest {
         private List<SomeConfig5> list;
     }
 
+    public static class RequiredWithDefaultConfig {
+
+        @Option
+        @Required
+        @DefaultValue("DEFAULT")
+        private String region = "DEFAULT";
+
+        @Option
+        @Required
+        @DefaultValue("")
+        private String emptyDefault = "";
+
+        @Option
+        @Required
+        private String noDefault;
+
+        @Option
+        @Required
+        @DefaultValue("X")
+        private String anotherField = "X";
+    }
+
     @EqualsAndHashCode
     public static class SomeIntegerConfig {
 
@@ -1079,6 +1172,10 @@ class ReflectionServiceTest {
         }
 
         public FakeComponent(@Option("root") final RequiredListObject root) {
+            // no-op
+        }
+
+        public FakeComponent(@Option("root") final RequiredWithDefaultConfig root) {
             // no-op
         }
 
