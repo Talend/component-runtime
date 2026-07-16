@@ -28,7 +28,8 @@ import java.util.stream.Stream;
 import javax.json.bind.Jsonb;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
@@ -73,6 +74,12 @@ class ProcessorBufferingTest {
     // With streaming, memory should stay well under this.
     static final long MAX_MEMORY_DELTA_MB = 5;
 
+    enum OutputMode {
+        NO_OUTPUT,
+        ONE_OUTPUT,
+        TWO_OUTPUT
+    }
+
     @BeforeAll
     static void forceManagerInit() {
         final ComponentManager manager = ComponentManager.instance();
@@ -87,8 +94,9 @@ class ProcessorBufferingTest {
      * FAILS on current code: all 100K records buffered → memory spike > threshold.
      * PASSES after iterator implementation: records stream lazily → memory stays low.
      */
-    @Test
-    void elementListenerShouldNotBufferAllRecordsInMemory() {
+    @ParameterizedTest
+    @EnumSource(OutputMode.class)
+    void elementListenerShouldNotBufferAllRecordsInMemory(OutputMode outputMode) {
         final ComponentManager manager = ComponentManager.instance();
         final Map<Class<?>, Object> servicesMapper = getServicesMapper(manager);
         final Jsonb jsonb = (Jsonb) servicesMapper.get(Jsonb.class);
@@ -106,7 +114,9 @@ class ProcessorBufferingTest {
         inputsHandler.addConnection("FLOW", row1Struct.class);
 
         final OutputsHandler outputsHandler = new OutputsHandler(jsonb, servicesMapper);
-        outputsHandler.addConnection("FLOW", row1Struct.class);
+        if(outputMode != OutputMode.NO_OUTPUT) {
+            outputsHandler.addConnection("FLOW", row1Struct.class);
+        }
 
         final InputFactory inputFactory = inputsHandler.asInputFactory();
         final OutputFactory outputFactory = outputsHandler.asOutputFactory();
@@ -133,26 +143,36 @@ class ProcessorBufferingTest {
         chunkProcessor.onElement(inputFactory, outputFactory);
 
         chunkProcessor.flush(outputFactory);
-        chunkProcessor.stop();
 
-        // Measure memory AFTER production, BEFORE drain
+        // Measure memory AFTER production, BEFORE drain — valid for all output modes
         final long memoryAfterProduction = usedMemoryMB();
         final long memoryDelta = memoryAfterProduction - memoryBefore;
 
         System.out.println("=== ProcessorBufferingTest: @ElementListener ===");
+        System.out.println("Output mode:               " + outputMode);
         System.out.println("Records emitted: " + RECORD_COUNT);
         System.out.println("Memory before onElement(): " + memoryBefore + " MB");
         System.out.println("Memory after onElement():  " + memoryAfterProduction + " MB");
         System.out.println("Memory delta:              " + memoryDelta + " MB");
         System.out.println("Threshold:                 " + MAX_MEMORY_DELTA_MB + " MB");
 
-        // Drain after onElement — same as Studio generated code
+        // Drain — same as Studio generated code (inside + outside loop, skipped for NO_OUTPUT)
         int drainedCount = 0;
-        while (outputsHandler.hasMoreData()) {
-            outputsHandler.getValue("FLOW");
-            drainedCount++;
+        if (outputMode != OutputMode.NO_OUTPUT) {
+            // sim inside of input loop
+            while (outputsHandler.hasMoreData()) {
+                outputsHandler.getValue("FLOW");
+                drainedCount++;
+            }
+            // sim outside of input loop
+            while (outputsHandler.hasMoreData()) {
+                outputsHandler.getValue("FLOW");
+                drainedCount++;
+            }
         }
         System.out.println("Records drained:           " + drainedCount);
+
+        chunkProcessor.stop();
 
         // ASSERTION: memory delta should be under threshold
         // FAILS on current code (all records buffered → large delta)
@@ -168,8 +188,9 @@ class ProcessorBufferingTest {
      * FAILS on current code: all records buffered in @AfterGroup.
      * PASSES after iterator implementation.
      */
-    @Test
-    void afterGroupShouldNotBufferAllRecordsInMemory() {
+    @ParameterizedTest
+    @EnumSource(OutputMode.class)
+    void afterGroupShouldNotBufferAllRecordsInMemory(OutputMode outputMode) {
         final ComponentManager manager = ComponentManager.instance();
         final Map<Class<?>, Object> servicesMapper = getServicesMapper(manager);
         final Jsonb jsonb = (Jsonb) servicesMapper.get(Jsonb.class);
@@ -188,8 +209,12 @@ class ProcessorBufferingTest {
         inputsHandler.addConnection("FLOW", row1Struct.class);
 
         final OutputsHandler outputsHandler = new OutputsHandler(jsonb, servicesMapper);
-        outputsHandler.addConnection("MAIN", row1Struct.class);
-        outputsHandler.addConnection("REJECT", row1Struct.class);
+        if(outputMode != OutputMode.NO_OUTPUT) {
+            outputsHandler.addConnection("MAIN", row1Struct.class);
+            if(outputMode == OutputMode.TWO_OUTPUT) {
+                outputsHandler.addConnection("REJECT", row1Struct.class);
+            }
+        }
 
         final InputFactory inputFactory = inputsHandler.asInputFactory();
         final OutputFactory outputFactory = outputsHandler.asOutputFactory();
@@ -219,19 +244,22 @@ class ProcessorBufferingTest {
 
             chunkProcessor.onElement(inputFactory, outputFactory);
 
-            // Drain after each onElement — same as Studio generated code
-            while (outputsHandler.hasMoreData()) {
-                if (outputsHandler.getValue("MAIN") != null) {
-                    mainCount++;
-                }
-                if (outputsHandler.getValue("REJECT") != null) {
-                    rejectCount++;
+            if (outputMode != OutputMode.NO_OUTPUT) {
+                // Drain after each onElement — same as Studio generated code
+                while (outputsHandler.hasMoreData()) {
+                    if (outputsHandler.getValue("MAIN") != null) {
+                        mainCount++;
+                    }
+                    if (outputMode == OutputMode.TWO_OUTPUT) {
+                        if (outputsHandler.getValue("REJECT") != null) {
+                            rejectCount++;
+                        }
+                    }
                 }
             }
         }
 
         chunkProcessor.flush(outputFactory);
-        chunkProcessor.stop();
 
         // GC to reclaim input record objects from the loop
         System.gc();
@@ -250,21 +278,27 @@ class ProcessorBufferingTest {
         System.out.println("Memory after @AfterGroup:  " + memoryAfterGroup + " MB");
         System.out.println("Memory delta:              " + memoryDelta + " MB");
 
-        while (outputsHandler.hasMoreData()) {
-            if (outputsHandler.getValue("MAIN") != null) {
-                mainCount++;
+        if (outputMode != OutputMode.NO_OUTPUT) {
+            while (outputsHandler.hasMoreData()) {
+                if (outputsHandler.getValue("MAIN") != null) {
+                    mainCount++;
+                }
+                if (outputMode == OutputMode.TWO_OUTPUT) {
+                    if (outputsHandler.getValue("REJECT") != null) {
+                        rejectCount++;
+                    }
+                }
             }
-            if (outputsHandler.getValue("REJECT") != null) {
-                rejectCount++;
-            }
+
+            // Verify all records were produced
+            assertTrue(mainCount + rejectCount > 0,
+                    "Should have produced records in @AfterGroup");
         }
 
         System.out.println("MAIN drained:              " + mainCount);
         System.out.println("REJECT drained:            " + rejectCount);
 
-        // Verify all records were produced
-        assertTrue(mainCount + rejectCount > 0,
-                "Should have produced records in @AfterGroup");
+        chunkProcessor.stop();
 
         // ASSERTION: memory delta should be under threshold
         // FAILS on current code (all records buffered → large delta)
@@ -351,14 +385,14 @@ class ProcessorBufferingTest {
                 return;
             }
 
-            // MAIN gets records where index % 10 != 0
+            // MAIN gets records where index % 2 != 0
             main.setIterator(new java.util.Iterator<>() {
 
                 private int index = 0;
 
                 @Override
                 public boolean hasNext() {
-                    while (index < RECORD_COUNT && index % 10 == 0) {
+                    while (index < RECORD_COUNT && index % 2 == 0) {
                         index++;
                     }
                     return index < RECORD_COUNT;
@@ -376,14 +410,14 @@ class ProcessorBufferingTest {
                 }
             });
 
-            // REJECT gets records where index % 10 == 0
+            // REJECT gets records where index % 2 == 0
             reject.setIterator(new java.util.Iterator<>() {
 
                 private int index = 0;
 
                 @Override
                 public boolean hasNext() {
-                    while (index < RECORD_COUNT && index % 10 != 0) {
+                    while (index < RECORD_COUNT && index % 2 != 0) {
                         index++;
                     }
                     return index < RECORD_COUNT;
