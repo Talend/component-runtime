@@ -399,6 +399,84 @@ class ProcessorBufferingTest {
         chunkProcessor.stop();
     }
 
+    /**
+     * Tests that a processor using {@link MultiOutputIterator#setIterator(String, Iterator)}
+     * (independent mode) correctly streams independent lazy sources per output connection,
+     * equivalent to using two separate {@link OutputIterator} parameters but from one
+     * fixed method parameter.
+     */
+    @org.junit.jupiter.api.Test
+    void multiOutputIteratorIndependentModeShouldStreamPerConnection() {
+        final ComponentManager manager = ComponentManager.instance();
+        final Map<Class<?>, Object> servicesMapper = getServicesMapper(manager);
+        final Jsonb jsonb = (Jsonb) servicesMapper.get(Jsonb.class);
+        builderFactory = (RecordBuilderFactory) servicesMapper.get(RecordBuilderFactory.class);
+
+        final org.talend.sdk.component.runtime.output.Processor processor = manager
+                .findProcessor("ProcessorBufferingTest", "independentEmitter", 1, new HashMap<>())
+                .orElseThrow(() -> new IllegalStateException("independentEmitter processor not found"));
+        JobStateAware.init(processor, new HashMap<>());
+
+        final AutoChunkProcessor chunkProcessor = new AutoChunkProcessor(RECORD_COUNT + 1, processor);
+        chunkProcessor.start();
+
+        final InputsHandler inputsHandler = new InputsHandler(jsonb, servicesMapper);
+        inputsHandler.addConnection("FLOW", row1Struct.class);
+
+        final OutputsHandler outputsHandler = new OutputsHandler(jsonb, servicesMapper);
+        outputsHandler.addConnection("MAIN", row1Struct.class);
+        outputsHandler.addConnection("REJECT", row1Struct.class);
+
+        final InputFactory inputFactory = inputsHandler.asInputFactory();
+        final OutputFactory outputFactory = outputsHandler.asOutputFactory();
+
+        final Record inputRecord = builderFactory.newRecordBuilder()
+                .withString("id", "input-1")
+                .withString("name", "trigger")
+                .build();
+        final RecordConverters.MappingMetaRegistry registry = new RecordConverters.MappingMetaRegistry();
+        final row1Struct inputRow = (row1Struct) registry.find(row1Struct.class).newInstance(inputRecord);
+        inputsHandler.setInputValue("FLOW", inputRow);
+
+        gc();
+        final long memoryBefore = usedMemoryMB();
+
+        chunkProcessor.onElement(inputFactory, outputFactory);
+
+        // Independent mode: drain each connection with hasDataFor
+        int mainCount = 0;
+        int rejectCount = 0;
+        while (outputsHandler.hasMoreData()) {
+            if (outputsHandler.hasDataFor("MAIN")) {
+                outputsHandler.getValue("MAIN");
+                mainCount++;
+            }
+            if (outputsHandler.hasDataFor("REJECT")) {
+                outputsHandler.getValue("REJECT");
+                rejectCount++;
+            }
+        }
+
+        chunkProcessor.flush(outputFactory);
+        gc();
+        final long memoryDelta = usedMemoryMB() - memoryBefore;
+
+        System.out.println("=== ProcessorBufferingTest: MultiOutputIterator independent mode ===");
+        System.out.println("MAIN drained:    " + mainCount);
+        System.out.println("REJECT drained:  " + rejectCount);
+        System.out.println("Memory delta:    " + memoryDelta + " MB");
+
+        // MAIN has RECORD_COUNT records, REJECT has RECORD_COUNT/2
+        org.junit.jupiter.api.Assertions.assertEquals(RECORD_COUNT, mainCount,
+                "MAIN should receive all records");
+        org.junit.jupiter.api.Assertions.assertEquals(RECORD_COUNT / 2, rejectCount,
+                "REJECT should receive half the records");
+        org.junit.jupiter.api.Assertions.assertTrue(memoryDelta <= MAX_MEMORY_DELTA_MB,
+                "Memory delta should be <= " + MAX_MEMORY_DELTA_MB + " MB, was " + memoryDelta + " MB");
+
+        chunkProcessor.stop();
+    }
+
     // --- Test components ---
 
     /**
@@ -568,6 +646,54 @@ class ProcessorBufferingTest {
                             .build();
                     index++;
                     return TaggedOutput.of(outputName, rec);
+                }
+            });
+        }
+    }
+
+    /**
+     * Processor that uses {@link MultiOutputIterator#setIterator(String, Iterator)}
+     * (independent mode) to assign separate lazy sources to MAIN and REJECT.
+     * MAIN gets RECORD_COUNT records, REJECT gets RECORD_COUNT/2 records.
+     */
+    @Processor(name = "independentEmitter", family = "ProcessorBufferingTest")
+    public static class IndependentEmitterProcessor implements Serializable {
+
+        @ElementListener
+        public void onElement(@Input final Record input,
+                @Output final MultiOutputIterator<Record> out) {
+            out.setIterator("MAIN", new java.util.Iterator<>() {
+
+                private int index = 0;
+
+                @Override
+                public boolean hasNext() {
+                    return index < RECORD_COUNT;
+                }
+
+                @Override
+                public Record next() {
+                    return builderFactory.newRecordBuilder()
+                            .withString("id", "main-" + index)
+                            .withString("name", "main-record-" + index++)
+                            .build();
+                }
+            });
+            out.setIterator("REJECT", new java.util.Iterator<>() {
+
+                private int index = 0;
+
+                @Override
+                public boolean hasNext() {
+                    return index < RECORD_COUNT / 2;
+                }
+
+                @Override
+                public Record next() {
+                    return builderFactory.newRecordBuilder()
+                            .withString("id", "reject-" + index)
+                            .withString("name", "reject-record-" + index++)
+                            .build();
                 }
             });
         }

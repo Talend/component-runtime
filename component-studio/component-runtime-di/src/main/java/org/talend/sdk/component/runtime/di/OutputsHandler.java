@@ -74,16 +74,44 @@ public class OutputsHandler extends BaseIOHandler {
 
             @Override
             public <T> MultiOutputIterator<T> createMultiOutputIterator() {
-                return iterator -> setTaggedSource(() -> {
-                    if (!iterator.hasNext()) {
-                        return false;
+                return new MultiOutputIterator<T>() {
+
+                    @Override
+                    public void setIterator(final Iterator<TaggedOutput<T>> iterator) {
+                        setTaggedSource(() -> {
+                            if (!iterator.hasNext()) {
+                                return false;
+                            }
+                            final TaggedOutput<T> tagged = iterator.next();
+                            final String name = getActualName(tagged.getOutputName());
+                            final BaseIOHandler.IO ref = connections.get(name);
+                            setPending(name,
+                                    ref != null ? convert(tagged.getRecord(), ref) : tagged.getRecord());
+                            return true;
+                        });
                     }
-                    final TaggedOutput<T> tagged = iterator.next();
-                    final String name = getActualName(tagged.getOutputName());
-                    final BaseIOHandler.IO ref = connections.get(name);
-                    setPending(name, ref != null ? convert(tagged.getRecord(), ref) : tagged.getRecord());
-                    return true;
-                });
+
+                    @Override
+                    public void setIterator(final String outputName, final Iterator<T> iterator) {
+                        final String name = getActualName(outputName);
+                        final BaseIOHandler.IO ref = connections.get(name);
+                        if (ref == null) {
+                            return;
+                        }
+                        ref.setSource(new Iterator() {
+
+                            @Override
+                            public boolean hasNext() {
+                                return iterator.hasNext();
+                            }
+
+                            @Override
+                            public Object next() {
+                                return convert(iterator.next(), ref);
+                            }
+                        });
+                    }
+                };
             }
         };
     }
