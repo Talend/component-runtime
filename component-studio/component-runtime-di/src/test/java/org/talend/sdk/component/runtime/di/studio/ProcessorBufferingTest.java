@@ -35,9 +35,11 @@ import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.LastGroup;
+import org.talend.sdk.component.api.processor.MultiOutputIterator;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputIterator;
 import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.processor.TaggedOutput;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.di.AutoChunkProcessor;
@@ -314,6 +316,89 @@ class ProcessorBufferingTest {
                 .getServices();
     }
 
+    /**
+     * Tests that a processor using {@link MultiOutputIterator} correctly splits records
+     * between MAIN and REJECT without buffering and without requiring lockstep iteration.
+     *
+     * <p>
+     * The split processor routes even-indexed records to MAIN and odd-indexed to REJECT
+     * from a SINGLE shared source iterator. Without tagged-output support this would
+     * require buffering all records first.
+     */
+    @org.junit.jupiter.api.Test
+    void multiOutputIteratorShouldSplitRecordsWithoutBuffering() {
+        final ComponentManager manager = ComponentManager.instance();
+        final Map<Class<?>, Object> servicesMapper = getServicesMapper(manager);
+        final Jsonb jsonb = (Jsonb) servicesMapper.get(Jsonb.class);
+        builderFactory = (RecordBuilderFactory) servicesMapper.get(RecordBuilderFactory.class);
+
+        final org.talend.sdk.component.runtime.output.Processor processor = manager
+                .findProcessor("ProcessorBufferingTest", "splitEmitter", 1, new HashMap<>())
+                .orElseThrow(() -> new IllegalStateException("splitEmitter processor not found"));
+        JobStateAware.init(processor, new HashMap<>());
+
+        final AutoChunkProcessor chunkProcessor = new AutoChunkProcessor(RECORD_COUNT + 1, processor);
+        chunkProcessor.start();
+
+        final InputsHandler inputsHandler = new InputsHandler(jsonb, servicesMapper);
+        inputsHandler.addConnection("FLOW", row1Struct.class);
+
+        final OutputsHandler outputsHandler = new OutputsHandler(jsonb, servicesMapper);
+        outputsHandler.addConnection("MAIN", row1Struct.class);
+        outputsHandler.addConnection("REJECT", row1Struct.class);
+
+        final InputFactory inputFactory = inputsHandler.asInputFactory();
+        final OutputFactory outputFactory = outputsHandler.asOutputFactory();
+
+        final Record inputRecord = builderFactory.newRecordBuilder()
+                .withString("id", "input-1")
+                .withString("name", "trigger")
+                .build();
+        final RecordConverters.MappingMetaRegistry registry = new RecordConverters.MappingMetaRegistry();
+        final row1Struct inputRow = (row1Struct) registry.find(row1Struct.class).newInstance(inputRecord);
+        inputsHandler.setInputValue("FLOW", inputRow);
+
+        gc();
+        final long memoryBefore = usedMemoryMB();
+
+        chunkProcessor.onElement(inputFactory, outputFactory);
+
+        // Drain using per-connection hasMoreData checks — correct for split streaming
+        int mainCount = 0;
+        int rejectCount = 0;
+        while (outputsHandler.hasMoreData()) {
+            if (outputsHandler.hasMoreData("MAIN")) {
+                outputsHandler.getValue("MAIN");
+                mainCount++;
+            }
+            if (outputsHandler.hasMoreData("REJECT")) {
+                outputsHandler.getValue("REJECT");
+                rejectCount++;
+            }
+        }
+
+        chunkProcessor.flush(outputFactory);
+        gc();
+        final long memoryDelta = usedMemoryMB() - memoryBefore;
+
+        System.out.println("=== ProcessorBufferingTest: MultiOutputIterator split ===");
+        System.out.println("Records emitted: " + RECORD_COUNT);
+        System.out.println("MAIN drained:    " + mainCount);
+        System.out.println("REJECT drained:  " + rejectCount);
+        System.out.println("Memory delta:    " + memoryDelta + " MB");
+
+        // Split should route exactly half to each
+        final int expected = RECORD_COUNT / 2;
+        org.junit.jupiter.api.Assertions.assertEquals(expected, mainCount,
+                "MAIN should receive half the records");
+        org.junit.jupiter.api.Assertions.assertEquals(expected, rejectCount,
+                "REJECT should receive the other half");
+        org.junit.jupiter.api.Assertions.assertTrue(memoryDelta <= MAX_MEMORY_DELTA_MB,
+                "Memory delta should be <= " + MAX_MEMORY_DELTA_MB + " MB, was " + memoryDelta + " MB");
+
+        chunkProcessor.stop();
+    }
+
     // --- Test components ---
 
     /**
@@ -450,6 +535,41 @@ class ProcessorBufferingTest {
         @Override
         public void readData(final ObjectInputStream objectInputStream) {
             throw new UnsupportedOperationException("#readData()");
+        }
+    }
+
+    /**
+     * Processor that uses a single {@link MultiOutputIterator} to split 100K records
+     * between MAIN (even indices) and REJECT (odd indices) from a single lazy source.
+     * This is the true-split scenario: one source, two outputs, no buffering.
+     */
+    @Processor(name = "splitEmitter", family = "ProcessorBufferingTest")
+    public static class SplitEmitterProcessor implements Serializable {
+
+        @ElementListener
+        public void onElement(@Input final Record input,
+                @Output final MultiOutputIterator<Record> splitter) {
+            splitter.setIterator(new java.util.Iterator<>() {
+
+                private int index = 0;
+
+                @Override
+                public boolean hasNext() {
+                    return index < RECORD_COUNT;
+                }
+
+                @Override
+                public TaggedOutput<Record> next() {
+                    final String outputName = (index % 2 == 0) ? "MAIN" : "REJECT";
+                    final Record rec = builderFactory.newRecordBuilder()
+                            .withString("id", outputName.toLowerCase() + "-" + index)
+                            .withString("name", "split-record-" + index)
+                            .withString("data", "split-data-" + index)
+                            .build();
+                    index++;
+                    return TaggedOutput.of(outputName, rec);
+                }
+            });
         }
     }
 

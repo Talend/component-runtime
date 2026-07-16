@@ -55,6 +55,7 @@ import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.LastGroup;
+import org.talend.sdk.component.api.processor.MultiOutputIterator;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputIterator;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
@@ -155,6 +156,9 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
             if (OutputIterator.class == parameter.getType()) {
                 return (inputs, outputs) -> outputs.createIterator(name);
             }
+            if (MultiOutputIterator.class == parameter.getType()) {
+                return (inputs, outputs) -> outputs.createMultiOutputIterator();
+            }
             return (inputs, outputs) -> outputs.create(name);
         }
 
@@ -172,6 +176,9 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
             final String name = parameter.getAnnotation(Output.class).value();
             if (OutputIterator.class == parameter.getType()) {
                 return outputs.createIterator(name);
+            }
+            if (MultiOutputIterator.class == parameter.getType()) {
+                return outputs.createMultiOutputIterator();
             }
             return outputs.create(name);
         };
