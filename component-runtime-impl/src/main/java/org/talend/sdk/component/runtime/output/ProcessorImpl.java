@@ -95,6 +95,8 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
     private transient Collection<Object> records;
 
+    private transient Boolean streamingMode;
+
     private Map<String, String> internalConfiguration;
 
     private RecordConverters.MappingMetaRegistry mappings;
@@ -259,6 +261,17 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
         if (records != null) {
             records = null;
         }
+    }
+
+    @Override
+    public boolean isStreamingMode() {
+        if (streamingMode == null) {
+            streamingMode = Stream
+                    .concat(findMethods(ElementListener.class), findMethods(AfterGroup.class))
+                    .flatMap(m -> Stream.of(m.getParameters()))
+                    .anyMatch(p -> p.isAnnotationPresent(Output.class) && OutputIterator.class == p.getType());
+        }
+        return streamingMode;
     }
 
     @Override
