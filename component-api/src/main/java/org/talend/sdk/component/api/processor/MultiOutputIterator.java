@@ -66,20 +66,14 @@ import java.util.Iterator;
  *
  * <p>
  * The drain loop on the Studio side should use per-connection
- * {@code hasMoreData(name)} checks to efficiently consume only the records
+ * {@code hasDataFor(name)} checks to efficiently consume only the records
  * belonging to each output:
  *
  * <pre>
  * {@code
  * while (outputsHandler.hasMoreData()) {
- *     if (outputsHandler.hasMoreData("MAIN")) {
- *         mainRow = outputsHandler.getValue("MAIN");
- *         // ... process mainRow
- *     }
- *     if (outputsHandler.hasMoreData("REJECT")) {
- *         rejectRow = outputsHandler.getValue("REJECT");
- *         // ... process rejectRow
- *     }
+ *     if (outputsHandler.hasDataFor("MAIN"))   mainRow   = outputsHandler.getValue("MAIN");
+ *     if (outputsHandler.hasDataFor("REJECT"))  rejectRow = outputsHandler.getValue("REJECT");
  * }
  * }
  * </pre>

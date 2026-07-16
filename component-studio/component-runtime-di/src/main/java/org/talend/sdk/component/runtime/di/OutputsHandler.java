@@ -74,23 +74,15 @@ public class OutputsHandler extends BaseIOHandler {
 
             @Override
             public <T> MultiOutputIterator<T> createMultiOutputIterator() {
-                return iterator -> setTaggedSource(new Iterator<TaggedOutput<?>>() {
-
-                    @Override
-                    public boolean hasNext() {
-                        return iterator.hasNext();
+                return iterator -> setTaggedSource(() -> {
+                    if (!iterator.hasNext()) {
+                        return false;
                     }
-
-                    @Override
-                    public TaggedOutput<?> next() {
-                        final TaggedOutput<T> tagged = iterator.next();
-                        final String name = getActualName(tagged.getOutputName());
-                        final BaseIOHandler.IO ref = connections.get(name);
-                        if (ref == null || tagged.getRecord() == null) {
-                            return tagged;
-                        }
-                        return TaggedOutput.of(name, convert(tagged.getRecord(), ref));
-                    }
+                    final TaggedOutput<T> tagged = iterator.next();
+                    final String name = getActualName(tagged.getOutputName());
+                    final BaseIOHandler.IO ref = connections.get(name);
+                    setPending(name, ref != null ? convert(tagged.getRecord(), ref) : tagged.getRecord());
+                    return true;
                 });
             }
         };

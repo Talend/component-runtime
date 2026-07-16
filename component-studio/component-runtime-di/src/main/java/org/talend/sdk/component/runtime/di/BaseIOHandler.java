@@ -25,7 +25,6 @@ import java.util.TreeMap;
 
 import javax.json.bind.Jsonb;
 
-import org.talend.sdk.component.api.processor.TaggedOutput;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.record.RecordConverters;
 
@@ -44,17 +43,29 @@ public abstract class BaseIOHandler {
     protected final Map<String, IO> connections = new TreeMap<>();
 
     /**
-     * Single tagged source iterator for split streaming.
-     * Set via {@link #setTaggedSource(Iterator)}.
-     * When non-null, {@link #hasMoreData()} and {@link #getValue(String)} operate in tagged mode.
+     * Functional interface used internally to advance the tagged source one step.
+     * Implementations call {@link #setPending(String, Object)} to store the next
+     * record's output name and converted value, then return {@code true}.
+     * Return {@code false} when the source is exhausted.
      */
-    private Iterator<TaggedOutput<?>> taggedSource;
+    @FunctionalInterface
+    protected interface TaggedAdvancer {
+
+        boolean advance();
+    }
 
     /**
-     * One-record look-ahead buffer for the tagged source.
-     * Populated by {@link #hasMoreData(String)} when peeking ahead.
+     * Tagged-source advancer for split streaming.
+     * Non-null only when the component used a
+     * {@link org.talend.sdk.component.api.processor.MultiOutputIterator}.
      */
-    private TaggedOutput<?> pendingTaggedOutput;
+    private TaggedAdvancer taggedSource;
+
+    /** Output-connection name of the look-ahead record; {@code null} when no record is pending. */
+    private String pendingOutputName;
+
+    /** Converted record value paired with {@link #pendingOutputName}. */
+    private Object pendingRecord;
 
     public BaseIOHandler(final Jsonb jsonb, final Map<Class<?>, Object> servicesMapper) {
         this.jsonb = jsonb;
@@ -87,15 +98,16 @@ public abstract class BaseIOHandler {
     public void reset() {
         connections.values().forEach(IO::reset);
         taggedSource = null;
-        pendingTaggedOutput = null;
+        pendingOutputName = null;
+        pendingRecord = null;
     }
 
     public <T> T getValue(final String connectorName) {
         if (taggedSource != null) {
-            if (pendingTaggedOutput != null
-                    && pendingTaggedOutput.getOutputName().equals(connectorName)) {
-                final T value = (T) pendingTaggedOutput.getRecord();
-                pendingTaggedOutput = null;
+            if (connectorName.equals(pendingOutputName)) {
+                final T value = (T) pendingRecord;
+                pendingOutputName = null;
+                pendingRecord = null;
                 return value;
             }
             return null;
@@ -105,7 +117,7 @@ public abstract class BaseIOHandler {
 
     public boolean hasMoreData() {
         if (taggedSource != null) {
-            return pendingTaggedOutput != null || taggedSource.hasNext();
+            return pendingOutputName != null || taggedSource.advance();
         }
         return connections.entrySet().stream().anyMatch(e -> e.getValue().hasNext());
     }
@@ -117,7 +129,7 @@ public abstract class BaseIOHandler {
      * In tagged-source mode (when the component used a
      * {@link org.talend.sdk.component.api.processor.MultiOutputIterator}),
      * this peeks one record ahead from the shared tagged source and returns whether it
-     * belongs to {@code connectorName}. The peeked record is buffered and consumed by
+     * belongs to {@code connectionName}. The peeked record is buffered and consumed by
      * the next {@link #getValue(String)} call for the same connection.
      *
      * <p>
@@ -126,46 +138,57 @@ public abstract class BaseIOHandler {
      * <p>
      * Use this method in the Studio drain loop to avoid calling {@link #getValue(String)}
      * on connections that have no data:
-     * 
+     *
      * <pre>{@code
      * while (outputsHandler.hasMoreData()) {
-     *     if (outputsHandler.hasMoreData("MAIN")) {
+     *     if (outputsHandler.hasDataFor("MAIN"))
      *         mainRow = outputsHandler.getValue("MAIN");
-     *     }
-     *     if (outputsHandler.hasMoreData("REJECT")) {
+     *     if (outputsHandler.hasDataFor("REJECT"))
      *         rejectRow = outputsHandler.getValue("REJECT");
-     *     }
      * }
      * }</pre>
      *
-     * @param connectorName the output connection name to check
-     * @return {@code true} if a record for this connection is available
+     * @param connectionName the output connection name to check
+     * @return {@code true} if a record for this connection is immediately available
      */
-    public boolean hasMoreData(final String connectorName) {
+    public boolean hasDataFor(final String connectionName) {
         if (taggedSource != null) {
-            if (pendingTaggedOutput != null) {
-                return pendingTaggedOutput.getOutputName().equals(connectorName);
+            if (pendingOutputName != null) {
+                return pendingOutputName.equals(connectionName);
             }
-            if (taggedSource.hasNext()) {
-                pendingTaggedOutput = taggedSource.next();
-                return pendingTaggedOutput.getOutputName().equals(connectorName);
-            }
-            return false;
+            return taggedSource.advance() && pendingOutputName.equals(connectionName);
         }
-        final IO io = connections.get(connectorName);
+        final IO io = connections.get(connectionName);
         return io != null && io.hasNext();
     }
 
     /**
-     * Sets a shared tagged-source iterator for split streaming across multiple outputs.
-     * Calling this switches the handler to <em>tagged mode</em>; subsequent calls to
-     * {@link #hasMoreData(String)} and {@link #getValue(String)} operate on the tagged source.
+     * Sets a tagged-source advancer for split streaming across multiple outputs.
+     * Switching to tagged mode — subsequent {@link #hasMoreData()}, {@link #hasDataFor(String)},
+     * and {@link #getValue(String)} operate via the advancer instead of per-connection queues.
      *
-     * @param source the tagged iterator produced by a MultiOutputIterator component
+     * <p>
+     * The {@code advancer} implementation must call {@link #setPending(String, Object)} with
+     * the next output-connection name and converted record value, then return {@code true}.
+     * Return {@code false} when the source is exhausted.
+     *
+     * @param advancer the tagged-source advancer produced by a MultiOutputIterator setup
      */
-    protected void setTaggedSource(final Iterator<TaggedOutput<?>> source) {
-        this.taggedSource = source;
-        this.pendingTaggedOutput = null;
+    protected void setTaggedSource(final TaggedAdvancer advancer) {
+        this.taggedSource = advancer;
+        this.pendingOutputName = null;
+        this.pendingRecord = null;
+    }
+
+    /**
+     * Called by a {@link TaggedAdvancer} to store the next pending record.
+     *
+     * @param outputName the output connection name for the record
+     * @param record the converted record value
+     */
+    protected void setPending(final String outputName, final Object record) {
+        this.pendingOutputName = outputName;
+        this.pendingRecord = record;
     }
 
     protected String getActualName(final String name) {

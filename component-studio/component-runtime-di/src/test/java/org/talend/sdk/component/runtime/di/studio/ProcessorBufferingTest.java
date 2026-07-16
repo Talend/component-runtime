@@ -363,15 +363,15 @@ class ProcessorBufferingTest {
 
         chunkProcessor.onElement(inputFactory, outputFactory);
 
-        // Drain using per-connection hasMoreData checks — correct for split streaming
+        // Drain using per-connection hasDataFor checks — correct for split streaming
         int mainCount = 0;
         int rejectCount = 0;
         while (outputsHandler.hasMoreData()) {
-            if (outputsHandler.hasMoreData("MAIN")) {
+            if (outputsHandler.hasDataFor("MAIN")) {
                 outputsHandler.getValue("MAIN");
                 mainCount++;
             }
-            if (outputsHandler.hasMoreData("REJECT")) {
+            if (outputsHandler.hasDataFor("REJECT")) {
                 outputsHandler.getValue("REJECT");
                 rejectCount++;
             }
