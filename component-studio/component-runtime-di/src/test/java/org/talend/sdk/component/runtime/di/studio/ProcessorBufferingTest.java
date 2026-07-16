@@ -114,7 +114,7 @@ class ProcessorBufferingTest {
         inputsHandler.addConnection("FLOW", row1Struct.class);
 
         final OutputsHandler outputsHandler = new OutputsHandler(jsonb, servicesMapper);
-        if(outputMode != OutputMode.NO_OUTPUT) {
+        if (outputMode != OutputMode.NO_OUTPUT) {
             outputsHandler.addConnection("FLOW", row1Struct.class);
         }
 
@@ -131,18 +131,27 @@ class ProcessorBufferingTest {
         inputsHandler.setInputValue("FLOW", inputRow);
 
         // Force GC to get a clean baseline
-        System.gc();
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        gc();
+
         final long memoryBefore = usedMemoryMB();
 
         // --- Producer emits all records in onElement() ---
         chunkProcessor.onElement(inputFactory, outputFactory);
 
+        // Drain — same as Studio generated code (inside + outside loop, skipped for NO_OUTPUT)
+        int drainedCount = 0;
+        if (outputMode != OutputMode.NO_OUTPUT) {
+            // sim inside of input loop
+            while (outputsHandler.hasMoreData()) {
+                outputsHandler.getValue("FLOW");
+                drainedCount++;
+            }
+        }
+
         chunkProcessor.flush(outputFactory);
+
+        // GC to reclaim input record objects from the loop
+        gc();
 
         // Measure memory AFTER production, BEFORE drain — valid for all output modes
         final long memoryAfterProduction = usedMemoryMB();
@@ -156,14 +165,7 @@ class ProcessorBufferingTest {
         System.out.println("Memory delta:              " + memoryDelta + " MB");
         System.out.println("Threshold:                 " + MAX_MEMORY_DELTA_MB + " MB");
 
-        // Drain — same as Studio generated code (inside + outside loop, skipped for NO_OUTPUT)
-        int drainedCount = 0;
         if (outputMode != OutputMode.NO_OUTPUT) {
-            // sim inside of input loop
-            while (outputsHandler.hasMoreData()) {
-                outputsHandler.getValue("FLOW");
-                drainedCount++;
-            }
             // sim outside of input loop
             while (outputsHandler.hasMoreData()) {
                 outputsHandler.getValue("FLOW");
@@ -209,9 +211,9 @@ class ProcessorBufferingTest {
         inputsHandler.addConnection("FLOW", row1Struct.class);
 
         final OutputsHandler outputsHandler = new OutputsHandler(jsonb, servicesMapper);
-        if(outputMode != OutputMode.NO_OUTPUT) {
+        if (outputMode != OutputMode.NO_OUTPUT) {
             outputsHandler.addConnection("MAIN", row1Struct.class);
-            if(outputMode == OutputMode.TWO_OUTPUT) {
+            if (outputMode == OutputMode.TWO_OUTPUT) {
                 outputsHandler.addConnection("REJECT", row1Struct.class);
             }
         }
@@ -225,15 +227,9 @@ class ProcessorBufferingTest {
         int rejectCount = 0;
 
         // Force GC to get a clean baseline
-        System.gc();
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        gc();
         final long memoryBefore = usedMemoryMB();
 
-        // Feed 5 inputs (triggers @AfterGroup)
         for (int i = 0; i < RECORD_COUNT; i++) {
             final Record inputRecord = builderFactory.newRecordBuilder()
                     .withString("id", "input-" + i)
@@ -262,12 +258,7 @@ class ProcessorBufferingTest {
         chunkProcessor.flush(outputFactory);
 
         // GC to reclaim input record objects from the loop
-        System.gc();
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        gc();
 
         final long memoryAfterGroup = usedMemoryMB();
         final long memoryDelta = memoryAfterGroup - memoryBefore;
@@ -459,6 +450,16 @@ class ProcessorBufferingTest {
         @Override
         public void readData(final ObjectInputStream objectInputStream) {
             throw new UnsupportedOperationException("#readData()");
+        }
+    }
+
+    private void gc() {
+        // GC to reclaim input record objects from the loop
+        System.gc();
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 }
