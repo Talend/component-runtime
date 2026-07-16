@@ -34,9 +34,5 @@ public interface Processor extends Lifecycle {
         return false;
     }
 
-    default boolean isStreamingMode() {
-        return false;
-    }
-
     void onNext(InputFactory input, OutputFactory output);
 }

@@ -46,10 +46,6 @@ public class AutoChunkProcessor implements Lifecycle {
         }
     }
 
-    public boolean isStreamingMode() {
-        return processor.isStreamingMode();
-    }
-
     public void flush(final OutputFactory outs) {
         if (processedItemCount > 0) {
             processor.afterGroup(outs);
