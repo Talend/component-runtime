@@ -1,0 +1,1 @@
+[2026-07-17 | QTDI-2862] ComponentSchemaEnricher metadata key constants use _META_PREFIX suffix (e.g. FIXED_SCHEMA_WATCH_META_PREFIX), not _META_KEY or _NAME. Consistent with peer constants like FIXED_SCHEMA_FLOWS_META_PREFIX.
