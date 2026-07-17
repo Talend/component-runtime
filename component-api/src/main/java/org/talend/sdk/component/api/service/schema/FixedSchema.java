@@ -42,4 +42,13 @@ public @interface FixedSchema {
      */
     String[] flows() default {};
 
+    /**
+     * Parameter paths that trigger a schema refresh in Studio when their value changes.
+     * Uses the same dot-notation as {@code @Updatable#parameters()}, relative to the component root.
+     * Example: {@code watch = {"configuration.dataSet.connection.url"}}
+     *
+     * @return the parameter paths to watch. Default to none (no dynamic refresh).
+     */
+    String[] watch() default {};
+
 }

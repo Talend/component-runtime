@@ -61,6 +61,38 @@ class ComponentSchemaEnricherTest {
     }
 
     @Test
+    void fixedSchemaWatchSinglePath() {
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("tcomp::ui::schema::fixed", "discover");
+                put("tcomp::ui::schema::flows::fixed", "__default__");
+                put("tcomp::ui::schema::fixed::watch", "configuration.dataSet.connection.url");
+            }
+        }, enricher.onComponent(EmitterWithWatch.class, EmitterWithWatch.class.getAnnotations()));
+    }
+
+    @Test
+    void fixedSchemaWatchMultiplePaths() {
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("tcomp::ui::schema::fixed", "discover");
+                put("tcomp::ui::schema::flows::fixed", "__default__");
+                put("tcomp::ui::schema::fixed::watch", "configuration.dataSet.url,configuration.dataSet.table");
+            }
+        }, enricher.onComponent(EmitterWithMultiWatch.class, EmitterWithMultiWatch.class.getAnnotations()));
+    }
+
+    @Test
+    void fixedSchemaWatchEmptyDoesNotEmitKey() {
+        final java.util.Map<String, String> result =
+                enricher.onComponent(MyEmitter.class, MyEmitter.class.getAnnotations());
+        org.junit.jupiter.api.Assertions.assertFalse(result.containsKey("tcomp::ui::schema::fixed::watch"),
+                "watch key must be absent when watch() is empty");
+    }
+
+    @Test
     void dbMappingMetadataPresent() {
         assertEquals(new HashMap<String, String>() {
 
@@ -101,6 +133,18 @@ class ComponentSchemaEnricherTest {
     @Emitter
     @FixedSchema(value = "discover")
     private static class MyEmitter {
+
+    }
+
+    @Emitter
+    @FixedSchema(value = "discover", watch = { "configuration.dataSet.connection.url" })
+    private static class EmitterWithWatch {
+
+    }
+
+    @Emitter
+    @FixedSchema(value = "discover", watch = { "configuration.dataSet.url", "configuration.dataSet.table" })
+    private static class EmitterWithMultiWatch {
 
     }
 }
