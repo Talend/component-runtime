@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.runtime.di.studio;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -27,6 +25,7 @@ import java.util.stream.Stream;
 
 import javax.json.bind.Jsonb;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -144,7 +143,10 @@ class ProcessorBufferingTest {
         if (outputMode != OutputMode.NO_OUTPUT) {
             // sim inside of input loop
             while (outputsHandler.hasMoreData()) {
-                outputsHandler.getValue("FLOW");
+                final row1Struct rec = outputsHandler.getValue("FLOW");
+                Assertions.assertNotNull(rec, "FLOW record should not be null");
+                Assertions.assertEquals("out-" + drainedCount, rec.id,
+                        "FLOW record id mismatch at index " + drainedCount);
                 drainedCount++;
             }
         }
@@ -169,7 +171,10 @@ class ProcessorBufferingTest {
         if (outputMode != OutputMode.NO_OUTPUT) {
             // sim outside of input loop
             while (outputsHandler.hasMoreData()) {
-                outputsHandler.getValue("FLOW");
+                final row1Struct rec = outputsHandler.getValue("FLOW");
+                Assertions.assertNotNull(rec, "FLOW record should not be null");
+                Assertions.assertEquals("out-" + drainedCount, rec.id,
+                        "FLOW record id mismatch at index " + drainedCount);
                 drainedCount++;
             }
         }
@@ -180,7 +185,7 @@ class ProcessorBufferingTest {
         // ASSERTION: memory delta should be under threshold
         // FAILS on current code (all records buffered → large delta)
         // PASSES after iterator implementation (lazy streaming → small delta)
-        assertTrue(memoryDelta <= MAX_MEMORY_DELTA_MB,
+        Assertions.assertTrue(memoryDelta <= MAX_MEMORY_DELTA_MB,
                 "Memory delta should be <= " + MAX_MEMORY_DELTA_MB + " MB (streaming), "
                         + "but was " + memoryDelta + " MB (all records buffered in memory)");
     }
@@ -244,11 +249,17 @@ class ProcessorBufferingTest {
             if (outputMode != OutputMode.NO_OUTPUT) {
                 // Drain after each onElement — same as Studio generated code
                 while (outputsHandler.hasMoreData()) {
-                    if (outputsHandler.getValue("MAIN") != null) {
+                    final row1Struct mainRow = outputsHandler.getValue("MAIN");
+                    if (mainRow != null) {
+                        Assertions.assertEquals("result-" + (mainCount * 2 + 1), mainRow.id,
+                                "MAIN record id mismatch at index " + mainCount);
                         mainCount++;
                     }
                     if (outputMode == OutputMode.TWO_OUTPUT) {
-                        if (outputsHandler.getValue("REJECT") != null) {
+                        final row1Struct rejectRow = outputsHandler.getValue("REJECT");
+                        if (rejectRow != null) {
+                            Assertions.assertEquals("reject-" + (rejectCount * 2), rejectRow.id,
+                                    "REJECT record id mismatch at index " + rejectCount);
                             rejectCount++;
                         }
                     }
@@ -272,18 +283,24 @@ class ProcessorBufferingTest {
 
         if (outputMode != OutputMode.NO_OUTPUT) {
             while (outputsHandler.hasMoreData()) {
-                if (outputsHandler.getValue("MAIN") != null) {
+                final row1Struct mainRow = outputsHandler.getValue("MAIN");
+                if (mainRow != null) {
+                    Assertions.assertEquals("result-" + (mainCount * 2 + 1), mainRow.id,
+                            "MAIN record id mismatch at index " + mainCount);
                     mainCount++;
                 }
                 if (outputMode == OutputMode.TWO_OUTPUT) {
-                    if (outputsHandler.getValue("REJECT") != null) {
+                    final row1Struct rejectRow = outputsHandler.getValue("REJECT");
+                    if (rejectRow != null) {
+                        Assertions.assertEquals("reject-" + (rejectCount * 2), rejectRow.id,
+                                "REJECT record id mismatch at index " + rejectCount);
                         rejectCount++;
                     }
                 }
             }
 
             // Verify all records were produced
-            assertTrue(mainCount + rejectCount > 0,
+            Assertions.assertTrue(mainCount + rejectCount > 0,
                     "Should have produced records in @AfterGroup");
         }
 
@@ -295,7 +312,7 @@ class ProcessorBufferingTest {
         // ASSERTION: memory delta should be under threshold
         // FAILS on current code (all records buffered → large delta)
         // PASSES after iterator implementation (lazy streaming → small delta)
-        assertTrue(memoryDelta <= MAX_MEMORY_DELTA_MB,
+        Assertions.assertTrue(memoryDelta <= MAX_MEMORY_DELTA_MB,
                 "Memory delta should be <= " + MAX_MEMORY_DELTA_MB + " MB (streaming), "
                         + "but was " + memoryDelta + " MB (all records buffered in memory)");
     }
@@ -362,11 +379,17 @@ class ProcessorBufferingTest {
                 // Drain using hasDataFor — exercises the fix that skips unregistered pending records
                 while (outputsHandler.hasMoreData()) {
                     if (outputsHandler.hasDataFor("MAIN")) {
-                        outputsHandler.getValue("MAIN");
+                        final row1Struct mainRow = outputsHandler.getValue("MAIN");
+                        Assertions.assertNotNull(mainRow, "MAIN record should not be null");
+                        Assertions.assertEquals("main-" + (mainCount * 2), mainRow.id,
+                                "MAIN record id mismatch at index " + mainCount);
                         mainCount++;
                     }
                     if (outputMode == OutputMode.TWO_OUTPUT && outputsHandler.hasDataFor("REJECT")) {
-                        outputsHandler.getValue("REJECT");
+                        final row1Struct rejectRow = outputsHandler.getValue("REJECT");
+                        Assertions.assertNotNull(rejectRow, "REJECT record should not be null");
+                        Assertions.assertEquals("reject-" + (rejectCount * 2 + 1), rejectRow.id,
+                                "REJECT record id mismatch at index " + rejectCount);
                         rejectCount++;
                     }
                 }
@@ -380,11 +403,17 @@ class ProcessorBufferingTest {
         if (outputMode != OutputMode.NO_OUTPUT) {
             while (outputsHandler.hasMoreData()) {
                 if (outputsHandler.hasDataFor("MAIN")) {
-                    outputsHandler.getValue("MAIN");
+                    final row1Struct mainRow = outputsHandler.getValue("MAIN");
+                    Assertions.assertNotNull(mainRow, "MAIN record should not be null");
+                    Assertions.assertEquals("main-" + (mainCount * 2), mainRow.id,
+                            "MAIN record id mismatch at index " + mainCount);
                     mainCount++;
                 }
                 if (outputMode == OutputMode.TWO_OUTPUT && outputsHandler.hasDataFor("REJECT")) {
-                    outputsHandler.getValue("REJECT");
+                    final row1Struct rejectRow = outputsHandler.getValue("REJECT");
+                    Assertions.assertNotNull(rejectRow, "REJECT record should not be null");
+                    Assertions.assertEquals("reject-" + (rejectCount * 2 + 1), rejectRow.id,
+                            "REJECT record id mismatch at index " + rejectCount);
                     rejectCount++;
                 }
             }
@@ -404,23 +433,23 @@ class ProcessorBufferingTest {
         final int half = RECORD_COUNT / 2;
         switch (outputMode) {
             case TWO_OUTPUT:
-                org.junit.jupiter.api.Assertions.assertEquals(half, mainCount,
+                Assertions.assertEquals(half, mainCount,
                         "MAIN should receive half the records (even indices)");
-                org.junit.jupiter.api.Assertions.assertEquals(half, rejectCount,
+                Assertions.assertEquals(half, rejectCount,
                         "REJECT should receive half the records (odd indices)");
                 break;
             case ONE_OUTPUT:
-                org.junit.jupiter.api.Assertions.assertEquals(half, mainCount,
+                Assertions.assertEquals(half, mainCount,
                         "MAIN should receive half the records");
-                org.junit.jupiter.api.Assertions.assertEquals(0, rejectCount,
+                Assertions.assertEquals(0, rejectCount,
                         "REJECT not registered, should receive nothing");
                 break;
             case NO_OUTPUT:
-                org.junit.jupiter.api.Assertions.assertEquals(0, mainCount + rejectCount,
+                Assertions.assertEquals(0, mainCount + rejectCount,
                         "No connections registered, no records should be received");
                 break;
         }
-        org.junit.jupiter.api.Assertions.assertTrue(memoryDelta <= MAX_MEMORY_DELTA_MB,
+        Assertions.assertTrue(memoryDelta <= MAX_MEMORY_DELTA_MB,
                 "Memory delta should be <= " + MAX_MEMORY_DELTA_MB + " MB, was " + memoryDelta + " MB");
 
         chunkProcessor.stop();
@@ -499,12 +528,18 @@ class ProcessorBufferingTest {
         if (outputMode != OutputMode.NO_OUTPUT) {
             while (outputsHandler.hasMoreData()) {
                 if (outputsHandler.hasDataFor("MAIN")) {
-                    outputsHandler.getValue("MAIN");
+                    final row1Struct mainRow = outputsHandler.getValue("MAIN");
+                    Assertions.assertNotNull(mainRow, "MAIN record should not be null");
+                    Assertions.assertEquals("main-" + (mainCount * 2), mainRow.id,
+                            "MAIN record id mismatch at index " + mainCount);
                     mainCount++;
                 }
                 if (outputMode == OutputMode.TWO_OUTPUT) {
                     if (outputsHandler.hasDataFor("REJECT")) {
-                        outputsHandler.getValue("REJECT");
+                        final row1Struct rejectRow = outputsHandler.getValue("REJECT");
+                        Assertions.assertNotNull(rejectRow, "REJECT record should not be null");
+                        Assertions.assertEquals("reject-" + (rejectCount * 2 + 1), rejectRow.id,
+                                "REJECT record id mismatch at index " + rejectCount);
                         rejectCount++;
                     }
                 }
@@ -525,25 +560,25 @@ class ProcessorBufferingTest {
         switch (outputMode) {
             case TWO_OUTPUT:
                 // Both connections registered: each receives exactly half
-                org.junit.jupiter.api.Assertions.assertEquals(expected, mainCount,
+                Assertions.assertEquals(expected, mainCount,
                         "MAIN should receive half the records");
-                org.junit.jupiter.api.Assertions.assertEquals(expected, rejectCount,
+                Assertions.assertEquals(expected, rejectCount,
                         "REJECT should receive the other half");
                 break;
             case ONE_OUTPUT:
                 // Only MAIN registered: MAIN gets its half, REJECT records are skipped
-                org.junit.jupiter.api.Assertions.assertEquals(expected, mainCount,
+                Assertions.assertEquals(expected, mainCount,
                         "MAIN should receive half the records");
-                org.junit.jupiter.api.Assertions.assertEquals(0, rejectCount,
+                Assertions.assertEquals(0, rejectCount,
                         "REJECT not registered, should receive nothing");
                 break;
             case NO_OUTPUT:
                 // No connections registered: nothing drained
-                org.junit.jupiter.api.Assertions.assertEquals(0, mainCount + rejectCount,
+                Assertions.assertEquals(0, mainCount + rejectCount,
                         "No connections registered, no records should be received");
                 break;
         }
-        org.junit.jupiter.api.Assertions.assertTrue(memoryDelta <= MAX_MEMORY_DELTA_MB,
+        Assertions.assertTrue(memoryDelta <= MAX_MEMORY_DELTA_MB,
                 "Memory delta should be <= " + MAX_MEMORY_DELTA_MB + " MB, was " + memoryDelta + " MB");
 
         chunkProcessor.stop();
@@ -604,11 +639,17 @@ class ProcessorBufferingTest {
         if (outputMode != OutputMode.NO_OUTPUT) {
             while (outputsHandler.hasMoreData()) {
                 if (outputsHandler.hasDataFor("MAIN")) {
-                    outputsHandler.getValue("MAIN");
+                    final row1Struct mainRow = outputsHandler.getValue("MAIN");
+                    Assertions.assertNotNull(mainRow, "MAIN record should not be null");
+                    Assertions.assertEquals("main-" + mainCount, mainRow.id,
+                            "MAIN record id mismatch at index " + mainCount);
                     mainCount++;
                 }
                 if (outputMode == OutputMode.TWO_OUTPUT && outputsHandler.hasDataFor("REJECT")) {
-                    outputsHandler.getValue("REJECT");
+                    final row1Struct rejectRow = outputsHandler.getValue("REJECT");
+                    Assertions.assertNotNull(rejectRow, "REJECT record should not be null");
+                    Assertions.assertEquals("reject-" + rejectCount, rejectRow.id,
+                            "REJECT record id mismatch at index " + rejectCount);
                     rejectCount++;
                 }
             }
@@ -626,23 +667,23 @@ class ProcessorBufferingTest {
 
         switch (outputMode) {
             case TWO_OUTPUT:
-                org.junit.jupiter.api.Assertions.assertEquals(RECORD_COUNT, mainCount,
+                Assertions.assertEquals(RECORD_COUNT, mainCount,
                         "MAIN should receive all records");
-                org.junit.jupiter.api.Assertions.assertEquals(RECORD_COUNT / 2, rejectCount,
+                Assertions.assertEquals(RECORD_COUNT / 2, rejectCount,
                         "REJECT should receive half the records");
                 break;
             case ONE_OUTPUT:
-                org.junit.jupiter.api.Assertions.assertEquals(RECORD_COUNT, mainCount,
+                Assertions.assertEquals(RECORD_COUNT, mainCount,
                         "MAIN should receive all records");
-                org.junit.jupiter.api.Assertions.assertEquals(0, rejectCount,
+                Assertions.assertEquals(0, rejectCount,
                         "REJECT not registered, should receive nothing");
                 break;
             case NO_OUTPUT:
-                org.junit.jupiter.api.Assertions.assertEquals(0, mainCount + rejectCount,
+                Assertions.assertEquals(0, mainCount + rejectCount,
                         "No connections registered, no records should be received");
                 break;
         }
-        org.junit.jupiter.api.Assertions.assertTrue(memoryDelta <= MAX_MEMORY_DELTA_MB,
+        Assertions.assertTrue(memoryDelta <= MAX_MEMORY_DELTA_MB,
                 "Memory delta should be <= " + MAX_MEMORY_DELTA_MB + " MB, was " + memoryDelta + " MB");
 
         chunkProcessor.stop();
