@@ -25,5 +25,5 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 public @interface Output {
 
-    String value() default "__default__";
+    String[] value() default { "__default__" };
 }

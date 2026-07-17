@@ -776,7 +776,8 @@ public class TaCoKitGuessSchema {
                     .flatMap(m -> IntStream
                             .range(0, m.getParameterCount())
                             .filter(i -> m.getParameters()[i].isAnnotationPresent(Output.class)
-                                    && outBranchName.equals(m.getParameters()[i].getAnnotation(Output.class).value()))
+                                    && java.util.Arrays.asList(m.getParameters()[i].getAnnotation(Output.class).value())
+                                            .contains(outBranchName))
                             .mapToObj(i -> m.getGenericParameterTypes()[i])
                             .filter(t -> t instanceof ParameterizedType parameterizedType
                                     && parameterizedType.getRawType() == OutputEmitter.class
