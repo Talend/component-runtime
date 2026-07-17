@@ -300,6 +300,132 @@ class ProcessorBufferingTest {
                         + "but was " + memoryDelta + " MB (all records buffered in memory)");
     }
 
+    /**
+     * Tests that a processor using a split {@link MultiOutputIterator} in {@code @AfterGroup}
+     * correctly routes records between MAIN and REJECT via {@code hasDataFor} without buffering.
+     *
+     * <p>
+     * Uses a single shared tagged iterator that routes even-indexed records to MAIN and
+     * odd-indexed records to REJECT. The drain loop uses {@code hasDataFor} to consume
+     * only the connection that has a record ready — which exercises the fix in
+     * {@code hasDataFor} that skips unregistered pending records instead of stalling.
+     */
+    @ParameterizedTest
+    @EnumSource(OutputMode.class)
+    void afterGroupSplitIteratorShouldRouteRecordsWithHasDataFor(OutputMode outputMode) {
+        final ComponentManager manager = ComponentManager.instance();
+        final Map<Class<?>, Object> servicesMapper = getServicesMapper(manager);
+        final Jsonb jsonb = (Jsonb) servicesMapper.get(Jsonb.class);
+        builderFactory = (RecordBuilderFactory) servicesMapper.get(RecordBuilderFactory.class);
+
+        final org.talend.sdk.component.runtime.output.Processor processor = manager
+                .findProcessor("ProcessorBufferingTest", "splitAfterGroupEmitter", 1, new HashMap<>())
+                .orElseThrow(() -> new IllegalStateException("splitAfterGroupEmitter processor not found"));
+        JobStateAware.init(processor, new HashMap<>());
+
+        // chunkSize=5: after 5 inputs, @AfterGroup fires and emits 100K records via split iterator
+        final AutoChunkProcessor chunkProcessor = new AutoChunkProcessor(5, processor);
+        chunkProcessor.start();
+
+        final InputsHandler inputsHandler = new InputsHandler(jsonb, servicesMapper);
+        inputsHandler.addConnection("FLOW", row1Struct.class);
+
+        final OutputsHandler outputsHandler = new OutputsHandler(jsonb, servicesMapper);
+        if (outputMode != OutputMode.NO_OUTPUT) {
+            outputsHandler.addConnection("MAIN", row1Struct.class);
+            if (outputMode == OutputMode.TWO_OUTPUT) {
+                outputsHandler.addConnection("REJECT", row1Struct.class);
+            }
+        }
+
+        final InputFactory inputFactory = inputsHandler.asInputFactory();
+        final OutputFactory outputFactory = outputsHandler.asOutputFactory();
+        final RecordConverters.MappingMetaRegistry registry = new RecordConverters.MappingMetaRegistry();
+
+        int mainCount = 0;
+        int rejectCount = 0;
+
+        gc();
+        final long memoryBefore = usedMemoryMB();
+
+        for (int i = 0; i < 5; i++) {
+            final Record inputRecord = builderFactory.newRecordBuilder()
+                    .withString("id", "input-" + i)
+                    .withString("name", "record-" + i)
+                    .build();
+            final row1Struct inputRow = (row1Struct) registry.find(row1Struct.class).newInstance(inputRecord);
+            inputsHandler.setInputValue("FLOW", inputRow);
+
+            chunkProcessor.onElement(inputFactory, outputFactory);
+
+            if (outputMode != OutputMode.NO_OUTPUT) {
+                // Drain using hasDataFor — exercises the fix that skips unregistered pending records
+                while (outputsHandler.hasMoreData()) {
+                    if (outputsHandler.hasDataFor("MAIN")) {
+                        outputsHandler.getValue("MAIN");
+                        mainCount++;
+                    }
+                    if (outputMode == OutputMode.TWO_OUTPUT && outputsHandler.hasDataFor("REJECT")) {
+                        outputsHandler.getValue("REJECT");
+                        rejectCount++;
+                    }
+                }
+            }
+        }
+
+        chunkProcessor.flush(outputFactory);
+
+        // Drain after flush — @AfterGroup with lastGroup=true fires inside flush(),
+        // so the split iterator is only set there and must be drained here.
+        if (outputMode != OutputMode.NO_OUTPUT) {
+            while (outputsHandler.hasMoreData()) {
+                if (outputsHandler.hasDataFor("MAIN")) {
+                    outputsHandler.getValue("MAIN");
+                    mainCount++;
+                }
+                if (outputMode == OutputMode.TWO_OUTPUT && outputsHandler.hasDataFor("REJECT")) {
+                    outputsHandler.getValue("REJECT");
+                    rejectCount++;
+                }
+            }
+        }
+
+        gc();
+
+        final long memoryAfter = usedMemoryMB();
+        final long memoryDelta = memoryAfter - memoryBefore;
+
+        System.out.println("=== ProcessorBufferingTest: @AfterGroup split iterator ===");
+        System.out.println("Output mode:     " + outputMode);
+        System.out.println("MAIN drained:    " + mainCount);
+        System.out.println("REJECT drained:  " + rejectCount);
+        System.out.println("Memory delta:    " + memoryDelta + " MB");
+
+        final int half = RECORD_COUNT / 2;
+        switch (outputMode) {
+            case TWO_OUTPUT:
+                org.junit.jupiter.api.Assertions.assertEquals(half, mainCount,
+                        "MAIN should receive half the records (even indices)");
+                org.junit.jupiter.api.Assertions.assertEquals(half, rejectCount,
+                        "REJECT should receive half the records (odd indices)");
+                break;
+            case ONE_OUTPUT:
+                org.junit.jupiter.api.Assertions.assertEquals(half, mainCount,
+                        "MAIN should receive half the records");
+                org.junit.jupiter.api.Assertions.assertEquals(0, rejectCount,
+                        "REJECT not registered, should receive nothing");
+                break;
+            case NO_OUTPUT:
+                org.junit.jupiter.api.Assertions.assertEquals(0, mainCount + rejectCount,
+                        "No connections registered, no records should be received");
+                break;
+        }
+        org.junit.jupiter.api.Assertions.assertTrue(memoryDelta <= MAX_MEMORY_DELTA_MB,
+                "Memory delta should be <= " + MAX_MEMORY_DELTA_MB + " MB, was " + memoryDelta + " MB");
+
+        chunkProcessor.stop();
+    }
+
     // --- Helpers ---
 
     private static long usedMemoryMB() {
@@ -324,8 +450,9 @@ class ProcessorBufferingTest {
      * from a SINGLE shared source iterator. Without tagged-output support this would
      * require buffering all records first.
      */
-    @org.junit.jupiter.api.Test
-    void multiOutputIteratorShouldSplitRecordsWithoutBuffering() {
+    @ParameterizedTest
+    @EnumSource(OutputMode.class)
+    void multiOutputIteratorShouldSplitRecordsWithoutBuffering(OutputMode outputMode) {
         final ComponentManager manager = ComponentManager.instance();
         final Map<Class<?>, Object> servicesMapper = getServicesMapper(manager);
         final Jsonb jsonb = (Jsonb) servicesMapper.get(Jsonb.class);
@@ -343,8 +470,12 @@ class ProcessorBufferingTest {
         inputsHandler.addConnection("FLOW", row1Struct.class);
 
         final OutputsHandler outputsHandler = new OutputsHandler(jsonb, servicesMapper);
-        outputsHandler.addConnection("MAIN", row1Struct.class);
-        outputsHandler.addConnection("REJECT", row1Struct.class);
+        if (outputMode != OutputMode.NO_OUTPUT) {
+            outputsHandler.addConnection("MAIN", row1Struct.class);
+            if (outputMode == OutputMode.TWO_OUTPUT) {
+                outputsHandler.addConnection("REJECT", row1Struct.class);
+            }
+        }
 
         final InputFactory inputFactory = inputsHandler.asInputFactory();
         final OutputFactory outputFactory = outputsHandler.asOutputFactory();
@@ -365,14 +496,18 @@ class ProcessorBufferingTest {
         // Drain using per-connection hasDataFor checks — correct for split streaming
         int mainCount = 0;
         int rejectCount = 0;
-        while (outputsHandler.hasMoreData()) {
-            if (outputsHandler.hasDataFor("MAIN")) {
-                outputsHandler.getValue("MAIN");
-                mainCount++;
-            }
-            if (outputsHandler.hasDataFor("REJECT")) {
-                outputsHandler.getValue("REJECT");
-                rejectCount++;
+        if (outputMode != OutputMode.NO_OUTPUT) {
+            while (outputsHandler.hasMoreData()) {
+                if (outputsHandler.hasDataFor("MAIN")) {
+                    outputsHandler.getValue("MAIN");
+                    mainCount++;
+                }
+                if (outputMode == OutputMode.TWO_OUTPUT) {
+                    if (outputsHandler.hasDataFor("REJECT")) {
+                        outputsHandler.getValue("REJECT");
+                        rejectCount++;
+                    }
+                }
             }
         }
 
@@ -386,12 +521,28 @@ class ProcessorBufferingTest {
         System.out.println("REJECT drained:  " + rejectCount);
         System.out.println("Memory delta:    " + memoryDelta + " MB");
 
-        // Split should route exactly half to each
         final int expected = RECORD_COUNT / 2;
-        org.junit.jupiter.api.Assertions.assertEquals(expected, mainCount,
-                "MAIN should receive half the records");
-        org.junit.jupiter.api.Assertions.assertEquals(expected, rejectCount,
-                "REJECT should receive the other half");
+        switch (outputMode) {
+            case TWO_OUTPUT:
+                // Both connections registered: each receives exactly half
+                org.junit.jupiter.api.Assertions.assertEquals(expected, mainCount,
+                        "MAIN should receive half the records");
+                org.junit.jupiter.api.Assertions.assertEquals(expected, rejectCount,
+                        "REJECT should receive the other half");
+                break;
+            case ONE_OUTPUT:
+                // Only MAIN registered: MAIN gets its half, REJECT records are skipped
+                org.junit.jupiter.api.Assertions.assertEquals(expected, mainCount,
+                        "MAIN should receive half the records");
+                org.junit.jupiter.api.Assertions.assertEquals(0, rejectCount,
+                        "REJECT not registered, should receive nothing");
+                break;
+            case NO_OUTPUT:
+                // No connections registered: nothing drained
+                org.junit.jupiter.api.Assertions.assertEquals(0, mainCount + rejectCount,
+                        "No connections registered, no records should be received");
+                break;
+        }
         org.junit.jupiter.api.Assertions.assertTrue(memoryDelta <= MAX_MEMORY_DELTA_MB,
                 "Memory delta should be <= " + MAX_MEMORY_DELTA_MB + " MB, was " + memoryDelta + " MB");
 
@@ -404,8 +555,9 @@ class ProcessorBufferingTest {
      * equivalent to using two separate output parameters but from one
      * fixed method parameter.
      */
-    @org.junit.jupiter.api.Test
-    void multiOutputIteratorIndependentModeShouldStreamPerConnection() {
+    @ParameterizedTest
+    @EnumSource(OutputMode.class)
+    void multiOutputIteratorIndependentModeShouldStreamPerConnection(OutputMode outputMode) {
         final ComponentManager manager = ComponentManager.instance();
         final Map<Class<?>, Object> servicesMapper = getServicesMapper(manager);
         final Jsonb jsonb = (Jsonb) servicesMapper.get(Jsonb.class);
@@ -423,8 +575,12 @@ class ProcessorBufferingTest {
         inputsHandler.addConnection("FLOW", row1Struct.class);
 
         final OutputsHandler outputsHandler = new OutputsHandler(jsonb, servicesMapper);
-        outputsHandler.addConnection("MAIN", row1Struct.class);
-        outputsHandler.addConnection("REJECT", row1Struct.class);
+        if (outputMode != OutputMode.NO_OUTPUT) {
+            outputsHandler.addConnection("MAIN", row1Struct.class);
+            if (outputMode == OutputMode.TWO_OUTPUT) {
+                outputsHandler.addConnection("REJECT", row1Struct.class);
+            }
+        }
 
         final InputFactory inputFactory = inputsHandler.asInputFactory();
         final OutputFactory outputFactory = outputsHandler.asOutputFactory();
@@ -445,14 +601,16 @@ class ProcessorBufferingTest {
         // Independent mode: drain each connection with hasDataFor
         int mainCount = 0;
         int rejectCount = 0;
-        while (outputsHandler.hasMoreData()) {
-            if (outputsHandler.hasDataFor("MAIN")) {
-                outputsHandler.getValue("MAIN");
-                mainCount++;
-            }
-            if (outputsHandler.hasDataFor("REJECT")) {
-                outputsHandler.getValue("REJECT");
-                rejectCount++;
+        if (outputMode != OutputMode.NO_OUTPUT) {
+            while (outputsHandler.hasMoreData()) {
+                if (outputsHandler.hasDataFor("MAIN")) {
+                    outputsHandler.getValue("MAIN");
+                    mainCount++;
+                }
+                if (outputMode == OutputMode.TWO_OUTPUT && outputsHandler.hasDataFor("REJECT")) {
+                    outputsHandler.getValue("REJECT");
+                    rejectCount++;
+                }
             }
         }
 
@@ -461,15 +619,29 @@ class ProcessorBufferingTest {
         final long memoryDelta = usedMemoryMB() - memoryBefore;
 
         System.out.println("=== ProcessorBufferingTest: MultiOutputIterator independent mode ===");
+        System.out.println("Output mode:     " + outputMode);
         System.out.println("MAIN drained:    " + mainCount);
         System.out.println("REJECT drained:  " + rejectCount);
         System.out.println("Memory delta:    " + memoryDelta + " MB");
 
-        // MAIN has RECORD_COUNT records, REJECT has RECORD_COUNT/2
-        org.junit.jupiter.api.Assertions.assertEquals(RECORD_COUNT, mainCount,
-                "MAIN should receive all records");
-        org.junit.jupiter.api.Assertions.assertEquals(RECORD_COUNT / 2, rejectCount,
-                "REJECT should receive half the records");
+        switch (outputMode) {
+            case TWO_OUTPUT:
+                org.junit.jupiter.api.Assertions.assertEquals(RECORD_COUNT, mainCount,
+                        "MAIN should receive all records");
+                org.junit.jupiter.api.Assertions.assertEquals(RECORD_COUNT / 2, rejectCount,
+                        "REJECT should receive half the records");
+                break;
+            case ONE_OUTPUT:
+                org.junit.jupiter.api.Assertions.assertEquals(RECORD_COUNT, mainCount,
+                        "MAIN should receive all records");
+                org.junit.jupiter.api.Assertions.assertEquals(0, rejectCount,
+                        "REJECT not registered, should receive nothing");
+                break;
+            case NO_OUTPUT:
+                org.junit.jupiter.api.Assertions.assertEquals(0, mainCount + rejectCount,
+                        "No connections registered, no records should be received");
+                break;
+        }
         org.junit.jupiter.api.Assertions.assertTrue(memoryDelta <= MAX_MEMORY_DELTA_MB,
                 "Memory delta should be <= " + MAX_MEMORY_DELTA_MB + " MB, was " + memoryDelta + " MB");
 
@@ -586,8 +758,53 @@ class ProcessorBufferingTest {
                     return rec;
                 }
             });
+        }
+    }
 
-            inputCount = 0;
+    /**
+     * Processor that uses a single shared split {@link MultiOutputIterator} in {@code @AfterGroup}
+     * to route even-indexed records to MAIN and odd-indexed records to REJECT via {@link TaggedOutput}.
+     * This tests the {@code hasDataFor} fix: when only MAIN is registered, odd-indexed pending
+     * records must be skipped rather than stalling the drain loop.
+     */
+    @Processor(name = "splitAfterGroupEmitter", family = "ProcessorBufferingTest")
+    public static class SplitAfterGroupEmitterProcessor implements Serializable {
+
+        @BeforeGroup
+        public void beforeGroup() {
+        }
+
+        @ElementListener
+        public void onElement(@Input final Record input) {
+        }
+
+        @AfterGroup
+        public void afterGroup(@Output final MultiOutputIterator<Record> out,
+                @LastGroup final boolean lastGroup) {
+            if (!lastGroup) {
+                return;
+            }
+            out.setIterator(new java.util.Iterator<>() {
+
+                private int index = 0;
+
+                @Override
+                public boolean hasNext() {
+                    return index < RECORD_COUNT;
+                }
+
+                @Override
+                public TaggedOutput<Record> next() {
+                    final String outputName = (index % 2 == 0) ? "MAIN" : "REJECT";
+                    final Record rec = builderFactory.newRecordBuilder()
+                            .withString("id", outputName.toLowerCase() + "-" + index)
+                            .withString("name", "split-aftergroup-record-" + index)
+                            .withString("data", "split-aftergroup-data-" + index)
+                            .build();
+                    index++;
+                    return TaggedOutput.of(outputName, rec);
+                }
+            });
         }
     }
 

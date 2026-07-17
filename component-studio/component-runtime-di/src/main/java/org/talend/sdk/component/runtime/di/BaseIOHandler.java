@@ -180,10 +180,26 @@ public abstract class BaseIOHandler {
      */
     public boolean hasDataFor(final String connectionName) {
         if (taggedSource != null) {
+            // Skip any pending record for an unregistered connection before checking
+            while (pendingOutputName != null && !connections.containsKey(pendingOutputName)) {
+                pendingOutputName = null;
+                pendingRecord = null;
+                if (!taggedSource.advance()) {
+                    return false;
+                }
+            }
             if (pendingOutputName != null) {
                 return pendingOutputName.equals(connectionName);
             }
-            return taggedSource.advance() && pendingOutputName.equals(connectionName);
+            // Advance, skipping records for unregistered connections
+            while (taggedSource.advance()) {
+                if (connections.containsKey(pendingOutputName)) {
+                    return pendingOutputName.equals(connectionName);
+                }
+                pendingOutputName = null;
+                pendingRecord = null;
+            }
+            return false;
         }
         final IO io = connections.get(connectionName);
         return io != null && io.hasNext();
