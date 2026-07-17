@@ -230,7 +230,7 @@ public abstract class BaseIOHandler {
      * Used by {@code OutputEmitter.emit()}.</li>
      * <li><b>Pull mode</b> (iterator): a lazy {@link Iterator} source is set via {@link #setSource(Iterator)}.
      * Records are produced on-demand during the drain loop ({@link #hasNext()}/{@link #next()}).
-     * Used by {@code OutputIterator.setIterator()} in the Studio DI runtime.</li>
+     * Used by {@code MultiOutputIterator.setIterator(String, Iterator)} in the Studio DI runtime.</li>
      * </ul>
      * In pull mode, one record is eagerly buffered by {@link #hasNext()} so that
      * subsequent calls to {@link #hasNext()} and {@link #next()} make no further

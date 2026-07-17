@@ -32,7 +32,7 @@ import java.util.Iterator;
  *
  * <p>
  * Both modes can be selected at runtime from the same fixed method parameter,
- * so the component does not need separate {@link OutputIterator} parameters.
+ * so the component does not need separate parameters per output.
  *
  * <p>
  * <b>Important:</b> This interface is supported only in the Studio DI runtime.
@@ -87,7 +87,6 @@ import java.util.Iterator;
  *
  * @param <T> the record type
  * @see TaggedOutput
- * @see OutputIterator
  */
 public interface MultiOutputIterator<T> {
 

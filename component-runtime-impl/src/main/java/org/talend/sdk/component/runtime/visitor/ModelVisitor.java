@@ -47,7 +47,6 @@ import org.talend.sdk.component.api.processor.LastGroup;
 import org.talend.sdk.component.api.processor.MultiOutputIterator;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
-import org.talend.sdk.component.api.processor.OutputIterator;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.standalone.DriverRunner;
 import org.talend.sdk.component.api.standalone.RunAtDriver;
@@ -198,7 +197,7 @@ public class ModelVisitor {
             final List<Parameter> invalidParams = Stream.of(m.getParameters()).peek(p -> {
                 if (p.isAnnotationPresent(Output.class) && !validOutputParam(p)) {
                     throw new IllegalArgumentException(
-                            "@Output parameter must be of type OutputEmitter, OutputIterator, or MultiOutputIterator");
+                            "@Output parameter must be of type OutputEmitter or MultiOutputIterator");
                 }
             })
                     .filter(p -> !p.isAnnotationPresent(Output.class))
@@ -247,7 +246,7 @@ public class ModelVisitor {
         if (!producers.isEmpty() && Stream.of(producers.get(0).getParameters()).peek(p -> {
             if (p.isAnnotationPresent(Output.class) && !validOutputParam(p)) {
                 throw new IllegalArgumentException(
-                        "@Output parameter must be of type OutputEmitter, OutputIterator, or MultiOutputIterator");
+                        "@Output parameter must be of type OutputEmitter or MultiOutputIterator");
             }
         }).filter(p -> !p.isAnnotationPresent(Output.class)).count() < 1) {
             throw new IllegalArgumentException(input + " doesn't have the input parameter on its producer method");
@@ -259,7 +258,6 @@ public class ModelVisitor {
             return false;
         }
         return OutputEmitter.class == pt.getRawType()
-                || OutputIterator.class == pt.getRawType()
                 || MultiOutputIterator.class == pt.getRawType();
     }
 

@@ -37,7 +37,6 @@ import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.LastGroup;
 import org.talend.sdk.component.api.processor.MultiOutputIterator;
 import org.talend.sdk.component.api.processor.Output;
-import org.talend.sdk.component.api.processor.OutputIterator;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.processor.TaggedOutput;
 import org.talend.sdk.component.api.record.Record;
@@ -402,7 +401,7 @@ class ProcessorBufferingTest {
     /**
      * Tests that a processor using {@link MultiOutputIterator#setIterator(String, Iterator)}
      * (independent mode) correctly streams independent lazy sources per output connection,
-     * equivalent to using two separate {@link OutputIterator} parameters but from one
+     * equivalent to using two separate output parameters but from one
      * fixed method parameter.
      */
     @org.junit.jupiter.api.Test
@@ -488,8 +487,8 @@ class ProcessorBufferingTest {
 
         @ElementListener
         public void onElement(@Input final Record input,
-                @Output final OutputIterator<Record> output) {
-            output.setIterator(new java.util.Iterator<>() {
+                @Output final MultiOutputIterator<Record> output) {
+            output.setIterator("FLOW", new java.util.Iterator<>() {
 
                 private int index = 0;
 
@@ -532,15 +531,14 @@ class ProcessorBufferingTest {
         }
 
         @AfterGroup
-        public void afterGroup(@Output("MAIN") final OutputIterator<Record> main,
-                @Output("REJECT") final OutputIterator<Record> reject,
+        public void afterGroup(@Output final MultiOutputIterator<Record> out,
                 @LastGroup final boolean lastGroup) {
             if (!lastGroup) {
                 return;
             }
 
             // MAIN gets records where index % 2 != 0
-            main.setIterator(new java.util.Iterator<>() {
+            out.setIterator("MAIN", new java.util.Iterator<>() {
 
                 private int index = 0;
 
@@ -565,7 +563,7 @@ class ProcessorBufferingTest {
             });
 
             // REJECT gets records where index % 2 == 0
-            reject.setIterator(new java.util.Iterator<>() {
+            out.setIterator("REJECT", new java.util.Iterator<>() {
 
                 private int index = 0;
 

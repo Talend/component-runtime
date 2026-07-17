@@ -57,7 +57,6 @@ import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.LastGroup;
 import org.talend.sdk.component.api.processor.MultiOutputIterator;
 import org.talend.sdk.component.api.processor.Output;
-import org.talend.sdk.component.api.processor.OutputIterator;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.LifecycleImpl;
@@ -153,9 +152,6 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
     private BiFunction<InputFactory, OutputFactory, Object> buildProcessParamBuilder(final Parameter parameter) {
         if (parameter.isAnnotationPresent(Output.class)) {
             final String name = parameter.getAnnotation(Output.class).value();
-            if (OutputIterator.class == parameter.getType()) {
-                return (inputs, outputs) -> outputs.createIterator(name);
-            }
             if (MultiOutputIterator.class == parameter.getType()) {
                 return (inputs, outputs) -> outputs.createMultiOutputIterator();
             }
@@ -174,9 +170,6 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
                 return false;
             }
             final String name = parameter.getAnnotation(Output.class).value();
-            if (OutputIterator.class == parameter.getType()) {
-                return outputs.createIterator(name);
-            }
             if (MultiOutputIterator.class == parameter.getType()) {
                 return outputs.createMultiOutputIterator();
             }

@@ -22,7 +22,6 @@ import javax.json.bind.Jsonb;
 
 import org.talend.sdk.component.api.processor.MultiOutputIterator;
 import org.talend.sdk.component.api.processor.OutputEmitter;
-import org.talend.sdk.component.api.processor.OutputIterator;
 import org.talend.sdk.component.api.processor.TaggedOutput;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
@@ -47,28 +46,6 @@ public class OutputsHandler extends BaseIOHandler {
                     if (ref != null && value != null) {
                         ref.add(convert(value, ref));
                     }
-                };
-            }
-
-            @Override
-            public OutputIterator createIterator(final String name) {
-                final BaseIOHandler.IO ref = connections.get(getActualName(name));
-                return iterator -> {
-                    if (ref == null) {
-                        return;
-                    }
-                    ref.setSource(new Iterator() {
-
-                        @Override
-                        public boolean hasNext() {
-                            return iterator.hasNext();
-                        }
-
-                        @Override
-                        public Object next() {
-                            return convert(iterator.next(), ref);
-                        }
-                    });
                 };
             }
 
