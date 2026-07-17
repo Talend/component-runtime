@@ -61,6 +61,18 @@ class ComponentSchemaEnricherTest {
     }
 
     @Test
+    void fixedSchemaMetadataWithWatchPresent() {
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("tcomp::ui::schema::fixed", "discover");
+                put("tcomp::ui::schema::flows::fixed", "__default__");
+                put("tcomp::ui::schema::fixed::watch", "configuration/param1,configuration/param2");
+            }
+        }, enricher.onComponent(EmitterWithWatch.class, EmitterWithWatch.class.getAnnotations()));
+    }
+
+    @Test
     void dbMappingMetadataPresent() {
         assertEquals(new HashMap<String, String>() {
 
@@ -101,6 +113,12 @@ class ComponentSchemaEnricherTest {
     @Emitter
     @FixedSchema(value = "discover")
     private static class MyEmitter {
+
+    }
+
+    @Emitter
+    @FixedSchema(value = "discover", watch = { "configuration/param1", "configuration/param2" })
+    private static class EmitterWithWatch {
 
     }
 }

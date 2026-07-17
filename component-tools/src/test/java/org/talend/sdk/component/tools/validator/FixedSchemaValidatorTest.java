@@ -16,9 +16,11 @@
 package org.talend.sdk.component.tools.validator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
@@ -51,6 +53,20 @@ public class FixedSchemaValidatorTest {
         final Stream<String> errors = validator.validate(finder,
                 Arrays.asList(MySourceKoEmpty.class, MySourceKoMissing.class, FixedService.class));
         assertEquals(2, errors.count());
+    }
+
+    @Test
+    void validateFixedSchemaWatchWithoutValue() {
+        final FixedSchemaValidator validator = new FixedSchemaValidator();
+        final AnnotationFinder finder =
+                new AnnotationFinder(new ClassesArchive(MySourceWatchNoValue.class, FixedService.class));
+        final Stream<String> errors =
+                validator.validate(finder, Arrays.asList(MySourceWatchNoValue.class, FixedService.class));
+        final List<String> errorList = errors.toList();
+        assertEquals(2, errorList.size());
+        assertTrue(errorList.stream()
+                .anyMatch(e -> e.contains("@FixedSchema.watch() requires value() to be set")
+                        && e.contains("MySourceWatchNoValue")));
     }
 
     @Emitter(family = "test", name = "mysource0")
@@ -110,6 +126,16 @@ public class FixedSchemaValidatorTest {
 
         @DiscoverSchemaExtended("discoverext")
         public Schema discover(DS ds, String branch) {
+            return null;
+        }
+    }
+
+    @Emitter(family = "test", name = "mysourcewatchnovalue")
+    @FixedSchema(watch = { "configuration/param" })
+    static class MySourceWatchNoValue implements Serializable {
+
+        @Producer
+        public Record next() {
             return null;
         }
     }
