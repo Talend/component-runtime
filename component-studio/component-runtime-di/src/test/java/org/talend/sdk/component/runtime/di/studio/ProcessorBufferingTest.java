@@ -700,7 +700,7 @@ class ProcessorBufferingTest {
 
         @ElementListener
         public void onElement(@Input final Record input,
-                @Output final MultiOutputIterator<Record> output) {
+                @Output("FLOW") final MultiOutputIterator<Record> output) {
             output.setIterator("FLOW", new java.util.Iterator<>() {
 
                 private int index = 0;
@@ -744,7 +744,7 @@ class ProcessorBufferingTest {
         }
 
         @AfterGroup
-        public void afterGroup(@Output final MultiOutputIterator<Record> out,
+        public void afterGroup(@Output({ "MAIN", "REJECT" }) final MultiOutputIterator<Record> out,
                 @LastGroup final boolean lastGroup) {
             if (!lastGroup) {
                 return;
@@ -820,7 +820,7 @@ class ProcessorBufferingTest {
         }
 
         @AfterGroup
-        public void afterGroup(@Output final MultiOutputIterator<Record> out,
+        public void afterGroup(@Output({ "MAIN", "REJECT" }) final MultiOutputIterator<Record> out,
                 @LastGroup final boolean lastGroup) {
             if (!lastGroup) {
                 return;
@@ -882,7 +882,7 @@ class ProcessorBufferingTest {
 
         @ElementListener
         public void onElement(@Input final Record input,
-                @Output final MultiOutputIterator<Record> splitter) {
+                @Output({ "MAIN", "REJECT" }) final MultiOutputIterator<Record> splitter) {
             splitter.setIterator(new java.util.Iterator<>() {
 
                 private int index = 0;
@@ -917,7 +917,7 @@ class ProcessorBufferingTest {
 
         @ElementListener
         public void onElement(@Input final Record input,
-                @Output final MultiOutputIterator<Record> out) {
+                @Output({ "MAIN", "REJECT" }) final MultiOutputIterator<Record> out) {
             out.setIterator("MAIN", new java.util.Iterator<>() {
 
                 private int index = 0;
