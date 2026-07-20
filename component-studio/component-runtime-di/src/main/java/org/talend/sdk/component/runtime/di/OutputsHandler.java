@@ -60,7 +60,7 @@ public class OutputsHandler extends BaseIOHandler {
                                 return false;
                             }
                             final TaggedOutput<T> tagged = iterator.next();
-                            final String name = getActualName(tagged.getOutputName());
+                            final String name = tagged.getOutputName();
                             final BaseIOHandler.IO ref = connections.get(name);
                             setPending(name,
                                     ref != null ? convert(tagged.getRecord(), ref) : tagged.getRecord());
@@ -70,8 +70,7 @@ public class OutputsHandler extends BaseIOHandler {
 
                     @Override
                     public void setIterator(final String outputName, final Iterator<T> iterator) {
-                        final String name = getActualName(outputName);
-                        final BaseIOHandler.IO ref = connections.get(name);
+                        final BaseIOHandler.IO ref = connections.get(outputName);
                         if (ref == null) {
                             return;
                         }

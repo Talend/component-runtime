@@ -55,15 +55,6 @@ public abstract class BaseIOHandler {
     }
 
     /**
-     * Flat array of all registered {@link IO} values.
-     * Cached after the first call to {@link #ioArray()} and invalidated whenever
-     * {@link #addConnection} or {@link #init} modifies {@link #connections}.
-     * Using an array in the hot drain loop avoids creating a new {@link java.util.Iterator}
-     * on each {@link #hasMoreData()} invocation.
-     */
-    private IO[] ioCache;
-
-    /**
      * Tagged-source advancer for split streaming.
      * Non-null only when the component used a
      * {@link org.talend.sdk.component.api.processor.MultiOutputIterator}.
@@ -97,27 +88,16 @@ public abstract class BaseIOHandler {
         }
         if (!mapping.isEmpty()) {
             mapping.forEach((row, branch) -> connections.putIfAbsent(branch, connections.get(row)));
-            ioCache = null;
         }
     }
 
     public void addConnection(final String connectorName, final Class<?> type) {
         connections.put(connectorName, new IO<>(type));
-        ioCache = null;
-    }
-
-    /** Returns a cached flat array of all registered IO objects for allocation-free iteration. */
-    @SuppressWarnings("unchecked")
-    private IO[] ioArray() {
-        if (ioCache == null) {
-            ioCache = connections.values().toArray(IO[]::new);
-        }
-        return ioCache;
     }
 
     public void reset() {
-        for (final IO io : ioArray()) {
-            io.reset();
+        for (IO value : connections.values()) {
+            value.reset();
         }
         taggedSource = null;
         pendingOutputName = null;
@@ -141,8 +121,8 @@ public abstract class BaseIOHandler {
         if (taggedSource != null) {
             return pendingOutputName != null || taggedSource.advance();
         }
-        for (final IO io : ioArray()) {
-            if (io.hasNext()) {
+        for (IO value : connections.values()) {
+            if (value.hasNext()) {
                 return true;
             }
         }
@@ -248,10 +228,8 @@ public abstract class BaseIOHandler {
      * Records are produced on-demand during the drain loop ({@link #hasNext()}/{@link #next()}).
      * Used by {@code MultiOutputIterator.setIterator(String, Iterator)} in the Studio DI runtime.</li>
      * </ul>
-     * In pull mode, one record is eagerly buffered by {@link #hasNext()} so that
-     * subsequent calls to {@link #hasNext()} and {@link #next()} make no further
-     * calls to the source iterator — eliminating repeated {@code source.hasNext()}
-     * invocations across {@code hasMoreData()}, {@code hasDataFor()}, and {@code getValue()}.
+     * In pull mode, {@link #hasNext()} delegates directly to the source iterator's
+     * {@code hasNext()} — the source iterator is expected to be idempotent and fast.
      * <p>
      * Note: The {@code source} field is only used by {@code OutputsHandler}; {@code InputsHandler}
      * uses only the queue-based push mode.
@@ -265,51 +243,30 @@ public abstract class BaseIOHandler {
 
         private Iterator<T> source;
 
-        /** One-record look-ahead buffer for pull mode. Non-null iff {@link #bufferFull} is true. */
-        private T buffered;
-
-        /** True when {@link #buffered} holds a record ready to be returned by {@link #next()}. */
-        private boolean bufferFull;
-
         void setSource(final Iterator<T> source) {
             closeSource();
             this.source = source;
-            this.buffered = null;
-            this.bufferFull = false;
         }
 
         private void reset() {
             values.clear();
             closeSource();
             this.source = null;
-            this.buffered = null;
-            this.bufferFull = false;
         }
 
         boolean hasNext() {
             if (!values.isEmpty()) {
                 return true;
             }
-            if (bufferFull) {
-                return true;
-            }
-            if (source != null && source.hasNext()) {
-                buffered = type.cast(source.next());
-                bufferFull = true;
-                return true;
-            }
-            return false;
+            return source != null && source.hasNext();
         }
 
         T next() {
             if (!values.isEmpty()) {
                 return type.cast(values.poll());
             }
-            if (bufferFull) {
-                final T val = buffered;
-                buffered = null;
-                bufferFull = false;
-                return val;
+            if (source != null && source.hasNext()) {
+                return type.cast(source.next());
             }
             return null;
         }
