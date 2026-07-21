@@ -20,8 +20,10 @@ import java.util.Map;
 
 import javax.json.bind.Jsonb;
 
+import org.talend.sdk.component.api.processor.MultiOutputIterator;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.OutputIterator;
+import org.talend.sdk.component.api.processor.TaggedOutput;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.output.OutputFactory;
@@ -51,7 +53,7 @@ public class OutputsHandler extends BaseIOHandler {
             @Override
             public OutputIterator createIterator(final String name) {
                 final BaseIOHandler.IO ref = connections.get(getActualName(name));
-                return iterator -> {
+                return iterator -> { // wrap the given iterator to provide converted values via the IO.
                     if (ref == null) {
                         return;
                     }
@@ -67,6 +69,21 @@ public class OutputsHandler extends BaseIOHandler {
                             return convert(iterator.next(), ref);
                         }
                     });
+                };
+            }
+
+            @Override
+            public <T> MultiOutputIterator<T> createMultiOutputIterator() {
+                return taggedOutPutIterator -> {
+                    if (taggedOutPutIterator.hasNext()) {
+                        final TaggedOutput<T> next = taggedOutPutIterator.next();
+                        final BaseIOHandler.IO ref = connections.get(next.getOutputName());
+                        final T value = next.getRec();
+
+                        if (ref != null && value != null) {
+                            ref.add(convert(value, ref));
+                        }
+                    }
                 };
             }
         };
