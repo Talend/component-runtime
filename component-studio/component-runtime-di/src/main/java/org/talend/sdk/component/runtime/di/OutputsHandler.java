@@ -74,19 +74,35 @@ public class OutputsHandler extends BaseIOHandler {
 
             @Override
             public <T> MultiOutputIterator<T> createMultiOutputIterator() {
-                return taggedOutPutIterator -> {
-                    if (taggedOutPutIterator.hasNext()) {
-                        final TaggedOutput<T> next = taggedOutPutIterator.next();
-                        final BaseIOHandler.IO ref = connections.get(next.getOutputName());
-                        final T value = next.getRec();
-
-                        if (ref != null && value != null) {
-                            ref.add(convert(value, ref));
-                        }
-                    }
-                };
+                return topi -> setTaggedOutPutIterator(topi);
             }
         };
+    }
+
+    private void setTaggedOutPutIterator(final Iterator<TaggedOutput<?>> taggedOutPutIterator) {
+        this.taggedOutPutIterator = taggedOutPutIterator;
+    }
+
+    private Iterator<TaggedOutput<?>> taggedOutPutIterator;
+
+    @Override
+    public boolean hasMoreData() {
+        if (taggedOutPutIterator != null) {
+            if (taggedOutPutIterator.hasNext()) {
+                final TaggedOutput next = taggedOutPutIterator.next();
+                final IO ref = connections.get(getActualName(next.getOutputName()));
+                final Object value = next.getRec();
+
+                if (ref != null && value != null) {
+                    ref.add(convert(value, ref));
+                }
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return super.hasMoreData();
+        }
     }
 
     /**
@@ -123,5 +139,4 @@ public class OutputsHandler extends BaseIOHandler {
             return jsonb.fromJson(jsonb.toJson(value), ref.getType());
         }
     }
-
 }

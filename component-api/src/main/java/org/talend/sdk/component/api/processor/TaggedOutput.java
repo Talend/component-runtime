@@ -47,6 +47,6 @@ public class TaggedOutput<T> {
      * @return a new TaggedOutput
      */
     public static <T> TaggedOutput<T> of(final String outputName, final T rec) {
-        return new TaggedOutput<>(outputName, record);
+        return new TaggedOutput<>(outputName, rec);
     }
 }
