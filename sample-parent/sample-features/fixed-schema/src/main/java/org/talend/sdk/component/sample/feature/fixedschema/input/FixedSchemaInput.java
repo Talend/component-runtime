@@ -31,7 +31,7 @@ import org.talend.sdk.component.sample.feature.fixedschema.config.Config;
 @Icon(value = Icon.IconType.CUSTOM, custom = "icon")
 @Emitter(name = "Input")
 @Documentation("Fixed schema sample input connector.")
-@FixedSchema("fixedschemadse")
+@FixedSchema(value = "fixedschemadse", watch = { "configuration/aBoolean" })
 public class FixedSchemaInput implements Serializable {
 
     private final Config config;

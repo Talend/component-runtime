@@ -43,6 +43,14 @@ public class FixedSchemaValidator implements Validator {
                 .map(e -> String.format("Empty @FixedSchema annotation's value in class %s.",
                         e.getKey().getSimpleName()))
                 .toList());
+        // search for watch() declared without value()
+        errors.addAll(finder.findAnnotatedClasses(FixedSchema.class)
+                .stream()
+                .filter(c -> c.getAnnotation(FixedSchema.class).watch().length > 0
+                        && c.getAnnotation(FixedSchema.class).value().isEmpty())
+                .map(c -> String.format("@FixedSchema.watch() requires value() to be set in class %s.",
+                        c.getSimpleName()))
+                .toList());
         // search for missing methods
         final List<String> methods = Stream
                 .concat(finder.findAnnotatedMethods(DiscoverSchema.class)
