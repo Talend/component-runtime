@@ -19,6 +19,7 @@ import static java.util.Collections.emptyMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.talend.sdk.component.api.record.Schema.Type.LONG;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
@@ -30,6 +31,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.json.JsonObject;
@@ -38,13 +40,17 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.talend.sdk.component.api.exception.DiscoverSchemaException.HandleErrorWith;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
@@ -57,14 +63,17 @@ import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 @MonoMeecrowaveConfig
 class ActionResourceImplTest {
 
+    private static final int COMMON_ACTION_COUNT = 16;
+
     @Inject
     private WebTarget base;
 
-    @RepeatedTest(2) // this also checks the cache and queries usage
+    // this also checks the cache and queries usage
+    @RepeatedTest(2)
     void actionIndex() {
         { // default
             final ActionList index = base.path("action/index").request(APPLICATION_JSON_TYPE).get(ActionList.class);
-            assertEquals(13, index.getItems().size());
+            assertEquals(COMMON_ACTION_COUNT, index.getItems().size());
             assertEquals("jdbc", index.getItems().iterator().next().getComponent());
         }
         { // change the family
@@ -81,7 +90,7 @@ class ActionResourceImplTest {
     @RepeatedTest(2)
     void index() {
         final ActionList index = base.path("action/index").request(APPLICATION_JSON_TYPE).get(ActionList.class);
-        assertEquals(13, index.getItems().size());
+        assertEquals(COMMON_ACTION_COUNT, index.getItems().size());
 
         final List<ActionItem> items = new ArrayList<>(index.getItems());
         items.sort(Comparator.comparing(ActionItem::getName));
@@ -163,6 +172,92 @@ class ActionResourceImplTest {
         final ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
         assertEquals(ErrorDictionary.ACTION_ERROR, errorPayload.getCode());
         assertEquals("Action execution failed with: backend exception", errorPayload.getDescription());
+    }
+
+    @MethodSource("handleErrorWithSource")
+    @ParameterizedTest
+    void discoverSchemaException(final HandleErrorWith origin) {
+        final Response error = base
+                .path("action/execute")
+                .queryParam("type", "user")
+                .queryParam("family", "custom")
+                .queryParam("action", "discoverSchemaException" + origin)
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(new HashMap<String, String>(), APPLICATION_JSON_TYPE));
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), error.getStatus());
+        final ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
+        assertEquals(ErrorDictionary.ACTION_ERROR, errorPayload.getCode());
+        assertEquals(origin.toString(), errorPayload.getSubCode());
+        assertNotNull(errorPayload.getDescription());
+        assertTrue(errorPayload.getDescription().startsWith("Action execution failed with:"));
+    }
+
+    static Stream<Arguments> handleErrorWithSource() {
+        return Stream.of(
+                Arguments.of(HandleErrorWith.RETRY),
+                Arguments.of(HandleErrorWith.EXECUTE_MOCK_JOB),
+                Arguments.of(HandleErrorWith.EXECUTE_LIFECYCLE));
+    }
+
+    @Test
+    void emptyAction() {
+        final Response error = base
+                .path("action/execute")
+                .queryParam("type", "user")
+                .queryParam("family", "custom")
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(new HashMap<String, String>(), APPLICATION_JSON_TYPE));
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), error.getStatus());
+        final ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
+        assertEquals(ErrorDictionary.ACTION_MISSING, errorPayload.getCode());
+        assertNull(errorPayload.getSubCode());
+        assertEquals("Action can't be null", errorPayload.getDescription());
+    }
+
+    @Test
+    void emptyType() {
+        final Response error = base
+                .path("action/execute")
+                .queryParam("family", "custom")
+                .queryParam("action", "backendException")
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(new HashMap<String, String>(), APPLICATION_JSON_TYPE));
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), error.getStatus());
+        final ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
+        assertEquals(ErrorDictionary.TYPE_MISSING, errorPayload.getCode());
+        assertNull(errorPayload.getSubCode());
+        assertEquals("Type can't be null", errorPayload.getDescription());
+    }
+
+    @Test
+    void emptyFamily() {
+        final Response error = base
+                .path("action/execute")
+                .queryParam("type", "user")
+                .queryParam("action", "backendException")
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(new HashMap<String, String>(), APPLICATION_JSON_TYPE));
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), error.getStatus());
+        final ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
+        assertEquals(ErrorDictionary.FAMILY_MISSING, errorPayload.getCode());
+        assertNull(errorPayload.getSubCode());
+        assertEquals("Family can't be null", errorPayload.getDescription());
+    }
+
+    @Test
+    void emptyActionMeta() {
+        final String actionName = "notExistedAction";
+        final Response error = base
+                .path("action/execute")
+                .queryParam("type", "user")
+                .queryParam("family", "custom")
+                .queryParam("action", actionName)
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(new HashMap<String, String>(), APPLICATION_JSON_TYPE));
+        assertEquals(Status.NOT_FOUND.getStatusCode(), error.getStatus());
+        final ErrorPayload errorPayload = error.readEntity(ErrorPayload.class);
+        assertEquals(ErrorDictionary.ACTION_MISSING, errorPayload.getCode());
+        assertEquals("No action with id '" + actionName + "'", errorPayload.getDescription());
     }
 
     @Test
