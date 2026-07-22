@@ -121,7 +121,7 @@ public class ComponentManagerService {
 
     private Connectors connectors;
 
-    private boolean started;
+    private volatile boolean started;
 
     private Path m2;
 
@@ -458,6 +458,10 @@ public class ComponentManagerService {
     @Produces
     public ComponentManager manager() {
         return instance;
+    }
+
+    public boolean isStarted() {
+        return started;
     }
 
 }

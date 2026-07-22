@@ -22,7 +22,9 @@ import java.util.Optional;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
@@ -30,6 +32,7 @@ import javax.ws.rs.ext.Provider;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
+import org.talend.sdk.component.server.service.FatalState;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,6 +44,12 @@ public class DefaultExceptionHandler implements ExceptionMapper<Throwable> {
     @Inject
     private ComponentServerConfiguration configuration;
 
+    @Inject
+    private FatalState fatalState;
+
+    @Context
+    private HttpServletRequest request;
+
     private boolean replaceException;
 
     @PostConstruct
@@ -50,6 +59,12 @@ public class DefaultExceptionHandler implements ExceptionMapper<Throwable> {
 
     @Override
     public Response toResponse(final Throwable exception) {
+        if (exception instanceof VirtualMachineError) {
+            final String requestPath = request != null ? request.getRequestURI() : "(unknown)";
+            final String cause = exception.getClass().getSimpleName() + " during request "
+                    + requestPath + ": " + exception.getMessage();
+            fatalState.markFatal(cause);
+        }
         log.error("[DefaultExceptionHandler#toResponse] Throwable: ", exception);
         final Response response;
         if (exception instanceof WebApplicationException applicationException) {
