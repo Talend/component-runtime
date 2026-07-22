@@ -70,21 +70,6 @@ import java.util.Iterator;
  * }
  * </pre>
  *
- * <p>
- * The drain loop on the Studio side uses {@code hasDataFor(name)} for correct
- * per-connection checking in both modes:
- *
- * <pre>
- * {@code
- * while (outputsHandler.hasMoreData()) {
- *     if (outputsHandler.hasDataFor("MAIN"))
- *         mainRow = outputsHandler.getValue("MAIN");
- *     if (outputsHandler.hasDataFor("REJECT"))
- *         rejectRow = outputsHandler.getValue("REJECT");
- * }
- * }
- * </pre>
- *
  * @param <T> the record type
  * @see TaggedOutput
  */

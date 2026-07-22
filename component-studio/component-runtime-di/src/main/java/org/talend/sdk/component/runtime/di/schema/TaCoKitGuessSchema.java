@@ -53,6 +53,7 @@ import javax.json.bind.JsonbBuilder;
 import org.talend.sdk.component.api.exception.ComponentException;
 import org.talend.sdk.component.api.exception.DiscoverSchemaException;
 import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.MultiOutputIterator;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.record.Record;
@@ -780,7 +781,8 @@ public class TaCoKitGuessSchema {
                                             .contains(outBranchName))
                             .mapToObj(i -> m.getGenericParameterTypes()[i])
                             .filter(t -> t instanceof ParameterizedType parameterizedType
-                                    && parameterizedType.getRawType() == OutputEmitter.class
+                                    && (parameterizedType.getRawType() == OutputEmitter.class
+                                            || parameterizedType.getRawType() == MultiOutputIterator.class)
                                     && parameterizedType.getActualTypeArguments().length == 1)
                             .map(p -> ((ParameterizedType) p).getActualTypeArguments()[0]))
                     .findFirst();
