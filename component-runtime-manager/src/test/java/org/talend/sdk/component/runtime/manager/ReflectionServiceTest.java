@@ -22,6 +22,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -56,14 +57,19 @@ import javax.json.bind.JsonbBuilder;
 import org.apache.xbean.propertyeditor.AbstractConverter;
 import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.condition.ActiveIf;
 import org.talend.sdk.component.api.configuration.constraint.Max;
 import org.talend.sdk.component.api.configuration.constraint.Min;
 import org.talend.sdk.component.api.configuration.constraint.Pattern;
 import org.talend.sdk.component.api.configuration.constraint.Required;
+import org.talend.sdk.component.api.configuration.constraint.Uniques;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.widget.DateTime;
 import org.talend.sdk.component.api.service.cache.LocalCache;
 import org.talend.sdk.component.api.service.configuration.Configuration;
@@ -307,6 +313,45 @@ class ReflectionServiceTest {
         assertThrows(IllegalArgumentException.class, () -> factory.apply(emptyMap()));
     }
 
+    @ParameterizedTest
+    @MethodSource("absentDefaultValueCases")
+    void validationRequiredWithAbsentDefaultValuePasses(final Map<String, String> config)
+            throws NoSuchMethodException {
+        // @Required + @DefaultValue field absent from config must not throw — QTDI-2489
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredWithDefaultConfig.class);
+        assertDoesNotThrow((Executable) () -> factory.apply(config));
+    }
+
+    static Stream<Map<String, String>> absentDefaultValueCases() {
+        return Stream.of(
+                // all @DefaultValue fields absent
+                Map.of("root.noDefault", "provided"),
+                // region provided, emptyDefault (@DefaultValue("")) and anotherField absent
+                Map.of("root.noDefault", "provided", "root.region", "us-east-1"),
+                // emptyDefault explicitly provided, region and anotherField absent
+                Map.of("root.noDefault", "provided", "root.emptyDefault", "custom"));
+    }
+
+    @Test
+    void validationRequiredWithDefaultValueResolvedValue() throws NoSuchMethodException {
+        // Given a config missing the 'region' key, the resolved field value equals the declared default
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredWithDefaultConfig.class);
+        final RequiredWithDefaultConfig result =
+                (RequiredWithDefaultConfig) factory.apply(Map.of("root.noDefault", "provided"))[0];
+        assertEquals("DEFAULT", result.region);
+    }
+
+    @Test
+    void validationRequiredNoDefaultValueMissingKeyFails() throws NoSuchMethodException {
+        // Given a @Required field with no @DefaultValue and a missing key, validation must throw
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredWithDefaultConfig.class);
+        final Map<String, String> config = Map.of("root.region", "us-east-1");
+        final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> factory.apply(config));
+        assertTrue(ex.getMessage().contains("root.noDefault"),
+                "Error message should mention the missing required field");
+    }
+
     @Test
     void validationRequiredListObject() throws NoSuchMethodException {
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredListObject.class);
@@ -405,6 +450,67 @@ class ReflectionServiceTest {
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig4.class);
         assertThrows(IllegalArgumentException.class,
                 () -> factory.apply(singletonMap("root.nesteds[0].value", "short")));
+    }
+
+    static Stream<Map<String, String>> validationConstraintsKoCases() {
+        return Stream.of(
+                Map.of("root.numMin", "3", "root.numMax", "5"),
+                Map.of("root.numMin", "7", "root.numMax", "15"),
+                Map.of("root.strMin", "ab", "root.strMax", "hi"),
+                Map.of("root.strMin", "hello", "root.strMax", "toolong"),
+                Map.of("root.listMin[0]", "a"),
+                Map.of("root.listMax[0]", "a", "root.listMax[1]", "b", "root.listMax[2]", "c",
+                        "root.listMax[3]", "d"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("validationConstraintsKoCases")
+    void validationConstraintsKo(final Map<String, String> params) throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory =
+                getComponentFactory(SomeValidationConstraintsConfig.class);
+        assertThrows(IllegalArgumentException.class, () -> factory.apply(params));
+    }
+
+    static Stream<Map<String, String>> validationConstraintsOkCases() {
+        return Stream.of(
+                Map.of("root.numMin", "7", "root.numMax", "5"),
+                Map.of("root.strMin", "hello", "root.strMax", "hi"),
+                Map.of("root.listMin[0]", "a", "root.listMin[1]", "b"),
+                Map.of("root.listMax[0]", "a", "root.listMax[1]", "b"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("validationConstraintsOkCases")
+    void validationConstraintsOk(final Map<String, String> params) throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory =
+                getComponentFactory(SomeValidationConstraintsConfig.class);
+        assertDoesNotThrow(() -> factory.apply(params));
+    }
+
+    @Test
+    void validationUniqueItemsKo() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeUniquesConfig.class);
+        final Map<String, String> map = Map.of("root.tags[0]", "dup", "root.tags[1]", "dup");
+        assertThrows(IllegalArgumentException.class, () -> factory.apply(map));
+    }
+
+    @Test
+    void validationUniqueItemsOk() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeUniquesConfig.class);
+        assertDoesNotThrow(() -> factory.apply(Map.of("root.tags[0]", "a", "root.tags[1]", "b")));
+    }
+
+    @Test
+    void validationPatternKo() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig5.class);
+        final Map<String, String> map = Map.of("root.regex", "UPPERCASE");
+        assertThrows(IllegalArgumentException.class, () -> factory.apply(map));
+    }
+
+    @Test
+    void validationPatternOk() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig5.class);
+        assertDoesNotThrow(() -> factory.apply(Map.of("root.regex", "lowercase")));
     }
 
     @Test
@@ -1013,6 +1119,62 @@ class ReflectionServiceTest {
         private List<SomeConfig5> list;
     }
 
+    public static class RequiredWithDefaultConfig {
+
+        @Option
+        @Required
+        @DefaultValue("DEFAULT")
+        private String region = "DEFAULT";
+
+        @Option
+        @Required
+        @DefaultValue("")
+        private String emptyDefault = "";
+
+        @Option
+        @Required
+        private String noDefault;
+
+        @Option
+        @Required
+        @DefaultValue("X")
+        private String anotherField = "X";
+    }
+
+    public static class SomeValidationConstraintsConfig {
+
+        @Option
+        @Min(5)
+        private int numMin;
+
+        @Option
+        @Max(10)
+        private int numMax;
+
+        @Option
+        @Min(3)
+        private String strMin;
+
+        @Option
+        @Max(5)
+        private String strMax;
+
+        @Option
+        @Min(2)
+        private List<String> listMin;
+
+        @Option
+        @Max(3)
+        private List<String> listMax;
+    }
+
+    public static class SomeUniquesConfig {
+
+        @Option
+        @Uniques
+        private List<String> tags;
+    }
+
     @EqualsAndHashCode
     public static class SomeIntegerConfig {
 
@@ -1082,6 +1244,10 @@ class ReflectionServiceTest {
             // no-op
         }
 
+        public FakeComponent(@Option("root") final RequiredWithDefaultConfig root) {
+            // no-op
+        }
+
         public FakeComponent(@Option("root") final ConfigWithDate root) {
             // no-op
         }
@@ -1092,6 +1258,14 @@ class ReflectionServiceTest {
 
         public FakeComponent(@Option("root") final SomeIntegerConfig root) {
             // mo-op
+        }
+
+        public FakeComponent(@Option("root") final SomeValidationConstraintsConfig root) {
+            // no-op
+        }
+
+        public FakeComponent(@Option("root") final SomeUniquesConfig root) {
+            // no-op
         }
     }
 
