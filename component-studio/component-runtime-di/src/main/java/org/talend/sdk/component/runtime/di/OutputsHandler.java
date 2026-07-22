@@ -15,10 +15,15 @@
  */
 package org.talend.sdk.component.runtime.di;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.json.bind.Jsonb;
 
+import org.talend.sdk.component.api.processor.MultiOutputIterator;
+import org.talend.sdk.component.api.processor.OutputEmitter;
+import org.talend.sdk.component.api.processor.OutputIterator;
+import org.talend.sdk.component.api.processor.TaggedOutput;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.output.OutputFactory;
@@ -33,18 +38,71 @@ public class OutputsHandler extends BaseIOHandler {
     }
 
     public OutputFactory asOutputFactory() {
-        return name -> value -> {
-            final BaseIOHandler.IO ref = connections.get(getActualName(name));
-            if (ref != null && value != null) {
-                if (value instanceof javax.json.JsonValue) {
-                    ref.add(jsonb.fromJson(value.toString(), ref.getType()));
-                } else if (value instanceof Record record) {
-                    ref.add(registry.find(ref.getType()).newInstance(record));
-                } else {
-                    ref.add(jsonb.fromJson(jsonb.toJson(value), ref.getType()));
-                }
+        return new OutputFactory() {
+
+            @Override
+            public OutputEmitter create(final String name) {
+                final BaseIOHandler.IO ref = connections.get(getActualName(name));
+                return value -> {
+                    if (ref != null && value != null) {
+                        ref.add(convert(value, ref));
+                    }
+                };
+            }
+
+            @Override
+            public OutputIterator createIterator(final String name) {
+                final BaseIOHandler.IO ref = connections.get(getActualName(name));
+                return iterator -> { // wrap the given iterator to provide converted values via the IO.
+                    if (ref == null) {
+                        return;
+                    }
+                    ref.setSource(new Iterator() {
+
+                        @Override
+                        public boolean hasNext() {
+                            return iterator.hasNext();
+                        }
+
+                        @Override
+                        public Object next() {
+                            return convert(iterator.next(), ref);
+                        }
+                    });
+                };
+            }
+
+            @Override
+            public <T> MultiOutputIterator<T> createMultiOutputIterator() {
+                return topi -> setTaggedOutPutIterator(topi);
             }
         };
+    }
+
+    private void setTaggedOutPutIterator(final Iterator<TaggedOutput<?>> taggedOutPutIterator) {
+        this.taggedOutPutIterator = taggedOutPutIterator;
+    }
+
+    private Iterator<TaggedOutput<?>> taggedOutPutIterator;
+
+    @Override
+    public boolean hasMoreData() {
+        if (taggedOutPutIterator != null) {
+            if (taggedOutPutIterator.hasNext()) {
+                final TaggedOutput next = taggedOutPutIterator.next();
+                final IO ref = connections.get(getActualName(next.getOutputName()));
+                final Object value = next.getRec();
+
+                if (ref != null && value != null) {
+                    ref.add(convert(value, ref));
+                }
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return super.hasMoreData();
+        }
     }
 
     /**
@@ -59,8 +117,8 @@ public class OutputsHandler extends BaseIOHandler {
             if (ref != null && value != null) {
                 if (value instanceof javax.json.JsonValue) {
                     ref.add(jsonb.fromJson(value.toString(), ref.getType()));
-                } else if (value instanceof Record record) {
-                    ref.add(record.getSchema());
+                } else if (value instanceof Record rec) {
+                    ref.add(rec.getSchema());
                 } else if (value instanceof Schema) {
                     ref.add(value);
                 } else {
@@ -70,4 +128,15 @@ public class OutputsHandler extends BaseIOHandler {
         };
     }
 
+    private Object convert(final Object value, final BaseIOHandler.IO ref) {
+        if (value == null) {
+            return null;
+        } else if (value instanceof javax.json.JsonValue) {
+            return jsonb.fromJson(value.toString(), ref.getType());
+        } else if (value instanceof Record rec) {
+            return registry.find(ref.getType()).newInstance(rec);
+        } else {
+            return jsonb.fromJson(jsonb.toJson(value), ref.getType());
+        }
+    }
 }

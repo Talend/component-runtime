@@ -55,7 +55,9 @@ import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.LastGroup;
+import org.talend.sdk.component.api.processor.MultiOutputIterator;
 import org.talend.sdk.component.api.processor.Output;
+import org.talend.sdk.component.api.processor.OutputIterator;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.LifecycleImpl;
@@ -150,10 +152,14 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
     private BiFunction<InputFactory, OutputFactory, Object> buildProcessParamBuilder(final Parameter parameter) {
         if (parameter.isAnnotationPresent(Output.class)) {
-            return (inputs, outputs) -> {
-                final String name = parameter.getAnnotation(Output.class).value();
-                return outputs.create(name);
-            };
+            final String name = parameter.getAnnotation(Output.class).value();
+            if (OutputIterator.class == parameter.getType()) {
+                return (inputs, outputs) -> outputs.createIterator(name);
+            } else if (MultiOutputIterator.class == parameter.getType()) {
+                return (inputs, outputs) -> outputs.createMultiOutputIterator();
+            } else {
+                return (inputs, outputs) -> outputs.create(name);
+            }
         }
 
         final Class<?> parameterType = parameter.getType();
@@ -168,7 +174,13 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
                 return false;
             }
             final String name = parameter.getAnnotation(Output.class).value();
-            return outputs.create(name);
+            if (OutputIterator.class == parameter.getType()) {
+                return outputs.createIterator(name);
+            } else if (MultiOutputIterator.class == parameter.getType()) {
+                return outputs.createMultiOutputIterator();
+            } else {
+                return outputs.create(name);
+            }
         };
     }
 

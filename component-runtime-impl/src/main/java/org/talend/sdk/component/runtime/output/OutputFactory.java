@@ -15,9 +15,41 @@
  */
 package org.talend.sdk.component.runtime.output;
 
+import org.talend.sdk.component.api.processor.MultiOutputIterator;
 import org.talend.sdk.component.api.processor.OutputEmitter;
+import org.talend.sdk.component.api.processor.OutputIterator;
 
 public interface OutputFactory {
 
     OutputEmitter create(String name);
+
+    /**
+     * Creates an {@link OutputIterator} for the given output branch name.
+     * Supported only in the Studio DI runtime. Other runtimes throw
+     * {@link UnsupportedOperationException} by default.
+     *
+     * @param name the output branch name
+     * @return an OutputIterator for lazy record streaming
+     * @throws UnsupportedOperationException if the runtime does not support iterator mode
+     */
+    default OutputIterator createIterator(String name) {
+        throw new UnsupportedOperationException(
+                "OutputIterator is only supported in the Studio DI runtime");
+    }
+
+    /**
+     * Creates a {@link MultiOutputIterator} that routes records lazily to one or more
+     * output connections without buffering.
+     *
+     * <p>
+     * Supported only in the Studio DI runtime.
+     *
+     * @param <T> the record type
+     * @return a MultiOutputIterator for lazy streaming
+     * @throws UnsupportedOperationException if the runtime does not support multi-output iterator mode
+     */
+    default <T> MultiOutputIterator<T> createMultiOutputIterator() {
+        throw new UnsupportedOperationException(
+                "MultiOutputIterator is only supported in the Studio DI runtime");
+    }
 }
