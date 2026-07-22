@@ -70,7 +70,7 @@ class ProcessorFlowsFactory implements FlowsFactory {
     private Stream<String> getOutputParameters(final Method listener) {
         return of(listener.getParameters())
                 .filter(p -> p.isAnnotationPresent(Output.class))
-                .map(p -> p.getAnnotation(Output.class).value());
+                .flatMap(p -> of(p.getAnnotation(Output.class).value()));
     }
 
     private Stream<String> getReturnedBranches(final Method listener) {

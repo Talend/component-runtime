@@ -571,7 +571,7 @@ class ComponentValidatorTest {
         expectedException
                 .expectMessage(
                         """
-                        - @Output parameter must be of type OutputEmitter
+                        - @Output parameter must be of type OutputEmitter or MultiOutputIterator
                         - Parameter of AfterGroup method need to be annotated with Output
                         - class org.talend.test.failure.aftergroup.MyComponent5 must have a single @AfterGroup method with @LastGroup parameter""");
     }
