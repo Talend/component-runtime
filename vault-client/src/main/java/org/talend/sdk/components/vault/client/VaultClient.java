@@ -200,6 +200,33 @@ public class VaultClient {
         });
     }
 
+    /**
+     * Checks connectivity to Vault.
+     *
+     * @return {@code true} if Vault is reachable or if Vault is not configured ({@code no-vault}),
+     * {@code false} if a transport-level error prevents reaching Vault.
+     */
+    public boolean ping() {
+        if ("no-vault".equals(setup.getVaultUrl())) {
+            return true;
+        }
+        Response response = null;
+        try {
+            response = vault
+                    .path("v1/sys/health")
+                    .request()
+                    .get();
+            return true;
+        } catch (final javax.ws.rs.ProcessingException e) {
+            log.warn("Vault ping failed: {}", e.getMessage());
+            return false;
+        } finally {
+            if (response != null) {
+                response.close();
+            }
+        }
+    }
+
     @SneakyThrows
     public Map<String, String> decrypt(final Map<String, String> values) {
         return decrypt(values, null);

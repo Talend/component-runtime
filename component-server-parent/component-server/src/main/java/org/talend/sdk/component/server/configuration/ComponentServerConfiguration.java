@@ -204,6 +204,12 @@ public class ComponentServerConfiguration {
     @ConfigProperty(name = "talend.component.server.plugins.reloading.marker")
     private Optional<String> pluginsReloadFileMarker;
 
+    @Inject
+    @Documentation("Whether the Vault connectivity check is included in the readiness probe. "
+            + "Set to true only when this server instance uses Vault for credential decryption.")
+    @ConfigProperty(name = "talend.server.health.vault.enabled", defaultValue = "false")
+    private Boolean healthVaultEnabled;
+
     @PostConstruct
     private void init() {
         if (logRequests != null && logRequests) {
