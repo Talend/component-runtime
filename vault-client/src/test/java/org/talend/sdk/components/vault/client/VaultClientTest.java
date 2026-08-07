@@ -18,11 +18,15 @@ package org.talend.sdk.components.vault.client;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletionException;
+import java.util.function.Predicate;
 
 import javax.enterprise.inject.se.SeContainer;
 import javax.enterprise.inject.se.SeContainerInitializer;
@@ -319,7 +323,7 @@ class VaultClientTest {
         throwError.setAccessible(true);
         try {
             throwError.invoke(vaultClient, waeWithoutResponse);
-            org.junit.jupiter.api.Assertions.fail("Expected a WebApplicationException to be thrown");
+            fail("Expected a WebApplicationException to be thrown");
         } catch (final InvocationTargetException ite) {
             final Throwable target = ite.getTargetException();
             assertTrue(target instanceof WebApplicationException,
@@ -336,10 +340,8 @@ class VaultClientTest {
         // Regression: shouldRetry must not call wae.getResponse().getStatus() when the response is null;
         // otherwise retryFuture() raises an NPE before throwError(...) can build the fallback payload.
         final VaultClient vaultClient = new VaultClient();
-        final java.lang.reflect.Field f = VaultClient.class.getDeclaredField("shouldRetry");
+        final Field f = VaultClient.class.getDeclaredField("shouldRetry");
         f.setAccessible(true);
-        final java.util.function.Predicate<Throwable> shouldRetry =
-                (java.util.function.Predicate<Throwable>) f.get(vaultClient);
 
         final WebApplicationException waeWithoutResponse = new WebApplicationException("boom") {
 
@@ -350,7 +352,7 @@ class VaultClientTest {
         };
 
         // Must not NPE, and must allow the retry loop to keep running (true = retry).
-        assertTrue(shouldRetry.test(waeWithoutResponse));
+        assertTrue(((Predicate<Throwable>) f.get(vaultClient)).test(waeWithoutResponse));
     }
 
     @Test
@@ -370,15 +372,13 @@ class VaultClientTest {
             }
         };
         // Mimics what CompletableFuture#exceptionally receives: a CompletionException wrapping cause.
-        final java.util.concurrent.CompletionException wrapped =
-                new java.util.concurrent.CompletionException(waeWithoutResponse);
+        final CompletionException wrapped = new CompletionException(waeWithoutResponse);
 
-        final java.lang.reflect.Method handler =
-                VaultClient.class.getDeclaredMethod("handleAuthException", Throwable.class);
+        final Method handler = VaultClient.class.getDeclaredMethod("handleAuthException", Throwable.class);
         handler.setAccessible(true);
         try {
             handler.invoke(client, wrapped);
-            org.junit.jupiter.api.Assertions.fail("Expected a WebApplicationException to be thrown");
+            fail("Expected a WebApplicationException to be thrown");
         } catch (final java.lang.reflect.InvocationTargetException ite) {
             final Throwable target = ite.getTargetException();
             assertTrue(target instanceof WebApplicationException,
@@ -397,16 +397,14 @@ class VaultClientTest {
         final int defaultStatus = 422;
         final VaultClient client = new VaultClient();
         client.setCantDecipherStatusCode(defaultStatus);
-
         // RuntimeException with no cause => e.getCause() returns null.
         final RuntimeException directThrow = new RuntimeException("direct");
 
-        final java.lang.reflect.Method handler =
-                VaultClient.class.getDeclaredMethod("handleAuthException", Throwable.class);
+        final Method handler = VaultClient.class.getDeclaredMethod("handleAuthException", Throwable.class);
         handler.setAccessible(true);
         try {
             handler.invoke(client, directThrow);
-            org.junit.jupiter.api.Assertions.fail("Expected a WebApplicationException to be thrown");
+            fail("Expected a WebApplicationException to be thrown");
         } catch (final java.lang.reflect.InvocationTargetException ite) {
             final Throwable target = ite.getTargetException();
             assertTrue(target instanceof WebApplicationException,
