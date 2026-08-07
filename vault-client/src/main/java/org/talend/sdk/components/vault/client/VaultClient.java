@@ -154,7 +154,13 @@ public class VaultClient {
 
     private final Predicate<Throwable> shouldRetry = cause -> {
         if (cause instanceof WebApplicationException wae) {
-            final int status = wae.getResponse().getStatus();
+            final Response response = wae.getResponse();
+            if (response == null) {
+                // no response information: don't make the retry loop NPE, keep retrying as a
+                // recoverable error (the underlying cause is logged by retryFuture).
+                return true;
+            }
+            final int status = response.getStatus();
             if (Status.NOT_FOUND.getStatusCode() == status || status >= 500) {
                 return false;
             }
@@ -326,7 +332,7 @@ public class VaultClient {
                             })
                             // oops, smtg went wrong
                             .exceptionally(e -> {
-                                final Throwable cause = e.getCause();
+                                final Throwable cause = unwrap(e);
                                 String message = "";
                                 int status = cantDecipherStatusCode;
                                 if (cause instanceof WebApplicationException wae) {
@@ -406,28 +412,33 @@ public class VaultClient {
                     return authentication;
                 })
                 //
-                .exceptionally(e -> {
-                    final Throwable cause = e.getCause();
-                    if (cause instanceof WebApplicationException wae) {
-                        final Response response = wae.getResponse();
-                        String message = "";
-                        if (wae.getResponse().getEntity() instanceof ErrorPayload) {
-                            throw wae; // already logged and setup broken so just rethrow
-                        } else {
-                            try {
-                                message = response.readEntity(String.class);
-                            } catch (final Exception ignored) {
-                                // no-op
-                            }
-                            if (message.isEmpty()) {
-                                message = cause.getMessage();
-                            }
-                            throwError(response.getStatus(), message);
-                        }
-                    }
-                    throwError(cause);
-                    return null;
-                });
+                .exceptionally(this::handleAuthException);
+    }
+
+    private Authentication handleAuthException(final Throwable e) {
+        final Throwable cause = unwrap(e);
+        if (cause instanceof WebApplicationException wae) {
+            final Response response = wae.getResponse();
+            // if the response is null we cannot extract status/entity, fall back to the
+            // null-safe throwError(Throwable) below (avoids an NPE that would mask the cause).
+            if (response != null) {
+                String message = "";
+                if (response.getEntity() instanceof ErrorPayload) {
+                    throw wae; // already logged and setup broken so just rethrow
+                }
+                try {
+                    message = response.readEntity(String.class);
+                } catch (final Exception ignored) {
+                    // no-op
+                }
+                if (message == null || message.isEmpty()) {
+                    message = cause.getMessage();
+                }
+                throwError(response.getStatus(), message);
+            }
+        }
+        throwError(cause);
+        return null;
     }
 
     private <T> CompletableFuture<T> withRetries(final Supplier<CompletableFuture<T>> attempt,
@@ -446,9 +457,9 @@ public class VaultClient {
         log
                 .info("[retryFuture] Retry failed operation ({}/{}). Reason: {}.", attemptsSoFar,
                         numberOfRetryOnFailure, throwable.getMessage());
-        if (nextAttempt > numberOfRetryOnFailure || !shouldRetry.test(throwable.getCause())) {
+        if (nextAttempt > numberOfRetryOnFailure || !shouldRetry.test(unwrap(throwable))) {
             log.info("[retryFuture] Stop retry failed operation (condition triggered).");
-            throwError(throwable.getCause());
+            throwError(unwrap(throwable));
         }
         return flatten(flatten(CompletableFuture.supplyAsync(attempter, scheduler))
                 .thenApply(CompletableFuture::completedFuture)
@@ -466,11 +477,16 @@ public class VaultClient {
     }
 
     private void throwError(final Throwable cause) {
+        // CompletableFuture#exceptionally hands the exception "as is". If the previous stage threw
+        // the exception directly (not wrapped in a CompletionException), Throwable#getCause() can
+        // return null. Be defensive so we never trigger an NPE that would mask the original error.
+        final Throwable safeCause = cause != null
+                ? cause
+                : new IllegalStateException("Unknown error (null cause)");
         String message = "";
         int status = cantDecipherStatusCode;
-        if (cause instanceof WebApplicationException wae) {
+        if (safeCause instanceof WebApplicationException wae) {
             final Response response = wae.getResponse();
-            status = response.getStatus();
             if (response != null) {
                 if (response.getEntity() instanceof ErrorPayload) { // internal error
                     throw wae;
@@ -483,11 +499,25 @@ public class VaultClient {
                 }
             }
         }
-        if (message.isEmpty()) {
-            message = cause.getMessage();
+        if (message == null || message.isEmpty()) {
+            message = safeCause.getMessage();
         }
         throw new WebApplicationException(message,
                 Response.status(status).entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, message)).build());
+    }
+
+    /**
+     * Returns a non-null root cause for a {@link Throwable} received by a
+     * {@link java.util.concurrent.CompletableFuture#exceptionally(java.util.function.Function)} lambda.
+     * Falls back to the exception itself when {@link Throwable#getCause()} is {@code null} (the
+     * upstream stage threw the exception directly instead of wrapping it in a {@code CompletionException}).
+     */
+    private static Throwable unwrap(final Throwable e) {
+        if (e == null) {
+            return new IllegalStateException("Unknown error (null exception)");
+        }
+        final Throwable cause = e.getCause();
+        return cause != null ? cause : e;
     }
 
     // workaround while geronimo-config does not support generics of generics
