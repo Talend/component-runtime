@@ -108,7 +108,8 @@ public class ParameterModelService {
                 || type.isAnnotationPresent(Internationalized.class)
                 || Stream.of(type.getMethods()).anyMatch(m -> m.isAnnotationPresent(Request.class))
                 || (type.getName().startsWith("org.talend.sdk.component.") && type.getName().contains(".service."))
-                || type.getName().startsWith("javax."));
+                || type.getName().startsWith("javax.")
+                || type.getName().startsWith("jakarta."));
     }
 
     public List<ParameterMeta> buildParameterMetas(final Stream<Param> parameters, final Class<?> declaringClass,
