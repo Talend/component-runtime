@@ -454,22 +454,10 @@ pipeline {
         }
       }
       steps {
-        script {
-          withCredentials([ossrhCredentials,
-                           gpgCredentials,
-                           nexusCredentials]) {
-            sh """\
-              #!/usr/bin/env bash
-              set -xe
-              bash mvn deploy $deployOptions \
-                              $extraBuildParams \
-                              --settings .jenkins/settings.xml
-              """.stripIndent()
-          }
-        }
-        // Also deploy to internal Nexus on master/maintenance builds so that
+        // Deploy to internal Nexus first on master/maintenance builds so that
         // connectors-se Jenkins agents (which cannot reach central.sonatype.com)
-        // can resolve SNAPSHOT dependencies.
+        // can resolve SNAPSHOT dependencies as soon as possible, regardless of
+        // whether the Sonatype deploy below is slow or times out.
         script {
           if (stdBranch_buildOnly) {
             withCredentials([nexusCredentials]) {
@@ -480,6 +468,27 @@ pipeline {
                             ${extraBuildParams} \
                             --settings .jenkins/settings.xml
                 """.stripIndent()
+            }
+          }
+        }
+        // Sonatype/OSSRH deploy has a history of being slow/unreliable and can
+        // otherwise consume the whole pipeline timeout; bound it to its own
+        // timeout and degrade to UNSTABLE instead of failing the build outright
+        // (the internal Nexus deploy above already unblocks downstream consumers).
+        script {
+          timeout(time: 60, unit: 'MINUTES') {
+            catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+              withCredentials([ossrhCredentials,
+                               gpgCredentials,
+                               nexusCredentials]) {
+                sh """\
+                  #!/usr/bin/env bash
+                  set -xe
+                  bash mvn deploy $deployOptions \
+                                  $extraBuildParams \
+                                  --settings .jenkins/settings.xml
+                  """.stripIndent()
+              }
             }
           }
         }
