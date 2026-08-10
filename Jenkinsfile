@@ -240,6 +240,18 @@ pipeline {
         name: 'JENKINS_DEBUG',
         defaultValue: false,
         description: 'Add an extra step to the pipeline allowing to keep the pod alive for debug purposes.')
+    booleanParam(
+        name: 'NO_QUALIFIER',
+        defaultValue: false,
+        description: '''
+            DEBUG ONLY - do not use on a branch that others rely on.
+            Skips the version qualifier and overwrites the branch name mechanism to run as if this were master branch,
+            so you can test Jenkins pipeline changes (e.g. the Maven deploy stages) end to end from a dev branch.
+            WARNING: the resulting artifact uses the exact same (unqualified) SNAPSHOT
+            version as master. If this build deploys, it WILL OVERWRITE the artifacts
+            currently published by the master branch build on both the internal Nexus
+            and Sonatype/OSSRH repositories. If you do it, be sure that your branch is up to date with master.
+            Only to test Jenkins job evolution, never for real development work.''')
   }
 
   stages {
@@ -275,11 +287,12 @@ pipeline {
         // Variables init
         ///////////////////////////////////////////
         script {
-          stdBranch_buildOnly = isStdBranch && params.ACTION != 'RELEASE'
+          stdBranch_buildOnly = (isStdBranch || params.NO_QUALIFIER) && params.ACTION != 'RELEASE'
           devBranch_mavenDeploy = !isStdBranch && params.MAVEN_DEPLOY
           devBranch_dockerPush = !isStdBranch && params.DOCKER_PUSH
 
-          needQualify = devBranch_mavenDeploy || devBranch_dockerPush
+          // NO_QUALIFIER forces the same (unqualified) version as master, see param warning
+          needQualify = (devBranch_mavenDeploy || devBranch_dockerPush) && !params.NO_QUALIFIER
 
           if (needQualify) {
             // Qualified version have to be released on talend_repository
@@ -384,6 +397,9 @@ pipeline {
                       Debug: $params.JENKINS_DEBUG  
                       Extra build args: $extraBuildParams  """.stripIndent()
           JenkinsStatusController.jobDescriptionAppend(description)
+          if (params.NO_QUALIFIER) {
+            JenkinsStatusController.jobDescriptionAppend("⚠️ NO_QUALIFIER debug mode: unqualified version, deploy stages forced as on master/maintenance  ")
+          }
         }
       }
       post {
