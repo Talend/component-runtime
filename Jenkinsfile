@@ -446,7 +446,31 @@ pipeline {
         }
       }
     }
-    stage('Maven deploy') {
+    stage('Maven deploy - Nexus') {
+      // Deploy to internal Nexus first on master/maintenance builds so that
+      // connectors-se Jenkins agents (which cannot reach central.sonatype.com)
+      // can resolve SNAPSHOT dependencies as soon as possible, independent of
+      // whether the Sonatype deploy stage below is slow or times out.
+      when {
+        expression { stdBranch_buildOnly }
+      }
+      steps {
+        withCredentials([nexusCredentials]) {
+          sh """\
+            #!/usr/bin/env bash
+            set -xe
+            mvn deploy ${nexusDeployOptions} \
+                        ${extraBuildParams} \
+                        --settings .jenkins/settings.xml
+            """.stripIndent()
+        }
+      }
+    }
+    stage('Maven deploy - Sonatype') {
+      // Sonatype/OSSRH deploy has a history of being slow/unreliable and can
+      // otherwise consume the whole pipeline timeout; bound it to its own
+      // timeout and degrade to UNSTABLE instead of failing the build outright
+      // (the Nexus deploy stage above already unblocks downstream consumers).
       when {
         anyOf {
           expression { stdBranch_buildOnly }
@@ -454,27 +478,6 @@ pipeline {
         }
       }
       steps {
-        // Deploy to internal Nexus first on master/maintenance builds so that
-        // connectors-se Jenkins agents (which cannot reach central.sonatype.com)
-        // can resolve SNAPSHOT dependencies as soon as possible, regardless of
-        // whether the Sonatype deploy below is slow or times out.
-        script {
-          if (stdBranch_buildOnly) {
-            withCredentials([nexusCredentials]) {
-              sh """\
-                #!/usr/bin/env bash
-                set -xe
-                mvn deploy ${nexusDeployOptions} \
-                            ${extraBuildParams} \
-                            --settings .jenkins/settings.xml
-                """.stripIndent()
-            }
-          }
-        }
-        // Sonatype/OSSRH deploy has a history of being slow/unreliable and can
-        // otherwise consume the whole pipeline timeout; bound it to its own
-        // timeout and degrade to UNSTABLE instead of failing the build outright
-        // (the internal Nexus deploy above already unblocks downstream consumers).
         script {
           timeout(time: 60, unit: 'MINUTES') {
             catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
