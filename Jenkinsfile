@@ -506,20 +506,21 @@ pipeline {
       steps {
         script {
           timeout(time: 60, unit: 'MINUTES') {
-            catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-              withCredentials([ossrhCredentials,
-                               gpgCredentials,
-                               nexusCredentials]) {
-                sh """\
-                  #!/usr/bin/env bash
-                  set -xe
-                  bash mvn deploy $deployOptions \
-                                  $extraBuildParams \
-                                  --settings .jenkins/settings.xml
-                  """.stripIndent()
-              }
-            }
-          }
+catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+  timeout(time: 60, unit: 'MINUTES') {
+    withCredentials([ossrhCredentials,
+                     gpgCredentials,
+                     nexusCredentials]) {
+      sh """\
+        #!/usr/bin/env bash
+        set -xe
+        bash mvn deploy $deployOptions \
+                        $extraBuildParams \
+                        --settings .jenkins/settings.xml
+        """.stripIndent()
+    }
+  }
+}
         }
         // Add description to job
         script {
