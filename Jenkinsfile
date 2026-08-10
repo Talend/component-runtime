@@ -252,6 +252,13 @@ pipeline {
             currently published by the master branch build on both the internal Nexus
             and Sonatype/OSSRH repositories. If you do it, be sure that your branch is up to date with master.
             Only to test Jenkins job evolution, never for real development work.''')
+    booleanParam(
+        name: 'NO_SONATYPE',
+        defaultValue: false,
+        description: '''
+            DEBUG ONLY - skips the Sonatype/OSSRH deploy stage entirely, whatever the branch.
+            Use this to test the pipeline faster when the slow/unreliable Sonatype deploy
+            is not what you want to validate (e.g. only testing the internal Nexus deploy stage).''')
   }
 
   stages {
@@ -488,9 +495,12 @@ pipeline {
       // timeout and degrade to UNSTABLE instead of failing the build outright
       // (the Nexus deploy stage above already unblocks downstream consumers).
       when {
-        anyOf {
-          expression { stdBranch_buildOnly }
-          expression { devBranch_mavenDeploy }
+        allOf {
+          expression { !params.NO_SONATYPE }
+          anyOf {
+            expression { stdBranch_buildOnly }
+            expression { devBranch_mavenDeploy }
+          }
         }
       }
       steps {
