@@ -44,7 +44,6 @@ import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.LastGroup;
-import org.talend.sdk.component.api.processor.MultiOutputIterator;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
@@ -196,8 +195,7 @@ public class ModelVisitor {
         afterGroups.forEach(m -> {
             final List<Parameter> invalidParams = Stream.of(m.getParameters()).peek(p -> {
                 if (p.isAnnotationPresent(Output.class) && !validOutputParam(p)) {
-                    throw new IllegalArgumentException(
-                            "@Output parameter must be of type OutputEmitter or MultiOutputIterator");
+                    throw new IllegalArgumentException("@Output parameter must be of type OutputEmitter");
                 }
             })
                     .filter(p -> !p.isAnnotationPresent(Output.class))
@@ -245,8 +243,7 @@ public class ModelVisitor {
 
         if (!producers.isEmpty() && Stream.of(producers.get(0).getParameters()).peek(p -> {
             if (p.isAnnotationPresent(Output.class) && !validOutputParam(p)) {
-                throw new IllegalArgumentException(
-                        "@Output parameter must be of type OutputEmitter or MultiOutputIterator");
+                throw new IllegalArgumentException("@Output parameter must be of type OutputEmitter");
             }
         }).filter(p -> !p.isAnnotationPresent(Output.class)).count() < 1) {
             throw new IllegalArgumentException(input + " doesn't have the input parameter on its producer method");
@@ -257,8 +254,7 @@ public class ModelVisitor {
         if (!(p.getParameterizedType() instanceof ParameterizedType pt)) {
             return false;
         }
-        return OutputEmitter.class == pt.getRawType()
-                || MultiOutputIterator.class == pt.getRawType();
+        return OutputEmitter.class == pt.getRawType();
     }
 
     private Stream<Class<? extends Annotation>> getPartitionMapperMethods(final boolean infinite) {
