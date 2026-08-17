@@ -257,8 +257,14 @@ public class ModelVisitor {
         if (!(p.getParameterizedType() instanceof ParameterizedType pt)) {
             return false;
         }
-        return OutputEmitter.class == pt.getRawType()
-                || MultiOutputIterator.class == pt.getRawType();
+        if (OutputEmitter.class == pt.getRawType()) {
+            if (p.getAnnotation(Output.class).branches().length > 0) {
+                throw new IllegalArgumentException(
+                        "@Output#branches is only supported on MultiOutputIterator parameters, use @Output(\"name\")");
+            }
+            return true;
+        }
+        return MultiOutputIterator.class == pt.getRawType();
     }
 
     private Stream<Class<? extends Annotation>> getPartitionMapperMethods(final boolean infinite) {

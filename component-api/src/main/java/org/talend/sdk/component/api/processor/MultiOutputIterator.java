@@ -35,6 +35,12 @@ import java.util.Iterator;
  * so the component does not need separate parameters per output.
  *
  * <p>
+ * It is equally valid to use it with a <b>single</b> output: the point is then to stream records lazily
+ * instead of pushing them through an {@link OutputEmitter}, which avoids buffering. In that case the
+ * branch is named as usual with {@code @Output("FLOW")}; {@code @Output(branches = ...)} is only needed
+ * when the parameter feeds several branches, to declare them to the design layer.
+ *
+ * <p>
  * <b>Important:</b> This interface is supported only in the Studio DI runtime.
  *
  * <p>
@@ -45,7 +51,7 @@ import java.util.Iterator;
  * 
  * &#64;ElementListener
  * public void process(&#64;Input Record input,
- *         &#64;Output MultiOutputIterator<Record> out) {
+ *         &#64;Output(branches = { "MAIN", "REJECT" }) MultiOutputIterator<Record> out) {
  *     out.setIterator(
  *             mySource.stream()
  *                     .map(r -> isValid(r)
@@ -63,7 +69,7 @@ import java.util.Iterator;
  * {@code
  * 
  * &#64;AfterGroup
- * public void afterGroup(&#64;Output MultiOutputIterator<Record> out) {
+ * public void afterGroup(&#64;Output(branches = { "MAIN", "REJECT" }) MultiOutputIterator<Record> out) {
  *     out.setIterator("MAIN", mainDatabase.lazyQuery());
  *     out.setIterator("REJECT", errorLog.lazyRead());
  * }
