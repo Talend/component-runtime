@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,8 +51,8 @@ public class MdcRequestBinder implements Filter {
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
-        if (HttpServletRequest.class.isInstance(request)) {
-            ThreadContext.putAll(createContext(HttpServletRequest.class.cast(request)));
+        if (request instanceof HttpServletRequest httpServletRequest) {
+            ThreadContext.putAll(createContext(httpServletRequest));
         }
         chain.doFilter(request, response);
     }

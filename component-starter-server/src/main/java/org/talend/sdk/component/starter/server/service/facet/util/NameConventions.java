@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,8 +71,7 @@ public class NameConventions {
                 return "boolean";
             case "double":
                 return "double";
-            case "int":
-            case "integer":
+            case "int", "integer":
                 return "int";
             case "uri": // todo: import
                 return "java.net.URI";

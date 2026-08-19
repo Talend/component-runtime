@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.talend.sdk.component.design.extension.repository;
 
 import static java.util.Collections.singletonList;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.runtime.manager.util.Lazy.lazy;
 
@@ -39,7 +38,7 @@ import org.talend.sdk.component.runtime.manager.reflect.MigrationHandlerFactory;
 import org.talend.sdk.component.runtime.manager.util.IdGenerator;
 
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -60,7 +59,7 @@ public class RepositoryModelBuilder {
         final List<Family> families = familyMetas
                 .stream()
                 .map(familyMeta -> createConfigForFamily(services, migrationHandlerFactory, familyMeta))
-                .collect(toList());
+                .toList();
         return new RepositoryModel(families);
     }
 
@@ -130,8 +129,8 @@ public class RepositoryModelBuilder {
                 .setId(IdGenerator
                         .get(plugin, c.getKey().getFamily(), c.getKey().getConfigType(), c.getKey().getConfigName()));
 
-        if (Class.class.isInstance(config.getJavaType())) {
-            final Class<?> clazz = Class.class.cast(config.getJavaType());
+        if (config.getJavaType() instanceof Class javaTypeClass) {
+            final Class<?> clazz = javaTypeClass;
             final Version version = clazz.getAnnotation(Version.class);
             if (version != null) {
                 c.setVersion(version.value());
@@ -169,7 +168,7 @@ public class RepositoryModelBuilder {
                         .getNestedParameters()
                         .stream()
                         .map(it -> translate(it, replacedPrefixLen, newPrefix))
-                        .collect(toList()),
+                        .toList(),
                 config.getProposals(), config.getMetadata(), config.isLogMissingResourceBundle());
     }
 }

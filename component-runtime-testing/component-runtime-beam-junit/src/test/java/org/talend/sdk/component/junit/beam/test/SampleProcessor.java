@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +31,8 @@ import lombok.NoArgsConstructor;
 public class SampleProcessor implements Serializable {
 
     @ElementListener
-    public void onNext(final @Input Sample sample, final @Output OutputEmitter<Sample> success,
-            final @Output("reject") OutputEmitter<Reject> reject) {
+    public void onNext(@Input final Sample sample, @Output final OutputEmitter<Sample> success,
+            @Output("reject") final OutputEmitter<Reject> reject) {
 
         success.emit(sample);
         reject.emit(new Reject(sample, "error"));

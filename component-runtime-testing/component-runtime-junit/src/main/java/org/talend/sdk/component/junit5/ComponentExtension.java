@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import org.talend.sdk.component.junit.environment.Environment;
 
 /**
  * Extension allowing the test to use a {@link org.talend.sdk.component.junit.ComponentsHandler}
- * and auto register components from current project.
+ * and auto register components from the current project.
  */
 public class ComponentExtension extends BaseComponentsHandler
         implements BeforeAllCallback, AfterAllCallback, JUnit5InjectionSupport, BeforeEachCallback, AfterEachCallback {
@@ -112,8 +112,8 @@ public class ComponentExtension extends BaseComponentsHandler
     }
 
     public void doStop(final ExtensionContext extensionContext) {
-        ofNullable(EmbeddedComponentManager.class
-                .cast(extensionContext.getStore(NAMESPACE).get(EmbeddedComponentManager.class.getName())))
+        ofNullable((EmbeddedComponentManager) extensionContext.getStore(NAMESPACE)
+                .get(EmbeddedComponentManager.class.getName()))
                 .ifPresent(EmbeddedComponentManager::close);
     }
 

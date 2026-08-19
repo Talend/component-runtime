@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -215,7 +215,7 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
         protected Serializable loadDelegate() throws IOException, ClassNotFoundException {
             try (final ObjectInputStream ois = new EnhancedObjectInputStream(new ByteArrayInputStream(value),
                     ContainerFinder.Instance.get().find(plugin).classloader())) {
-                return Serializable.class.cast(ois.readObject());
+                return (Serializable) ois.readObject();
             }
         }
     }

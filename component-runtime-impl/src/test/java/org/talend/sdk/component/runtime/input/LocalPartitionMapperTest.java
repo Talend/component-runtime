@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class LocalPartitionMapperTest {
     void createReader() {
         final Mapper mapper = new LocalPartitionMapper("Root", "Test", "Plugin", new Component());
         final Input input = mapper.create();
-        assertTrue(Record.class.isInstance(input.next()));
+        assertTrue(input.next() instanceof Record);
         assertNotSame(input.next(), input.next());
     }
 

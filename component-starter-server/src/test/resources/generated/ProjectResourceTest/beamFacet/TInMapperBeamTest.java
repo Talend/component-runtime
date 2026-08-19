@@ -22,7 +22,7 @@ public class TInMapperBeamTest implements Serializable {
     public static final SimpleComponentRule COMPONENT_FACTORY = new SimpleComponentRule("com.foo");
 
     @Rule
-    public transient final TestPipeline pipeline = TestPipeline.create();
+    public final transient TestPipeline pipeline = TestPipeline.create();
 
     @Test
     @Ignore("You need to complete this test with your own data and assertions")

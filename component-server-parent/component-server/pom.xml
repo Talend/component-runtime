@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2026 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-server-parent</artifactId>
-    <version>1.86.0-SNAPSHOT</version>
+    <version>1.95.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-server</artifactId>
@@ -86,7 +86,6 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-text</artifactId>
-      <version>${commons-text.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.meecrowave</groupId>
@@ -190,6 +189,12 @@
       <artifactId>component-runtime-beam</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
@@ -197,7 +202,6 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 
   <build>

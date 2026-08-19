@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -215,8 +215,10 @@ public interface ComponentResource {
     // @Unused, only for sample
     class SampleErrorForBulk {
 
+        @SuppressWarnings("java:S1068")
         private ErrorPayload error1;
 
+        @SuppressWarnings("java:S1068")
         private ErrorPayload error2;
     }
 }

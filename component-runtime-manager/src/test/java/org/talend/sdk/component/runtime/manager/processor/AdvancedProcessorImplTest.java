@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ class AdvancedProcessorImplTest {
         processor.onNext(name -> new Whatever(1), name -> value -> assertTrue(ref.compareAndSet(null, value)));
         final Object out = ref.get();
         assertNotNull(out);
-        assertTrue(() -> String.class.isInstance(out));
+        assertTrue(() -> out instanceof String);
         assertEquals("1", out.toString());
     }
 

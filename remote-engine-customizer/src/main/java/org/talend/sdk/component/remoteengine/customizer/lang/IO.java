@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.remoteengine.customizer.lang;
 
-import static java.util.stream.Collectors.toList;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.io.BufferedReader;
@@ -63,7 +62,7 @@ public final class IO {
             throw new IllegalArgumentException("Missing file: " + dockerCompose);
         }
         try (final BufferedReader reader = Files.newBufferedReader(dockerCompose)) {
-            return reader.lines().collect(toList());
+            return reader.lines().toList();
         }
     }
 

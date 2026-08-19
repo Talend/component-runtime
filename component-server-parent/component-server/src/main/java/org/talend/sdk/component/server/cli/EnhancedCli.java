@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ public class EnhancedCli extends Cli implements AutoCloseable {
 
     @Override
     public void close() {
-        ofNullable(instance).ifPresent(mw -> StandardServer.class.cast(mw.getTomcat().getServer()).stopAwait());
+        ofNullable(instance).ifPresent(mw -> ((StandardServer) mw.getTomcat().getServer()).stopAwait());
     }
 
     public static class CustomPefixHttp11NioProtocol extends Http11NioProtocol {

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.crypto.Cipher;
@@ -77,7 +76,7 @@ public class MavenDecrypter {
     }
 
     public MavenDecrypter(final List<File> settings, final File settingsSecurity) {
-        this.settings = settings.stream().filter(File::exists).collect(Collectors.toList());
+        this.settings = settings.stream().filter(File::exists).toList();
         this.settingsSecurity = settingsSecurity;
     }
 
@@ -156,7 +155,7 @@ public class MavenDecrypter {
                 findMavenHome(M2_HOME),
                 findMavenHome(MAVEN_HOME))
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static File findMavenHome(final String mavenHome) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.talend.runtime.documentation.component.source;
 
-import static java.util.stream.Collectors.toList;
 import static org.talend.runtime.documentation.component.configuration.TableDataSet.READ_ALL_RECORD_FROM_SERVER;
 import static org.talend.runtime.documentation.component.service.http.TableApiClient.API_BASE;
 import static org.talend.runtime.documentation.component.service.http.TableApiClient.API_VERSION;
@@ -112,7 +111,7 @@ public class MockTableMapper implements Serializable {
             dataSetChunk.setOffset(from);
             dataSetChunk.setMaxRecords(to);
             return new MockTableMapper(dataSetChunk, service, i18n, tableAPI);
-        }).filter(Objects::nonNull).collect(toList());
+        }).filter(Objects::nonNull).toList();
     }
 
     @Emitter

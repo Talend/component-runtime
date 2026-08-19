@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,12 +42,12 @@ public class JsonSchemaValidatorFactoryExt extends org.apache.johnzon.jsonschema
     public List<org.apache.johnzon.jsonschema.spi.ValidationExtension> createDefaultValidations() {
         List validations = super.createDefaultValidations()
                 .stream()
-                .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.TypeValidation.class.isInstance(v))
-                .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.EnumValidation.class.isInstance(v))
-                .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.MinimumValidation.class.isInstance(v))
-                .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.MaximumValidation.class.isInstance(v))
-                .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.RequiredValidation.class.isInstance(v))
-                .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.PatternValidation.class.isInstance(v))
+                .filter(v -> !(v instanceof org.apache.johnzon.jsonschema.spi.builtin.TypeValidation))
+                .filter(v -> !(v instanceof org.apache.johnzon.jsonschema.spi.builtin.EnumValidation))
+                .filter(v -> !(v instanceof org.apache.johnzon.jsonschema.spi.builtin.MinimumValidation))
+                .filter(v -> !(v instanceof org.apache.johnzon.jsonschema.spi.builtin.MaximumValidation))
+                .filter(v -> !(v instanceof org.apache.johnzon.jsonschema.spi.builtin.RequiredValidation))
+                .filter(v -> !(v instanceof PatternValidation))
                 .collect(Collectors.toList());
         validations.add(new TypeValidation());
         validations.add(new EnumValidationWithDefaultValue());

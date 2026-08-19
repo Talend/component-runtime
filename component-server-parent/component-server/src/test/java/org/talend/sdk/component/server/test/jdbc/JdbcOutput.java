@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @FixedSchema(value = "jdbc_discover_schema", flows = { "reject" })
 public class JdbcOutput implements Serializable {
 
+    @SuppressWarnings("java:S1068")
     private final ConfigWrapper dataset;
 
     public JdbcOutput(@Option("configuration") final ConfigWrapper dataset) {

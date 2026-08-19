@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,6 @@ public class NoCheckpointCoder extends Coder<UnboundedSource.CheckpointMark> {
 
     @Override
     public boolean equals(final Object obj) {
-        return NoCheckpointCoder.class.isInstance(obj);
+        return obj instanceof NoCheckpointCoder;
     }
 }

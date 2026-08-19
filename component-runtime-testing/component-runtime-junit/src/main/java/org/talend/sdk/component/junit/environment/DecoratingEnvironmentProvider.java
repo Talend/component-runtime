@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ public class DecoratingEnvironmentProvider implements EnvironmentProvider {
     }
 
     public String getName() {
-        return (BaseEnvironmentProvider.class.isInstance(provider)
-                ? BaseEnvironmentProvider.class.cast(provider).getName()
+        return (provider instanceof BaseEnvironmentProvider baseEnvironmentProvider
+                ? baseEnvironmentProvider.getName()
                 : provider.getClass().getSimpleName()).replace("Environment", "");
     }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ public class MockTableSource implements Serializable {
 
     private final TableDataSet ds;
 
+    @SuppressWarnings("java:S1068")
     private final Messages i18n;
 
     private BufferizedProducerSupport<JsonValue> bufferedReader;

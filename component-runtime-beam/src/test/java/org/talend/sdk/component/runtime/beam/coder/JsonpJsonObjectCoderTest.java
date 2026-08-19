@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.runtime.beam.coder;
 
-import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -67,7 +66,7 @@ class JsonpJsonObjectCoderTest {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         coder.encode(() -> iterator, out);
         final Iterable<JsonObject> decode = coder.decode(new ByteArrayInputStream(out.toByteArray()));
-        final Collection<JsonObject> result = StreamSupport.stream(decode.spliterator(), false).collect(toList());
+        final Collection<JsonObject> result = StreamSupport.stream(decode.spliterator(), false).toList();
         assertEquals(1, result.size());
         assertEquals("value", result.iterator().next().getString("test"));
     }

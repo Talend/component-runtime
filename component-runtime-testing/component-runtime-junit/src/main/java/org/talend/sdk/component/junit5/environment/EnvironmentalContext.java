@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,8 +130,8 @@ public class EnvironmentalContext implements TestTemplateInvocationContext {
         }
 
         private boolean isActive() {
-            return DecoratingEnvironmentProvider.class.isInstance(provider)
-                    && DecoratingEnvironmentProvider.class.cast(provider).isActive();
+            return provider instanceof DecoratingEnvironmentProvider decoratingEnvironmentProvider
+                    && decoratingEnvironmentProvider.isActive();
         }
 
         @Override

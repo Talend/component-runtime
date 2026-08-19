@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,8 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import javax.json.bind.JsonbBuilder;
-import javax.xml.bind.annotation.XmlRootElement;
+
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpServer;
@@ -244,7 +245,7 @@ class HttpClientFactoryImplTest {
             final byte[] bytes;
             String xmlContent = "<!DOCTYPE foo [ <!ENTITY xxe SYSTEM \"file:///etc/passwd\"> ]><foo>&xxe;</foo>";
             try (final BufferedReader in =
-                         new BufferedReader(new StringReader(xmlContent))) {
+                    new BufferedReader(new StringReader(xmlContent))) {
                 bytes = in.lines().collect(joining("\n")).getBytes(StandardCharsets.UTF_8);
             }
             httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, bytes.length);
@@ -273,7 +274,7 @@ class HttpClientFactoryImplTest {
             final byte[] bytes;
             String xmlContent = "<!ENTITY xxe SYSTEM \"file:///etc/passwd\"><foo>invalid;";
             try (final BufferedReader in =
-                         new BufferedReader(new StringReader(xmlContent))) {
+                    new BufferedReader(new StringReader(xmlContent))) {
                 bytes = in.lines().collect(joining("\n")).getBytes(StandardCharsets.UTF_8);
             }
             httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, bytes.length);
@@ -636,7 +637,7 @@ class HttpClientFactoryImplTest {
 
             @Override
             public void configure(final Connection connection, final ConfigurerConfiguration configuration) {
-                if (Boolean.class.cast(configuration.get("disableRedirect", Boolean.class))) {
+                if ((Boolean) configuration.get("disableRedirect", Boolean.class)) {
                     connection.withoutFollowRedirects();
                 }
             }
@@ -776,7 +777,7 @@ class HttpClientFactoryImplTest {
 
         @Override
         public byte[] encode(final Object value) {
-            return Payload.class.cast(value).value.getBytes(StandardCharsets.UTF_8);
+            return ((Payload) value).value.getBytes(StandardCharsets.UTF_8);
         }
     }
 

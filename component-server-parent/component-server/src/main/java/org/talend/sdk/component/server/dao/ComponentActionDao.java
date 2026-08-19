@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public class ComponentActionDao {
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-            final ActionKey other = ActionKey.class.cast(o);
+            final ActionKey other = (ActionKey) o;
             return Objects.equals(component, other.component) && Objects.equals(type, other.type)
                     && Objects.equals(name, other.name);
         }

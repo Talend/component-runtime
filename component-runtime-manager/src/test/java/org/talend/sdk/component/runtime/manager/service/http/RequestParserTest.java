@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package org.talend.sdk.component.runtime.manager.service.http;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -95,7 +93,6 @@ class RequestParserTest {
                         .getDeclaredMethod("complexe", String.class, String.class, String.class, String.class,
                                 Integer.class, Map.class));
         {
-            final Type responseType = complexe.getResponseType();
             final HttpRequestCreator creator = complexe.getRequestCreator();
             Assertions.assertNotNull(creator);
             Map<String, String> queryParams = new HashMap<>();

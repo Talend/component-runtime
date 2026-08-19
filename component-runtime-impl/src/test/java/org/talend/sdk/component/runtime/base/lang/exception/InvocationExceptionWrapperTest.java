@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,9 @@ class InvocationExceptionWrapperTest {
     void ensureOriginalIsReplacedToGuaranteeSerializationAccrossClassLoaders() {
         final RuntimeException mapped = InvocationExceptionWrapper
                 .toRuntimeException(new InvocationTargetException(new CustomException("custom for test")));
-        assertTrue(ComponentException.class.isInstance(mapped));
+        assertTrue(mapped instanceof ComponentException);
         assertEquals("(" + CustomException.class.getName() + ") custom for test", mapped.getMessage());
-        assertTrue(ComponentException.class.isInstance(mapped.getCause()));
+        assertTrue(mapped.getCause() instanceof ComponentException);
         assertEquals("(" + AnotherException.class.getName() + ") other", mapped.getCause().getMessage());
     }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.talend.sdk.component.server.service;
 
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
 import java.util.Map;
@@ -48,7 +47,7 @@ public class PropertyValidationService {
                     } else if (Boolean.class == f.getType()) {
                         valueConverter = Boolean::parseBoolean;
                     } else if (Collection.class == f.getType()) {
-                        valueConverter = s -> Stream.of(s.split(",")).collect(toList());
+                        valueConverter = s -> Stream.of(s.split(",")).toList();
                     } else {
                         valueConverter = s -> s;
                     }
@@ -67,7 +66,7 @@ public class PropertyValidationService {
                                         return true;
                                     })
                                     .orElse(false);
-                }).collect(toList());
+                }).toList();
         propertyValidationCreator = config -> {
             final PropertyValidation validation = new PropertyValidation();
             if (validationSetters.stream().filter(s -> s.apply(validation, config)).count() == 0) {

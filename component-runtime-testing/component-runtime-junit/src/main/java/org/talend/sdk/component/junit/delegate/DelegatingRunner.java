@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,8 +47,8 @@ public class DelegatingRunner extends Runner {
         } catch (final InstantiationException | NoSuchMethodException | IllegalAccessException e) {
             throw new IllegalArgumentException(e);
         } catch (final InvocationTargetException e) {
-            if (InitializationError.class.isInstance(e.getCause())) {
-                throw InitializationError.class.cast(e.getCause());
+            if (e.getCause() instanceof InitializationError initializationError) {
+                throw initializationError;
             }
             throw new IllegalStateException(e.getTargetException());
         }

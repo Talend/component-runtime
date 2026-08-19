@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class MinimumValidation implements ValidationExtension {
                     .ofNullable(model.getSchema().get("minimum"))
                     .filter(v -> v.getValueType() == JsonValue.ValueType.NUMBER)
                     .map(m -> new Impl(model.toPointer(), model.getValueProvider(),
-                            JsonNumber.class.cast(m).doubleValue()));
+                            ((JsonNumber) m).doubleValue()));
         }
         return Optional.empty();
     }

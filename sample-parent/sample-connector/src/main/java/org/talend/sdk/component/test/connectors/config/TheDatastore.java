@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ import lombok.Data;
                 @GridLayout.Row({ "auth" }) })
 public class TheDatastore implements Serializable {
 
-    public final static int DATASTORE_VERSION = 2;
+    public static final int DATASTORE_VERSION = 2;
 
     @Option
     @Required

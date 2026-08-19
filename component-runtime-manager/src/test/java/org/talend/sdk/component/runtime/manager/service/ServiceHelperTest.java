@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,10 +44,10 @@ class ServiceHelperTest {
     }
 
     @Service
-    static public class Service1 {
+    public static class Service1 {
     }
 
     @Service
-    static public class Service2 extends BaseService {
+    public static class Service2 extends BaseService {
     }
 }

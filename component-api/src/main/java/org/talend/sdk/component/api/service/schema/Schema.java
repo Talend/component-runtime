@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Partial("This API should support nested schema but the Studio is not yet ready.\n\n"
-        + "The cloud platform also doesn't use it yet.\n\nAlso prefer to use "
-        + "`org.talend.sdk.component.api.record.Schema` over this partial default implementation.")
+@Partial("""
+         This API should support nested schema but the Studio is not yet ready.
+
+         The cloud platform also doesn't use it yet.
+
+         Also prefer to use \
+         `org.talend.sdk.component.api.record.Schema` over this partial default implementation.""")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

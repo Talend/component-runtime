@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,9 +35,16 @@ public class IO {
         this(System.in, System.out, System.err);
     }
 
+    public void println(final String message) {
+        stdout.println(message);
+    }
+
+    /**
+     * Force all System.out.printXxx to write to standard error output
+     */
     public void set() {
         System.setIn(stdin);
-        System.setOut(stdout);
+        System.setOut(stderr);
         System.setErr(stderr);
     }
 }

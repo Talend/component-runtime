@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,9 +48,9 @@ public class FullSerializationRecordCoder extends CustomCoder<Record> {
         final org.talend.sdk.component.api.record.Schema schema =
                 value == null ? Schemas.EMPTY_RECORD : value.getSchema();
         final Schema avro =
-                value == null ? AvroSchemas.getEmptySchema() : Unwrappable.class.cast(schema).unwrap(Schema.class);
+                value == null ? AvroSchemas.getEmptySchema() : ((Unwrappable) schema).unwrap(Schema.class);
         final IndexedRecord record =
-                value == null ? EMPTY_RECORD : Unwrappable.class.cast(value).unwrap(IndexedRecord.class);
+                value == null ? EMPTY_RECORD : ((Unwrappable) value).unwrap(IndexedRecord.class);
         try (final DataFileWriter<IndexedRecord> writer = new DataFileWriter<>(new GenericDatumWriter<>(avro))) {
             writer.create(avro, new NoCloseOutputStream(outputStream));
             writer.append(record);
@@ -73,7 +73,7 @@ public class FullSerializationRecordCoder extends CustomCoder<Record> {
 
     @Override
     public boolean equals(final Object obj) {
-        return FullSerializationRecordCoder.class.isInstance(obj);
+        return obj instanceof FullSerializationRecordCoder;
     }
 
     public static FullSerializationRecordCoder of() {

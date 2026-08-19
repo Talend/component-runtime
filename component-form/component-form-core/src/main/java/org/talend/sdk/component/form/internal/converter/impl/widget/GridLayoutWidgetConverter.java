@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
                         // if we have multiple tabs, priority is MAIN/ADVANCED pair first
                         // but if they are not present then we use all layouts in "String" order
                         final List<String> tabs = (layouts.containsKey("Main") ? Stream.of("Main", "Advanced")
-                                : layouts.keySet().stream().sorted(String::compareToIgnoreCase)).collect(toList());
+                                : layouts.keySet().stream().sorted(String::compareToIgnoreCase)).toList();
 
                         final UiSchema schema = newUiSchema(context);
                         schema.setTitle(null);

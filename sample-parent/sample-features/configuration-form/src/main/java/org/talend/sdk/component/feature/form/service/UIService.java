@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.talend.sdk.component.feature.form.service;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.talend.sdk.component.api.configuration.Option;
@@ -42,17 +41,17 @@ import org.talend.sdk.component.feature.form.config.DynamicElements.SomeComplexC
 @Service
 public class UIService {
 
-    public final static String HEALTHCHECK = "HEALTHCHECK";
+    public static final String HEALTHCHECK = "HEALTHCHECK";
 
-    public final static String DISCOVERSCHEMA = "DISCOVERSCHEMA";
+    public static final String DISCOVERSCHEMA = "DISCOVERSCHEMA";
 
-    public final static String SUGGESTABLE = "SUGGESTABLE";
+    public static final String SUGGESTABLE = "SUGGESTABLE";
 
-    public final static String UPDATABLE = "UPDATABLE";
+    public static final String UPDATABLE = "UPDATABLE";
 
-    public final static String ASYNC_VALIDATION = "ASYNC_VALIDATION";
+    public static final String ASYNC_VALIDATION = "ASYNC_VALIDATION";
 
-    public final static String ASYNC_VALIDATION_ONSTRING = "ASYNC_VALIDATION2";
+    public static final String ASYNC_VALIDATION_ONSTRING = "ASYNC_VALIDATION2";
 
     @Service
     private RecordBuilderFactory recordBuilderFactory;
@@ -102,7 +101,7 @@ public class UIService {
                 .mapToObj(i -> new SuggestionValues.Item(singleString + "_" + i,
                         singleString + "_" + someComplexConfig.getAString() +
                                 "_" + someComplexConfig.isABoolean() + "_" + i))
-                .collect(Collectors.toList());
+                .toList();
         return new SuggestionValues(true, items);
     }
 

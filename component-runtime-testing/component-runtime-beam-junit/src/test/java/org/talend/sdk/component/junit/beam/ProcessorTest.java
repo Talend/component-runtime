@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.talend.sdk.component.junit.beam;
 
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -50,7 +49,7 @@ public class ProcessorTest {
             new SimpleComponentRule(SampleProcessor.class.getPackage().getName());
 
     @Rule
-    public transient final TestPipeline pipeline = TestPipeline.create();
+    public final transient TestPipeline pipeline = TestPipeline.create();
 
     @Test
     public void processor() {
@@ -67,7 +66,7 @@ public class ProcessorTest {
                 inputs.apply(TalendFn.asFn(processor)).apply(Data.map(processor.plugin(), Record.class));
 
         PAssert.that(outputs).satisfies((SerializableFunction<Iterable<Map<String, Record>>, Void>) input -> {
-            final List<Map<String, Record>> result = StreamSupport.stream(input.spliterator(), false).collect(toList());
+            final List<Map<String, Record>> result = StreamSupport.stream(input.spliterator(), false).toList();
 
             assertEquals(2, result.size());
             result.forEach(e -> assertTrue(e.containsKey("__default__") && e.containsKey("reject")));

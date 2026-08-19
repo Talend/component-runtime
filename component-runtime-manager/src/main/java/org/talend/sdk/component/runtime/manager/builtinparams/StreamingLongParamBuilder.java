@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,6 @@ public class StreamingLongParamBuilder {
 
     private final ParameterMeta root;
 
-    private final String componentClassName;
-
     private final String name;
 
     private final String layoutType;
@@ -42,7 +40,6 @@ public class StreamingLongParamBuilder {
     public StreamingLongParamBuilder(final ParameterMeta root, final String componentClassName,
             final String parameterName, final LocalConfiguration configuration) {
         this.root = root;
-        this.componentClassName = componentClassName;
         this.name = parameterName;
         this.configuration = configuration;
         this.layoutType = findLayoutType();

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -181,9 +181,8 @@ public class HandlerImpl<T extends HttpApiHandler<?>> implements AutoCloseable {
                         log.error(e.getMessage(), e);
                     }
                 });
-        if (!AutoCloseable.class.isInstance(handler.getExecutor())
-                && ExecutorService.class.isInstance(handler.getExecutor())) {
-            final ExecutorService executorService = ExecutorService.class.cast(handler.getExecutor());
+        if (!(handler.getExecutor() instanceof AutoCloseable)
+                && handler.getExecutor() instanceof ExecutorService executorService) {
             executorService.shutdownNow(); // we don't need to wait here
         }
     }

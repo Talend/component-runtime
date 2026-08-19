@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -64,7 +63,7 @@ class ProcessorImplTest {
             final Collection<Record> data = IntStream
                     .rangeClosed(1, 3)
                     .mapToObj(idx -> new RecordImpl.BuilderImpl().withInt("value", idx).build())
-                    .collect(toList());
+                    .toList();
             processor.beforeGroup();
             data.forEach(it -> processor.onNext(n -> it, null));
             assertNull(Bufferized.RECORDS);

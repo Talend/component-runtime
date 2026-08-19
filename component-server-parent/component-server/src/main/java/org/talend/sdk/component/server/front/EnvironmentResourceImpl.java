@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.talend.sdk.component.server.front;
 import java.util.Date;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.StreamSupport;
 
 import javax.annotation.PostConstruct;
@@ -36,8 +35,6 @@ import org.talend.sdk.component.server.service.ComponentManagerService;
 
 @ApplicationScoped
 public class EnvironmentResourceImpl implements EnvironmentResource {
-
-    private final AtomicReference<Environment> environment = new AtomicReference<>();
 
     @Inject
     @ConfigProperty(name = "git.build.version")

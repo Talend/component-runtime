@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ public final class Cli {
 
             int count = 0;
             for (Mapper currentMapper : mappers) {
-                final InputImpl input = InputImpl.class.cast(currentMapper.create());
+                final InputImpl input = (InputImpl) currentMapper.create();
                 input.start();
                 while ((data = (Record) input.next()) != null) {
                     count++;

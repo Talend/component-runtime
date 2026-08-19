@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,8 +115,8 @@ class MappingUtilsTest {
     @MethodSource("mapStringProvider")
     void mapString(final Class expectedType, final String inputValue, final Object expectedResult) {
         Object mapped = MappingUtils.coerce(expectedType, inputValue, "::testing::mapString");
-        if (expectedResult instanceof byte[]) {
-            Assertions.assertArrayEquals((byte[]) expectedResult, (byte[]) mapped);
+        if (expectedResult instanceof byte[] bytes) {
+            Assertions.assertArrayEquals(bytes, (byte[]) mapped);
         } else {
             Assertions.assertEquals(expectedResult, mapped);
         }

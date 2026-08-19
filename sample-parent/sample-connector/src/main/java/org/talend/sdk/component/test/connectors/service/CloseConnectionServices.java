@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,9 @@ public class CloseConnectionServices {
      *
      */
 
-    public final static String CLOSE_CONNECTION_TRUE = "action_CLOSE_CONNECTION_TRUE";
+    public static final String CLOSE_CONNECTION_TRUE = "action_CLOSE_CONNECTION_TRUE";
 
-    public final static String CLOSE_CONNECTION_FALSE = "action_CLOSE_CONNECTION_FALSE";
+    public static final String CLOSE_CONNECTION_FALSE = "action_CLOSE_CONNECTION_FALSE";
 
     /**
      * Close Connection action True

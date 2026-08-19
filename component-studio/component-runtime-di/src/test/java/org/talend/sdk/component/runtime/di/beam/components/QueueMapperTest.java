@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ class QueueMapperTest {
         final LoopState lookup = LoopState.lookup(mapper.getStateId());
         lookup.push(Json.createObjectBuilder().add("id", 1).build());
         lookup.end();
-        assertEquals(1, Record.class.cast(input.next()).getInt("id"));
+        assertEquals(1, ((Record) input.next()).getInt("id"));
         assertNull(input.next());
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.enumeration;
 import static java.util.Collections.list;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static lombok.AccessLevel.PRIVATE;
 import static org.talend.sdk.component.jar.Jars.toPath;
 
@@ -92,6 +91,9 @@ public class ConfigurableClassLoader extends URLClassLoader {
     @Getter
     private final Predicate<String> childFirstFilter;
 
+    @Getter
+    private final Predicate<String> resourcesFilter;
+
     private final Map<String, Collection<Resource>> resources = new HashMap<>();
 
     private final Collection<ClassFileTransformer> transformers = new ArrayList<>();
@@ -116,7 +118,16 @@ public class ConfigurableClassLoader extends URLClassLoader {
     public ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
             final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
             final String[] nestedDependencies, final String[] jvmPrefixes) {
-        this(id, urls, parent, parentFilter, childFirstFilter, emptyMap(), jvmPrefixes);
+        this(id, urls, parent, parentFilter, childFirstFilter, emptyMap(), jvmPrefixes, name -> false);
+        if (nestedDependencies != null) {
+            loadNestedDependencies(parent, nestedDependencies);
+        }
+    }
+
+    public ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
+            final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
+            final String[] nestedDependencies, final String[] jvmPrefixes, final Predicate<String> resourcesFilter) {
+        this(id, urls, parent, parentFilter, childFirstFilter, emptyMap(), jvmPrefixes, resourcesFilter);
         if (nestedDependencies != null) {
             loadNestedDependencies(parent, nestedDependencies);
         }
@@ -124,12 +135,14 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     private ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
             final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
-            final Map<String, Collection<Resource>> resources, final String[] jvmPrefixes) {
+            final Map<String, Collection<Resource>> resources, final String[] jvmPrefixes,
+            final Predicate<String> resourcesFilter) {
         super(urls, parent);
         this.id = id;
         this.creationUrls = urls;
         this.parentFilter = parentFilter;
         this.childFirstFilter = childFirstFilter;
+        this.resourcesFilter = resourcesFilter;
         this.resources.putAll(resources);
 
         this.fullPathJvmPrefixes =
@@ -164,8 +177,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
             final CodeSource codeSource;
             try {
                 urlConnection = url.openConnection();
-                if (JarURLConnection.class.isInstance(urlConnection)) {
-                    final JarURLConnection juc = JarURLConnection.class.cast(urlConnection);
+                if (urlConnection instanceof JarURLConnection juc) {
                     manifest = juc.getManifest();
 
                     final Certificate[] certificates = juc.getCertificates();
@@ -232,7 +244,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
     public synchronized URLClassLoader createTemporaryCopy() {
         final ConfigurableClassLoader self = this;
         return temporaryCopy == null ? temporaryCopy = new ConfigurableClassLoader(id, creationUrls, getParent(),
-                parentFilter, childFirstFilter, resources, fullPathJvmPrefixes) {
+                parentFilter, childFirstFilter, resources, fullPathJvmPrefixes, resourcesFilter) {
 
             @Override
             public synchronized void close() throws IOException {
@@ -375,10 +387,10 @@ public class ConfigurableClassLoader extends URLClassLoader {
             return selfResources;
         }
         if (!selfResources.hasMoreElements()) {
-            return new FilteringUrlEnum(parentResources, this::isInJvm);
+            return new FilteringUrlEnum(parentResources, this::shouldLoadFromParent);
         }
         return new ChainedEnumerations(
-                asList(selfResources, new FilteringUrlEnum(parentResources, this::isInJvm)).iterator());
+                asList(selfResources, new FilteringUrlEnum(parentResources, this::shouldLoadFromParent)).iterator());
     }
 
     @Override
@@ -389,7 +401,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
         }
         if (!isBlacklistedFromParent(name)) {
             resource = getParent().getResource(name);
-            if (resource != null && (isNestedDependencyResource(name) || isInJvm(resource))) {
+            if (resource != null && (isNestedDependencyResource(name) || shouldLoadFromParent(resource))) {
                 return resource;
             }
         }
@@ -415,7 +427,10 @@ public class ConfigurableClassLoader extends URLClassLoader {
         try {
             if (resource == null && !isBlacklistedFromParent(name)) {
                 final URL url = getParent().getResource(name);
-                return url != null ? getInputStream(url) : null;
+                if (url != null && shouldLoadFromParent(url)) {
+                    return getInputStream(url);
+                }
+                return null;
             }
             if (resource == null) {
                 return null;
@@ -429,8 +444,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
     private InputStream getInputStream(final URL resource) throws IOException {
         final URLConnection urlc = resource.openConnection();
         final InputStream is = urlc.getInputStream();
-        if (JarURLConnection.class.isInstance(urlc)) {
-            final JarURLConnection juc = JarURLConnection.class.cast(urlc);
+        if (urlc instanceof JarURLConnection juc) {
             final JarFile jar = juc.getJarFile();
             synchronized (closeables) {
                 if (!closeables.containsKey(jar)) {
@@ -457,7 +471,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
             return delegates;
         }
         final Collection<URL> aggregated = new ArrayList<>(list(delegates));
-        aggregated.addAll(nested.stream().map(r -> nestedResourceToURL(name, r)).collect(toList()));
+        aggregated.addAll(nested.stream().map(r -> nestedResourceToURL(name, r)).toList());
         return enumeration(aggregated);
     }
 
@@ -474,7 +488,12 @@ public class ConfigurableClassLoader extends URLClassLoader {
         return name != null && name.startsWith(NESTED_MAVEN_REPOSITORY);
     }
 
-    private boolean isInJvm(final URL resource) {
+    private boolean shouldLoadFromParent(final URL resource) {
+        // Services and parent allowed resources that should always be found by top level classloader.
+        // Warning: selection shouldn't be too generic! Use very specific paths only like jndi.properties.
+        if (resourcesFilter.test(resource.getFile())) {
+            return true;
+        }
         final Path path = toPath(resource);
         if (path == null) {
             return false;
@@ -508,7 +527,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
                                     .map(ByteArrayInputStream::new)
                                     .map(InputStream.class::cast))
                             .orElseGet(Stream::empty))
-                    .collect(toList());
+                    .toList();
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
@@ -785,10 +804,9 @@ public class ConfigurableClassLoader extends URLClassLoader {
                     final String pckName = name.substring(0, i);
                     final Package pck = super.getPackage(pckName);
                     if (pck == null) {
-                        if (!JarURLConnection.class.isInstance(connection)) {
+                        if (!(connection instanceof JarURLConnection urlConnection)) {
                             doDefinePackage(null, null, pckName);
                         } else {
-                            final JarURLConnection urlConnection = JarURLConnection.class.cast(connection);
                             doDefinePackage(urlConnection.getManifest(), urlConnection.getJarFileURL(), pckName);
                         }
                     }
@@ -809,8 +827,8 @@ public class ConfigurableClassLoader extends URLClassLoader {
                     }
                     bytes = outputStream.toByteArray();
                 }
-                final Certificate[] certificates = JarURLConnection.class.isInstance(connection)
-                        ? JarURLConnection.class.cast(connection).getCertificates()
+                final Certificate[] certificates = connection instanceof JarURLConnection jarURLConnection
+                        ? jarURLConnection.getCertificates()
                         : NO_CERTIFICATES;
                 bytes = doTransform(resourceName, bytes);
                 clazz = super.defineClass(name, bytes, 0, bytes.length, new CodeSource(url, certificates));

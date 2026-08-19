@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ public class CaptureJUnit4HttpsApiTest {
                         IdentityCipherSuiteFilter.INSTANCE, null, 0, 0);
 
         final HttpsServer server = HttpsServer.create(new InetSocketAddress(0), 0);
-        server.setHttpsConfigurator(new HttpsConfigurator(JdkSslContext.class.cast(nettyContext).context()));
+        server.setHttpsConfigurator(new HttpsConfigurator(((JdkSslContext) nettyContext).context()));
 
         server.createContext("/").setHandler(httpExchange -> {
             final Headers headers = httpExchange.getRequestHeaders();
@@ -118,10 +118,9 @@ public class CaptureJUnit4HttpsApiTest {
                 @Override
                 public void evaluate() throws Throwable {
                     final URL url = new URL("https://localhost:" + server.getAddress().getPort() + "/supertest");
-                    final HttpsURLConnection connection = HttpsURLConnection.class
-                            .cast(url
-                                    .openConnection(new Proxy(Proxy.Type.HTTP,
-                                            new InetSocketAddress("localhost", API.getPort()))));
+                    final HttpsURLConnection connection = (HttpsURLConnection) url
+                            .openConnection(new Proxy(Proxy.Type.HTTP,
+                                    new InetSocketAddress("localhost", API.getPort())));
                     connection.setConnectTimeout(30000);
                     connection.setReadTimeout(20000);
                     connection.setRequestProperty("Accept", "*/*");

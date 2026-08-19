@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.tools;
 
-import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -81,7 +80,7 @@ class SvgValidatorTest {
     }
 
     private List<String> doValidate(final String name, final int count, final Boolean legacyMode) {
-        final List<String> errors = new SvgValidator(legacyMode).validate(icon(name)).collect(toList());
+        final List<String> errors = new SvgValidator(legacyMode).validate(icon(name)).toList();
         assertEquals(count, errors.size());
         return errors;
     }

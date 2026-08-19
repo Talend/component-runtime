@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -163,18 +163,17 @@ public class LayoutValidator implements Validator {
 
     private Class<?> toJavaType(final ParameterMeta p) {
         if (p.getType().equals(OBJECT) || p.getType().equals(ENUM)) {
-            if (Class.class.isInstance(p.getJavaType())) {
-                return Class.class.cast(p.getJavaType());
+            if (p.getJavaType() instanceof Class clazz) {
+                return clazz;
             }
             throw new IllegalArgumentException("Unsupported type for parameter " + p.getPath() + " (from "
                     + p.getSource().declaringClass() + "), ensure it is a Class<?>");
         }
 
-        if (p.getType().equals(ARRAY) && ParameterizedType.class.isInstance(p.getJavaType())) {
-            final ParameterizedType parameterizedType = ParameterizedType.class.cast(p.getJavaType());
+        if (p.getType().equals(ARRAY) && p.getJavaType() instanceof ParameterizedType parameterizedType) {
             final Type[] arguments = parameterizedType.getActualTypeArguments();
-            if (arguments.length == 1 && Class.class.isInstance(arguments[0])) {
-                return Class.class.cast(arguments[0]);
+            if (arguments.length == 1 && arguments[0] instanceof Class argClass) {
+                return argClass;
             }
             throw new IllegalArgumentException("Unsupported type for parameter " + p.getPath() + " (from "
                     + p.getSource().declaringClass() + "), " + "ensure it is a ParameterizedType with one argument");

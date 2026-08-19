@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -127,7 +127,7 @@ class InjectorImplTest {
         final Class<?> proxyClass = proxyGenerator
                 .generateProxy(Thread.currentThread().getContextClassLoader(), InjectedCache.class, "injector",
                         InjectedCache.class.getName());
-        final InjectedCache proxy = InjectedCache.class.cast(proxyClass.getConstructor().newInstance());
+        final InjectedCache proxy = (InjectedCache) proxyClass.getConstructor().newInstance();
         proxyGenerator.initialize(proxy, new InterceptorHandlerFacade(instance, services));
         injector.inject(proxy);
         assertEquals("false", proxy.getString());

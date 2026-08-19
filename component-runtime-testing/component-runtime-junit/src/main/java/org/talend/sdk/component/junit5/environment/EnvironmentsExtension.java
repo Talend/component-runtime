@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class EnvironmentsExtension implements TestTemplateInvocationContextProvi
                 .map(e -> new EnvironmentalContext(e,
                         format
                                 .replace("${displayName}", context.getDisplayName())
-                                .replace("${environment}", DecoratingEnvironmentProvider.class.cast(e).getName()),
+                                .replace("${environment}", ((DecoratingEnvironmentProvider) e).getName()),
                         createComponentExtension(context)));
     }
 

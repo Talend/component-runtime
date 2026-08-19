@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,13 +40,13 @@ public interface FlowsFactory {
         if (meta == null) {
             throw new IllegalArgumentException("meta should not be null");
         }
-        if (PartitionMapperMeta.class.isInstance(meta)) {
+        if (meta instanceof PartitionMapperMeta) {
             return new PartitionMapperFlowsFactory();
         }
-        if (ProcessorMeta.class.isInstance(meta)) {
+        if (meta instanceof ProcessorMeta) {
             return new ProcessorFlowsFactory(meta.getType());
         }
-        if (DriverRunnerMeta.class.isInstance(meta)) {
+        if (meta instanceof DriverRunnerMeta) {
             return new DriverRunnerFlowsFactory();
         }
         throw new IllegalArgumentException("unknown meta type " + meta.getClass().getName());

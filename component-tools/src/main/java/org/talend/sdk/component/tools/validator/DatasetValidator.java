@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Stream.empty;
 
@@ -86,9 +85,9 @@ public class DatasetValidator implements Validator {
                 .entrySet()
                 .stream()
                 .filter(dataset -> inputs.isEmpty() || inputs.entrySet().stream().allMatch(input -> {
-                    final Collection<ParameterMeta> allProps = flatten(input.getValue()).collect(toList());
+                    final Collection<ParameterMeta> allProps = flatten(input.getValue()).toList();
                     final Collection<ParameterMeta> datasetProperties =
-                            findNestedDataSets(allProps, dataset.getValue()).collect(toList());
+                            findNestedDataSets(allProps, dataset.getValue()).toList();
                     return !datasetProperties.isEmpty() && allProps
                             .stream()
                             // .filter(it -> it.getType() != OBJECT && it.getType() != ARRAY) // should it be

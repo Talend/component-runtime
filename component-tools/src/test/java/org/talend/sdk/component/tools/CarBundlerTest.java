@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import static java.util.Collections.list;
 import static java.util.Collections.singletonMap;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -267,8 +266,8 @@ class CarBundlerTest {
         assertTrue(configuration.getOutput().exists());
         try (final JarFile jar = new JarFile(configuration.getOutput())) {
             final List<JarEntry> entries =
-                    list(jar.entries()).stream().sorted(comparing(ZipEntry::getName)).collect(toList());
-            final List<String> paths = entries.stream().map(ZipEntry::getName).collect(toList());
+                    list(jar.entries()).stream().sorted(comparing(ZipEntry::getName)).toList();
+            final List<String> paths = entries.stream().map(ZipEntry::getName).toList();
             assertEquals(asList("MAVEN-INF/", "MAVEN-INF/repository/", "MAVEN-INF/repository/foo/",
                     "MAVEN-INF/repository/foo/bar/", "MAVEN-INF/repository/foo/bar/dummy/",
                     "MAVEN-INF/repository/foo/bar/dummy/1.2/", "MAVEN-INF/repository/foo/bar/dummy/1.2/dummy-1.2.jar",

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ public class MapperWithCheckpoint implements Serializable {
 
     private int partition = -1;
 
-    public MapperWithCheckpoint(final @Option("configuration") MapperWithCheckpointConfig config,
+    public MapperWithCheckpoint(@Option("configuration") final MapperWithCheckpointConfig config,
             final RecordBuilderFactory recordBuilderFactory) {
         this.config = config;
         this.recordBuilderFactory = recordBuilderFactory;
@@ -91,6 +91,7 @@ public class MapperWithCheckpoint implements Serializable {
 
         private int current = 0;
 
+        @SuppressWarnings("java:S1068")
         private boolean newBookmark = false;
 
         public MapperWithCheckpointWorker(final RecordBuilderFactory recordBuilderFactory, int partition,

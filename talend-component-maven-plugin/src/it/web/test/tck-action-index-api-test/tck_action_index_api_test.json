@@ -5,7 +5,7 @@
       "entity": {
         "type": "Project",
         "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here for action index](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Action/getActionIndex)",
-        "id": "0f716fa6-a56d-4321-9937-3aa6f3a66f10",
+        "id": "e61c46db-5288-4c01-a499-1c7bc248ce70",
         "name": "tck-action-index-api-test"
       },
       "children": [
@@ -50,7 +50,7 @@
               "path": "/api/v1/action/index"
             },
             "description": "TODO improve language test  \nhttps://jira.talendforge.org/browse/TCOMP-2246",
-            "id": "fd16a9a4-c458-4d5b-b16e-ced085fa0919",
+            "id": "e9d6584f-555f-443c-8d3d-c3e39f12e333",
             "name": "action/index - default",
             "headers": [],
             "assertions": [
@@ -74,12 +74,6 @@
                 "enabled": true,
                 "path": "$.items",
                 "value": "^{\"items\":\\[{\"component\":\""
-              },
-              {
-                "comparison": "LengthGreaterThanOrEqual",
-                "subject": "ResponseJsonBody",
-                "path": "$.items",
-                "value": "21"
               },
               {
                 "comparison": "Exists",
@@ -128,6 +122,12 @@
                 "subject": "ResponseJsonBody",
                 "path": "$.items.component",
                 "value": "Common"
+              },
+              {
+                "comparison": "LengthEqual",
+                "subject": "ResponseJsonBody",
+                "path": "$.items",
+                "value": "27"
               }
             ]
           }
@@ -166,7 +166,7 @@
               "path": "/api/v1/action/index"
             },
             "description": "",
-            "id": "09510584-900a-43fd-8223-9c121b8babde",
+            "id": "8ec1f291-719b-4782-a89b-e1211b1a6c8a",
             "name": "action/index - family one",
             "headers": [],
             "assertions": [
@@ -242,7 +242,7 @@
               "path": "/api/v1/action/index"
             },
             "description": "",
-            "id": "13ee4bfe-27a6-4124-b3bd-1b1769e74fc0",
+            "id": "c45f3dcf-efb3-4efd-9ab1-7666ed6ea503",
             "name": "action/index - family two",
             "headers": [],
             "assertions": [
@@ -317,7 +317,7 @@
               "path": "/api/v1/action/index"
             },
             "description": "Expected:  empty item list",
-            "id": "59e1ff3b-68ee-495e-9997-f347587923c1",
+            "id": "259ccbbb-5545-4b10-9dd0-b4df8cfae95b",
             "name": "action/index - family unknown",
             "headers": [],
             "assertions": [
@@ -387,7 +387,7 @@
               "path": "/api/v1/action/index"
             },
             "description": "",
-            "id": "93874854-8083-46a7-935c-3579fac0f39c",
+            "id": "131d1b5c-0c70-4412-93b8-debc8b639cb8",
             "name": "action/index - language",
             "headers": [],
             "assertions": [
@@ -458,7 +458,7 @@
               "path": "/api/v1/action/index"
             },
             "description": "",
-            "id": "f795e10b-daf3-42ea-9231-e9206f1f93cc",
+            "id": "2c8a53a4-d864-4d8c-8413-ecdd0211607d",
             "name": "action/index - type one",
             "headers": [],
             "assertions": [
@@ -540,7 +540,7 @@
               "path": "/api/v1/action/index"
             },
             "description": "",
-            "id": "3d036f5b-a35f-4d96-aae2-6930a99224f1",
+            "id": "460710ca-6a87-477d-9dc6-d757f187b5b3",
             "name": "action/index - type two",
             "headers": [],
             "assertions": [
@@ -615,7 +615,7 @@
               "path": "/api/v1/action/index"
             },
             "description": "Expected:  empty item list",
-            "id": "227d7df9-127f-4dbb-82ab-de05f08cece5",
+            "id": "d9505116-b4a6-4384-9beb-d71e8fe091e2",
             "name": "action/index - type unknown",
             "headers": [],
             "assertions": [
@@ -648,63 +648,63 @@
   ],
   "environments": [
     {
-      "id": "7cc306c5-b3f9-4f07-8476-7fa2db669034",
+      "id": "91e0371f-98c1-4c53-ad6b-82159f70bdea",
       "name": "component_runtime_ci",
       "variables": {
-        "56f6cb1b-e758-42d2-bfd2-b8b5464654b5": {
-          "name": "output_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "f7314dca-1c04-496c-ad19-44a4c8009360": {
-          "name": "mapper_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "f0e9a692-6866-4c95-8b76-5f5d363e3ed1": {
-          "name": "dataset_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "1266d066-8fd3-47f6-ad74-260e39b9d472": {
-          "name": "server-ip",
-          "value": "localhost",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "f05e4bab-fee2-4637-869f-bb228225d2ea": {
+        "9f81d8ef-f4cd-4d98-a6fe-ac1799901dae": {
           "name": "server-port",
           "value": "8081",
           "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
+          "createdAt": "2025-11-03T17:09:51.791Z",
           "private": false
         },
-        "ec6e694a-f4a6-4558-a788-eb3e36ee893e": {
-          "name": "datastore_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzdG9yZSNUaGVDb25uZWN0aW9u",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "c803040f-9503-4201-a576-aee684b93510": {
+        "e1ce7f51-c74c-49e4-8d16-e15059c5f087": {
           "name": "family_id",
           "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
           "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
+          "createdAt": "2025-11-03T17:09:51.791Z",
           "private": false
         },
-        "838469ba-346a-4f73-b769-031f529306f0": {
+        "d58a03e0-7f47-4b81-a577-0e47da2f21d1": {
+          "name": "dataset_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
+          "enabled": true,
+          "createdAt": "2025-11-03T17:09:51.791Z",
+          "private": false
+        },
+        "dbfa3a85-c2f8-4d53-9cf1-98c485686e49": {
+          "name": "output_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
+          "enabled": true,
+          "createdAt": "2025-11-03T17:09:51.791Z",
+          "private": false
+        },
+        "10c0b617-20e8-4b32-8bc5-c33ff390f8d7": {
+          "name": "mapper_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
+          "enabled": true,
+          "createdAt": "2025-11-03T17:09:51.791Z",
+          "private": false
+        },
+        "fb97725c-0775-4d33-9e79-619dc77e4ade": {
           "name": "httpbin_addr",
           "value": "tal-rd22.talend.lan:8084",
           "enabled": true,
-          "createdAt": "2023-05-24T07:29:46.274Z",
+          "createdAt": "2025-11-03T17:09:51.791Z",
+          "private": false
+        },
+        "1a597575-fdb5-4973-bebd-892999ee0a93": {
+          "name": "datastore_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzdG9yZSNUaGVDb25uZWN0aW9u",
+          "enabled": true,
+          "createdAt": "2025-11-03T17:09:51.791Z",
+          "private": false
+        },
+        "054b1ac1-13c0-4b87-a18c-abbe4caacd24": {
+          "name": "server-ip",
+          "value": "localhost",
+          "enabled": true,
+          "createdAt": "2025-11-03T17:09:51.791Z",
           "private": false
         }
       }

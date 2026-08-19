@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,11 +54,11 @@ public interface JobStateAware {
     }
 
     static void init(final Object instance, final Map<String, Object> globalMap) {
-        if (JobStateAware.class.isInstance(instance)) {
+        if (instance instanceof JobStateAware jobStateAware) {
             synchronized (globalMap) {
                 final State state =
-                        State.class.cast(globalMap.computeIfAbsent(JobStateAware.class.getName(), k -> new State()));
-                JobStateAware.class.cast(instance).setState(state);
+                        (State) globalMap.computeIfAbsent(JobStateAware.class.getName(), k -> new State());
+                jobStateAware.setState(state);
             }
         }
     }

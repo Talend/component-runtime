@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,6 +81,7 @@ public class JdbcSource extends PTransform<PBegin, PCollection<JsonObject>> {
 
         private static final long serialVersionUID = 1L;
 
+        @SuppressWarnings("java:S1068")
         private transient PCollection<JsonObject> collection;
 
         private Coder<JsonObject> delegate;
@@ -159,7 +160,7 @@ public class JdbcSource extends PTransform<PBegin, PCollection<JsonObject>> {
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-            return Objects.equals(delegate(), WorkAroundCoder.class.cast(o).delegate());
+            return Objects.equals(delegate(), ((WorkAroundCoder) o).delegate());
         }
 
         @Override

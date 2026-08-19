@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -195,14 +195,38 @@ class ActionResourceImplTest {
                 .request(APPLICATION_JSON_TYPE)
                 .post(Entity.entity(emptyMap(), APPLICATION_JSON_TYPE), String.class);
         final String expected =
-                "{\n  \"entries\":[\n    {\n      \"elementSchema\":{\n        \"entries\":[\n        ],\n" +
-                        "        \"metadata\":[\n        ],\n        \"props\":{\n\n        },\n        \"type\":\"STRING\"\n"
-                        +
-                        "      },\n      \"errorCapable\":false," +
-                        "\n      \"metadata\":false,\n      \"name\":\"array\",\n      \"nullable\":false,\n" +
-                        "      \"props\":{\n\n      },\n      \"type\":\"ARRAY\",\n" +
-                        "      \"valid\":true\n    }\n  ],\n  \"metadata\":[\n" +
-                        "  ],\n  \"props\":{\n    \"talend.fields.order\":\"array\"\n  },\n  \"type\":\"RECORD\"\n}";
+                """
+                {
+                  "entries":[
+                    {
+                      "elementSchema":{
+                        "entries":[
+                        ],
+                        "metadata":[
+                        ],
+                        "props":{
+
+                        },
+                        "type":"STRING"
+                      },
+                      "errorCapable":false,
+                      "metadata":false,
+                      "name":"array",
+                      "nullable":false,
+                      "props":{
+
+                      },
+                      "type":"ARRAY",
+                      "valid":true
+                    }
+                  ],
+                  "metadata":[
+                  ],
+                  "props":{
+                    "talend.fields.order":"array"
+                  },
+                  "type":"RECORD"
+                }""";
         assertEquals(expected, schema);
     }
 

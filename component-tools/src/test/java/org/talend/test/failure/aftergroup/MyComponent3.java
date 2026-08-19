@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,12 +48,12 @@ public class MyComponent3 implements Serializable {
     }
 
     @ElementListener
-    public Foo passthrough(final Foo item, final @Output("out1") OutputEmitter<JsonObject> out) {
+    public Foo passthrough(final Foo item, @Output("out1") final OutputEmitter<JsonObject> out) {
         return item;
     }
 
     @AfterGroup
-    public void afterGroup(final @Output OutputEmitter<JsonObject> out1, JsonObject out2) {
+    public void afterGroup(@Output final OutputEmitter<JsonObject> out1, JsonObject out2) {
 
     }
 

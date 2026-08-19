@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ *  Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 def validateWrapperFile(File baseDir, String file){
     def from = new File(baseDir, file)
     if(!from.exists()){
-        throw new IllegalStateException("wrapper file doesn't exist: " + file);
+        throw new IllegalStateException("wrapper file doesn't exist: " + file)
     }
     switch (file){
         case ".mvn/wrapper/maven-wrapper.properties":
             if(!from.text.contains('distributionUrl=https://')){
-                throw new IllegalStateException("Invalid file: " + file);
+                throw new IllegalStateException("Invalid file: " + file)
             }
             break
         case "mvnw":
@@ -31,12 +31,12 @@ def validateWrapperFile(File baseDir, String file){
                     '  -classpath "$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.jar" \\\n' +
                     '  "-Dmaven.multiModuleProjectDirectory=${MAVEN_PROJECTBASEDIR}" \\\n' +
                     '  ${WRAPPER_LAUNCHER} $MAVEN_CONFIG "$@"')){
-                throw new IllegalStateException("Invalid file: " + file);
+                throw new IllegalStateException("Invalid file: " + file)
             }
             break
         case "mvnw.cmd":
             if(!from.text.contains('%MAVEN_JAVA_EXE% ^')){
-                throw new IllegalStateException("Invalid file: " + file);
+                throw new IllegalStateException("Invalid file: " + file)
             }
             break
     }

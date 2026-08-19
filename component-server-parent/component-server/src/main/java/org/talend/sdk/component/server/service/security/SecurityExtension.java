@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public class SecurityExtension implements Extension {
     private ObserverMethod<OnCommand> onCommandMtd;
 
     void findOnConnectionMethod(@Observes final ProcessObserverMethod<OnConnection, ?> processObserverMethod) {
-        if (ProcessSyntheticObserverMethod.class.isInstance(processObserverMethod)) {
+        if (processObserverMethod instanceof ProcessSyntheticObserverMethod) {
             return;
         }
         onConnectionObservers.put(getName(processObserverMethod), processObserverMethod.getObserverMethod());
@@ -61,7 +61,7 @@ public class SecurityExtension implements Extension {
     }
 
     void findOnCommandMethod(@Observes final ProcessObserverMethod<OnCommand, ?> processObserverMethod) {
-        if (ProcessSyntheticObserverMethod.class.isInstance(processObserverMethod)) {
+        if (processObserverMethod instanceof ProcessSyntheticObserverMethod) {
             return;
         }
         onCommandObservers.put(getName(processObserverMethod), processObserverMethod.getObserverMethod());
@@ -77,10 +77,9 @@ public class SecurityExtension implements Extension {
 
     void bindSecurityHandlers(@Observes final AfterDeploymentValidation afterDeploymentValidation,
             final BeanManager beanManager) {
-        final ComponentServerConfiguration configuration = ComponentServerConfiguration.class
-                .cast(beanManager
-                        .getReference(beanManager.resolve(beanManager.getBeans(ComponentServerConfiguration.class)),
-                                ComponentServerConfiguration.class, beanManager.createCreationalContext(null)));
+        final ComponentServerConfiguration configuration = (ComponentServerConfiguration) beanManager
+                .getReference(beanManager.resolve(beanManager.getBeans(ComponentServerConfiguration.class)),
+                        ComponentServerConfiguration.class, beanManager.createCreationalContext(null));
 
         final String connectionHandler = configuration.getSecurityConnectionHandler();
         onConnectionMtd = ofNullable(onConnectionObservers.get(connectionHandler))

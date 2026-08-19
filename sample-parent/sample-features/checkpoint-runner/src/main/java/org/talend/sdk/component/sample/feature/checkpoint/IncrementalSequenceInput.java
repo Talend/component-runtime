@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package org.talend.sdk.component.sample.feature.checkpoint;
-
-import static java.util.stream.Collectors.toList;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -71,7 +69,7 @@ public class IncrementalSequenceInput implements Serializable {
 
     @PostConstruct
     public void init() {
-        data = IntStream.range(0, configuration.dataset.maxRecords).boxed().collect(toList());
+        data = IntStream.range(0, configuration.dataset.maxRecords).boxed().toList();
         if (configuration.checkpoint != null) {
             bookmark = configuration.checkpoint.sinceId;
         }

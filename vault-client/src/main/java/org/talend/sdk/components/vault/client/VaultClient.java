@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -153,8 +153,7 @@ public class VaultClient {
     private Pattern compiledPassthroughRegex;
 
     private final Predicate<Throwable> shouldRetry = cause -> {
-        if (WebApplicationException.class.isInstance(cause)) {
-            final WebApplicationException wae = WebApplicationException.class.cast(cause);
+        if (cause instanceof WebApplicationException wae) {
             final int status = wae.getResponse().getStatus();
             if (Status.NOT_FOUND.getStatusCode() == status || status >= 500) {
                 return false;
@@ -216,7 +215,7 @@ public class VaultClient {
                 .stream()
                 .filter(entry -> compiledPassthroughRegex.matcher(entry.getValue()).matches())
                 .map(cyphered -> cyphered.getKey())
-                .collect(toList());
+                .toList();
         if (cipheredKeys.isEmpty()) {
             return values;
         }
@@ -226,7 +225,7 @@ public class VaultClient {
 
     private CompletableFuture<Map<String, String>> prepareRequest(final Map<String, String> values,
             final List<String> cipheredKeys, final String tenantId) {
-        return get(cipheredKeys.stream().map(values::get).collect(toList()), clock.millis(), tenantId)
+        return get(cipheredKeys.stream().map(values::get).toList(), clock.millis(), tenantId)
                 .thenApply(decrypted -> values
                         .entrySet()
                         .stream()
@@ -245,13 +244,13 @@ public class VaultClient {
                 .stream()
                 .map(it -> new EntryWithIndex<>(index.getAndIncrement(), it))
                 .filter(it -> it.entry != null && !compiledPassthroughRegex.matcher(it.entry).matches())
-                .collect(toList());
+                .toList();
         if (clearValues.isEmpty()) {
             return doDecipher(values, currentTime, tenantId).toCompletableFuture();
         }
         if (clearValues.size() == values.size()) {
             final long now = clock.millis();
-            return completedFuture(values.stream().map(it -> new DecryptedValue(it, now)).collect(toList()));
+            return completedFuture(values.stream().map(it -> new DecryptedValue(it, now)).toList());
         }
         return doDecipher(values, currentTime, tenantId).thenApply(deciphered -> {
             final long now = clock.millis();
@@ -269,9 +268,9 @@ public class VaultClient {
                 .stream()
                 .filter(it -> !it.getValue().isPresent())
                 .map(Map.Entry::getKey)
-                .collect(toList());
+                .toList();
         if (missing.isEmpty()) { // no remote call, yeah
-            return completedFuture(values.stream().map(alreadyCached::get).map(Optional::get).collect(toList()));
+            return completedFuture(values.stream().map(alreadyCached::get).map(Optional::get).toList());
         }
         // do request
         return getOrRequestAuth()
@@ -330,11 +329,10 @@ public class VaultClient {
                                 final Throwable cause = e.getCause();
                                 String message = "";
                                 int status = cantDecipherStatusCode;
-                                if (WebApplicationException.class.isInstance(cause)) {
-                                    final WebApplicationException wae = WebApplicationException.class.cast(cause);
+                                if (cause instanceof WebApplicationException wae) {
                                     final Response response = wae.getResponse();
                                     if (response != null) {
-                                        if (ErrorPayload.class.isInstance(response.getEntity())) { // internal error
+                                        if (response.getEntity() instanceof ErrorPayload) { // internal error
                                             throw wae;
                                         } else {
                                             try {
@@ -410,11 +408,10 @@ public class VaultClient {
                 //
                 .exceptionally(e -> {
                     final Throwable cause = e.getCause();
-                    if (WebApplicationException.class.isInstance(cause)) {
-                        final WebApplicationException wae = WebApplicationException.class.cast(cause);
+                    if (cause instanceof WebApplicationException wae) {
                         final Response response = wae.getResponse();
                         String message = "";
-                        if (ErrorPayload.class.isInstance(wae.getResponse().getEntity())) {
+                        if (wae.getResponse().getEntity() instanceof ErrorPayload) {
                             throw wae; // already logged and setup broken so just rethrow
                         } else {
                             try {
@@ -471,12 +468,11 @@ public class VaultClient {
     private void throwError(final Throwable cause) {
         String message = "";
         int status = cantDecipherStatusCode;
-        if (WebApplicationException.class.isInstance(cause)) {
-            final WebApplicationException wae = WebApplicationException.class.cast(cause);
+        if (cause instanceof WebApplicationException wae) {
             final Response response = wae.getResponse();
             status = response.getStatus();
             if (response != null) {
-                if (ErrorPayload.class.isInstance(response.getEntity())) { // internal error
+                if (response.getEntity() instanceof ErrorPayload) { // internal error
                     throw wae;
                 } else {
                     try {

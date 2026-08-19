@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,8 +40,7 @@ public class AvroRecordBuilderFactoryProvider implements RecordBuilderFactoryPro
     @Override
     public RecordBuilderFactory apply(final String containerId) {
         switch (System.getProperty("talend.component.beam.record.factory.impl", "auto")) {
-            case "memory":
-            case "default":
+            case "memory", "default":
                 return new RecordBuilderFactoryImpl(containerId);
             case "avro":
                 if (!hasAvroRecordBuilderFactory()) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,13 +42,14 @@ class ConfigurationMigrationTest {
                 "META-INF/test/dependencies", "org.talend.test:type=plugin,value=%s")) {
             manager.addPlugin(jar.getAbsolutePath());
             {
-                final Object nested = ProcessorImpl.class
-                        .cast(manager.findProcessor("chain", "configured1", 0, new HashMap<String, String>() {
+                final Object nested = ((ProcessorImpl) manager
+                        .findProcessor("chain", "configured1", 0, new HashMap<String, String>() {
 
                             {
                                 put("config.__version", "-1");
                             }
-                        }).orElseThrow(IllegalStateException::new))
+                        })
+                        .orElseThrow(IllegalStateException::new))
                         .getDelegate();
 
                 final Object config = get(nested, "getConfig");
@@ -56,14 +57,15 @@ class ConfigurationMigrationTest {
                 assertEquals("ok", get(config, "getName"));
             }
             {
-                final Object nested = ProcessorImpl.class
-                        .cast(manager.findProcessor("chain", "configured2", 0, new HashMap<String, String>() {
+                final Object nested = ((ProcessorImpl) manager
+                        .findProcessor("chain", "configured2", 0, new HashMap<String, String>() {
 
                             {
                                 put("config.__version", "0");
                                 put("value.__version", "-1");
                             }
-                        }).orElseThrow(IllegalStateException::new))
+                        })
+                        .orElseThrow(IllegalStateException::new))
                         .getDelegate();
                 assertEquals("set", get(nested, "getValue"));
 
@@ -72,14 +74,15 @@ class ConfigurationMigrationTest {
                 assertEquals("ok", get(config, "getName"));
             }
             {
-                final Object nested = ProcessorImpl.class
-                        .cast(manager.findProcessor("chain", "migrationtest", -1, new HashMap<String, String>() {
+                final Object nested = ((ProcessorImpl) manager
+                        .findProcessor("chain", "migrationtest", -1, new HashMap<String, String>() {
 
                             {
                                 put("config.__version", "1");
                                 put("config.datastore.__version", "1");
                             }
-                        }).orElseThrow(IllegalStateException::new))
+                        })
+                        .orElseThrow(IllegalStateException::new))
                         .getDelegate();
 
                 final Object config = get(nested, "getConfig");

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,8 +40,8 @@ public class AfterVariableExtracter {
      * @return map with after variables.
      */
     public static Map<String, Object> extractAfterVariables(final Lifecycle lifecycle) {
-        if (lifecycle instanceof Delegated) {
-            final Object delegate = ((Delegated) lifecycle).getDelegate();
+        if (lifecycle instanceof Delegated delegated) {
+            final Object delegate = delegated.getDelegate();
 
             final ClassLoader classloader = ReflectionUtils.getClassLoader(lifecycle);
 

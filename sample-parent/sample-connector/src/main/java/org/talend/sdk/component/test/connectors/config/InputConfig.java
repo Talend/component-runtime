@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,14 +32,16 @@ import lombok.Data;
         @GridLayout.Row({ "date" }),
         @GridLayout.Row({ "dataset" }),
         @GridLayout.Row({ "generateException" }),
-        @GridLayout.Row({ "dbType" }) })
+        @GridLayout.Row({ "dbType" }),
+        @GridLayout.Row({ "dynamicDependenciesConf" })
+})
 @GridLayout(
         names = GridLayout.FormType.ADVANCED,
         value = {
                 @GridLayout.Row({ "dataset" }) })
 public class InputConfig implements Serializable {
 
-    public final static int INPUT_CONFIG_VERSION = 3;
+    public static final int INPUT_CONFIG_VERSION = 3;
 
     @Option
     @Documentation("Doc: default dataset documentation without Internationalization.")
@@ -65,4 +67,9 @@ public class InputConfig implements Serializable {
     @DefaultValue("Mysql")
     @Hidden
     private String dbType;
+
+    @Option
+    @Documentation("The dynamic dependencies configuration.")
+    private DynamicDependenciesConf dynamicDependenciesConf;
+
 }

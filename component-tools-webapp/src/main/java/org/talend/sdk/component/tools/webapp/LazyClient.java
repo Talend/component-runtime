@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ public class LazyClient implements Client<Object> {
         public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
                 throws IOException, ServletException {
             lazyClient.lazyInit(() -> {
-                final HttpServletRequest servletRequest = HttpServletRequest.class.cast(request);
+                final HttpServletRequest servletRequest = (HttpServletRequest) request;
                 return String
                         .format("%s://%s:%d/%s", servletRequest.getScheme(), servletRequest.getServerName(),
                                 servletRequest.getServerPort(), "api/v1");

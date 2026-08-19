@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,8 +56,7 @@ public class ServletConfigurer implements ServletContainerInitializer {
         @Override
         public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
                 final FilterChain filterChain) throws IOException, ServletException {
-            HttpServletResponse.class
-                    .cast(servletResponse)
+            ((HttpServletResponse) servletResponse)
                     .addHeader("Content-Security-Policy", configuration.getCsp());
             filterChain.doFilter(servletRequest, servletResponse);
         }

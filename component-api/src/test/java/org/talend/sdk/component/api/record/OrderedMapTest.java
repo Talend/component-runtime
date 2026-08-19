@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,12 +40,12 @@ class OrderedMapTest {
 
         container.addValue(f1);
         container.addValue(f2);
-        List<String> entries = container.streams().collect(Collectors.toList());
+        List<String> entries = container.streams().toList();
         Assertions.assertSame("f1", entries.get(0));
         Assertions.assertSame("f2", entries.get(1));
 
         container.swap("f1", "f2");
-        List<String> entries2 = container.streams().collect(Collectors.toList());
+        List<String> entries2 = container.streams().toList();
         Assertions.assertSame("f2", entries2.get(0));
         Assertions.assertSame("f1", entries2.get(1));
 

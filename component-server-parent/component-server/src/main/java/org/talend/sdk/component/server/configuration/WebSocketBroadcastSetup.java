@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,16 +119,15 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
     @Override
     public void contextInitialized(final ServletContextEvent sce) {
         final ServerContainer container =
-                ServerContainer.class.cast(sce.getServletContext().getAttribute(ServerContainer.class.getName()));
+                (ServerContainer) sce.getServletContext().getAttribute(ServerContainer.class.getName());
 
-        final JAXRSServiceFactoryBean factory = JAXRSServiceFactoryBean.class
-                .cast(bus
-                        .getExtension(ServerRegistry.class)
-                        .getServers()
-                        .iterator()
-                        .next()
-                        .getEndpoint()
-                        .get(JAXRSServiceFactoryBean.class.getName()));
+        final JAXRSServiceFactoryBean factory = (JAXRSServiceFactoryBean) bus
+                .getExtension(ServerRegistry.class)
+                .getServers()
+                .iterator()
+                .next()
+                .getEndpoint()
+                .get(JAXRSServiceFactoryBean.class.getName());
 
         final String appBase = StreamSupport
                 .stream(Spliterators.spliteratorUnknownSize(applications.iterator(), Spliterator.IMMUTABLE), false)
@@ -572,7 +571,7 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                 setupMessage(inMessage, config, context, req, resp);
 
                 exchange.setSession(new HTTPSession(req));
-                MessageImpl.class.cast(inMessage).setDestination(this);
+                ((MessageImpl) inMessage).setDestination(this);
             }
 
             delegate.invoke(config, context, req, resp);
@@ -652,7 +651,7 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
 
         @Override
         public Message retrieveFromContinuation(final HttpServletRequest req) {
-            return Message.class.cast(req.getAttribute(KEY));
+            return (Message) req.getAttribute(KEY);
         }
     }
 

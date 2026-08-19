@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ public class ContextualSerializableCoder<T extends Serializable> extends Seriali
     @Override
     public boolean equals(final Object other) {
         return !(other == null || getClass() != other.getClass())
-                && getRecordType() == ContextualSerializableCoder.class.cast(other).getRecordType();
+                && getRecordType() == ((ContextualSerializableCoder) other).getRecordType();
     }
 
     @Override

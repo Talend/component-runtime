@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,10 +32,9 @@ public class CxfExtractor {
 
     public DestinationRegistry getRegistry() {
         try {
-            final HTTPTransportFactory transportFactory = HTTPTransportFactory.class
-                    .cast(bus
-                            .getExtension(DestinationFactoryManager.class)
-                            .getDestinationFactory("http://cxf.apache.org/transports/http" + "/configuration"));
+            final HTTPTransportFactory transportFactory = (HTTPTransportFactory) bus
+                    .getExtension(DestinationFactoryManager.class)
+                    .getDestinationFactory("http://cxf.apache.org/transports/http" + "/configuration");
             return transportFactory.getRegistry();
         } catch (final BusException e) {
             throw new IllegalStateException(e);

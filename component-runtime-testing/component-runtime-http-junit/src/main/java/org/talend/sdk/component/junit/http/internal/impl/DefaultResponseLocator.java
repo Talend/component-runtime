@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,7 +96,7 @@ public class DefaultResponseLocator implements ResponseLocator, AutoCloseable {
                 .flatMap(url -> {
                     final Collection<Model> models;
                     try (final InputStream stream = url.openStream()) {
-                        models = Collection.class.cast(jsonb.fromJson(stream, MODEL_TYPE));
+                        models = (Collection) jsonb.fromJson(stream, MODEL_TYPE);
                     } catch (final IOException e) {
                         throw new IllegalStateException(e);
                     }
@@ -254,8 +254,7 @@ public class DefaultResponseLocator implements ResponseLocator, AutoCloseable {
         public boolean equals(final Object obj) {
             if (this == obj) {
                 return true;
-            } else if (obj instanceof ParameterizedType) {
-                final ParameterizedType that = (ParameterizedType) obj;
+            } else if (obj instanceof ParameterizedType that) {
                 final Type thatRawType = that.getRawType();
                 return that.getOwnerType() == null
                         && (rawType == null ? thatRawType == null : rawType.equals(thatRawType))

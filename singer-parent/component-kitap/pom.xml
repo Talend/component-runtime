@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2026 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>singer-parent</artifactId>
-    <version>1.86.0-SNAPSHOT</version>
+    <version>1.95.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-kitap</artifactId>
@@ -30,6 +30,8 @@
   <properties>
     <talend.build.name>${talend.build.name.base}.singer.component</talend.build.name>
     <rat.skip>true</rat.skip>
+    <!-- Override spark version to 3.2.2 to fix logback compatibility issues in tests with Spark 3.5.7 -->
+    <spark.version>3.2.2</spark.version>
   </properties>
 
   <dependencies>
@@ -86,12 +88,37 @@
           <groupId>org.apache.avro</groupId>
           <artifactId>avro</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.lz4</groupId>
+          <artifactId>lz4-java</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>io.netty</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>at.yawk.lz4</groupId>
+      <artifactId>lz4-java</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.avro</groupId>
       <artifactId>avro</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
     </dependency>
   </dependencies>
 

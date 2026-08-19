@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,9 +49,9 @@ public class ValidationParameterEnricher extends BaseParameterEnricher {
     }
 
     private Class<?> toClass(final Type parameterType) {
-        return ParameterizedType.class.isInstance(parameterType)
-                ? toClass(ParameterizedType.class.cast(parameterType).getRawType())
-                : (Class.class.isInstance(parameterType) ? Class.class.cast(parameterType) : null);
+        return parameterType instanceof ParameterizedType parameterizedType
+                ? toClass(parameterizedType.getRawType())
+                : (parameterType instanceof Class aClass ? aClass : null);
     }
 
     private String getValueString(final Annotation annotation) {

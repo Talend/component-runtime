@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,8 +47,7 @@ public class SparkExtension extends BaseSpark<SparkExtension>
     @Override
     public void beforeAll(final ExtensionContext extensionContext) throws Exception {
         temporaryFolderExtension.beforeAll(extensionContext);
-        root = TemporaryFolder.class
-                .cast(temporaryFolderExtension.findInstance(extensionContext, TemporaryFolder.class))
+        root = ((TemporaryFolder) temporaryFolderExtension.findInstance(extensionContext, TemporaryFolder.class))
                 .getRoot();
 
         final ExtensionContext.Store store = extensionContext.getStore(NAMESPACE);
@@ -68,11 +67,11 @@ public class SparkExtension extends BaseSpark<SparkExtension>
         final Instances instances = start();
         if (instances.getException() != null) {
             instances.close();
-            if (Exception.class.isInstance(instances.getException())) {
-                throw Exception.class.cast(instances.getException());
+            if (instances.getException() instanceof Exception exception) {
+                throw exception;
             }
-            if (Error.class.isInstance(instances.getException())) {
-                throw Error.class.cast(instances.getException());
+            if (instances.getException() instanceof Error error) {
+                throw error;
             }
             throw new IllegalStateException(instances.getException());
         }

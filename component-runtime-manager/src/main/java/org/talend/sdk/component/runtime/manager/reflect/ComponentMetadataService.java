@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.manager.reflect;
 
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,7 +47,7 @@ public class ComponentMetadataService {
     public ComponentMetadataService() {
         this.enrichers = StreamSupport
                 .stream(ServiceLoader.load(ComponentMetadataEnricher.class).spliterator(), false)
-                .collect(toList());
+                .toList();
     }
 
     public Map<String, String> getMetadata(final Class<?> clazz) {

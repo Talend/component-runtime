@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package org.talend.sdk.component.runtime.di.beam;
-
-import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
 import java.util.List;
@@ -44,7 +42,7 @@ public class DelegatingUnBoundedSource<A, B extends UnboundedSource.CheckpointMa
             throws Exception {
         final List<? extends UnboundedSource<A, B>> sources = delegate.split(desiredNumSplits, options);
         listener.onSplit(sources.size());
-        return sources.stream().map(s -> new DelegatingUnBoundedSource<>(s, listener)).collect(toList());
+        return sources.stream().map(s -> new DelegatingUnBoundedSource<>(s, listener)).toList();
     }
 
     @Override

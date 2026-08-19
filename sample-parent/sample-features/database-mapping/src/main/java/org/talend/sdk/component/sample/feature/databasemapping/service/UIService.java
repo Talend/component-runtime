@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ public class UIService {
     }
 
     @DiscoverSchemaExtended("dse")
-    public Schema guessSchemaExtended(final Schema incomingSchema, final @Option Config config,
+    public Schema guessSchemaExtended(final Schema incomingSchema, @Option final Config config,
             final String branch) {
         log.warn("[guessSchemaExtended] received : {}", config);
         return factory.newSchemaBuilder(Schema.Type.RECORD)

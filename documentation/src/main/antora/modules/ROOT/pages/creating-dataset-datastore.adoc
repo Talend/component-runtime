@@ -223,6 +223,8 @@ public class SomeInputMapper implements Serializable {
 }
 ----
 
+NOTE: The `@Option` value String parameter in the `@CreateConnection` method should match the name of runtime class constructor parameter for the Configuration class
+
 == How does the component server interact with datasets and datastores
 
 The component server scans all configuration types and returns a configuration type index. This index can be used for the integration into the targeted platforms (Studio, web applications, and so on).

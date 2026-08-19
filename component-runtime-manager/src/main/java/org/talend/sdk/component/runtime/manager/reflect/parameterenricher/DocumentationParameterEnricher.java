@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class DocumentationParameterEnricher extends BaseParameterEnricher {
             final Annotation annotation) {
         if (annotation.annotationType() == Documentation.class) {
             HashMap<String, String> parameters = new HashMap<>();
-            Documentation doc = Documentation.class.cast(annotation);
+            Documentation doc = (Documentation) annotation;
             parameters.put(VALUE, doc.value());
             if (doc.tooltip()) {
                 parameters.put(TOOLTIP, "true");

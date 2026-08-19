@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ class AvroCoderCache {
                 public synchronized AvroCoder<IndexedRecord> get(final Object key) {
                     AvroCoder<IndexedRecord> coder = super.get(key);
                     if (coder == null) {
-                        final Schema schema = Schema.class.cast(key);
+                        final Schema schema = (Schema) key;
                         coder = AvroCoder.of(IndexedRecord.class, schema);
                         put(schema, coder);
                     }

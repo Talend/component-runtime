@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,8 +66,8 @@ public class MockOutput implements Serializable {
     }
 
     @ElementListener
-    public void onNext(@Input final JsonObject record, final @Output OutputEmitter<JsonObject> success,
-            final @Output("reject") OutputEmitter<Reject> reject) {
+    public void onNext(@Input final JsonObject record, @Output final OutputEmitter<JsonObject> success,
+            @Output("reject") final OutputEmitter<Reject> reject) {
         try {
             JsonObject newRec;
             String sysId = null;

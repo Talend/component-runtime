@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,14 +42,14 @@ class IOTest {
         }, stdoutPs, stderrPs);
         overridenIO.set();
         try {
-            System.out.println("test out stash");
+            overridenIO.println("test out stash");
             stdoutPs.flush();
 
             System.err.println("test err stash");
             stderrPs.flush();
 
-            assertEquals("test out stash\n", stdout.toString("UTF-8"));
-            assertEquals("test err stash\n", stderr.toString("UTF-8"));
+            assertEquals("test out stash" + System.lineSeparator(), stdout.toString("UTF-8"));
+            assertEquals("test err stash" + System.lineSeparator(), stderr.toString("UTF-8"));
         } finally {
             testIO.set();
         }

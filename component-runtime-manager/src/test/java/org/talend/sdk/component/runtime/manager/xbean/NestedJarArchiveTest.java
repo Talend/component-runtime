@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ class NestedJarArchiveTest {
         final File jar = createPlugin(temporaryFolder, info.getTestMethod().get().getName());
         final ConfigurableClassLoader configurableClassLoader = new ConfigurableClassLoader("", new URL[0],
                 new URLClassLoader(new URL[] { jar.toURI().toURL() }, Thread.currentThread().getContextClassLoader()),
-                n -> true, n -> true, new String[] { "com/foo/bar/1.0/bar-1.0.jar" }, new String[0]);
+                n -> true, n -> true, new String[] { "com/foo/bar/1.0/bar-1.0.jar" }, new String[0], n -> true);
         try (final JarInputStream jis = new JarInputStream(
                 configurableClassLoader.getResourceAsStream("MAVEN-INF/repository/com/foo/bar/1.0/bar-1.0.jar"))) {
             assertNotNull(jis, "test is wrongly setup, no nested jar, fix the createPlugin() method please");
@@ -64,7 +64,7 @@ class NestedJarArchiveTest {
             assertEquals("org.talend.test.generated." + info.getTestMethod().get().getName() + ".Components",
                     annotatedClasses.iterator().next().getName());
         } finally {
-            URLClassLoader.class.cast(configurableClassLoader.getParent()).close();
+            ((URLClassLoader) configurableClassLoader.getParent()).close();
         }
     }
 

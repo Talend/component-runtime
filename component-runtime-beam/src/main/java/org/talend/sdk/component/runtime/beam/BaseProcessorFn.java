@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,9 +65,8 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
 
     BaseProcessorFn(final Processor processor) {
         this.processor = processor;
-        if (ProcessorImpl.class.isInstance(processor)) {
-            ProcessorImpl.class
-                    .cast(processor)
+        if (processor instanceof ProcessorImpl processor1) {
+            processor1
                     .getInternalConfiguration()
                     .entrySet()
                     .stream()
@@ -277,7 +276,7 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
         }
 
         private Record toRecord(final Object value) {
-            return Record.class.cast(converters.toRecord(registry, value, () -> jsonb, () -> recordBuilderFactory));
+            return (Record) converters.toRecord(registry, value, () -> jsonb, () -> recordBuilderFactory);
         }
     }
 }

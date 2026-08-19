@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public class TheInput1 implements Serializable {
 
     private final RuntimeContextHolder context;
 
-    public TheInput1(final @Option("configin") InputConfig config,
+    public TheInput1(@Option("configin") final InputConfig config,
             final GenerateExceptionServices exceptionServices,
             final RuntimeContextHolder context) {
         this.config = config;

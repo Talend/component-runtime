@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.starter.server.front;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
@@ -111,7 +110,7 @@ public class RRDEndpoint {
                 .range(0, timestamps.length)
                 .filter(idx -> !skipNan || !Double.isNaN(values[idx]))
                 .mapToObj(idx -> new Point(timestamps[idx], Double.isNaN(values[idx]) ? 0 : values[idx]))
-                .collect(toList());
+                .toList();
     }
 
     private String getMetricName(final String it) {

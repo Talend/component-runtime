@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,8 +80,12 @@ public class AsciidocDocumentationGenerator extends DocBaseGenerator {
                         : ("//configuration_start\n\n" + levelPrefix + "= Configuration\n\n" + desc
                                 .parameters()
                                 .map(this::toAsciidoctor)
-                                .collect(joining("\n", "[cols=\"d,d,m,a,e,d\",options=\"header\"]\n"
-                                        + "|===\n|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\n",
+                                .collect(joining("\n",
+                                        """
+                                        [cols="d,d,m,a,e,d",options="header"]
+                                        |===
+                                        |Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type
+                                        """,
                                         "\n|===\n\n//configuration_end\n\n"))))
                 + "//component_end:" + partMarker + "\n\n";
     }

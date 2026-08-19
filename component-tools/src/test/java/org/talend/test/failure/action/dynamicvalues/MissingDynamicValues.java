@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import lombok.Data;
 @Processor(family = "test", name = "my")
 public class MissingDynamicValues implements Serializable {
 
+    @SuppressWarnings("java:S1068")
     private final Foo foo;
 
     public MissingDynamicValues(final Foo foo) {

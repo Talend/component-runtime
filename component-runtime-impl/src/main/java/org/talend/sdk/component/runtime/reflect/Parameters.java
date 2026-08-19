@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,15 +32,14 @@ import lombok.NoArgsConstructor;
 public class Parameters {
 
     public static boolean isGroupBuffer(final Type type) {
-        if (!ParameterizedType.class.isInstance(type)) {
+        if (!(type instanceof ParameterizedType parameterizedType)) {
             return false;
         }
-        final ParameterizedType parameterizedType = ParameterizedType.class.cast(type);
-        if (!Class.class.isInstance(parameterizedType.getRawType())
+        if (!(parameterizedType.getRawType() instanceof Class)
                 || parameterizedType.getActualTypeArguments().length != 1) {
             return false;
         }
-        final Class<?> containerType = Class.class.cast(parameterizedType.getRawType());
+        final Class<?> containerType = (Class) parameterizedType.getRawType();
         return Collection.class.isAssignableFrom(containerType)
                 && asList(Record.class, JsonObject.class).contains(parameterizedType.getActualTypeArguments()[0]);
     }

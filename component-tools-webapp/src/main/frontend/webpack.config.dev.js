@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ *  Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,13 +20,6 @@ module.exports = {
   devServer: {
     setupMiddlewares: setupBackend,
     host: "0.0.0.0",
-    proxy: {
-      "/api": {
-        target: process.env.API_URL || "http://localhost:10101",
-        changeOrigin: true,
-        secure: false,
-      },
-    },
     historyApiFallback: true,
   },
   resolve: {

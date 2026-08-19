@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.PreDestroy;
@@ -179,10 +178,10 @@ public class LocalCacheService implements LocalCache, Serializable {
         if (maxEviction > 0) {
             elements = elements.limit(maxEviction);
         }
-        final List<String> removableElements = elements.map(Entry::getKey).collect(Collectors.toList());// materialize
-                                                                                                        // before
-                                                                                                        // actually
-                                                                                                        // removing it
+        final List<String> removableElements = elements.map(Entry::getKey).toList();// materialize
+                                                                                    // before
+                                                                                    // actually
+                                                                                    // removing it
         removableElements.forEach(this.cache::remove);
     }
 
@@ -300,7 +299,7 @@ public class LocalCacheService implements LocalCache, Serializable {
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-            return Objects.equals(ElementImpl.class.cast(o).value, value);
+            return Objects.equals(((ElementImpl) o).value, value);
         }
 
         @Override

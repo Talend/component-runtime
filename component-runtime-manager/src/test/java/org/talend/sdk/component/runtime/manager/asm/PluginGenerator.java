@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -97,7 +96,6 @@ public class PluginGenerator {
                             }
                         } else {
                             try {
-                                final FileReader reader = new FileReader(clazz);
                                 outputStream.putNextEntry(new JarEntry('/' + clazz.getName()));
                                 outputStream.write(Files.readAllBytes(clazz.getAbsoluteFile().toPath()));
                                 outputStream.closeEntry();

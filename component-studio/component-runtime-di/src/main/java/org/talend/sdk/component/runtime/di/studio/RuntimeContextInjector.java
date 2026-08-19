@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,8 @@ public class RuntimeContextInjector {
      * @see Lifecycle
      */
     public static void injectLifecycle(final Lifecycle lifecycle, final RuntimeContextHolder runtimeContext) {
-        if (lifecycle instanceof Delegated) {
-            final Object delegate = ((Delegated) lifecycle).getDelegate();
+        if (lifecycle instanceof Delegated delegated) {
+            final Object delegate = delegated.getDelegate();
 
             Class<?> currentClass = delegate.getClass();
             while (currentClass != null && currentClass != Object.class) {

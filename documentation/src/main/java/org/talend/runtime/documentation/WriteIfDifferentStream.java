@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,7 +42,7 @@ public class WriteIfDifferentStream extends FilterOutputStream {
     @Override
     public void close() throws IOException {
         out.close();
-        final byte[] bytes = ByteArrayOutputStream.class.cast(out).toByteArray();
+        final byte[] bytes = ((ByteArrayOutputStream) out).toByteArray();
         if (!destination.exists() || isDifferent(bytes)) {
             try (final OutputStream out = new FileOutputStream(destination)) {
                 out.write(bytes);
@@ -53,7 +54,10 @@ public class WriteIfDifferentStream extends FilterOutputStream {
     }
 
     private boolean isDifferent(final byte[] bytes) throws IOException {
-        final String source = Files.lines(destination.toPath()).collect(joining("\n")).trim();
+        final String source;
+        try (final Stream<String> lines = Files.lines(destination.toPath())) {
+            source = lines.collect(joining("\n")).trim();
+        }
         final String target = new String(bytes, StandardCharsets.UTF_8).trim();
         return !source.equals(target);
     }

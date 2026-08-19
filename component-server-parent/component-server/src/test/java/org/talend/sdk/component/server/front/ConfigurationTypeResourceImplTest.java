@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -128,13 +128,6 @@ class ConfigurationTypeResourceImplTest {
 
     @Test
     void migrateWithEncrypted() {
-        final JsonBuilderFactory factory = JsonProvider.provider().createBuilderFactory(emptyMap());
-        final JsonObject json = factory
-                .createObjectBuilder()
-                .add("configuration.url", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==")
-                .add("configuration.username", "username0")
-                .add("configuration.password", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==")
-                .build();
         final Map<String, String> config = base
                 .path("/configurationtype/migrate/amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmM/-2")
                 .request(APPLICATION_JSON_TYPE)

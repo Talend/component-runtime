@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.runtime.beam.transform.avro;
 
-import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
@@ -60,7 +59,7 @@ public class JsonToIndexedRecordTest {
                         .apply(new JsonToIndexedRecord(createSchema())))
                 .satisfies(values -> {
                     final List<IndexedRecord> records =
-                            StreamSupport.stream(values.spliterator(), false).collect(toList());
+                            StreamSupport.stream(values.spliterator(), false).toList();
                     assertEquals(2, records.size());
                     return null;
                 });

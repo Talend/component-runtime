@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ public class ConfigurationTypeParameterEnricher extends BaseParameterEnricher {
 
     private String getName(final Annotation annotation) {
         try {
-            return String.class.cast(annotation.annotationType().getMethod("value").invoke(annotation));
+            return (String) annotation.annotationType().getMethod("value").invoke(annotation);
         } catch (final IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             return null;
         }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,7 @@ public class MultiEnvironmentsRunner extends DelegatingRunner {
     @Override
     public void run(final RunNotifier notifier) {
         configuration.stream().forEach(e -> {
-            if (DecoratingEnvironmentProvider.class.isInstance(e)) {
-                final DecoratingEnvironmentProvider dep = DecoratingEnvironmentProvider.class.cast(e);
+            if (e instanceof DecoratingEnvironmentProvider dep) {
                 if (!dep.isActive()) {
                     notifier.fireTestFinished(Description.createTestDescription(getTestClass(), dep.getName()));
                     return;

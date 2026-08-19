@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.beam.spi;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -115,15 +114,15 @@ class BeamComponentExtensionTest {
         final byte[] bytes = Serializer.toBytes(mapper);
         try (final ObjectInputStream ois = new EnhancedObjectInputStream(new ByteArrayInputStream(bytes),
                 Thread.currentThread().getContextClassLoader())) {
-            final Serializable deserialized = Serializable.class.cast(ois.readObject());
-            assertMapper(Mapper.class.cast(deserialized));
+            final Serializable deserialized = (Serializable) ois.readObject();
+            assertMapper((Mapper) deserialized);
         }
     }
 
     private void assertMapper(final Mapper mapper) {
         assertNotNull(mapper);
         assertThat(mapper, instanceOf(Delegated.class));
-        assertNotNull(Delegated.class.cast(mapper).getDelegate());
+        assertNotNull(((Delegated) mapper).getDelegate());
         try {
             mapper.start();
             fail();
@@ -138,7 +137,7 @@ class BeamComponentExtensionTest {
         private final Create.Values<Sample> source;
 
         public BeamSource(final Collection<String> values) {
-            this.source = Create.of(values.stream().map(Sample::new).collect(toList()));
+            this.source = Create.of(values.stream().map(Sample::new).toList());
         }
 
         @Override

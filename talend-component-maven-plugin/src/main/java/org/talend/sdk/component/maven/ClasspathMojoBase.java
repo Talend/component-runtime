@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.maven;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.io.File;
@@ -64,7 +63,7 @@ public abstract class ClasspathMojoBase extends AudienceAwareMojo {
                 .of(excludes, sharedExcludes)
                 .filter(Objects::nonNull)
                 .flatMap(Collection::stream)
-                .collect(toList());
+                .toList();
     }
 
     protected Stream<File> getJarToScan(final Collection<String> deps) {
@@ -120,7 +119,7 @@ public abstract class ClasspathMojoBase extends AudienceAwareMojo {
                                 .filter(a -> !"org.talend.sdk.component".equals(a.getGroupId())
                                         || !excludedArtifacts.contains(a.getArtifactId()))
                                 .map(Artifact::getFile))
-                .collect(toList());
+                .toList();
         try (final URLClassLoader loader = new ExecutionClassLoader(classLoaderFiles.stream().map(file -> {
             try {
                 return file.toURI().toURL();

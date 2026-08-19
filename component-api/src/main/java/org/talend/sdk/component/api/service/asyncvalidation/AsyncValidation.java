@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,11 @@ import org.talend.sdk.component.api.service.ActionType;
 @ActionType(value = "validation", expectedReturnedType = ValidationResult.class)
 @Target(METHOD)
 @Retention(RUNTIME)
-@Documentation("Mark a method as being used to validate a configuration.\n\nIMPORTANT: this is a server validation "
-        + "so only use it if you can't use other client side validation to implement it.")
+@Documentation("""
+               Mark a method as being used to validate a configuration.
+
+               IMPORTANT: this is a server validation \
+               so only use it if you can't use other client side validation to implement it.""")
 public @interface AsyncValidation {
 
     /**

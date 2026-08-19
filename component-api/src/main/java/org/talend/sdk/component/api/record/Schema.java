@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,6 +71,7 @@ public interface Schema {
      */
     Stream<Entry> getAllEntries();
 
+    @JsonbTransient
     default Map<String, Entry> getEntryMap() {
         throw new UnsupportedOperationException("#getEntryMap is not implemented");
     }
@@ -89,6 +90,7 @@ public interface Schema {
      *
      * @return all entries ordered
      */
+    @JsonbTransient
     default List<Entry> getEntriesOrdered() {
         return getEntriesOrdered(naturalOrder());
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.junit;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.Serializable;
@@ -36,7 +35,7 @@ public final class RecordAsserts implements Function<Iterable<Map<String, List<S
 
     public <R extends Serializable> RecordAsserts withAsserts(final String outputName,
             final SerializableConsumer<List<R>> validator) {
-        validators.put(outputName, SerializableConsumer.class.cast(validator));
+        validators.put(outputName, (SerializableConsumer) validator);
         return this;
     }
 
@@ -50,7 +49,7 @@ public final class RecordAsserts implements Function<Iterable<Map<String, List<S
                                 .of(u1, u2)
                                 .filter(Objects::nonNull)
                                 .flatMap(Collection::stream)
-                                .collect(toList())));
+                                .toList()));
 
         // if we want to validate some outputs which are not here it means the
         // validation fails

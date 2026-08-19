@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,10 +57,10 @@ class JmxManagerTest {
 
         try {
             assertTrue(mBeanServer.isRegistered(name));
-            assertFalse(Boolean.class.cast(mBeanServer.getAttribute(name, "closed")));
+            assertFalse((Boolean) mBeanServer.getAttribute(name, "closed"));
 
             final Object created = mBeanServer.getAttribute(name, "created");
-            assertTrue(Date.class.isInstance(created));
+            assertTrue(created instanceof Date);
             // ensure date is stable until reloading
             assertEquals(created, created);
 

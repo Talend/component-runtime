@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,8 +105,7 @@ public class ActionParameterEnricher extends BaseParameterEnricher {
     private String getParametersString(final Annotation annotation) {
         try {
             return String
-                    .join(",", String[].class
-                            .cast(annotation.annotationType().getMethod("parameters").invoke(annotation)));
+                    .join(",", (String[]) annotation.annotationType().getMethod("parameters").invoke(annotation));
         } catch (final IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             return null;
         }

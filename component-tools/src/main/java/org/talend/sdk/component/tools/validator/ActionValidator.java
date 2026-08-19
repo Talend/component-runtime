@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -470,8 +470,8 @@ public class ActionValidator implements Validator {
 
     private boolean hasStringInList(final Method method) {
         if (List.class.isAssignableFrom(method.getReturnType())
-                && method.getGenericReturnType() instanceof ParameterizedType) {
-            Type[] actualTypeArguments = ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments();
+                && method.getGenericReturnType() instanceof ParameterizedType parameterizedType) {
+            Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
             if (actualTypeArguments.length > 0) {
                 return "java.lang.String".equals(actualTypeArguments[0].getTypeName());
             }

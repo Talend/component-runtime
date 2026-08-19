@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ public class HttpApiHandler<T extends HttpApiHandler<?>> {
                         .newServerContext(SslProvider.JDK, null, InsecureTrustManagerFactory.INSTANCE,
                                 certificate.certificate(), certificate.privateKey(), null, null, null,
                                 IdentityCipherSuiteFilter.INSTANCE, null, 0, 0);
-                sslContext = JdkSslContext.class.cast(nettyContext).context();
+                sslContext = ((JdkSslContext) nettyContext).context();
             } catch (final SSLException | CertificateException e) {
                 throw new IllegalStateException(e);
             }

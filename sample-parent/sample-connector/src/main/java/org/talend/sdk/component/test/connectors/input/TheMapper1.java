@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ public class TheMapper1 implements Serializable {
     @RuntimeContext
     private transient RuntimeContextHolder context;
 
-    public TheMapper1(final @Option("configin") InputConfig config,
+    public TheMapper1(@Option("configin") final InputConfig config,
             final GenerateExceptionServices exceptionServices) {
         this.config = config;
         this.exceptionServices = exceptionServices;

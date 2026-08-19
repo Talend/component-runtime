@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.talend.sdk.component.form.internal.converter.impl.schema;
 
 import static java.util.Locale.ROOT;
-import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
 import java.util.List;
@@ -50,7 +49,7 @@ public class ArrayPropertyConverter implements PropertyConverter {
             jsonSchema.setType(context.getProperty().getType().toLowerCase(ROOT));
             final String prefix = context.getProperty().getPath() + "[]";
             final List<SimplePropertyDefinition> arrayElements =
-                    properties.stream().filter(child -> child.getPath().startsWith(prefix)).collect(toList());
+                    properties.stream().filter(child -> child.getPath().startsWith(prefix)).toList();
 
             if (arrayElements.stream().anyMatch(e -> e.getPath().startsWith(prefix + '.'))) { // complex object
                 final JsonSchema items = new JsonSchema();

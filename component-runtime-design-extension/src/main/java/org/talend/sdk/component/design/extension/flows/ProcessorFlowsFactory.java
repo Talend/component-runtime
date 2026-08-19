@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.talend.sdk.component.design.extension.flows;
 
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
 import static java.util.stream.Stream.of;
 
@@ -49,7 +48,7 @@ class ProcessorFlowsFactory implements FlowsFactory {
                 .orElseGet(() -> getAfterGroup().map(it -> Stream.of(it.getParameters())).orElseGet(Stream::empty))
                 .filter(this::isInput)
                 .map(this::mapInputName)
-                .collect(toList());
+                .toList();
     }
 
     @Override
@@ -58,7 +57,7 @@ class ProcessorFlowsFactory implements FlowsFactory {
                 getListener()
                         .map(listener -> concat(getReturnedBranches(listener), getOutputParameters(listener)))
                         .orElseGet(Stream::empty),
-                getAfterGroup().map(this::getOutputParameters).orElseGet(Stream::empty)).distinct().collect(toList());
+                getAfterGroup().map(this::getOutputParameters).orElseGet(Stream::empty)).distinct().toList();
     }
 
     private Optional<Method> getAfterGroup() {

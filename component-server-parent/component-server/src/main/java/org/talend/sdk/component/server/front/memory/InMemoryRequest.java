@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -124,7 +124,7 @@ public class InMemoryRequest implements HttpServletRequest {
 
         final SimpleDateFormat[] formats = new SimpleDateFormat[DATE_FORMATS.length];
         for (int i = 0; i < formats.length; i++) {
-            formats[i] = SimpleDateFormat.class.cast(DATE_FORMATS[i].clone());
+            formats[i] = (SimpleDateFormat) DATE_FORMATS[i].clone();
         }
 
         final long result = FastHttpDateFormat.parseDate(value, formats);
@@ -456,7 +456,7 @@ public class InMemoryRequest implements HttpServletRequest {
     public AsyncContext startAsync(final ServletRequest servletRequest, final ServletResponse servletResponse)
             throws IllegalStateException {
         asyncContext =
-                new AsyncContextImpl(servletRequest, InMemoryResponse.class.cast(servletResponse), false, controller)
+                new AsyncContextImpl(servletRequest, (InMemoryResponse) servletResponse, false, controller)
                         .start();
         return asyncContext;
     }

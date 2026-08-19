@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.beam.transform.avro;
 
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 
 import java.util.stream.StreamSupport;
@@ -52,7 +51,7 @@ public class IndexedRecordToJsonTest {
                                     .stream(values.spliterator(), false)
                                     .map(k -> k.getString("name"))
                                     .sorted()
-                                    .collect(toList()));
+                                    .toList());
                     return null;
                 });
         assertEquals(PipelineResult.State.DONE, pipeline.run().waitUntilFinish());

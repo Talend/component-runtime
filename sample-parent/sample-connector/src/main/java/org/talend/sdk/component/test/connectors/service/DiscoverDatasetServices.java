@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class DiscoverDatasetServices {
      *
      */
 
-    public final static String DISCOVER_DATASET = "action_DISCOVER_DATASET";
+    public static final String DISCOVER_DATASET = "action_DISCOVER_DATASET";
 
     /**
      * DiscoverDataset action

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.runtime.manager.asm;
 
-import static java.util.stream.Collectors.toList;
 import static org.apache.xbean.asm9.ClassReader.SKIP_CODE;
 import static org.apache.xbean.asm9.ClassReader.SKIP_DEBUG;
 import static org.apache.xbean.asm9.ClassReader.SKIP_FRAMES;
@@ -582,7 +581,7 @@ public class ProxyGenerator implements Serializable {
         final Method[] interceptedMethods;
         if (hasInterceptors) {
             final Collection<Annotation> globalInterceptors =
-                    Stream.of(classToProxy.getAnnotations()).filter(this::isInterceptor).collect(toList());
+                    Stream.of(classToProxy.getAnnotations()).filter(this::isInterceptor).toList();
             final AtomicInteger methodIndex = new AtomicInteger();
             interceptedMethods = Stream
                     .of(classToProxy.getMethods())
@@ -623,7 +622,7 @@ public class ProxyGenerator implements Serializable {
             if (!invocationHandlerField.isAccessible()) {
                 invocationHandlerField.setAccessible(true);
             }
-            return InterceptorHandlerFacade.class.cast(invocationHandlerField.get(instance));
+            return (InterceptorHandlerFacade) invocationHandlerField.get(instance);
         } catch (final IllegalAccessException | NoSuchFieldException e) {
             throw new IllegalStateException(e);
         }

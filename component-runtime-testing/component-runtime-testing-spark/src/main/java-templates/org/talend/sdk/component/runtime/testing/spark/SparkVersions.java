@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum SparkVersions {
     SPARK_SCALA_VERSION("${spark-scala.version}"),
-    SPARK_VERSION("${spark.version}");
+    SPARK_VERSION("${spark.version}"),
+    LOG4J2_VERSION("${log4j2.version}");
 
     @Getter
     private final String value;

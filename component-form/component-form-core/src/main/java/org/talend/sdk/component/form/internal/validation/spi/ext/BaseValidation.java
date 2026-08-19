@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,12 +58,11 @@ abstract class BaseValidation implements Function<JsonValue, Stream<ValidationEr
 
         switch (value.getValueType()) {
             case STRING:
-                return onString(JsonString.class.cast(value));
-            case TRUE:
-            case FALSE:
+                return onString((JsonString) value);
+            case TRUE, FALSE:
                 return onBoolean(JsonValue.TRUE.equals(value));
             case NUMBER:
-                return onNumber(JsonNumber.class.cast(value));
+                return onNumber((JsonNumber) value);
             case OBJECT:
                 return onObject(value.asJsonObject());
             case ARRAY:

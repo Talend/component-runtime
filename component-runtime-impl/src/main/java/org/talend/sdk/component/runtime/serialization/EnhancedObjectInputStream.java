@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.serialization;
 
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static lombok.AccessLevel.PRIVATE;
 
@@ -128,7 +127,7 @@ public class EnhancedObjectInputStream extends ObjectInputStream {
                                 .of(s.split(","))
                                 .map(String::trim)
                                 .filter(it -> !it.isEmpty())
-                                .collect(toList()))
+                                .toList())
                         .map(l -> (Predicate<String>) name -> l.stream().anyMatch(name::startsWith))
                         .orElseGet(() -> {
                             final Collection<String> blacklist = Stream

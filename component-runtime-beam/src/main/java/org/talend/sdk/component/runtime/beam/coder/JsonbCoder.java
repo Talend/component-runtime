@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ public class JsonbCoder<T> extends CustomCoder<T> {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final JsonbCoder<?> that = JsonbCoder.class.cast(o);
+        final JsonbCoder<?> that = (JsonbCoder) o;
         return Objects.equals(type, that.type) && (jsonb != null && that.jsonb != null);
     }
 

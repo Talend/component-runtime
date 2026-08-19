@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@ public class ParameterSetter {
     private final Object delegate;
 
     public ParameterSetter(final Lifecycle lifecycle) {
-        if (lifecycle instanceof Delegated) {
-            delegate = ((Delegated) lifecycle).getDelegate();
+        if (lifecycle instanceof Delegated delegated) {
+            delegate = delegated.getDelegate();
         } else {
             throw new IllegalArgumentException("Not supported implementation of lifecycle : " + lifecycle);
         }
@@ -92,8 +92,8 @@ public class ParameterSetter {
                 try {
                     target = field.get(target);
                     if (arrayLocation > -1) {
-                        if (target instanceof List) {
-                            target = List.class.cast(target).get(arrayLocation);
+                        if (target instanceof List list) {
+                            target = list.get(arrayLocation);
                         } else {
                             log.warn("expect a list, but not");
                             return;

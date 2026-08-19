@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -60,7 +59,9 @@ import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
 import org.apache.xbean.finder.util.Files;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -96,6 +97,16 @@ class ComponentManagerTest {
 
     private ComponentManager newManager() {
         return newManager(new File("target/test-dependencies"));
+    }
+
+    @BeforeAll
+    static void setup() {
+        System.setProperty("talend.component.manager.user.m2.fallback", "true");
+    }
+
+    @AfterAll
+    static void teardown() {
+        System.clearProperty("talend.component.manager.user.m2.fallback");
     }
 
     @Test
@@ -163,7 +174,7 @@ class ComponentManagerTest {
             manager.addPlugin(plugin.getAbsolutePath());
             final Mapper mapper =
                     manager.findMapper("config", "injected", 1, emptyMap()).orElseThrow(IllegalStateException::new);
-            final Record next = Record.class.cast(mapper.create().next());
+            final Record next = (Record) mapper.create().next();
             assertEquals(System.getProperty("java.version", "notset-on-jvm"), next.get(String.class, "value"));
         } finally { // clean temp files
             DynamicContainerFinder.SERVICES.clear();
@@ -207,7 +218,6 @@ class ComponentManagerTest {
             final String pluginPath = plugin.getAbsolutePath();
             Thread[] th = new Thread[5];
             for (int ind = 0; ind < th.length; ind++) {
-                final int indice = ind;
                 th[ind] = new Thread(() -> {
                     manager.addPlugin(pluginPath);
                 });
@@ -427,11 +437,11 @@ class ComponentManagerTest {
                         .of(container.getLoader().getURLs())
                         .map(Files::toFile)
                         .map(File::getName)
-                        .sorted() // !! for asserts
+                        .sorted()
                         .toArray(String[]::new);
                 assertEquals(2, dependencies.length); // ignored transitive deps, enables the new root to control it
-                assertEquals("fatjar.jar", dependencies[0]); // transitive-1.0.0.jar is nested
-                assertEquals("main.jar", dependencies[1]); // main.jar containing fatjar.jar
+                assertEquals("fatjar.jar", dependencies[0]);
+                assertEquals("main.jar", dependencies[1]); // transitive-1.0.0.jar is nested
             } finally {
                 if (!transitive.delete()) {
                     transitive.deleteOnExit();
@@ -454,9 +464,9 @@ class ComponentManagerTest {
                 .map(ContainerComponentRegistry::getComponents)
                 .flatMap(comps -> comps.values().stream())
                 .flatMap(family -> family.getProcessors().values().stream())
-                .collect(toList());
+                .toList();
         assertEquals(asList("proc", "second"),
-                processors.stream().map(ComponentFamilyMeta.ProcessorMeta::getName).sorted().collect(toList()));
+                processors.stream().map(ComponentFamilyMeta.ProcessorMeta::getName).sorted().toList());
         return container;
     }
 
@@ -471,10 +481,10 @@ class ComponentManagerTest {
     private Date doCheckJmx(final MBeanServer mBeanServer) throws Exception {
         final ObjectName name = new ObjectName("org.talend.test:value=plugin1,type=plugin");
         assertTrue(mBeanServer.isRegistered(name));
-        assertFalse(Boolean.class.cast(mBeanServer.getAttribute(name, "closed")));
+        assertFalse((Boolean) mBeanServer.getAttribute(name, "closed"));
         assertTrue(() -> {
             try {
-                return Date.class.isInstance(mBeanServer.getAttribute(name, "created"));
+                return mBeanServer.getAttribute(name, "created") instanceof Date;
             } catch (final MBeanException | AttributeNotFoundException | ReflectionException
                     | InstanceNotFoundException e) {
                 return false;
@@ -482,14 +492,14 @@ class ComponentManagerTest {
         });
         // ensure date is stable until reloading
         assertEquals(mBeanServer.getAttribute(name, "created"), mBeanServer.getAttribute(name, "created"));
-        return Date.class.cast(mBeanServer.getAttribute(name, "created"));
+        return (Date) mBeanServer.getAttribute(name, "created");
     }
 
     private void doCheckRegistry(final File plugin1, final File plugin2, final ComponentManager manager)
             throws Exception {
         Stream.of(plugin1, plugin2).map(File::getAbsolutePath).forEach(manager::addPlugin);
         final List<ContainerComponentRegistry> registries =
-                manager.find(c -> Stream.of(c.get(ContainerComponentRegistry.class))).collect(toList());
+                manager.find(c -> Stream.of(c.get(ContainerComponentRegistry.class))).toList();
         assertEquals(2, registries.size()); // we saw both plugin
 
         registries.forEach(registry -> {
@@ -562,7 +572,7 @@ class ComponentManagerTest {
         }
         try (final ObjectInputStream ois =
                 new EnhancedObjectInputStream(new ByteArrayInputStream(baos.toByteArray()), loader)) {
-            return org.talend.sdk.component.runtime.output.Processor.class.cast(ois.readObject());
+            return (Processor) ois.readObject();
         }
     }
 
@@ -599,8 +609,8 @@ class ComponentManagerTest {
             manager.addPlugin(plugin.getAbsolutePath());
             final Container container = manager.getContainer().findAll().stream().findFirst().orElse(null);
             assertNotNull(container);
-            final LocalConfiguration envConf = LocalConfiguration.class
-                    .cast(container.get(AllServices.class).getServices().get(LocalConfiguration.class));
+            final LocalConfiguration envConf =
+                    (LocalConfiguration) container.get(AllServices.class).getServices().get(LocalConfiguration.class);
             // check translated env vars
             assertEquals("/home/user", envConf.get("USER_PATH"));
             assertEquals("/home/user", envConf.get("USER.PATH"));

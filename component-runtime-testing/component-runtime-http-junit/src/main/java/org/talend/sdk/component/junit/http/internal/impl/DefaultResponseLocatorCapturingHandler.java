@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,8 +69,8 @@ public class DefaultResponseLocatorCapturingHandler extends PassthroughHandler {
         }
         model.setResponse(responseModel);
 
-        if (DefaultResponseLocator.class.isInstance(api.getResponseLocator())) {
-            DefaultResponseLocator.class.cast(api.getResponseLocator()).addModel(model);
+        if (api.getResponseLocator() instanceof DefaultResponseLocator) {
+            ((DefaultResponseLocator) api.getResponseLocator()).addModel(model);
         }
     }
 

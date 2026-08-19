@@ -41,7 +41,7 @@ There are four types of components, each type coming with its specificities, esp
 ** The layout of the component and the configuration that the end-user will need to provide when using the component, defined by a `Configuration` class.
 * Output components: Send the processed data to a defined destination. An output component is made of:
 ** The execution logic of the component, describing how to process each records or batches of records it receives. This logic is defined in an `Output` class. Unlike processors, output components are the last components of the execution and return no data.
-** The layout of the component and the configuration that the end-user will need to provide when using the component, defined by a `Configuration` class. All input components must have a dataset specified in their configuration, and every dataset must use a datastore.
+** The layout of the component and the configuration that the end-user will need to provide when using the component, defined by a `Configuration` class. All output components must have a dataset specified in their configuration, and every dataset must use a datastore.
 * Standalone components: Make a call to the service or run a query on the database. A standalone component is made of:
 ** The execution logic of the component, represented by a `DriverRunner` class.
 ** The layout of the component and the configuration that the end-user will need to provide when using the component, defined by a `Configuration` class. All input components must have a datastore or dataset specified in their configuration, and every dataset must use a datastore.

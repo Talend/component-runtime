@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,4 +74,32 @@ public @interface Suggestable {
      * @return parameters for the validation.
      */
     String[] parameters() default { "." };
+
+    /**
+     * Controls how each suggestion option is rendered in the UI.
+     * Use {@link LabelDisplayMode#LABEL_ID} when option labels may not be unique,
+     * so that the identifier is shown alongside the label to allow unambiguous selection.
+     * Defaults to {@link LabelDisplayMode#LABEL} — preserves full backward compatibility.
+     *
+     * @return the display mode for suggestion options.
+     */
+    LabelDisplayMode labelDisplayMode() default LabelDisplayMode.LABEL;
+
+    /**
+     * Defines how suggestion options are displayed in the UI.
+     */
+    enum LabelDisplayMode {
+
+        /**
+         * Display the option label only.
+         * Default behaviour — use this when labels are unique.
+         */
+        LABEL,
+
+        /**
+         * Display both the label and the identifier, e.g. {@code Paris (fr-paris-01)}.
+         * Use this when labels may not be unique so that the user can make an unambiguous choice.
+         */
+        LABEL_ID
+    }
 }

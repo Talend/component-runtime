@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,9 @@ public class CreateConnectionServices {
      *
      */
 
-    public final static String CREATE_CONNECTION = "action_CREATE_CONNECTION";
+    public static final String CREATE_CONNECTION = "action_CREATE_CONNECTION";
 
-    public final static String CREATE_CONNECTION_ERROR = "action_CREATE_CONNECTION_ERROR";
+    public static final String CREATE_CONNECTION_ERROR = "action_CREATE_CONNECTION_ERROR";
 
     /**
      * Create Connection action

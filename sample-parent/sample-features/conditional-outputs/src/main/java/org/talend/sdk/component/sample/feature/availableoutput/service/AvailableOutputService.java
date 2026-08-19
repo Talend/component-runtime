@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class AvailableOutputService implements Serializable {
     public static final String THIRD_FLOW_NAME2 = "third-2";
 
     @AvailableOutputFlows("output-flow1")
-    public List<String> getAvailableFlows(final @Option("config") Configuration config) {
+    public List<String> getAvailableFlows(@Option("config") final Configuration config) {
         List<String> flows = new ArrayList<>();
         if (config.isShowSecond()) {
             flows.add(SECOND_FLOW_NAME);
@@ -49,7 +49,7 @@ public class AvailableOutputService implements Serializable {
     }
 
     @AvailableOutputFlows("output-flow2")
-    public List<String> getAvailableFlows2(final @Option("config") ConfigurationTwo config) {
+    public List<String> getAvailableFlows2(@Option("config") final ConfigurationTwo config) {
         List<String> flows = new ArrayList<>();
         if (config.isShowSecond2()) {
             flows.add(SECOND_FLOW_NAME2);

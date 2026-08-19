@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package org.talend.sdk.component.server.test.custom;
-
-import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,7 +51,7 @@ public class CustomService implements Serializable {
                                         .of("i.m.a.virtual.configuration.entry",
                                                 "i.m.another.virtual.configuration.entry")
                                         .map(key -> new SuggestionValues.Item(key, configuration.get(key))))
-                        .collect(toList()));
+                        .toList());
     }
 
     @Action("unknownException")

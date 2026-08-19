@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class ProducerFinderImpl implements ProducerFinder {
     @Override
     public ProducerFinder init(final String plugin, final Object builder, final Function<Object, Record> converter) {
         this.plugin = plugin;
-        mapperFinder = ComponentInstantiator.Builder.class.cast(builder);
+        mapperFinder = (ComponentInstantiator.Builder) builder;
         recordConverter = converter;
         return this;
     }

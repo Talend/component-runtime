@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,7 @@ public class AvroEntryBuilder extends SchemaImpl.EntryImpl.BuilderImpl {
 
     @Override
     public Schema.Entry.Builder withElementSchema(final Schema schema) {
-        if (schema instanceof AvroSchema) {
-            final AvroSchema innerSchema = (AvroSchema) schema;
+        if (schema instanceof AvroSchema innerSchema) {
             AvroSchema avroSchema = this.authorizeNull(innerSchema);
             return super.withElementSchema(avroSchema);
         }

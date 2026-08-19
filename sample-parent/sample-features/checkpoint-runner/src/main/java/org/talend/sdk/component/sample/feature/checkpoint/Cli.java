@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -166,7 +166,7 @@ public final class Cli {
             final Mapper mpr = manager.findMapper(family, mapper, 1, configuration)
                     .orElseThrow(() -> new IllegalStateException(
                             String.format("No mapper found for: %s/%s.", family, manager)));
-            final InputImpl input = InputImpl.class.cast(mpr.create());
+            final InputImpl input = (InputImpl) mpr.create();
             Object data;
             // run lifecycle
             input.start(callback);

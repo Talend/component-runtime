@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,11 +36,10 @@ public class InMemCollector implements Serializable {
 
     public static Collection<JsonObject> getShadedOutputs(final ClassLoader loader, final String location) {
         try {
-            return Collection.class
-                    .cast(loader
-                            .loadClass("org.talend.test.generated." + location + ".InMemCollector")
-                            .getField("OUTPUTS")
-                            .get(null));
+            return (Collection) loader
+                    .loadClass("org.talend.test.generated." + location + ".InMemCollector")
+                    .getField("OUTPUTS")
+                    .get(null);
         } catch (final Exception e) {
             throw new IllegalStateException(e);
         }

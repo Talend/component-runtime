@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -350,8 +350,20 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
 
                     out.putNextEntry(new JarEntry("TALEND-INF/documentation.adoc"));
                     out
-                            .write(("== input\n\ndesc\n\n=== Configuration\n\nSomething1\n\n"
-                                    + "== output\n\n=== Configuration\n\nSomething else")
+                            .write(("""
+                                    == input
+
+                                    desc
+
+                                    === Configuration
+
+                                    Something1
+
+                                    == output
+
+                                    === Configuration
+
+                                    Something else""")
                                     .getBytes(StandardCharsets.UTF_8));
                     out.closeEntry();
                 } catch (final IOException e) {

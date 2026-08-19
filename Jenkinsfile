@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,16 +35,15 @@ final def jiraCredentials = usernamePassword(
     passwordVariable: 'JIRA_PASS')
 final def gitCredentials = usernamePassword(
     credentialsId: 'github-credentials',
-    usernameVariable: 'GITHUB_USER',
-    passwordVariable: 'GITHUB_PASS')
+    usernameVariable: 'GITHUB_LOGIN',
+    passwordVariable: 'GITHUB_TOKEN')
 final def dockerCredentials = usernamePassword(
     credentialsId: 'artifactory-datapwn-credentials',
     usernameVariable: 'DOCKER_USER',
     passwordVariable: 'DOCKER_PASS')
-final def sonarCredentials = usernamePassword(
-    credentialsId: 'sonar-credentials',
-    usernameVariable: 'SONAR_LOGIN',
-    passwordVariable: 'SONAR_PASSWORD')
+final def sonarToken = string(
+    credentialsId: 'sonar-credentials-token',
+    variable: 'SONAR_TOKEN')
 final def keyImportCredentials = usernamePassword(
     credentialsId: 'component-runtime-import-key-credentials',
     usernameVariable: 'KEY_USER',
@@ -82,12 +81,13 @@ Boolean devBranch_dockerPush = false
 
 String skipOptions = "-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
 String deployOptions = "$skipOptions -Possrh -Prelease -Pgpg2 -Denforcer.skip=true"
+String nexusDeployOptions = "$skipOptions --activate-profiles private_repository -Denforcer.skip=true"
 
 
 pipeline {
   libraries {
-    lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
-    lib("tqa-e2e-tests-tool@main_ttp2024")  // https://github.com/Talend/tqa-e2e-testing-tool
+    lib("connectors-lib@1.2.0") // https://github.com/Talend/tdi-jenkins-shared-libraries
+    lib("tqa-e2e-tests-tool@2.6.7-ttp2")  // https://github.com/Talend/tqa-e2e-testing-tool
   }
   agent {
     kubernetes {
@@ -159,7 +159,7 @@ pipeline {
         defaultValue: false,
         description: '''
             Force DOCKER push stage for development branches. No effect on master and maintenance.
-            INFO: master/maintenance and dev branches are deploying on <artifactory.datapwn.com>''')
+            INFO: master/maintenance and dev branches deploy artefacts on <artifactory.datapwn.com>''')
     choice(
         name: 'DOCKER_CHOICE',
         choices: ['component-server',
@@ -217,14 +217,14 @@ pipeline {
     booleanParam(
         name: 'TRIVY_SCAN',
         defaultValue: !isStdBranch,
-         description: '''
+        description: '''
             This is for trivy scan, by default this checkbox is false on master or maintenance branch.
             It will generate the trivy report on Jenkins, the report name is `CVE Trivy Vulnerability Report`
             ''')
     string(
-         name: 'PACKAGE_FILTER_NAME',
-         defaultValue: "",
-         description: '''
+        name: 'PACKAGE_FILTER_NAME',
+        defaultValue: "",
+        description: '''
             This input box is used to filter the results of the `mvn dependency:tree` command.
             This input box only works when TRIVY_SCAN checkbox is true.
             By entering the package name, you can find out which components are affected and thus the scope of the test.
@@ -240,6 +240,25 @@ pipeline {
         name: 'JENKINS_DEBUG',
         defaultValue: false,
         description: 'Add an extra step to the pipeline allowing to keep the pod alive for debug purposes.')
+    booleanParam(
+        name: 'NO_QUALIFIER',
+        defaultValue: false,
+        description: '''
+            DEBUG ONLY - do not use on a branch that others rely on.
+            Skips the version qualifier and overwrites the branch name mechanism to run as if this were master branch,
+            so you can test Jenkins pipeline changes (e.g. the Maven deploy stages) end to end from a dev branch.
+            WARNING: the resulting artifact uses the exact same (unqualified) SNAPSHOT
+            version as master. If this build deploys, it WILL OVERWRITE the artifacts
+            currently published by the master branch build on both the internal Nexus
+            and Sonatype/OSSRH repositories. If you do it, be sure that your branch is up to date with master.
+            Only to test Jenkins job evolution, never for real development work.''')
+    booleanParam(
+        name: 'NO_SONATYPE',
+        defaultValue: false,
+        description: '''
+            DEBUG ONLY - skips the Sonatype/OSSRH deploy stage entirely, whatever the branch.
+            Use this to test the pipeline faster when the slow/unreliable Sonatype deploy
+            is not what you want to validate (e.g. only testing the internal Nexus deploy stage).''')
   }
 
   stages {
@@ -251,7 +270,7 @@ pipeline {
         ///////////////////////////////////////////
         script {
           withCredentials([gitCredentials]) {
-            sh """ bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}" """
+            GitController.gitLogin()
           }
           withCredentials([dockerCredentials]) {
             sh """ bash .jenkins/scripts/docker_login.sh "${ARTIFACTORY_REGISTRY}" "\${DOCKER_USER}" "\${DOCKER_PASS}" """
@@ -265,39 +284,30 @@ pipeline {
         // edit mvn and java version
         ///////////////////////////////////////////
         script {
-          echo "edit asdf tool version with version from jenkins param"
-
-          if (params.JAVA_VERSION != 'from .tool-versions') {
-            asdfTools.edit_version_in_file("$env.WORKSPACE/.tool-versions", 'java', params.JAVA_VERSION)
-          }
-          jenkinsJobTools.job_description_append("Use java version:  $params.JAVA_VERSION  ")
-
-          if (params.MAVEN_VERSION != 'from .tool-versions') {
-            asdfTools.edit_version_in_file("$env.WORKSPACE/.tool-versions", 'maven', params.MAVEN_VERSION)
-          }
-          jenkinsJobTools.job_description_append("Use maven version:  $params.MAVEN_VERSION  ")
-
-          println "asdf install the content of repository .tool-versions'\n"
-          sh 'bash .jenkins/scripts/asdf_install.sh'
+          String javaVersion = JenkinsPodConfig.asdfSetVersion("$env.WORKSPACE/.tool-versions", 'java', params.JAVA_VERSION)
+          String mavenVersion = JenkinsPodConfig.asdfSetVersion("$env.WORKSPACE/.tool-versions", 'maven', params.MAVEN_VERSION)
+          JenkinsStatusController.jobDescriptionAppend("Use java $javaVersion with maven  $mavenVersion  ")
+          JenkinsPodConfig.asdfInstall()
         }
 
         ///////////////////////////////////////////
         // Variables init
         ///////////////////////////////////////////
         script {
-          stdBranch_buildOnly = isStdBranch && params.ACTION != 'RELEASE'
+          stdBranch_buildOnly = (isStdBranch || params.NO_QUALIFIER) && params.ACTION != 'RELEASE'
           devBranch_mavenDeploy = !isStdBranch && params.MAVEN_DEPLOY
           devBranch_dockerPush = !isStdBranch && params.DOCKER_PUSH
 
-          needQualify = devBranch_mavenDeploy || devBranch_dockerPush
+          // NO_QUALIFIER forces the same (unqualified) version as master, see param warning
+          needQualify = (devBranch_mavenDeploy || devBranch_dockerPush) && !params.NO_QUALIFIER
 
           if (needQualify) {
             // Qualified version have to be released on talend_repository
             // Overwrite the deployOptions
-            deployOptions = "$skipOptions --activate-profiles private_repository -Denforcer.skip=true"
+            deployOptions = nexusDeployOptions
           }
 
-          // hack to ovewrite the skip of studio modules that we can't deploy in release mode into Sonatype repo
+          // hack to overwrite the skip of studio modules that we can't deploy in release mode into Sonatype repo
           // assume that we don't use this Jenkinsfile for release anymore
           deployOptions = deployOptions.replace("-Prelease", "-Psnapshot")
 
@@ -321,16 +331,14 @@ pipeline {
               - We do not want to deploy on dev branch
               """.stripIndent()
             finalVersion = pomVersion
-          }
-          else {
+          } else {
             branch_user = ""
             branch_ticket = ""
             branch_description = ""
             if (params.VERSION_QUALIFIER != ("DEFAULT")) {
               // If the qualifier is given, use it
               println """No need to add qualifier, use the given one: "$params.VERSION_QUALIFIER" """
-            }
-            else {
+            } else {
               println "Validate the branch name"
 
               (branch_user,
@@ -387,7 +395,7 @@ pipeline {
             deploy_info = deploy_info + '+DOCKER'
           }
 
-          jenkinsJobTools.job_name_creation("$params.ACTION" + deploy_info)
+          JenkinsStatusController.jobNameCreation("$params.ACTION" + deploy_info)
 
           // updating build description
           String description = """
@@ -395,7 +403,10 @@ pipeline {
                       Disable Sonar: $params.DISABLE_SONAR  
                       Debug: $params.JENKINS_DEBUG  
                       Extra build args: $extraBuildParams  """.stripIndent()
-          jenkinsJobTools.job_description_append(description)
+          JenkinsStatusController.jobDescriptionAppend(description)
+          if (params.NO_QUALIFIER) {
+            JenkinsStatusController.jobDescriptionAppend("⚠️ NO_QUALIFIER debug mode: unqualified version, deploy stages forced as on master/maintenance  ")
+          }
         }
       }
       post {
@@ -458,40 +469,73 @@ pipeline {
         }
       }
     }
-    stage('Maven deploy') {
+    stage('Maven deploy - Nexus') {
+      // Deploy to internal Nexus first on master/maintenance builds so that
+      // connectors-se Jenkins agents (which cannot reach central.sonatype.com)
+      // can resolve SNAPSHOT dependencies as soon as possible, independent of
+      // whether the Sonatype deploy stage below is slow or times out.
       when {
-        anyOf {
-          expression { stdBranch_buildOnly }
-          expression { devBranch_mavenDeploy }
+        expression { stdBranch_buildOnly }
+      }
+      steps {
+        withCredentials([nexusCredentials]) {
+          sh """\
+            #!/usr/bin/env bash
+            set -xe
+            mvn deploy ${nexusDeployOptions} \
+                        ${extraBuildParams} \
+                        --settings .jenkins/settings.xml
+            """.stripIndent()
+        }
+      }
+    }
+    stage('Maven deploy - Sonatype') {
+      // Sonatype/OSSRH deploy has a history of being slow/unreliable and can
+      // otherwise consume the whole pipeline timeout; bound it to its own
+      // timeout and degrade to UNSTABLE instead of failing the build outright
+      // (the Nexus deploy stage above already unblocks downstream consumers).
+      when {
+        allOf {
+          expression { !params.NO_SONATYPE }
+          anyOf {
+            expression { stdBranch_buildOnly }
+            expression { devBranch_mavenDeploy }
+          }
         }
       }
       steps {
         script {
-          withCredentials([ossrhCredentials,
-                           gpgCredentials,
-                           nexusCredentials]) {
-            sh """\
-              #!/usr/bin/env bash
-              set -xe
-              bash mvn deploy $deployOptions \
-                              $extraBuildParams \
-                              --settings .jenkins/settings.xml
-              """.stripIndent()
+          catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+            timeout(time: 60, unit: 'MINUTES') {
+              withCredentials([ossrhCredentials,
+                               gpgCredentials,
+                               nexusCredentials]) {
+                sh """\
+                  #!/usr/bin/env bash
+                  set -xe
+                  bash mvn deploy $deployOptions \
+                                  $extraBuildParams \
+                                  --settings .jenkins/settings.xml
+                  """.stripIndent()
+              }
+            }
           }
         }
         // Add description to job
         script {
           def repo
+          String nexusSnapshotUrl = 'https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/org/talend/sdk/component'
           if (devBranch_mavenDeploy) {
-            repo = ['artifacts-zl.talend.com',
-                    'https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/org/talend/sdk/component']
-          }
-          else {
+            repo = ['artifacts-zl.talend.com', nexusSnapshotUrl]
+          } else {
             repo = ['oss.sonatype.org',
                     'https://central.sonatype.com/repository/maven-snapshots/org/talend/sdk/component/']
           }
 
-          jenkinsJobTools.job_description_append("Maven artefact deployed as ${finalVersion} on [${repo[0]}](${repo[1]})  ")
+          JenkinsStatusController.jobDescriptionAppend("Maven artefact deployed as ${finalVersion} on [${repo[0]}](${repo[1]})  ")
+          if (stdBranch_buildOnly) {
+            JenkinsStatusController.jobDescriptionAppend("Maven artefact also deployed as ${finalVersion} on [artifacts-zl.talend.com](${nexusSnapshotUrl})  ")
+          }
         }
       }
     }
@@ -509,37 +553,34 @@ pipeline {
             String images_options = ''
             if (isStdBranch) {
               // Build and push all images
-              jenkinsJobTools.job_description_append("Docker images deployed: component-server, component-starter-server and remote-engine-customizer  ")
-            }
-            else {
+              JenkinsStatusController.jobDescriptionAppend("Docker images deployed: component-server, component-starter-server and remote-engine-customizer  ")
+            } else {
               String image_list
               if (params.DOCKER_CHOICE == 'All') {
                 images_options = 'false'
-              }
-              else {
+              } else {
                 images_options = 'false ' + params.DOCKER_CHOICE
               }
 
               if (params.DOCKER_CHOICE == 'All') {
-                jenkinsJobTools.job_description_append("All docker images deployed  ")
+                JenkinsStatusController.jobDescriptionAppend("All docker images deployed  ")
 
-                jenkinsJobTools.job_description_append("As ${finalVersion}${buildTimestamp} on " +
-                                                       "[artifactory.datapwn.com]" +
-                                                       "($artifactoryAddr/$artifactoryPath)  ")
-                jenkinsJobTools.job_description_append("docker pull $artifactoryAddr/$artifactoryPath" +
-                                                       "/component-server:${finalVersion}${buildTimestamp}  ")
-                jenkinsJobTools.job_description_append("docker pull $artifactoryAddr/$artifactoryPath" +
-                                                       "/component-starter-server:${finalVersion}${buildTimestamp}  ")
-                jenkinsJobTools.job_description_append("docker pull $artifactoryAddr/$artifactoryPath" +
-                                                       "/remote-engine-customize:${finalVersion}${buildTimestamp}  ")
+                JenkinsStatusController.jobDescriptionAppend("As ${finalVersion}${buildTimestamp} on " +
+                                                                 "[artifactory.datapwn.com]" +
+                                                                 "($artifactoryAddr/$artifactoryPath)  ")
+                JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath" +
+                                                                 "/component-server:${finalVersion}${buildTimestamp}  ")
+                JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath" +
+                                                                 "/component-starter-server:${finalVersion}${buildTimestamp}  ")
+                JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath" +
+                                                                 "/remote-engine-customize:${finalVersion}${buildTimestamp}  ")
 
-              }
-              else {
-                jenkinsJobTools.job_description_append("Docker images deployed: $params.DOCKER_CHOICE  ")
-                jenkinsJobTools.job_description_append("As ${finalVersion}${buildTimestamp} on " +
-                                                       "[artifactory.datapwn.com]($artifactoryAddr/$artifactoryPath)  ")
-                jenkinsJobTools.job_description_append("docker pull $artifactoryAddr/$artifactoryPath/$params.DOCKER_CHOICE:" +
-                                                       "${finalVersion}${buildTimestamp}  ")
+              } else {
+                JenkinsStatusController.jobDescriptionAppend("Docker images deployed: $params.DOCKER_CHOICE  ")
+                JenkinsStatusController.jobDescriptionAppend("As ${finalVersion}${buildTimestamp} on " +
+                                                                 "[artifactory.datapwn.com]($artifactoryAddr/$artifactoryPath)  ")
+                JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath/$params.DOCKER_CHOICE:" +
+                                                                 "${finalVersion}${buildTimestamp}  ")
 
               }
 
@@ -631,7 +672,7 @@ pipeline {
                   allowMissing         : true,
                   alwaysLinkToLastBuild: false,
                   keepAll              : true,
-                  reportDir            : 'target/site/',
+                  reportDir            : 'target/reports/',
                   reportFiles          : 'dependency-updates-report.html',
                   reportName           : "outdated::dependency"
               ])
@@ -640,7 +681,7 @@ pipeline {
                   allowMissing         : true,
                   alwaysLinkToLastBuild: false,
                   keepAll              : true,
-                  reportDir            : 'target/site/',
+                  reportDir            : 'target/reports/',
                   reportFiles          : 'plugin-updates-report.html',
                   reportName           : "outdated::plugins"
               ])
@@ -654,28 +695,15 @@ pipeline {
       steps {
         script {
           withCredentials([nexusCredentials,
-                           sonarCredentials,
+                           sonarToken,
                            gitCredentials]) {
 
-            if (pull_request_id != null) {
-
-              println 'Run analysis for PR'
-              sh """
-                            bash .jenkins/scripts/mvn_sonar_pr.sh \
-                                '${branch_name}' \
-                                '${env.CHANGE_TARGET}' \
-                                '${pull_request_id}' \
-                                ${extraBuildParams}
-                            """
-            }
-            else {
-              echo 'Run analysis for branch'
-              sh """
-                            bash .jenkins/scripts/mvn_sonar_branch.sh \
-                                '${branch_name}' \
-                                ${extraBuildParams}
-                            """
-            }
+            SonarController.runSonar(branch_name,
+                                     env.CHANGE_TARGET,
+                                     pull_request_id,
+                                     extraBuildParams,
+                                     'jacoco.xml', // jacocoGlob
+                                     false) // useCache false https://qlik-dev.atlassian.net/browse/QTDI-234
           }
         }
       }
@@ -800,7 +828,7 @@ pipeline {
 
       script {
         if (params.JENKINS_DEBUG) {
-          jenkinsJobTools.jenkinsBreakpoint()
+          JenkinsController.jenkinsBreakpoint()
         }
       }
     }
@@ -857,12 +885,10 @@ private static String add_qualifier_to_version(String version, String ticket, St
   if (user_qualifier.contains("DEFAULT")) {
     if (version.contains("-SNAPSHOT")) {
       new_version = version.replace("-SNAPSHOT", "-$ticket-SNAPSHOT" as String)
-    }
-    else {
+    } else {
       new_version = "$version-$ticket".toString()
     }
-  }
-  else {
+  } else {
     new_version = version.replace("-SNAPSHOT", "-$user_qualifier-SNAPSHOT" as String)
   }
   return new_version

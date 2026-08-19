@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,14 +148,14 @@ public class VisibilityService {
                         return "0".equals(expected);
                     }
                     final int expectedSize = Integer.parseInt(expected);
-                    if (Collection.class.isInstance(actual)) {
-                        return expectedSize == Collection.class.cast(actual).size();
+                    if (actual instanceof Collection collection1) {
+                        return expectedSize == collection1.size();
                     }
                     if (actual.getClass().isArray()) {
                         return expectedSize == Array.getLength(actual);
                     }
-                    if (String.class.isInstance(actual)) {
-                        return expectedSize == String.class.cast(actual).length();
+                    if (actual instanceof String s) {
+                        return expectedSize == s.length();
                     }
                     return false;
                 default:
@@ -185,13 +185,13 @@ public class VisibilityService {
                         if (actual == null) {
                             return false;
                         }
-                        if (CharSequence.class.isInstance(actual)) {
+                        if (actual instanceof CharSequence) {
                             return ofNullable(preprocessor.apply(TO_STRING.apply(actual)))
                                     .map(it -> it.contains(expected))
                                     .orElse(false);
                         }
-                        if (Collection.class.isInstance(actual)) {
-                            final Collection<?> collection = Collection.class.cast(actual);
+                        if (actual instanceof Collection collectionClass) {
+                            final Collection<?> collection = collectionClass;
                             return collection.stream().map(preprocessor).anyMatch(it -> it.contains(expected));
                         }
                         if (actual.getClass().isArray()) {
@@ -218,15 +218,15 @@ public class VisibilityService {
         private Object mapValue(final JsonValue value) {
             switch (value.getValueType()) {
                 case ARRAY:
-                    return value.asJsonArray().stream().map(this::mapValue).collect(toList());
+                    return value.asJsonArray().stream().map(this::mapValue).toList();
                 case STRING:
-                    return JsonString.class.cast(value).getString();
+                    return ((JsonString) value).getString();
                 case TRUE:
                     return true;
                 case FALSE:
                     return false;
                 case NUMBER:
-                    return JsonNumber.class.cast(value).doubleValue();
+                    return ((JsonNumber) value).doubleValue();
                 case NULL:
                     return null;
                 case OBJECT:

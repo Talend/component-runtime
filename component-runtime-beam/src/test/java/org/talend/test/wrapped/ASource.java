@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ public class ASource extends BoundedSource<JsonObject> {
     }
 
     private static void assertClassLoader() {
-        assertTrue(ConfigurableClassLoader.class.isInstance(Thread.currentThread().getContextClassLoader()));
+        assertTrue(Thread.currentThread().getContextClassLoader() instanceof ConfigurableClassLoader);
     }
 
     @Data

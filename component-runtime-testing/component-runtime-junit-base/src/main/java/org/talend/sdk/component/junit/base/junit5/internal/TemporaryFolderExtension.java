@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public class TemporaryFolderExtension implements BeforeAllCallback, AfterAllCall
 
     @Override
     public void afterAll(final ExtensionContext context) {
-        TemporaryFolder.class.cast(context.getStore(NAMESPACE).get(TemporaryFolder.class.getName())).delete();
+        ((TemporaryFolder) context.getStore(NAMESPACE).get(TemporaryFolder.class.getName())).delete();
     }
 
     @Override

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.talend.sdk.component.starter.server.service.rrd;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static java.util.stream.Collectors.toList;
 import static org.rrd4j.ConsolFun.TOTAL;
 
 import java.awt.Color;
@@ -103,7 +102,7 @@ public class RRDStorage {
                 .stream()
                 .map(this::normalizeFacetName)
                 .sorted()
-                .collect(toList());
+                .toList();
 
         final int syncPeriod = config.getSyncPeriod();
         final CompletableFuture<RrdDb> rrdFuture = new CompletableFuture<>();

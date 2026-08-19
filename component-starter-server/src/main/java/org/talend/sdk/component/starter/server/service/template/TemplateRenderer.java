@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,8 +47,8 @@ public class TemplateRenderer {
                     final Wrapper wrapper = super.find(name, scopes);
                     return s -> {
                         final Object call = wrapper.call(s);
-                        if (Collection.class.isInstance(call) && !DecoratedCollection.class.isInstance(call)) {
-                            return new DecoratedCollection<>(Collection.class.cast(call));
+                        if (call instanceof Collection collection && !(call instanceof DecoratedCollection)) {
+                            return new DecoratedCollection<>(collection);
                         }
                         return call;
                     };

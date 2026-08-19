@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package org.talend.test;
-
-import static java.util.stream.Collectors.toList;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -68,7 +66,7 @@ public class CheckpointInput implements Serializable {
 
     @PostConstruct
     public void init() {
-        data = IntStream.range(0, 10).boxed().collect(toList());
+        data = IntStream.range(0, 10).boxed().toList();
         if (configuration.checkpoint == null) {
             log.info("[resume] No valid checkpoint configuration found, using start of dataset.");
             bookmark = 0;

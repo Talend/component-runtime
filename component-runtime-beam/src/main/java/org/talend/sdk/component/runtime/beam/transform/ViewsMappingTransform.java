@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,7 +98,7 @@ public class ViewsMappingTransform extends PTransform<PCollection<Record>, PColl
                             .withElementSchema(element.getSchema())
                             .build(), singletonList(element));
             views.forEach((n, v) -> {
-                final Record sideInput = Record.class.cast(context.sideInput(v));
+                final Record sideInput = (Record) context.sideInput(v);
                 builder
                         .withArray(factory
                                 .newEntryBuilder()

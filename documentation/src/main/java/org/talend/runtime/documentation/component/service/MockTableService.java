@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.talend.runtime.documentation.component.service;
 
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import static org.talend.runtime.documentation.component.configuration.BasicAuthConfig.NAME;
 import static org.talend.runtime.documentation.component.service.http.TableApiClient.API_BASE;
 import static org.talend.runtime.documentation.component.service.http.TableApiClient.API_VERSION;
@@ -61,9 +60,8 @@ public class MockTableService {
         try {
             client.healthCheck(dt.getAuthorizationHeader());
         } catch (Exception e) {
-            if (HttpException.class.isInstance(e)) {
-                final HttpException ex = HttpException.class.cast(e);
-                final JsonObject jError = JsonObject.class.cast(ex.getResponse().error(JsonObject.class));
+            if (e instanceof HttpException ex) {
+                final JsonObject jError = (JsonObject) ex.getResponse().error(JsonObject.class);
                 String errorMessage = null;
                 if (jError != null && jError.containsKey("error")) {
                     final JsonObject error = jError.get("error").asJsonObject();
@@ -99,7 +97,7 @@ public class MockTableService {
         return new Values(Stream
                 .of(QueryBuilder.Fields.values())
                 .map(f -> new Values.Item(f.name(), f.name()))
-                .collect(toList()));
+                .toList());
     }
 
     public interface Client extends HttpClient {
@@ -122,7 +120,7 @@ public class MockTableService {
             return new Schema(emptyList());
         }
 
-        return new Schema(record.keySet().stream().map(this::buildStringEntry).collect(toList()));
+        return new Schema(record.keySet().stream().map(this::buildStringEntry).toList());
     }
 
     private org.talend.sdk.component.api.record.Schema.Entry buildStringEntry(final String name) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.beam.customizer;
 
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -115,7 +114,7 @@ enum Indices {
                         .lines()
                         .map(String::trim)
                         .filter(it -> !it.startsWith("#") && !it.isEmpty())
-                        .collect(toList())).stream();
+                        .toList()).stream();
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ public class JUnit4HttpApiTest {
     @Test
     public void noSimulationFile() throws Exception {
         final URL url = new URL("http://foo.bar.not.existing.talend.com/component/test?api=true");
-        final HttpURLConnection connection = HttpURLConnection.class.cast(url.openConnection());
+        final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setConnectTimeout(30000);
         connection.setReadTimeout(20000);
         connection.setRequestMethod("GET");
@@ -99,7 +99,7 @@ public class JUnit4HttpApiTest {
     private Response execute(final String method, final String uri, final String payload,
             final Consumer<HttpURLConnection> customizer) throws Exception {
         final URL url = new URL(uri);
-        final HttpURLConnection connection = HttpURLConnection.class.cast(url.openConnection());
+        final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setConnectTimeout(30000);
         connection.setReadTimeout(20000);
         connection.setRequestMethod(method);

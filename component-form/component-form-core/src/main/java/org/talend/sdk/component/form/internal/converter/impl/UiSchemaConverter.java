@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.talend.sdk.component.form.internal.converter.impl;
 
 import static java.util.Collections.singletonMap;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.Collection;
@@ -115,7 +114,7 @@ public class UiSchemaConverter implements PropertyConverter {
                                             .stream()
                                             .filter(prop -> prop.getPath().startsWith(nestedPrefix)
                                                     && prop.getPath().indexOf('.', from) < 0)
-                                            .collect(toList());
+                                            .toList();
                                     if (!nested.isEmpty()) {
                                         return new ObjectArrayWidgetConverter(schemas, properties, actions, family,
                                                 client, gridLayoutFilter, jsonSchema, lang, customConverters, metadata,

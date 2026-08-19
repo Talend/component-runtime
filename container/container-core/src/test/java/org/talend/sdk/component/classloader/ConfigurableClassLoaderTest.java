@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package org.talend.sdk.component.classloader;
 import static java.lang.ClassLoader.getSystemClassLoader;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -181,7 +181,7 @@ class ConfigurableClassLoaderTest {
                 final Object jarLocation =
                         aClass.getMethod("jarLocation", Class.class).invoke(null, ConfigurableClassLoaderTest.class);
                 assertNotNull(jarLocation);
-                assertTrue(File.class.isInstance(jarLocation));
+                assertTrue(jarLocation instanceof File);
             } catch (final Exception e) {
                 fail("JarLocation should be loaded from the nested jar");
             }
@@ -271,7 +271,7 @@ class ConfigurableClassLoaderTest {
 
             final List<XMLOutputFactory> factories = StreamSupport
                     .stream(ServiceLoader.load(XMLOutputFactory.class, loader).spliterator(), false)
-                    .collect(toList());
+                    .toList();
             assertEquals(1, factories.size());
             final Class<? extends XMLOutputFactory> firstClass = factories.iterator().next().getClass();
             assertEquals("com.ctc.wstx.stax.WstxOutputFactory", firstClass.getName());
@@ -296,7 +296,7 @@ class ConfigurableClassLoaderTest {
             // this is in the (test) classloader but not available to the classloader
             final List<TestEngine> junitEngines = StreamSupport
                     .stream(ServiceLoader.load(TestEngine.class, loader).spliterator(), false)
-                    .collect(toList());
+                    .toList();
             assertTrue(junitEngines.isEmpty());
         }
     }
@@ -341,6 +341,36 @@ class ConfigurableClassLoaderTest {
             assertEquals(asList("org/apache/ziplock/JarLocation", "com/ctc/wstx/stax"), loader.getCacheableClasses());
         } catch (final IOException | ClassNotFoundException e) {
             fail(e.getMessage(), e);
+        }
+    }
+
+    @Test
+    void parentResourceFiltering(@TempDir final File temporaryFolder) throws IOException {
+        final File parentJar = new File(temporaryFolder, "multipleResourceFiltering.jar");
+        temporaryFolder.mkdirs();
+        try (final JarOutputStream outputStream = new JarOutputStream(new FileOutputStream(parentJar))) {
+            outputStream.putNextEntry(new JarEntry("META-INF/services/allowed.Service"));
+            outputStream.write("impl.AllowedService".getBytes(StandardCharsets.UTF_8));
+            outputStream.closeEntry();
+
+            outputStream.putNextEntry(new JarEntry("META-INF/services/filtered.Service"));
+            outputStream.write("impl.FilteredService".getBytes(StandardCharsets.UTF_8));
+            outputStream.closeEntry();
+        }
+
+        try (final URLClassLoader parent =
+                new URLClassLoader(new URL[] { parentJar.toURI().toURL() },
+                        Thread.currentThread().getContextClassLoader());
+                final ConfigurableClassLoader loader =
+                        new ConfigurableClassLoader("", new URL[0], parent,
+                                name -> true, name -> false, new String[0], new String[0],
+                                name -> name.contains("allowed"))) {
+            // Allowed service should be found via getResources
+            final Enumeration<URL> allowedResources = loader.getResources("META-INF/services/allowed.Service");
+            assertTrue(allowedResources.hasMoreElements());
+            // Filtered service is NOT accessible via getResources (filtered out by resourcesFilter)
+            final Enumeration<URL> filteredResources = loader.getResources("META-INF/services/filtered.Service");
+            assertFalse(filteredResources.hasMoreElements());
         }
     }
 

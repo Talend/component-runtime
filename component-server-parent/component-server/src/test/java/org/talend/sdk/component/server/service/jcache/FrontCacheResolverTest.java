@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,7 +60,7 @@ class FrontCacheResolverTest {
     }
 
     @Test
-    void clearCaches() throws JsonProcessingException {
+    void clearCaches() {
         final int connectors = service.getConnectors().getPluginsList().size();
 
         // Initialize 2 caches

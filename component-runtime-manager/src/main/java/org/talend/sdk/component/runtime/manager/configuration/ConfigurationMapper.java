@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.lang.reflect.Field;
@@ -57,8 +56,8 @@ public class ConfigurationMapper {
                 case OBJECT:
                     return map(param.getNestedParameters(), value, indexes);
                 case ARRAY:
-                    final Collection<Object> values = Collection.class.isInstance(value) ? Collection.class.cast(value)
-                            : /* array */asList(Object[].class.cast(value));
+                    final Collection<Object> values = value instanceof Collection collection ? collection
+                            : /* array */asList((Object[]) value);
                     final int arrayIndex = indexes.keySet().size();
                     final AtomicInteger valuesIndex = new AtomicInteger(0);
                     final Map<String, String> config = values.stream()
@@ -79,7 +78,7 @@ public class ConfigurationMapper {
                                         param.getNestedParameters()
                                                 .stream()
                                                 .filter(p -> !isPrimitive(p))
-                                                .collect(toList()),
+                                                .toList(),
                                         item, indexes));
                                 return res;
                             })

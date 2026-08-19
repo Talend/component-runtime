@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,13 +96,16 @@ public class ComponentServerConfiguration {
     private Boolean supportsEnvironment;
 
     @Inject
-    @Documentation("A folder available for the server - don't forget to mount it in docker if you are using the "
-            + "image - which accepts subfolders named as component plugin id "
-            + "(generally the artifactId or jar name without the version, ex: jdbc). Each family folder can contain:\n\n"
-            + "- a `user-configuration.properties` file which will be merged with component configuration system "
-            + "(see services). This properties file enables the function `userJar(xxxx)` to replace the jar named `xxxx` "
-            + "by its virtual gav (`groupId:artifactId:version`),\n"
-            + "- a list of jars which will be merged with component family classpath\n")
+    @Documentation("""
+                   A folder available for the server - don't forget to mount it in docker if you are using the \
+                   image - which accepts subfolders named as component plugin id \
+                   (generally the artifactId or jar name without the version, ex: jdbc). Each family folder can contain:
+
+                   - a `user-configuration.properties` file which will be merged with component configuration system \
+                   (see services). This properties file enables the function `userJar(xxxx)` to replace the jar named `xxxx` \
+                   by its virtual gav (`groupId:artifactId:version`),
+                   - a list of jars which will be merged with component family classpath
+                   """)
     @ConfigProperty(name = "talend.component.server.user.extensions.location")
     private Optional<String> userExtensions;
 

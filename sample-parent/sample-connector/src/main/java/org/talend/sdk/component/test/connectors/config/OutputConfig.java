@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import org.talend.sdk.component.api.meta.Documentation;
                 @GridLayout.Row({ "dataset" }) })
 public class OutputConfig implements Serializable {
 
-    public final static int OUTPUT_CONFIG_VERSION = 2;
+    public static final int OUTPUT_CONFIG_VERSION = 2;
 
     @Option
     @Documentation("Doc: default dataset documentation without Internationalization.")

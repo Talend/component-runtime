@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ class PropertiesServiceTest {
                         new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
         final List<SimplePropertyDefinition> props = propertiesService
                 .buildProperties(params, Thread.currentThread().getContextClassLoader(), Locale.ROOT, null)
-                .collect(toList());
+                .toList();
         assertEquals(3, props.size());
 
         final Map<String, String> metadata = props.iterator().next().getMetadata();
@@ -109,7 +109,7 @@ class PropertiesServiceTest {
                                         new BaseParameterEnricher.Context(
                                                 new LocalConfigurationService(emptyList(), "tools"))),
                         Thread.currentThread().getContextClassLoader(), Locale.ROOT, null)
-                .collect(toList());
+                .toList();
         assertEquals("true", props.stream().filter(p -> p.getName().equals("val")).findFirst().get().getDefaultValue());
     }
 
@@ -129,7 +129,7 @@ class PropertiesServiceTest {
         return propertiesService
                 .buildProperties(singletonList(config), getClass().getClassLoader(), Locale.forLanguageTag(locale),
                         null)
-                .collect(toList());
+                .toList();
     }
 
     @Test

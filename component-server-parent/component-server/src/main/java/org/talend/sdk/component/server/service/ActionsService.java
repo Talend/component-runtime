@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.talend.sdk.component.server.service;
 
 import static java.util.Collections.singleton;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.Collection;
@@ -94,8 +93,8 @@ public class ActionsService {
                         familyBundle.actionDisplayName(s.getType(), s.getAction()).orElse(s.getAction()),
                         propertiesService
                                 .buildProperties(s.getParameters().get(), container.getLoader(), locale, null)
-                                .collect(toList())))
-                .collect(toList());
+                                .toList()))
+                .toList();
     }
 
     private Stream<ParameterMeta> toStream(final Collection<ParameterMeta> parameterMetas) {

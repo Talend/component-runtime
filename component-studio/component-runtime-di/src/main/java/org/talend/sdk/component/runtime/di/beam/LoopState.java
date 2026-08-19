@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ public class LoopState implements AutoCloseable {
         if (value == null) {
             return;
         }
-        queue.add(Record.class.isInstance(value) ? Record.class.cast(value) : toRecord(value));
+        queue.add(value instanceof Record record ? record : toRecord(value));
         semaphore.release();
     }
 

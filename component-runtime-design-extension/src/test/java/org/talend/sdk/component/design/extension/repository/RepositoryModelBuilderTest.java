@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static org.apache.xbean.asm9.ClassReader.EXPAND_FRAMES;
 import static org.apache.xbean.asm9.ClassWriter.COMPUTE_FRAMES;
 import static org.apache.ziplock.JarLocation.jarLocation;
@@ -124,7 +123,7 @@ class RepositoryModelBuilderTest {
                         }), new MigrationHandlerFactory(
                                 new ReflectionService(new ParameterModelService(registry), registry)));
         final List<Config> configs =
-                model.getFamilies().stream().flatMap(f -> f.getConfigs().get().stream()).collect(toList());
+                model.getFamilies().stream().flatMap(f -> f.getConfigs().get().stream()).toList();
         assertEquals(1, configs.size());
     }
 

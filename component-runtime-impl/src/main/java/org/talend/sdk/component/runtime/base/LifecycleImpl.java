@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ public class LifecycleImpl extends Named implements Lifecycle {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final LifecycleImpl lifecycle = LifecycleImpl.class.cast(o);
+        final LifecycleImpl lifecycle = (LifecycleImpl) o;
         return Objects.equals(delegate, lifecycle.delegate) && Objects.equals(loader, lifecycle.loader);
     }
 

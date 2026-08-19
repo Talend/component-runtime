@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.server.front.security;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.Collection;
@@ -48,7 +47,7 @@ public class SecurityUtils {
                 .flatMap(s -> flatten(s)
                         .filter(p -> Boolean.parseBoolean(p.getMetadata().getOrDefault(CREDENTIAL, "false"))))
                 .map(m -> m.getPath())
-                .collect(toList());
+                .toList();
 
         return Stream.concat(vault.decrypt(config.entrySet()
                 .stream()
@@ -67,7 +66,7 @@ public class SecurityUtils {
         return flatten(meta)
                 .filter(p -> Boolean.parseBoolean(p.getMetadata().getOrDefault(CREDENTIAL, "false")))
                 .map(m -> m.getPath())
-                .collect(toList());
+                .toList();
     }
 
     private Stream<ParameterMeta> flatten(final ParameterMeta meta) {

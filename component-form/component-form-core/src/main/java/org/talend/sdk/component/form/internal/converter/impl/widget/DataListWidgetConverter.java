@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,7 +90,7 @@ public class DataListWidgetConverter extends AbstractWidgetConverter {
                 return pairs.thenApply(namedValues -> {
                     schema.setTitleMap(namedValues);
                     schema.setRestricted(true);
-                    jsonSchema.setEnumValues(namedValues.stream().map(UiSchema.NameValue::getValue).collect(toList()));
+                    jsonSchema.setEnumValues(namedValues.stream().map(UiSchema.NameValue::getValue).toList());
                     return context;
                 });
             } else {

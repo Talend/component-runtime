@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,12 @@ import org.talend.sdk.component.api.configuration.ui.meta.Ui;
 import org.talend.sdk.component.api.meta.Documentation;
 
 @Ui
-@Documentation("Advanced layout to place properties by row, this is exclusive with `@OptionsOrder`.\n"
-        + "\nNOTE: the logic to handle forms (gridlayout names) is to use the only layout if there is only one defined, "
-        + "else to check if there are `Main` and `Advanced` and if at least `Main` exists, use them, else "
-        + "use all available layouts.")
+@Documentation("""
+               Advanced layout to place properties by row, this is exclusive with `@OptionsOrder`.
+
+               NOTE: the logic to handle forms (gridlayout names) is to use the only layout if there is only one defined, \
+               else to check if there are `Main` and `Advanced` and if at least `Main` exists, use them, else \
+               use all available layouts.""")
 @Target(TYPE)
 @Retention(RUNTIME)
 @Repeatable(GridLayouts.class)

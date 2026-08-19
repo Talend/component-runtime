@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,8 @@ import org.talend.sdk.component.api.service.ActionType;
 @Target(METHOD)
 @Retention(RUNTIME)
 @Documentation("Mark an action works for creating runtime connection, returning a runtime connection object like jdbc connection if database family. "
-        + "Its parameter MUST be a datastore. Datastore is configuration type annotated with @DataStore. "
+        + "Its parameter MUST be a datastore (configuration type annotated with @DataStore) annotated with `@Option`. "
+        + "The `value` parameter of `@Option` must match the runtime class constructor parameter name of the component configuration class. "
         + "The functionality is for the Studio only, studio will use the runtime connection object when use existed connection, and no effect for cloud platform.")
 public @interface CreateConnection {
 

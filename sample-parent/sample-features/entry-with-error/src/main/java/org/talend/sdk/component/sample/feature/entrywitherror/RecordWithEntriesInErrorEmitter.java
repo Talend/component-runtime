@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ public class RecordWithEntriesInErrorEmitter implements Serializable {
 
     public RecordWithEntriesInErrorEmitter(
             final RecordBuilderFactory recordBuilderFactory,
-            final @Option("configuration") Config config) {
+            @Option("configuration") final Config config) {
         this.recordBuilderFactory = recordBuilderFactory;
         this.config = config;
     }

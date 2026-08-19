@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import lombok.AllArgsConstructor;
 @Version(migrationHandler = AbstractMigrationHandler.DataSetHandler.class)
 public class MigrationDataSet implements Serializable {
 
-    public final static int Version = -1;
+    public static final int Version = -1;
 
     @Option
     private final MigrationDataStore dataStore;

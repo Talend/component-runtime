@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.talend.sdk.component.junit5;
 
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -140,7 +139,7 @@ class ComponentExtensionTest {
         latch.countDown();
 
         final Stream<String> collect = handler.collect(String.class, mapper, 2, 2);
-        final List<String> threads = collect.collect(toList());
+        final List<String> threads = collect.toList();
         assertEquals(2, threads.size(), threads.toString());
         threads.forEach(n -> Assertions.assertTrue(n.startsWith("ComponentExtension-pool-"), n));
     }

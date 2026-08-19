@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,6 +88,7 @@ public class ApiDemoEndpoints {
 
     public static final String VALUE_ACCESS_CONTROL_ALLOW_METHODS = "GET, POST, DELETE, PUT, PATCH, OPTIONS";
 
+    @SuppressWarnings("java:S1068")
     private final byte[] ENVIRONMENT;
 
     private final Object ACTION_INDEX;
@@ -100,6 +101,7 @@ public class ApiDemoEndpoints {
 
     private final Object COMPONENT_DEPENDENCIES;
 
+    @SuppressWarnings("java:S1068")
     private final Object COMPONENT_DEPENDENCY;
 
     private final Object COMPONENT_ICON;

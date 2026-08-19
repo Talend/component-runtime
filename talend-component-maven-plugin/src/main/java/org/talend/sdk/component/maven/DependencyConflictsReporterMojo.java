@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,7 +92,7 @@ public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
                             blacklist = resolver
                                     .resolveFromDescriptor(stream)
                                     .sorted(comparing(Artifact::toCoordinate))
-                                    .collect(toList());
+                                    .toList();
                             ignoredDependencies = blacklist::contains;
                         } catch (final IOException e) {
                             throw new IllegalStateException(e);
@@ -106,7 +106,7 @@ public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
                                         .resolveFromDescriptor(stream)
                                         .filter(ignoredDependencies.negate())
                                         .sorted(comparing(Artifact::toCoordinate))
-                                        .collect(toList()));
+                                        .toList());
                     } catch (final IOException e) {
                         throw new IllegalStateException(e);
                     }
@@ -114,7 +114,7 @@ public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }
-        }).filter(Objects::nonNull).sorted(comparing(a -> a.componentModule.toCoordinate())).collect(toList());
+        }).filter(Objects::nonNull).sorted(comparing(a -> a.componentModule.toCoordinate())).toList();
 
         output.getParentFile().mkdirs();
 

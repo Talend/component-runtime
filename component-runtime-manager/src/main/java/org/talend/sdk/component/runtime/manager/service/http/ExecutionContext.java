@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
             final HttpRequest request = requestCreator.apply(base, params);
             final String queryParams = String.join("&", request.getQueryParams());
             final URL url = new URL(request.getUrl() + (queryParams.isEmpty() ? "" : "?" + queryParams));
-            urlConnection = HttpURLConnection.class.cast(url.openConnection());
+            urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod(request.getMethodType());
             request.getHeaders().forEach(urlConnection::setRequestProperty);
 
@@ -226,7 +226,7 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
     }
 
     @AllArgsConstructor
-    private static abstract class BaseResponse<T> implements Response<T> {
+    private abstract static class BaseResponse<T> implements Response<T> {
 
         private final int status;
 

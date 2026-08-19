@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -154,15 +154,15 @@ class JsonSchemaConverterTest {
     @Test
     void emptyArrayDefaultValue() throws Exception {
         final Object converted = convert("array", "[]");
-        assertTrue(Object[].class.isInstance(converted));
-        assertEquals(0, Object[].class.cast(converted).length);
+        assertTrue(converted instanceof Object[]);
+        assertEquals(0, ((Object[]) converted).length);
     }
 
     @Test
     void primitiveArrayDefaultValue() throws Exception {
         final Object converted = convert("array", "[\"test\"]");
-        assertTrue(Object[].class.isInstance(converted));
-        final Object[] array = Object[].class.cast(converted);
+        assertTrue(converted instanceof Object[]);
+        final Object[] array = (Object[]) converted;
         assertEquals(1, array.length);
         assertEquals("test", array[0]);
     }
@@ -170,16 +170,16 @@ class JsonSchemaConverterTest {
     @Test
     void objectArrayDefaultValue() throws Exception {
         final Object converted = convert("array", "[{\"id\":1}]");
-        assertTrue(Object[].class.isInstance(converted));
-        final Object[] array = Object[].class.cast(converted);
+        assertTrue(converted instanceof Object[]);
+        final Object[] array = (Object[]) converted;
         assertEquals(1, array.length);
-        assertEquals(1, BigDecimal.class.cast(Map.class.cast(array[0]).get("id")).intValue());
+        assertEquals(1, ((BigDecimal) ((Map) array[0]).get("id")).intValue());
     }
 
     @Test
     void objectDefaultValue() throws Exception {
         final Object converted = convert("object", "{\"id\":1}");
-        assertEquals(1, Map.class.cast(converted).get("id"));
+        assertEquals(1, ((Map) converted).get("id"));
     }
 
     private Object convert(final String type, final String value) throws Exception {
@@ -190,7 +190,7 @@ class JsonSchemaConverterTest {
             if (!convertDefaultValue.isAccessible()) {
                 convertDefaultValue.setAccessible(true);
             }
-            return Optional.class.cast(convertDefaultValue.invoke(instance, type, value)).orElse(null);
+            return ((Optional) convertDefaultValue.invoke(instance, type, value)).orElse(null);
         }
     }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ class JUnit5HttpsApiTest {
 
     private Response get() throws Exception {
         final URL url = new URL("https://foo.bar.not.existing.talend.com/component/test?api=true");
-        final HttpsURLConnection connection = HttpsURLConnection.class.cast(url.openConnection());
+        final HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
         connection.setSSLSocketFactory(handler.getSslContext().getSocketFactory());
         connection.setConnectTimeout(300000);
         connection.setReadTimeout(20000);

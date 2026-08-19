@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ public class TheOutput1 implements Serializable {
 
     private OutputConfig config;
 
-    public TheOutput1(final @Option("configout") OutputConfig config) {
+    public TheOutput1(@Option("configout") final OutputConfig config) {
 
         this.config = config;
     }

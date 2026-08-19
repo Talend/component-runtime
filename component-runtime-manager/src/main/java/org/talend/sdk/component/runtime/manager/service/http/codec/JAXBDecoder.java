@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,11 @@ import java.io.ByteArrayInputStream;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.sax.SAXSource;
+
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 
 import org.talend.sdk.component.api.service.http.Decoder;
 import org.xml.sax.InputSource;
@@ -45,7 +46,7 @@ public class JAXBDecoder implements Decoder {
             spf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             spf.setNamespaceAware(true);
             final XMLReader xmlReader = spf.newSAXParser().getXMLReader();
-            final Class key = Class.class.cast(expectedType);
+            final Class key = (Class) expectedType;
             return jaxbContexts
                     .get(key)
                     .createUnmarshaller()

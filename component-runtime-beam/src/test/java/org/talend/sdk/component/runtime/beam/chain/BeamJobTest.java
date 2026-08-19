@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 class BeamJobTest implements Serializable {
 
-    private transient final PluginGenerator pluginGenerator = new PluginGenerator();
+    private final transient PluginGenerator pluginGenerator = new PluginGenerator();
 
     @Test
     void complex(final TestInfo info, @TempDir final Path temporaryFolder) throws IOException {

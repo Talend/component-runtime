@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,10 +100,9 @@ public class CaptureJUnit4HttpApiTest {
                 @Override
                 public void evaluate() throws Throwable {
                     final URL url = new URL("http://localhost:" + server.getAddress().getPort() + "/supertest");
-                    final HttpURLConnection connection = HttpURLConnection.class
-                            .cast(url
-                                    .openConnection(new Proxy(Proxy.Type.HTTP,
-                                            new InetSocketAddress("localhost", API.getPort()))));
+                    final HttpURLConnection connection = (HttpURLConnection) url
+                            .openConnection(new Proxy(Proxy.Type.HTTP,
+                                    new InetSocketAddress("localhost", API.getPort())));
                     connection.setConnectTimeout(30000);
                     connection.setReadTimeout(20000);
                     connection.setRequestProperty("Accept", "*/*");

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.maven;
 
-import static java.util.stream.Collectors.toList;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
 import static org.talend.sdk.component.maven.api.Audience.Type.PUBLIC;
@@ -62,7 +61,7 @@ public class ScanDescriptorMojo extends ClasspathMojoBase {
 
     @Override
     public void doExecute() {
-        new ScanTask(Stream.concat(getDirectoriesToScan(), getJarToScan(scannedDependencies)).collect(toList()),
+        new ScanTask(Stream.concat(getDirectoriesToScan(), getJarToScan(scannedDependencies)).toList(),
                 getExcludes(excludes, sharedExcludes), includes, filterStrategy, output).run();
     }
 

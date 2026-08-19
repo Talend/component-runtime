@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ class GenericComponentExtensionSupportTest {
                     .orElseThrow(IllegalStateException::new);
             final Input input = mapper.create(); // we bypass a bit the lifecycle cause we know the test component we
                                                  // use
-            final Record next = Record.class.cast(input.next());
+            final Record next = (Record) input.next();
             assertEquals("my-generic", next.getString("plugin"));
             assertEquals("the-first", next.getString("name"));
             assertEquals("a", next.getString("key"));

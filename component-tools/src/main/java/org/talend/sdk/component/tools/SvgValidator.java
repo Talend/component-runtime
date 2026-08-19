@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ public class SvgValidator {
     private SVGOMSVGElement loadSvg(final Path path) {
         try {
             final Document document = factory.createDocument(path.toUri().toASCIIString());
-            return SVGOMSVGElement.class.cast(document.getDocumentElement());
+            return (SVGOMSVGElement) document.getDocumentElement();
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }

@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ *  Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import org.apache.maven.project.MavenProject
 def createDependenciesDescriptor = { rootDependency, output ->
     def dependenciesResolver = session.container.lookup(LifecycleDependencyResolver)
 
-    def tmpProject = new MavenProject(artifactId: 'temp', groupId: 'temp', version: 'temp', packaging: 'pom');
+    def tmpProject = new MavenProject(artifactId: 'temp', groupId: 'temp', version: 'temp', packaging: 'pom')
     tmpProject.artifact = new DefaultArtifact(project.groupId, project.artifactId, project.version, 'compile',
             'pom', null, new DefaultArtifactHandler())
     tmpProject.dependencies = [rootDependency] as List

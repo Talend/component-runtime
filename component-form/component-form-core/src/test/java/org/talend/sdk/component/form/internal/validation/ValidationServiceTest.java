@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.form.internal.validation;
 
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
@@ -61,7 +60,7 @@ public class ValidationServiceTest {
                         .getErrors()
                         .stream()
                         .map(e -> new ValidationError(e.getField(), e.getMessage()))
-                        .collect(toList()));
+                        .toList());
     }
 
     public CompletionStage<JsonSchemaValidator> getValidator(final ConfigTypeNode config) {
