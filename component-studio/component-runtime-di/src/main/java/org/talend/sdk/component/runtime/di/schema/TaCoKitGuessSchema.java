@@ -53,6 +53,7 @@ import javax.json.bind.JsonbBuilder;
 import org.talend.sdk.component.api.exception.ComponentException;
 import org.talend.sdk.component.api.exception.DiscoverSchemaException;
 import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.MultiOutputIterator;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.record.Record;
@@ -73,6 +74,7 @@ import org.talend.sdk.component.runtime.manager.ServiceMeta;
 import org.talend.sdk.component.runtime.manager.chain.ChainedMapper;
 import org.talend.sdk.component.runtime.manager.xbean.converter.SchemaConverter;
 import org.talend.sdk.component.runtime.output.InputFactory;
+import org.talend.sdk.component.runtime.output.OutputBranches;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
 
@@ -776,10 +778,13 @@ public class TaCoKitGuessSchema {
                     .flatMap(m -> IntStream
                             .range(0, m.getParameterCount())
                             .filter(i -> m.getParameters()[i].isAnnotationPresent(Output.class)
-                                    && outBranchName.equals(m.getParameters()[i].getAnnotation(Output.class).value()))
+                                    && OutputBranches
+                                            .of(m.getParameters()[i].getAnnotation(Output.class))
+                                            .anyMatch(outBranchName::equals))
                             .mapToObj(i -> m.getGenericParameterTypes()[i])
                             .filter(t -> t instanceof ParameterizedType parameterizedType
-                                    && parameterizedType.getRawType() == OutputEmitter.class
+                                    && (parameterizedType.getRawType() == OutputEmitter.class
+                                            || parameterizedType.getRawType() == MultiOutputIterator.class)
                                     && parameterizedType.getActualTypeArguments().length == 1)
                             .map(p -> ((ParameterizedType) p).getActualTypeArguments()[0]))
                     .findFirst();

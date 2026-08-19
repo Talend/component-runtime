@@ -123,6 +123,44 @@ public MyNewData map(final MyData data,
     return createNewData(data);
 }
 ----
+== Streaming records with `MultiOutputIterator`
+
+An `OutputEmitter` pushes records, which means the runtime may have to buffer them.
+A `MultiOutputIterator` parameter instead lets the component hand over a *lazy* iterator: records are
+pulled one by one by the drain loop and forwarded to the next component without being buffered.
+This is the recommended way to emit large volumes.
+
+Streaming to a single branch, named as usual with `@Output("...")`:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+@ElementListener
+public void map(final MyData data,
+                @Output("FLOW") final MultiOutputIterator<Record> output) {
+    output.setIterator("FLOW", source.lazyQuery()); // no buffering
+}
+----
+
+The same parameter can also feed several branches. In that case the branches can no longer be
+deduced from the signature, so they must be declared with `@Output(branches = ...)` for the design
+layer (and therefore Talend Studio) to know the output connections of the component:
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+@ElementListener
+public void map(final MyData data,
+                @Output(branches = { "MAIN", "REJECT" }) final MultiOutputIterator<Record> outputs) {
+    outputs.setIterator(source.stream()
+            .map(record -> isRejected(record)
+                    ? TaggedOutput.of("REJECT", record)
+                    : TaggedOutput.of("MAIN", record))
+            .iterator());
+}
+----
+
+NOTE: `branches()` is only supported on `MultiOutputIterator` parameters and falls back on `value()`
+when empty. `MultiOutputIterator` itself is only supported in the Studio DI runtime.
+
 == Defining conditional outputs flows
 
 Processors @ElementListener methods can declare several output flows.

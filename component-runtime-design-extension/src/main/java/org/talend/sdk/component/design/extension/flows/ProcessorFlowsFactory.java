@@ -30,6 +30,7 @@ import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.runtime.output.Branches;
+import org.talend.sdk.component.runtime.output.OutputBranches;
 
 import lombok.AllArgsConstructor;
 
@@ -70,7 +71,7 @@ class ProcessorFlowsFactory implements FlowsFactory {
     private Stream<String> getOutputParameters(final Method listener) {
         return of(listener.getParameters())
                 .filter(p -> p.isAnnotationPresent(Output.class))
-                .map(p -> p.getAnnotation(Output.class).value());
+                .flatMap(p -> OutputBranches.of(p.getAnnotation(Output.class)));
     }
 
     private Stream<String> getReturnedBranches(final Method listener) {
