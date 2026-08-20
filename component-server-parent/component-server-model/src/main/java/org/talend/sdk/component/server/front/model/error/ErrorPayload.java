@@ -28,5 +28,11 @@ public class ErrorPayload {
 
     private ErrorDictionary code;
 
+    private String subCode;
+
     private String description;
+
+    public ErrorPayload(final ErrorDictionary code, final String description) {
+        this(code, null, description);
+    }
 }
