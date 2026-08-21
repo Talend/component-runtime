@@ -2031,7 +2031,7 @@
     <profile>
       <id>SONAR</id>
       <properties>
-        <sonar.coverage.jacoco.xmlReportPaths>${project.build}/jacoco-ut/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/jacoco-ut/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
       </properties>
     </profile>
   </profiles>
