@@ -2022,5 +2022,11 @@
           --add-opens java.base/sun.util.calendar=ALL-UNNAMED</extraJvmFlags>
       </properties>
     </profile>
+    <profile>
+      <id>SONAR</id>
+      <properties>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.build}/jacoco-ut/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+      </properties>
+    </profile>
   </profiles>
 </project>
