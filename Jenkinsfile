@@ -87,7 +87,7 @@ String nexusDeployOptions = "$skipOptions --activate-profiles private_repository
 pipeline {
   libraries {
     lib("connectors-lib@1.2.0") // https://github.com/Talend/tdi-jenkins-shared-libraries
-    lib("tqa-e2e-tests-tool@2.6.7-ttp2")  // https://github.com/Talend/tqa-e2e-testing-tool
+    lib("tqa-e2e-tests-tool@2.6.13-ttp2")  // https://github.com/Talend/tqa-e2e-testing-tool
   }
   agent {
     kubernetes {

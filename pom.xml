@@ -267,6 +267,7 @@
     <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
     <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
     <ossindex-maven-plugin.version>3.2.0</ossindex-maven-plugin.version>
+    <sonar-maven-plugin.version>5.7.0.6970</sonar-maven-plugin.version>
     <plexus-utils.version>4.0.3</plexus-utils.version>
 
     <jgit.version>6.10.1.202505221210-r</jgit.version>
@@ -1033,6 +1034,11 @@
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.sonarsource.scanner.maven</groupId>
+          <artifactId>sonar-maven-plugin</artifactId>
+          <version>${sonar-maven-plugin.version}</version>
+        </plugin>
         <plugin>
           <groupId>org.codehaus.gmavenplus</groupId>
           <artifactId>gmavenplus-plugin</artifactId>
@@ -2020,6 +2026,12 @@
           --add-opens java.base/sun.security.action=ALL-UNNAMED
           --add-opens java.base/sun.security.x509=ALL-UNNAMED
           --add-opens java.base/sun.util.calendar=ALL-UNNAMED</extraJvmFlags>
+      </properties>
+    </profile>
+    <profile>
+      <id>SONAR</id>
+      <properties>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/jacoco-ut/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
       </properties>
     </profile>
   </profiles>
