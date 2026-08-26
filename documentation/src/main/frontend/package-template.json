@@ -11,7 +11,7 @@
     "json5": "2.2.2"
   },
   "overrides": {
-    "brace-expansion": "^1.1.13",
+    "brace-expansion": "^1.1.18",
     "convict": "^6.2.5",
     "handlebars": "^4.7.9",
     "js-yaml": "^4.2.0",
