@@ -71,6 +71,7 @@
     "underscore": "^1.13.8",
     "uuid": "^14.0.0",
     "webpack-bundle-analyzer": "^5.3.0",
+    "websocket-driver": "^0.7.5",
     "ws": "^8.20.1"
   }
 }
