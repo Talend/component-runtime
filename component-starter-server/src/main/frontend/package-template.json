@@ -61,7 +61,7 @@
     "path-to-regexp": "^0.1.13",
     "picomatch@2": "^2.3.2",
     "picomatch@4": "^4.0.4",
-    "postcss": "^8.5.10",
+    "postcss": "^8.5.26",
     "qs": "^6.15.2",
     "serialize-javascript": "^7.0.5",
     "shell-quote": "^1.10.0",

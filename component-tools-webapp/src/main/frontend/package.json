@@ -62,7 +62,7 @@
     "minimatch@5": "^5.1.8",
     "path-to-regexp@0": "^0.1.13",
     "path-to-regexp@3": "^3.3.0",
-    "postcss": "^8.5.10",
+    "postcss": "^8.5.26",
     "qs": "^6.15.2",
     "serialize-javascript": "^7.0.5",
     "shell-quote": "^1.10.0",
