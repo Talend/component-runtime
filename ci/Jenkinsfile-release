@@ -376,7 +376,7 @@ pipeline {
           ///////////////////////////////////////////
 
           String checkMsg = """
-              You will do a $params.ACTION release  
+              You will do a $params.ACTION release${params.DRY_RUN ? ' as a **DRY RUN** (nothing published)' : ''}  
               Actual Version $pomVersion will be release as $releaseVersion.  
               After the release the repository will be bumped as $nextVersion.  
               **Are you OK to continue?**""".stripIndent()
@@ -407,6 +407,21 @@ pipeline {
         always {
           println "Publish prepared pom.xml files as Jenkins artifact for analysis"
           archiveArtifacts artifacts: '**/*pom.xml', allowEmptyArchive: false, onlyIfSuccessful: false
+          script {
+            if (params.DRY_RUN) {
+              // With -DdryRun=true the plugin never rewrites pom.xml in place: the versions it would
+              // have committed live in pom.xml.tag / pom.xml.next, so those are the files to inspect.
+              println "Dry run: publish the poms release:prepare would have written"
+              archiveArtifacts artifacts: '**/pom.xml.tag, **/pom.xml.next, release.properties',
+                               allowEmptyArchive: true, onlyIfSuccessful: false
+
+              // Drop release.properties and the pom.xml.* backups so a later run cannot resume this
+              // simulated release if the workspace is ever reused.
+              println "Dry run: clean up the release:prepare working files"
+              sh(script: "mvn release:clean --batch-mode --settings .jenkins/settings.xml",
+                 returnStatus: true)
+            }
+          }
         }
       }
     }

@@ -22,7 +22,8 @@ set -xe
 # $2: current version
 # $3: extra build args for all mvn cmd
 #
-# NOTE: ci/Jenkinsfile-release is the source of truth for the release version scheme.
+# NOTE: VersionController.getSnapshotVersion (tqa-e2e-tests-tool shared library), used by
+#       ci/Jenkinsfile-release, is the source of truth for the release version scheme.
 #       The bump below is kept in sync with it: on the calendar scheme 1.<YYMM>.<patch>,
 #       December rolls over to January of the next year (1.2612.0 -> 1.2701.0).
 main() {
