@@ -21,6 +21,10 @@ set -xe
 # $1: Branch
 # $2: current version
 # $3: extra build args for all mvn cmd
+#
+# NOTE: ci/Jenkinsfile-release is the source of truth for the release version scheme.
+#       The bump below is kept in sync with it: on the calendar scheme 1.<YYMM>.<patch>,
+#       December rolls over to January of the next year (1.2612.0 -> 1.2701.0).
 main() {
   local branch="${1?Missing branch}"
   local currentVersion="${2?Missing project version}"
@@ -39,7 +43,12 @@ main() {
   if [[ ${branch} == 'master' ]]; then
     maintenance_branch="maintenance/${maj}.${min}"
     maintenance_version="${maj}.${min}.$((rev + 1))-SNAPSHOT"
-    min=$((min + 1))
+    if [[ ${#min} -eq 4 && ${min} == *12 ]]; then
+      # Calendar scheme 1.<YYMM>.<patch>: December rolls over to January of the next year
+      min=$((min + 89))
+    else
+      min=$((min + 1))
+    fi
     rev="0"
   else
     rev=$((rev + 1))

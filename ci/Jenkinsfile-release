@@ -104,9 +104,10 @@ pipeline {
         description: '''
           Type of release:
             GA: release for General Available
-              ex: 1.63.0-SNAPSHOT is released as 1.63.0 and master branch is bumped as 1.64.0-SNAPSHOT
+              ex: 1.2610.0-SNAPSHOT is released as 1.2610.0 and master branch is bumped as 1.2611.0-SNAPSHOT
+              The December to January rollover is handled: 1.2612.0 is followed by 1.2701.0-SNAPSHOT
             MAINTENANCE: release for General Available of MAINTENANCE
-              ex: 1.63.1-SNAPSHOT is released as 1.63.1 and branch is bumped as 1.63.2-SNAPSHOT''')
+              ex: 1.2610.1-SNAPSHOT is released as 1.2610.1 and branch is bumped as 1.2610.2-SNAPSHOT''')
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -166,12 +167,19 @@ pipeline {
                 text-align: center; font-size: 35px !important; font-weight : bold; """)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     booleanParam(
+        name: 'DRY_RUN',
+        defaultValue: false,
+        description: '''Simulate a release without publishing anything.  
+                        `release:prepare` runs with `-DdryRun=true`: poms are rewritten and validated locally, 
+                        but nothing is committed, tagged or pushed.  
+                        The perform, studio modules, docker, next iteration and maintenance branch stages are skipped.  
+                        Use it to validate the computed versions and the pipeline itself before a real release.''')
+    booleanParam(
         name: 'FAKE_RELEASE',
         defaultValue: false,
-        description: '''For debug purposes, the job will deploy in:  
-                        - NOT IMPLEMENTED Artifactory Dev instead of Artifactory Prod for docker images  
-                        - NOT IMPLEMENTED Artifacts-zl instead of sonatype for java artefacts  
-                        - The job will not tag/commit on git fork from FAKE_REPOSITORY''')
+        description: '''For debug purposes, the job will:  
+                        - not tag/commit on git talend/component-runtime but on the fork from FAKE_REPOSITORY  
+                        Note: to only simulate a release without publishing anything, use DRY_RUN instead.''')
     string(
         name: 'FAKE_REPOSITORY',
         defaultValue: 'acatoire/component-runtime',
@@ -219,14 +227,15 @@ pipeline {
         script {
           println "Create assemblyExtraBuildParams from user provided parameters and job option"
           extraBuildParams = assemblyExtraBuildParams(params.FAKE_RELEASE as Boolean,
-                                                      params.NO_STAGING as Boolean)
+                                                      params.NO_STAGING as Boolean,
+                                                      params.DRY_RUN as Boolean)
         }
 
         ///////////////////////////////////////////
         // Updating build displayName and description
         ///////////////////////////////////////////
         script {
-          JenkinsStatusController.jobNameCreation("$params.ACTION")
+          JenkinsStatusController.jobNameCreation(params.DRY_RUN ? "$params.ACTION-DRY_RUN" : "$params.ACTION")
 
           // updating build description
           String description = """
@@ -236,13 +245,25 @@ pipeline {
             """.stripIndent()
           JenkinsStatusController.jobDescriptionAppend(description)
 
+          if (params.DRY_RUN) {
+            // updating build description
+            description = """
+            ---------------------------------------------------  
+            This is a DRY RUN:  
+            - poms are rewritten and validated locally only  
+            - nothing is committed, tagged, pushed or deployed  
+            ---------------------------------------------------  
+            
+            """.stripIndent()
+            JenkinsStatusController.jobDescriptionAppend(description)
+          }
+
           if (params.FAKE_RELEASE) {
             // updating build description
             description = """
             ---------------------------------------------------  
             This is a fake release:  
-            - artefacts will be posted on artifact-zl  
-            - docker image will be deployed on artifactory dev   
+            - git tag and commits target the fork $params.FAKE_REPOSITORY  
             ---------------------------------------------------  
             
             """.stripIndent()
@@ -316,6 +337,18 @@ pipeline {
           maintenanceVersion, maintenanceBranch) = get_release_info(pomVersion,
                                                                     isMaintenanceRelease)
           tagName = "component-runtime-${releaseVersion}"
+
+          // Written under target/ so it stays out of the SCM working tree inspected by release:prepare
+          writeFile file: 'target/release-version-info.txt',
+                    text: """\
+                          pomVersion=$pomVersion
+                          releaseVersion=$releaseVersion
+                          nextVersion=$nextVersion
+                          maintenanceVersion=$maintenanceVersion
+                          maintenanceBranch=$maintenanceBranch
+                          tagName=$tagName
+                          """.stripIndent()
+          archiveArtifacts artifacts: 'target/release-version-info.txt', allowEmptyArchive: false
         }
       }
     }
@@ -327,7 +360,7 @@ pipeline {
           ///////////////////////////////////////////
           // Updating build description and name with calculated info
           ///////////////////////////////////////////
-          JenkinsStatusController.jobNameCreation("$releaseVersion")
+          JenkinsStatusController.jobNameCreation(params.DRY_RUN ? "$releaseVersion-DRY_RUN" : "$releaseVersion")
 
           String description = """
             ----------------------------------------------------------------  
@@ -361,10 +394,12 @@ pipeline {
                          gpgCredentials]) {
           script {
             echo "Maven prepare release $releaseVersion (next-dev: $nextVersion; tag: $tagName)"
-            sh "bash .jenkins/scripts/release/release-2-prepare.sh $releaseVersion \
-                                                                   $nextVersion \
-                                                                   $tagName \
-                                                                   $extraBuildParams"
+            withEnv(["DRY_RUN=${params.DRY_RUN}"]) {
+              sh "bash .jenkins/scripts/release/release-2-prepare.sh $releaseVersion \
+                                                                     $nextVersion \
+                                                                     $tagName \
+                                                                     $extraBuildParams"
+            }
           }
         }
       }
@@ -377,6 +412,9 @@ pipeline {
     }
 
     stage('Maven release process') {
+      when {
+        expression { !params.DRY_RUN }
+      }
       steps {
         withCredentials([nexusCredentials,
                          ossrhCredentials,
@@ -394,7 +432,7 @@ pipeline {
 
     stage('Release studio modules') {
       when {
-        expression { params.RELEASE_STUDIO_MODULES }
+        expression { params.RELEASE_STUDIO_MODULES && !params.DRY_RUN }
       }
       steps {
         withCredentials([nexusCredentials,
@@ -414,7 +452,7 @@ pipeline {
 
     stage('Release Docker image') {
       when {
-        expression { !params.NO_DOCKER }
+        expression { !params.NO_DOCKER && !params.DRY_RUN }
       }
       steps {
         withCredentials([gitCredentials,
@@ -430,6 +468,9 @@ pipeline {
     }
 
     stage('Prepare next iteration') {
+      when {
+        expression { !params.DRY_RUN }
+      }
       steps {
         withCredentials([gitCredentials,
                          nexusCredentials,
@@ -444,7 +485,7 @@ pipeline {
 
     stage('Create maintenance branch') {
       when {
-        expression { isMasterBranch && params.ACTION == "GA" }
+        expression { isMasterBranch && params.ACTION == "GA" && !params.DRY_RUN }
       }
       steps {
         withCredentials([gitCredentials,
@@ -483,10 +524,11 @@ pipeline {
  *
  * @param Boolean fakeRelease
  * @param Boolean noStaging
+ * @param Boolean dryRun
  *
  * @return extraBuildParams as a string ready for mvn cmd
  */
-private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean noStaging) {
+private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean noStaging, Boolean dryRun) {
   String extraBuildParams
 
   println 'Processing extraBuildParams'
@@ -497,13 +539,13 @@ private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean noStaging) 
   }
 
   // Manage fake release parameter
-  if (fakeRelease) {
+  if (fakeRelease || dryRun) {
     // Overwrite the git repository, in order not to write in "talend/component-runtime"
     buildParamsAsArray.add("--define scm.repository=$params.FAKE_REPOSITORY")
   }
 
   // Manage no-staging parameter
-  if (noStaging) {
+  if (noStaging || dryRun) {
     buildParamsAsArray.add("--activate-profiles no-staging")
   }
 
@@ -519,16 +561,21 @@ private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean noStaging) 
 /**
  * Retrieves release information based on the provided current version.
  *
- * @param currentVersion The current version string to evaluate (e.g., "1.65.0M1-SNAPSHOT").
+ * The version arithmetic is delegated to the `VersionController` shared library step (backed by
+ * `VersionManager` in tqa-e2e-testing-tool), which is the single source of truth shared with the
+ * Connectors release jobs. It supports both the legacy scheme (1.95.0) and the calendar scheme
+ * (1.YYMM.patch), including the December to January rollover: 1.2612.0 gives 1.2701.0-SNAPSHOT.
+ *
+ * @param currentVersion The current version declared in the pom (e.g., "1.2610.0-SNAPSHOT").
  * @param maintenance Indicates whether it is a maintenance release (true) or a main branch release (false).
  * @return An ArrayList containing release information:
  *                               - Index 0: Release version.
  *                               - Index 1: Next development version.
- *                               - Index 2: Maintenance version (empty string for main branch releases).
- *                               - Index 3: Maintenance branch name (empty string for main branch releases).
+ *                               - Index 2: Maintenance version.
+ *                               - Index 3: Maintenance branch name.
  */
-private static ArrayList<String> get_release_info(String currentVersion,
-                                                  Boolean maintenance) {
+private ArrayList<String> get_release_info(String currentVersion,
+                                           Boolean maintenance) {
 
   println("Evaluate release name from current version: $currentVersion")
   if (maintenance) {
@@ -538,42 +585,20 @@ private static ArrayList<String> get_release_info(String currentVersion,
     println("This is a GA release")
   }
 
-  // Split the version (ex: "1.65.0M1-SNAPSHOT") on '.' and '-'
-  def parts = currentVersion.split(/[\.-]/)
-  int maj = parts[0] as int
-  int min = parts[1] as int
-  int rev = parts[2] as int
-
-  String releaseVersion
-  releaseVersion = "${maj}.${min}.${rev}"
-
+  String releaseVersion = currentVersion.replace('-SNAPSHOT', '')
   println("Release version : $releaseVersion")
 
-  // New maintenance branch need to be created.
-  String maintenanceBranch = "maintenance/${maj}.${min}"
-  String maintenanceVersion = "${maj}.${min}.${rev + 1}-SNAPSHOT"
-  println("Maintenance version : $releaseVersion")
+  Map<String, String> snapshotVersions = VersionController.getSnapshotVersion(releaseVersion)
+
+  // New maintenance branch to be created from this release.
+  String maintenanceBranch = VersionController.getMaintenanceBranchName(releaseVersion)
+  String maintenanceVersion = snapshotVersions.maintenance
+  println("Maintenance version : $maintenanceVersion")
   println("Maintenance branch name : $maintenanceBranch")
 
-
-  // Calculate variables according to branch
-  String nextVersion
-  if (!maintenance) {
-    // master release
-    min++
-    rev = 0
-
-    // Calculate the next development version
-    nextVersion = "${maj}.${min}.${rev}-SNAPSHOT"
-
-  }
-  else {
-    // Maintenance release
-    rev++
-    // Calculate the next development version
-    nextVersion = "${maj}.${min}.${rev}-SNAPSHOT"
-  }
-
+  // Calculate the next development version according to the branch:
+  // a GA release opens the next minor, a maintenance release opens the next patch.
+  String nextVersion = maintenance ? snapshotVersions.maintenance : snapshotVersions.master
   println("Next version : $nextVersion")
 
   return [releaseVersion, nextVersion, maintenanceVersion, maintenanceBranch]
