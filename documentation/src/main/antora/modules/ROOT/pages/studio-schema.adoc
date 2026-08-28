@@ -329,6 +329,28 @@ public class UiServices {
 ----
 
 
+=== Watching parameters for schema refresh
+
+NOTE: Available since 1.95.x release
+
+By default, a `@FixedSchema` is resolved once, when the component instance is created in the designer.
+Use `watch()` to declare parameter paths whose changes should trigger a schema refresh at design time —
+this is useful when a parameter changes the shape of the fixed schema (for instance, an option that adds
+or removes a column).
+
+`watch()` uses the same relative-path syntax as `@Updatable.parameters()` (`.` for self, `../sibling` for
+a sibling parameter, `child/path` for a child parameter) and requires `value()` to be set. Each time a
+watched parameter changes, the `@DiscoverSchema` or `@DiscoverSchemaExtended` action referenced by `value()`
+is re-invoked to refresh the fixed schema.
+
+[source,java]
+----
+@FixedSchema(value = "fixedschemadse", watch = { "configuration/aBoolean" })
+@Emitter(name = "Input")
+public class MyEmitter implements Serializable {
+...
+----
+
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
 == Related articles

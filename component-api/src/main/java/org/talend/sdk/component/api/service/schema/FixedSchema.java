@@ -27,7 +27,8 @@ import org.talend.sdk.component.api.meta.Documentation;
 @Retention(RUNTIME)
 @Documentation("Mark a connector as having a fixed schema. " +
         "Annotation's value must match the name of a DiscoverSchema or a DiscoverSchemaExtended annotation. " +
-        "The related action will return the fixed schema for the specified flows.")
+        "The related action will return the fixed schema for the specified flows. " +
+        "Use watch() to declare parameter paths whose changes should trigger a schema refresh at design time.")
 public @interface FixedSchema {
 
     String value() default "";
@@ -41,5 +42,20 @@ public @interface FixedSchema {
      * @return the flows concerned by fixed schema. Default to none.
      */
     String[] flows() default {};
+
+    /**
+     * The parameter paths to watch for changes at design time. When any of the listed parameters
+     * changes, the associated {@code DiscoverSchema} or {@code DiscoverSchemaExtended} service
+     * will be re-invoked to refresh the fixed schema dynamically.
+     * <p>
+     * Uses the same relative-path syntax as {@code @Updatable.parameters()}: for example,
+     * {@code "configuration/someParam"} refers to a child parameter of the component configuration root,
+     * and {@code "../sibling"} refers to a sibling parameter.
+     * <p>
+     * Requires {@link #value()} to be set.
+     *
+     * @return the parameter paths to watch. Default to none.
+     */
+    String[] watch() default {};
 
 }
