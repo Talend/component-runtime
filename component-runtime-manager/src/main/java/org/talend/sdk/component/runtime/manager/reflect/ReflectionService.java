@@ -1025,9 +1025,12 @@ public class ReflectionService {
 
         private static boolean isRequiredAndMissingWithoutDefault(final ParameterMeta meta,
                 final JsonValue value) {
+            // an empty-string default value is considered as irrelevant, so it does not
+            // suppress the required check - QTDI-2489
+            final String defaultValue = meta.getMetadata().get("tcomp::ui::defaultvalue::value");
             return Boolean.parseBoolean(meta.getMetadata().get("tcomp::validation::required"))
                     && value == JsonValue.NULL
-                    && meta.getMetadata().get("tcomp::ui::defaultvalue::value") == null;
+                    && (defaultValue == null || defaultValue.isEmpty());
         }
 
         private void throwIfFailed() {
