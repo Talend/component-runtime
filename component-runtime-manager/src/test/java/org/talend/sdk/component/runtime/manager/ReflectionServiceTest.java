@@ -324,20 +324,31 @@ class ReflectionServiceTest {
 
     static Stream<Map<String, String>> absentDefaultValueCases() {
         return Stream.of(
-                // all @DefaultValue fields absent
-                Map.of("root.noDefault", "provided"),
-                // region provided, emptyDefault (@DefaultValue("")) and anotherField absent
-                Map.of("root.noDefault", "provided", "root.region", "us-east-1"),
-                // emptyDefault explicitly provided, region and anotherField absent
-                Map.of("root.noDefault", "provided", "root.emptyDefault", "custom"));
+                // all @DefaultValue fields absent; emptyDefault provided (its "" default is
+                // irrelevant, so it must be provided explicitly to avoid the required error)
+                Map.of("root.noDefault", "provided", "root.emptyDefault", "custom"),
+                // region provided, anotherField absent, emptyDefault provided
+                Map.of("root.noDefault", "provided", "root.region", "us-east-1", "root.emptyDefault", "custom"));
+    }
+
+    @Test
+    void validationRequiredWithEmptyDefaultValueMissingKeyFails() throws NoSuchMethodException {
+        // Given a @Required + @DefaultValue("") field with an absent key, validation must throw
+        // - an empty-string default is considered irrelevant, same as no default at all - QTDI-2489
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredWithDefaultConfig.class);
+        final Map<String, String> config = Map.of("root.noDefault", "provided", "root.region", "us-east-1");
+        final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> factory.apply(config));
+        assertTrue(ex.getMessage().contains("root.emptyDefault"),
+                "Error message should mention the missing required field with empty default");
     }
 
     @Test
     void validationRequiredWithDefaultValueResolvedValue() throws NoSuchMethodException {
         // Given a config missing the 'region' key, the resolved field value equals the declared default
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(RequiredWithDefaultConfig.class);
-        final RequiredWithDefaultConfig result =
-                (RequiredWithDefaultConfig) factory.apply(Map.of("root.noDefault", "provided"))[0];
+        final RequiredWithDefaultConfig result = (RequiredWithDefaultConfig) factory
+                .apply(Map.of("root.noDefault", "provided", "root.emptyDefault", "custom"))[0];
         assertEquals("DEFAULT", result.region);
     }
 
