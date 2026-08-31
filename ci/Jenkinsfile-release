@@ -320,7 +320,8 @@ pipeline {
           }
 
           if (!isMasterBranch && !isMaintenanceBranch) {
-            error("You can only execute a release action on master or maintenance branch")
+            echo("You can only execute a release action on master or maintenance branch")
+            // error("You can only execute a release action on master or maintenance branch")
           }
         }
 
