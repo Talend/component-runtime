@@ -38,6 +38,8 @@ public class ReadinessResourceImpl implements ReadinessResource {
 
     private static final String STATUS_DOWN = "DOWN";
 
+    private static final String VAULT_NOT_REACHABLE = "Vault is not reachable";
+
     private static final long VAULT_CACHE_TTL_MS = 5_000L;
 
     @Inject
@@ -77,7 +79,7 @@ public class ReadinessResourceImpl implements ReadinessResource {
         if (now - lastVaultCheck.get() < VAULT_CACHE_TTL_MS) {
             return cachedVaultResult.get()
                     ? new HealthStatus(STATUS_UP, null)
-                    : new HealthStatus(STATUS_DOWN, "Vault is not reachable");
+                    : new HealthStatus(STATUS_DOWN, VAULT_NOT_REACHABLE);
         }
         synchronized (vaultCheckLock) {
             // re-check under the lock: another thread may have already refreshed the cache
@@ -86,15 +88,15 @@ public class ReadinessResourceImpl implements ReadinessResource {
             if (recheckNow - lastVaultCheck.get() < VAULT_CACHE_TTL_MS) {
                 return cachedVaultResult.get()
                         ? new HealthStatus(STATUS_UP, null)
-                        : new HealthStatus(STATUS_DOWN, "Vault is not reachable");
+                        : new HealthStatus(STATUS_DOWN, VAULT_NOT_REACHABLE);
             }
             try {
                 final boolean reachable = vaultClient.ping();
                 cachedVaultResult.set(reachable);
                 lastVaultCheck.set(recheckNow);
                 if (!reachable) {
-                    log.warn("Readiness check: Vault is not reachable");
-                    return new HealthStatus(STATUS_DOWN, "Vault is not reachable");
+                    log.warn("Readiness check: {}", VAULT_NOT_REACHABLE);
+                    return new HealthStatus(STATUS_DOWN, VAULT_NOT_REACHABLE);
                 }
             } catch (final VirtualMachineError vme) {
                 throw vme;
