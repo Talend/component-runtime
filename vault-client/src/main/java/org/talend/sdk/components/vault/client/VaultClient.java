@@ -209,8 +209,8 @@ public class VaultClient {
     /**
      * Checks connectivity to Vault.
      *
-     * @return {@code true} if Vault is reachable or if Vault is not configured ({@code no-vault}),
-     * {@code false} if a transport-level error prevents reaching Vault.
+     * @return {@code true} if Vault is not configured ({@code no-vault}) or responds with HTTP 200
+     * (initialized, unsealed, active), {@code false} otherwise (non-200 status or a transport-level error).
      */
     public boolean ping() {
         if ("no-vault".equals(setup.getVaultUrl())) {
@@ -222,7 +222,7 @@ public class VaultClient {
                     .path("v1/sys/health")
                     .request()
                     .get();
-            return true;
+            return response.getStatus() == Response.Status.OK.getStatusCode();
         } catch (final javax.ws.rs.ProcessingException e) {
             log.warn("Vault ping failed: {}", e.getMessage());
             return false;

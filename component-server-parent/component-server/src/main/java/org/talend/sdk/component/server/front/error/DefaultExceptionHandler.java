@@ -61,8 +61,7 @@ public class DefaultExceptionHandler implements ExceptionMapper<Throwable> {
     public Response toResponse(final Throwable exception) {
         if (exception instanceof VirtualMachineError) {
             final String requestPath = request != null ? request.getRequestURI() : "(unknown)";
-            final String cause = exception.getClass().getSimpleName() + " during request "
-                    + requestPath + ": " + exception.getMessage();
+            final String cause = exception.getClass().getSimpleName() + " during request " + requestPath;
             fatalState.markFatal(cause);
         }
         log.error("[DefaultExceptionHandler#toResponse] Throwable: ", exception);

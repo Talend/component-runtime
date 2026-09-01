@@ -16,7 +16,16 @@
 package org.talend.sdk.component.server.front;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.ws.rs.core.Response;
 
@@ -106,5 +115,41 @@ class ReadinessResourceImplTest {
         assertEquals(503, response.getStatus());
         final HealthStatus status = (HealthStatus) response.getEntity();
         assertEquals("DOWN", status.getStatus());
+    }
+
+    @Test
+    void concurrentReadinessChecksTriggerVaultPingOnlyOnceAtTtlExpiry() throws Exception {
+        when(componentManagerService.isStarted()).thenReturn(true);
+        when(configuration.getHealthVaultEnabled()).thenReturn(true);
+        when(vaultClient.ping()).thenAnswer(invocation -> {
+            // widen the race window so concurrent callers are likely to observe the expired cache
+            Thread.sleep(50);
+            return true;
+        });
+
+        final int threadCount = 20;
+        final ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+        final CountDownLatch ready = new CountDownLatch(threadCount);
+        final CountDownLatch start = new CountDownLatch(1);
+        final List<Future<Response>> futures = new ArrayList<>();
+        try {
+            for (int i = 0; i < threadCount; i++) {
+                futures.add(executor.submit(() -> {
+                    ready.countDown();
+                    start.await();
+                    return readinessResource.getReadiness();
+                }));
+            }
+            ready.await();
+            start.countDown();
+            for (final Future<Response> future : futures) {
+                assertEquals(200, future.get().getStatus());
+            }
+        } finally {
+            executor.shutdown();
+        }
+
+        // exactly one thread should have performed the actual Vault ping for this TTL window
+        verify(vaultClient, times(1)).ping();
     }
 }

@@ -53,6 +53,8 @@ public class ReadinessResourceImpl implements ReadinessResource {
 
     private final AtomicLong lastVaultCheck = new AtomicLong(0L);
 
+    private final Object vaultCheckLock = new Object();
+
     @Override
     public Response getReadiness() {
         if (!componentManagerService.isStarted()) {
@@ -77,22 +79,32 @@ public class ReadinessResourceImpl implements ReadinessResource {
                     ? new HealthStatus(STATUS_UP, null)
                     : new HealthStatus(STATUS_DOWN, "Vault is not reachable");
         }
-        try {
-            final boolean reachable = vaultClient.ping();
-            cachedVaultResult.set(reachable);
-            lastVaultCheck.set(now);
-            if (!reachable) {
-                log.warn("Readiness check: Vault is not reachable");
-                return new HealthStatus(STATUS_DOWN, "Vault is not reachable");
+        synchronized (vaultCheckLock) {
+            // re-check under the lock: another thread may have already refreshed the cache
+            // while this thread was waiting to enter the monitor
+            final long recheckNow = System.currentTimeMillis();
+            if (recheckNow - lastVaultCheck.get() < VAULT_CACHE_TTL_MS) {
+                return cachedVaultResult.get()
+                        ? new HealthStatus(STATUS_UP, null)
+                        : new HealthStatus(STATUS_DOWN, "Vault is not reachable");
             }
-        } catch (final VirtualMachineError vme) {
-            throw vme;
-        } catch (final Throwable t) {
-            cachedVaultResult.set(false);
-            lastVaultCheck.set(now);
-            final String cause = "Vault connectivity check failed: " + t.getMessage();
-            log.warn("Readiness check failed: {}", cause);
-            return new HealthStatus(STATUS_DOWN, cause);
+            try {
+                final boolean reachable = vaultClient.ping();
+                cachedVaultResult.set(reachable);
+                lastVaultCheck.set(recheckNow);
+                if (!reachable) {
+                    log.warn("Readiness check: Vault is not reachable");
+                    return new HealthStatus(STATUS_DOWN, "Vault is not reachable");
+                }
+            } catch (final VirtualMachineError vme) {
+                throw vme;
+            } catch (final Throwable t) {
+                cachedVaultResult.set(false);
+                lastVaultCheck.set(recheckNow);
+                final String cause = "Vault connectivity check failed: " + t.getMessage();
+                log.warn("Readiness check failed: {}", cause);
+                return new HealthStatus(STATUS_DOWN, cause);
+            }
         }
         return new HealthStatus(STATUS_UP, null);
     }

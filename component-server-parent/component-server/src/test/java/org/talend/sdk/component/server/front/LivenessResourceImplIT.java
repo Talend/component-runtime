@@ -40,40 +40,44 @@ class LivenessResourceImplIT {
 
     @Test
     void livenessReturns200WhenNoFatalError() {
-        final Response response = base.path("liveness").request(APPLICATION_JSON_TYPE).get();
-        assertEquals(200, response.getStatus());
-        final HealthStatus status = response.readEntity(HealthStatus.class);
-        assertNotNull(status);
-        assertEquals("UP", status.getStatus());
-        assertNull(status.getCause());
+        try (Response response = base.path("liveness").request(APPLICATION_JSON_TYPE).get()) {
+            assertEquals(200, response.getStatus());
+            final HealthStatus status = response.readEntity(HealthStatus.class);
+            assertNotNull(status);
+            assertEquals("UP", status.getStatus());
+            assertNull(status.getCause());
+        }
     }
 
     @Test
     void readinessReturns200WhenReady() {
-        final Response response = base.path("readiness").request(APPLICATION_JSON_TYPE).get();
-        assertEquals(200, response.getStatus());
-        final HealthStatus status = response.readEntity(HealthStatus.class);
-        assertNotNull(status);
-        assertEquals("UP", status.getStatus());
+        try (Response response = base.path("readiness").request(APPLICATION_JSON_TYPE).get()) {
+            assertEquals(200, response.getStatus());
+            final HealthStatus status = response.readEntity(HealthStatus.class);
+            assertNotNull(status);
+            assertEquals("UP", status.getStatus());
+        }
     }
 
     @Test
     void livenessAndReadinessAreIndependentFromEnvironment() {
-        final Response envResponse = base.path("environment").request(APPLICATION_JSON_TYPE).get();
-        assertEquals(200, envResponse.getStatus());
+        try (Response envResponse = base.path("environment").request(APPLICATION_JSON_TYPE).get()) {
+            assertEquals(200, envResponse.getStatus());
+        }
 
-        final Response livenessResponse = base.path("liveness").request(APPLICATION_JSON_TYPE).get();
-        assertEquals(200, livenessResponse.getStatus());
+        try (Response livenessResponse = base.path("liveness").request(APPLICATION_JSON_TYPE).get()) {
+            assertEquals(200, livenessResponse.getStatus());
+        }
 
-        final Response readinessResponse = base.path("readiness").request(APPLICATION_JSON_TYPE).get();
-        assertEquals(200, readinessResponse.getStatus());
+        try (Response readinessResponse = base.path("readiness").request(APPLICATION_JSON_TYPE).get()) {
+            assertEquals(200, readinessResponse.getStatus());
+        }
     }
 
     @Test
     void livenessReturns503WhenFatalErrorRecorded() {
         fatalState.markFatal("simulated OOM during test");
-        try {
-            final Response response = base.path("liveness").request(APPLICATION_JSON_TYPE).get();
+        try (Response response = base.path("liveness").request(APPLICATION_JSON_TYPE).get()) {
             assertEquals(503, response.getStatus());
             final HealthStatus status = response.readEntity(HealthStatus.class);
             assertNotNull(status);
