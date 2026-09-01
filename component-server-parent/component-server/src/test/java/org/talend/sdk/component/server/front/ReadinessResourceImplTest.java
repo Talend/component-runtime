@@ -108,13 +108,15 @@ class ReadinessResourceImplTest {
     void returns503WhenVaultThrows() {
         when(componentManagerService.isStarted()).thenReturn(true);
         when(configuration.getHealthVaultEnabled()).thenReturn(true);
-        when(vaultClient.ping()).thenThrow(new RuntimeException("connection refused"));
+        when(vaultClient.ping())
+                .thenThrow(new RuntimeException("connection refused: ssl handshake to internal-host failed"));
 
         final Response response = readinessResource.getReadiness();
 
         assertEquals(503, response.getStatus());
         final HealthStatus status = (HealthStatus) response.getEntity();
         assertEquals("DOWN", status.getStatus());
+        assertEquals("Vault connectivity check failed", status.getCause());
     }
 
     @Test

@@ -101,9 +101,8 @@ public class ReadinessResourceImpl implements ReadinessResource {
             } catch (final Throwable t) {
                 cachedVaultResult.set(false);
                 lastVaultCheck.set(recheckNow);
-                final String cause = "Vault connectivity check failed: " + t.getMessage();
-                log.warn("Readiness check failed: {}", cause);
-                return new HealthStatus(STATUS_DOWN, cause);
+                log.warn("Readiness check failed: Vault connectivity check failed", t);
+                return new HealthStatus(STATUS_DOWN, "Vault connectivity check failed");
             }
         }
         return new HealthStatus(STATUS_UP, null);

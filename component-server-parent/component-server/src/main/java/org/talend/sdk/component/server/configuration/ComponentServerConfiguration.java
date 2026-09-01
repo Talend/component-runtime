@@ -207,7 +207,7 @@ public class ComponentServerConfiguration {
     @Inject
     @Documentation("Whether the Vault connectivity check is included in the readiness probe. "
             + "Set to true only when this server instance uses Vault for credential decryption.")
-    @ConfigProperty(name = "talend.server.health.vault.enabled", defaultValue = "false")
+    @ConfigProperty(name = "talend.component.server.health.vault.enabled", defaultValue = "false")
     private Boolean healthVaultEnabled;
 
     @PostConstruct

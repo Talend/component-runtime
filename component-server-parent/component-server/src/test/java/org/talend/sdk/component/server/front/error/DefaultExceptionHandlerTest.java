@@ -84,6 +84,7 @@ class DefaultExceptionHandlerTest {
         verify(fatalState).markFatal(causeCaptor.capture());
         final String cause = causeCaptor.getValue();
         assertTrue(cause.contains("StackOverflowError"));
+        assertTrue(cause.contains("(unknown)"));
         assertFalse(cause.contains("deep recursion detail"));
     }
 }
