@@ -34,7 +34,7 @@ public class BuiltInSuggestableServices {
      *
      */
 
-    public final static String BUILTIN_SUGGESTABLE = "action_BUILTIN_SUGGESTABLE";
+    public static final String BUILTIN_SUGGESTABLE = "action_BUILTIN_SUGGESTABLE";
 
     /**
      * BuiltInSuggestable action

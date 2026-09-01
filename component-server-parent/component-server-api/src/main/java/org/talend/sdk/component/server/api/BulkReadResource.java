@@ -45,20 +45,36 @@ public interface BulkReadResource {
             description = "The request payloads.",
             content = @Content(mediaType = APPLICATION_JSON))
     CompletionStage<BulkResponses> bulk(@RequestBody(
-            description = "The requests list as json objects containing a list of request objects.  \n" +
-                    "If your request contains multiple identifiers, you must use a list of string.  \n" +
-                    "Example :  \n" +
-                    "`{  \n" +
-                    "\"requests\" : [  \n" +
-                    "{  \n" +
-                    "  \"path\" : \"/api/v1/component/index\",  \n" +
-                    "  \"queryParameters\" : {\"identifiers\" : [\"12345\", \"6789A\"]},  \n" +
-                    "  \"verb\" : \"GET\",  \n" +
-                    "  \"headers\" : {...},  \n" +
-                    "},  \n" +
-                    "{ [...]}  \n" +
-                    "]  \n" +
-                    "}`",
+            description = """
+                          The request body is a JSON object containing a list of request objects.
+                          If your request contains multiple identifiers, you must use a list of strings.
+                          Example:
+
+                          ```json
+                          {
+                            "requests": [
+                              {
+                                "path": "/api/v1/component/index",
+                                "queryParameters": {
+                                  "identifiers": [
+                                    "12345",
+                                    "6789A"
+                                  ]
+                                },
+                                "verb": "GET",
+                                "headers": {}
+                              },
+                              {
+                                "path": "/api/v1/component/details",
+                                "queryParameters": {
+                                  "identifier": "12345"
+                                },
+                                "verb": "GET",
+                                "headers": {}
+                              }
+                            ]
+                          }
+                          ```""",
             required = true,
             content = @Content(mediaType = APPLICATION_JSON)) final BulkRequests requests);
 }

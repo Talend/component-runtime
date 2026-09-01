@@ -19,7 +19,6 @@ import static java.util.Locale.ROOT;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -70,7 +69,7 @@ public class IconResolver {
                         .getIconExtensions()
                         .stream()
                         .filter(it -> !it.endsWith(".svg"))
-                        .collect(toList());
+                        .toList();
         log.info("[IconResolver] SVG supported: {}, patterns: {}.", isSupportsSvg(), patterns);
     }
 

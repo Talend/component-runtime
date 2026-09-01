@@ -16,7 +16,6 @@
 package org.talend.sdk.component.server.service;
 
 import static java.util.Collections.singleton;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.Collection;
@@ -94,8 +93,8 @@ public class ActionsService {
                         familyBundle.actionDisplayName(s.getType(), s.getAction()).orElse(s.getAction()),
                         propertiesService
                                 .buildProperties(s.getParameters().get(), container.getLoader(), locale, null)
-                                .collect(toList())))
-                .collect(toList());
+                                .toList()))
+                .toList();
     }
 
     private Stream<ParameterMeta> toStream(final Collection<ParameterMeta> parameterMetas) {

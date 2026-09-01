@@ -44,17 +44,17 @@ public class ZonedDateTimeConverter extends AbstractConverter {
         switch (text.length()) {
             case 10: // YYYY-MM-dd
                 return ZonedDateTime.of(LocalDate.parse(text), NO_TIME, ZoneId.of("UTC"));
-            case 18: // HH:mm:ss.SSSSSSSSS
-            case 15: // HH:mm:ss.SSSSSS
-            case 12: // HH:mm:ss.SSS
-            case 8: // HH:mm:ss
-            case 5: // HH:mm
+            case 18 // HH:mm:ss.SSSSSSSSS
+                    , 15 // HH:mm:ss.SSSSSS
+                    , 12 // HH:mm:ss.SSS
+                    , 8 // HH:mm:ss
+                    , 5: // HH:mm
                 return ZonedDateTime.of(NO_DATE, LocalTime.parse(text), UTC);
-            case 29: // YYYY-MM-dd HH:mm:ss.SSSSSSSSS
-            case 26: // YYYY-MM-dd HH:mm:ss.SSSSSS
-            case 23: // YYYY-MM-dd HH:mm:ss.SSS
-            case 19: // YYYY-MM-dd HH:mm:ss
-            case 16: // YYYY-MM-dd HH:mm
+            case 29 // YYYY-MM-dd HH:mm:ss.SSSSSSSSS
+                    , 26 // YYYY-MM-dd HH:mm:ss.SSSSSS
+                    , 23 // YYYY-MM-dd HH:mm:ss.SSS
+                    , 19 // YYYY-MM-dd HH:mm:ss
+                    , 16: // YYYY-MM-dd HH:mm
             default: // YYYY-MM-dd HH:mm.ss+HH:mm[...]
                 text = text.replace(' ', 'T');
                 if (text.contains("+") || text.contains("[")) {

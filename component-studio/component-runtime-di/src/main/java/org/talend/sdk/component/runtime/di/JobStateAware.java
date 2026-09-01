@@ -54,11 +54,11 @@ public interface JobStateAware {
     }
 
     static void init(final Object instance, final Map<String, Object> globalMap) {
-        if (instance instanceof JobStateAware) {
+        if (instance instanceof JobStateAware jobStateAware) {
             synchronized (globalMap) {
                 final State state =
                         (State) globalMap.computeIfAbsent(JobStateAware.class.getName(), k -> new State());
-                ((JobStateAware) instance).setState(state);
+                jobStateAware.setState(state);
             }
         }
     }

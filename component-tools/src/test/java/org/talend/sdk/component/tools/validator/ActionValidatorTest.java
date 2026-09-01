@@ -99,7 +99,7 @@ class ActionValidatorTest {
         assertEquals(0, noerrors.count());
         finder = new AnnotationFinder(new ClassesArchive(ActionDatabaseMappingKO.class));
         final List<String> errors = validator.validate(finder, Arrays.asList(ActionDatabaseMappingKO.class))
-                .collect(Collectors.toList());
+                .toList();
         assertEquals(3, errors.size());
         assertAll(() -> assertContains(errors, "should return a String"),
                 () -> assertContains(errors, "should have an Object parameter marked with @Option"),
@@ -129,13 +129,13 @@ class ActionValidatorTest {
                 new AnnotationFinder(new ClassesArchive(ActionClassOK.class, FakeDataSet.class, FakeDataStore.class));
         final Stream<String> errorsStream =
                 validator.validate(finder, Arrays.asList(ActionClassOK.class, FakeDataSet.class, FakeDataStore.class));
-        final List<String> errors = errorsStream.collect(Collectors.toList());
+        final List<String> errors = errorsStream.toList();
         Assertions.assertTrue(errors.isEmpty(), () -> errors.get(0) + " as first error");
 
         AnnotationFinder finderKO = new AnnotationFinder(new ClassesArchive(ActionClassKO.class));
         final Stream<String> errorsStreamKO =
                 validator.validate(finderKO, Collections.singletonList(ActionClassKO.class));
-        final List<String> errorsKO = errorsStreamKO.collect(Collectors.toList());
+        final List<String> errorsKO = errorsStreamKO.toList();
         assertEquals(6, errorsKO.size(), () -> errorsKO.get(0) + " as first error");
 
         assertAll(() -> assertContains(errorsKO,
@@ -296,13 +296,13 @@ class ActionValidatorTest {
         }
 
         @DiscoverSchemaExtended("schema")
-        public Schema guessProcessorSchemaKo1(final Schema schema, final @Option FakeDataSet configuration,
+        public Schema guessProcessorSchemaKo1(final Schema schema, @Option final FakeDataSet configuration,
                 final String outgoing) {
             return null;
         }
 
         @DiscoverSchemaExtended("schema")
-        public Schema guessProcessorSchemaKo2(final Schema schema, final @Option FakeDataSet configuration,
+        public Schema guessProcessorSchemaKo2(final Schema schema, @Option final FakeDataSet configuration,
                 final String outgoing) {
             return null;
         }
@@ -415,6 +415,7 @@ class ActionValidatorTest {
     @ConditionalOutput("outflow-1")
     static class AvailableOutputProcessor implements Serializable {
 
+        @SuppressWarnings("java:S1068")
         private ConfigurationAO config;
 
         @ElementListener

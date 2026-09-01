@@ -56,7 +56,7 @@ public class RecordWithEntriesInErrorEmitter implements Serializable {
 
     public RecordWithEntriesInErrorEmitter(
             final RecordBuilderFactory recordBuilderFactory,
-            final @Option("configuration") Config config) {
+            @Option("configuration") final Config config) {
         this.recordBuilderFactory = recordBuilderFactory;
         this.config = config;
     }

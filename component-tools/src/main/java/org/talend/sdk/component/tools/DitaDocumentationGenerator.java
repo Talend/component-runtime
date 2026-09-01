@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -217,7 +216,7 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
             boolean arrayIsNeeded = params
                     .stream()
                     .filter(p -> !p.isComplex() || p.isSection())
-                    .collect(Collectors.toList())
+                    .toList()
                     .size() > 0;
             if (!arrayIsNeeded) {
                 return;

@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.sample.feature.checkpoint;
 
-import static java.util.stream.Collectors.toList;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +69,7 @@ public class IncrementalSequenceInput implements Serializable {
 
     @PostConstruct
     public void init() {
-        data = IntStream.range(0, configuration.dataset.maxRecords).boxed().collect(toList());
+        data = IntStream.range(0, configuration.dataset.maxRecords).boxed().toList();
         if (configuration.checkpoint != null) {
             bookmark = configuration.checkpoint.sinceId;
         }

@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.manager.service;
 
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 
 import java.io.File;
 import java.io.IOException;
@@ -97,8 +96,8 @@ public class ResolverImpl implements Resolver, Serializable {
                     ofNullable(configuration.getParentClassesFilter()).orElse(it -> false),
                     ofNullable(configuration.getClassesFilter()).orElse(it -> true),
                     nested.toArray(new String[0]),
-                    parent instanceof ConfigurableClassLoader
-                            ? ((ConfigurableClassLoader) parent).getJvmMarkers()
+                    parent instanceof ConfigurableClassLoader configurableClassLoader
+                            ? configurableClassLoader.getJvmMarkers()
                             : new String[] { "" },
                     ofNullable(configuration.getParentResourcesFilter()).orElse(it -> true));
             return new ClassLoaderDescriptorImpl(volatileLoader, resolved);
@@ -115,7 +114,7 @@ public class ResolverImpl implements Resolver, Serializable {
                     .map(Artifact::toPath)
                     .map(fileResolver)
                     .map(Path::toFile)
-                    .collect(toList());
+                    .toList();
         } catch (final IOException e) {
             throw new IllegalArgumentException(e);
         }

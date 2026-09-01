@@ -61,8 +61,7 @@ public class MockTableService {
         try {
             client.healthCheck(dt.getAuthorizationHeader());
         } catch (Exception e) {
-            if (e instanceof HttpException) {
-                final HttpException ex = (HttpException) e;
+            if (e instanceof HttpException ex) {
                 final JsonObject jError = (JsonObject) ex.getResponse().error(JsonObject.class);
                 String errorMessage = null;
                 if (jError != null && jError.containsKey("error")) {
@@ -99,7 +98,7 @@ public class MockTableService {
         return new Values(Stream
                 .of(QueryBuilder.Fields.values())
                 .map(f -> new Values.Item(f.name(), f.name()))
-                .collect(toList()));
+                .toList());
     }
 
     public interface Client extends HttpClient {

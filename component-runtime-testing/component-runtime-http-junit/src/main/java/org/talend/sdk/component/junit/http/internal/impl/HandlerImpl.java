@@ -182,8 +182,7 @@ public class HandlerImpl<T extends HttpApiHandler<?>> implements AutoCloseable {
                     }
                 });
         if (!(handler.getExecutor() instanceof AutoCloseable)
-                && handler.getExecutor() instanceof ExecutorService) {
-            final ExecutorService executorService = (ExecutorService) handler.getExecutor();
+                && handler.getExecutor() instanceof ExecutorService executorService) {
             executorService.shutdownNow(); // we don't need to wait here
         }
     }

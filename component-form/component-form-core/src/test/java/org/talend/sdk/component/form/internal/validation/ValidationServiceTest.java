@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.form.internal.validation;
 
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
@@ -61,7 +60,7 @@ public class ValidationServiceTest {
                         .getErrors()
                         .stream()
                         .map(e -> new ValidationError(e.getField(), e.getMessage()))
-                        .collect(toList()));
+                        .toList());
     }
 
     public CompletionStage<JsonSchemaValidator> getValidator(final ConfigTypeNode config) {

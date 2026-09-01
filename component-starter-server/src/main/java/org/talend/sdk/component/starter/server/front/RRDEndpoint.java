@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.starter.server.front;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
@@ -111,7 +110,7 @@ public class RRDEndpoint {
                 .range(0, timestamps.length)
                 .filter(idx -> !skipNan || !Double.isNaN(values[idx]))
                 .mapToObj(idx -> new Point(timestamps[idx], Double.isNaN(values[idx]) ? 0 : values[idx]))
-                .collect(toList());
+                .toList();
     }
 
     private String getMetricName(final String it) {

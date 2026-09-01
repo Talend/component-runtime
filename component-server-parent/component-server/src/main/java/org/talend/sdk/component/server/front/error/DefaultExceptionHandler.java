@@ -67,14 +67,14 @@ public class DefaultExceptionHandler implements ExceptionMapper<Throwable> {
         }
         log.error("[DefaultExceptionHandler#toResponse] Throwable: ", exception);
         final Response response;
-        if (exception instanceof WebApplicationException) {
-            response = ((WebApplicationException) exception).getResponse();
+        if (exception instanceof WebApplicationException applicationException) {
+            response = applicationException.getResponse();
         } else {
             final Optional<Throwable> optCause = Optional.ofNullable(exception.getCause());
             if (optCause.isPresent()) {
                 final Throwable cause = optCause.get();
-                if (cause instanceof WebApplicationException) {
-                    response = ((WebApplicationException) cause).getResponse();
+                if (cause instanceof WebApplicationException webApplicationException) {
+                    response = webApplicationException.getResponse();
                 } else {
                     response = Response
                             .status(Response.Status.INTERNAL_SERVER_ERROR)

@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -37,7 +36,7 @@ class AvroSchemaCacheTest {
         final List<Thread> threads =
                 schemas.stream() //
                         .map((SchemaImpl s) -> new Thread(() -> this.treat(s))) //
-                        .collect(Collectors.toList()); //
+                        .toList(); //
         threads.forEach(Thread::start);
         threads.forEach((Thread t) -> {
             try {

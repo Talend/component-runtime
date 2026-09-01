@@ -37,7 +37,6 @@ import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
@@ -117,7 +116,7 @@ class ContainerManagerTest {
                 final Container container = manager.builder(j.getAbsolutePath()).create();
                 return container.getId();
             }
-        }).collect(Collectors.toList());
+        }).toList();
         assertEquals(pluginIds, results);
     }
 

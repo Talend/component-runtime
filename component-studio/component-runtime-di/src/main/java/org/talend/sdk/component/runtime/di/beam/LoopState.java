@@ -75,7 +75,7 @@ public class LoopState implements AutoCloseable {
         if (value == null) {
             return;
         }
-        queue.add(value instanceof Record ? (Record) value : toRecord(value));
+        queue.add(value instanceof Record record ? record : toRecord(value));
         semaphore.release();
     }
 

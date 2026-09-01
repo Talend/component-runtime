@@ -23,6 +23,7 @@ import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -38,6 +39,7 @@ import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
@@ -52,16 +54,29 @@ class PropertiesServiceTest {
     @Inject
     private PropertiesService propertiesService;
 
+    @SuppressWarnings("java:S1144")
     private static void gridLayout(@Option final WithLayout layout) {
         // no-op
     }
 
+    @SuppressWarnings("java:S1144")
     private static void boolWrapper(@Option final BoolBool wrapper) {
         // no-op
     }
 
+    @SuppressWarnings("java:S1144")
     private static void multipleParams(@Option("aa") final String first, @Option("b") final BoolWrapper config,
             @Option("a") final String last) {
+        // no-op
+    }
+
+    @SuppressWarnings("java:S1144")
+    private static void schemaParam(@Option final Schema schema) {
+        // no-op
+    }
+
+    @SuppressWarnings("java:S1144")
+    private static void nonSchemaParam(@Option final String value) {
         // no-op
     }
 
@@ -72,7 +87,7 @@ class PropertiesServiceTest {
                         new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
         final List<SimplePropertyDefinition> props = propertiesService
                 .buildProperties(params, Thread.currentThread().getContextClassLoader(), Locale.ROOT, null)
-                .collect(toList());
+                .toList();
         assertEquals(3, props.size());
 
         final Map<String, String> metadata = props.iterator().next().getMetadata();
@@ -101,6 +116,30 @@ class PropertiesServiceTest {
     }
 
     @Test
+    void schemaParameterMetadataMarker() throws NoSuchMethodException {
+        final List<ParameterMeta> schemaParams = new ParameterModelService(new PropertyEditorRegistry())
+                .buildParameterMetas(getClass().getDeclaredMethod("schemaParam", Schema.class), null,
+                        new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        final List<SimplePropertyDefinition> schemaProps = propertiesService
+                .buildProperties(schemaParams, Thread.currentThread().getContextClassLoader(), Locale.ROOT, null)
+                .toList();
+        assertTrue(schemaProps.stream()
+                .filter(p -> !p.getPath().contains("."))
+                .allMatch(p -> p.getMetadata().containsKey("definition::parameter::schema")),
+                "Schema-typed root parameter should have definition::parameter::schema marker");
+
+        final List<ParameterMeta> strParams = new ParameterModelService(new PropertyEditorRegistry())
+                .buildParameterMetas(getClass().getDeclaredMethod("nonSchemaParam", String.class), null,
+                        new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        final List<SimplePropertyDefinition> strProps = propertiesService
+                .buildProperties(strParams, Thread.currentThread().getContextClassLoader(), Locale.ROOT, null)
+                .toList();
+        assertFalse(strProps.stream()
+                .anyMatch(p -> p.getMetadata().containsKey("definition::parameter::schema")),
+                "Non-Schema-typed parameter should NOT have definition::parameter::schema marker");
+    }
+
+    @Test
     void booleanDefault() throws NoSuchMethodException {
         final List<SimplePropertyDefinition> props = propertiesService
                 .buildProperties(
@@ -109,7 +148,7 @@ class PropertiesServiceTest {
                                         new BaseParameterEnricher.Context(
                                                 new LocalConfigurationService(emptyList(), "tools"))),
                         Thread.currentThread().getContextClassLoader(), Locale.ROOT, null)
-                .collect(toList());
+                .toList();
         assertEquals("true", props.stream().filter(p -> p.getName().equals("val")).findFirst().get().getDefaultValue());
     }
 
@@ -129,7 +168,7 @@ class PropertiesServiceTest {
         return propertiesService
                 .buildProperties(singletonList(config), getClass().getClassLoader(), Locale.forLanguageTag(locale),
                         null)
-                .collect(toList());
+                .toList();
     }
 
     @Test

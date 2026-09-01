@@ -34,9 +34,9 @@ public class HealthcheckServices {
      *
      */
 
-    public final static String HEALTH_CHECK_OK = "action_HEALTH_CHECK_OK";
+    public static final String HEALTH_CHECK_OK = "action_HEALTH_CHECK_OK";
 
-    public final static String HEALTH_CHECK_KO = "action_HEALTH_CHECK_KO";
+    public static final String HEALTH_CHECK_KO = "action_HEALTH_CHECK_KO";
 
     /**
      * Healthcheck action OK

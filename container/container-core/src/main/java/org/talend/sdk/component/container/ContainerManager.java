@@ -366,7 +366,7 @@ public class ContainerManager implements Lifecycle {
                 .stream()
                 .map(Container::getId)
                 .sorted()
-                .collect(toList());
+                .toList();
     }
 
     public String getPluginsHash() {
@@ -430,7 +430,7 @@ public class ContainerManager implements Lifecycle {
     }
 
     public List<String> getRuntimeClasspath() {
-        return Collections.unmodifiableList(runtimeClasspath);
+        return runtimeClasspath.stream().toList();
     }
 
     private void getSystemInformations() {
@@ -637,7 +637,7 @@ public class ContainerManager implements Lifecycle {
                 final Collection<ContainerListener> calledListeners = listeners
                         .stream()
                         .filter(l -> !ofNullable(safeInvoke(() -> l.onCreate(container))).map(re::add).orElse(false))
-                        .collect(toList());
+                        .toList();
                 if (calledListeners.size() == listeners.size()) {
                     if (containers.putIfAbsent(id, container) != null) {
                         container.setState(Container.State.ON_ERROR);

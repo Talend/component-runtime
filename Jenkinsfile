@@ -81,12 +81,13 @@ Boolean devBranch_dockerPush = false
 
 String skipOptions = "-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
 String deployOptions = "$skipOptions -Possrh -Prelease -Pgpg2 -Denforcer.skip=true"
+String nexusDeployOptions = "$skipOptions --activate-profiles private_repository -Denforcer.skip=true"
 
 
 pipeline {
   libraries {
     lib("connectors-lib@1.2.0") // https://github.com/Talend/tdi-jenkins-shared-libraries
-    lib("tqa-e2e-tests-tool@2.6.7-ttp2")  // https://github.com/Talend/tqa-e2e-testing-tool
+    lib("tqa-e2e-tests-tool@2.6.13-ttp2")  // https://github.com/Talend/tqa-e2e-testing-tool
   }
   agent {
     kubernetes {
@@ -239,6 +240,25 @@ pipeline {
         name: 'JENKINS_DEBUG',
         defaultValue: false,
         description: 'Add an extra step to the pipeline allowing to keep the pod alive for debug purposes.')
+    booleanParam(
+        name: 'NO_QUALIFIER',
+        defaultValue: false,
+        description: '''
+            DEBUG ONLY - do not use on a branch that others rely on.
+            Skips the version qualifier and overwrites the branch name mechanism to run as if this were master branch,
+            so you can test Jenkins pipeline changes (e.g. the Maven deploy stages) end to end from a dev branch.
+            WARNING: the resulting artifact uses the exact same (unqualified) SNAPSHOT
+            version as master. If this build deploys, it WILL OVERWRITE the artifacts
+            currently published by the master branch build on both the internal Nexus
+            and Sonatype/OSSRH repositories. If you do it, be sure that your branch is up to date with master.
+            Only to test Jenkins job evolution, never for real development work.''')
+    booleanParam(
+        name: 'NO_SONATYPE',
+        defaultValue: false,
+        description: '''
+            DEBUG ONLY - skips the Sonatype/OSSRH deploy stage entirely, whatever the branch.
+            Use this to test the pipeline faster when the slow/unreliable Sonatype deploy
+            is not what you want to validate (e.g. only testing the internal Nexus deploy stage).''')
   }
 
   stages {
@@ -274,16 +294,17 @@ pipeline {
         // Variables init
         ///////////////////////////////////////////
         script {
-          stdBranch_buildOnly = isStdBranch && params.ACTION != 'RELEASE'
+          stdBranch_buildOnly = (isStdBranch || params.NO_QUALIFIER) && params.ACTION != 'RELEASE'
           devBranch_mavenDeploy = !isStdBranch && params.MAVEN_DEPLOY
           devBranch_dockerPush = !isStdBranch && params.DOCKER_PUSH
 
-          needQualify = devBranch_mavenDeploy || devBranch_dockerPush
+          // NO_QUALIFIER forces the same (unqualified) version as master, see param warning
+          needQualify = (devBranch_mavenDeploy || devBranch_dockerPush) && !params.NO_QUALIFIER
 
           if (needQualify) {
             // Qualified version have to be released on talend_repository
             // Overwrite the deployOptions
-            deployOptions = "$skipOptions --activate-profiles private_repository -Denforcer.skip=true"
+            deployOptions = nexusDeployOptions
           }
 
           // hack to overwrite the skip of studio modules that we can't deploy in release mode into Sonatype repo
@@ -383,6 +404,9 @@ pipeline {
                       Debug: $params.JENKINS_DEBUG  
                       Extra build args: $extraBuildParams  """.stripIndent()
           JenkinsStatusController.jobDescriptionAppend(description)
+          if (params.NO_QUALIFIER) {
+            JenkinsStatusController.jobDescriptionAppend("⚠️ NO_QUALIFIER debug mode: unqualified version, deploy stages forced as on master/maintenance  ")
+          }
         }
       }
       post {
@@ -445,39 +469,73 @@ pipeline {
         }
       }
     }
-    stage('Maven deploy') {
+    stage('Maven deploy - Nexus') {
+      // Deploy to internal Nexus first on master/maintenance builds so that
+      // connectors-se Jenkins agents (which cannot reach central.sonatype.com)
+      // can resolve SNAPSHOT dependencies as soon as possible, independent of
+      // whether the Sonatype deploy stage below is slow or times out.
       when {
-        anyOf {
-          expression { stdBranch_buildOnly }
-          expression { devBranch_mavenDeploy }
+        expression { stdBranch_buildOnly }
+      }
+      steps {
+        withCredentials([nexusCredentials]) {
+          sh """\
+            #!/usr/bin/env bash
+            set -xe
+            mvn deploy ${nexusDeployOptions} \
+                        ${extraBuildParams} \
+                        --settings .jenkins/settings.xml
+            """.stripIndent()
+        }
+      }
+    }
+    stage('Maven deploy - Sonatype') {
+      // Sonatype/OSSRH deploy has a history of being slow/unreliable and can
+      // otherwise consume the whole pipeline timeout; bound it to its own
+      // timeout and degrade to UNSTABLE instead of failing the build outright
+      // (the Nexus deploy stage above already unblocks downstream consumers).
+      when {
+        allOf {
+          expression { !params.NO_SONATYPE }
+          anyOf {
+            expression { stdBranch_buildOnly }
+            expression { devBranch_mavenDeploy }
+          }
         }
       }
       steps {
         script {
-          withCredentials([ossrhCredentials,
-                           gpgCredentials,
-                           nexusCredentials]) {
-            sh """\
-              #!/usr/bin/env bash
-              set -xe
-              bash mvn deploy $deployOptions \
-                              $extraBuildParams \
-                              --settings .jenkins/settings.xml
-              """.stripIndent()
+          catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+            timeout(time: 60, unit: 'MINUTES') {
+              withCredentials([ossrhCredentials,
+                               gpgCredentials,
+                               nexusCredentials]) {
+                sh """\
+                  #!/usr/bin/env bash
+                  set -xe
+                  bash mvn deploy $deployOptions \
+                                  $extraBuildParams \
+                                  --settings .jenkins/settings.xml
+                  """.stripIndent()
+              }
+            }
           }
         }
         // Add description to job
         script {
           def repo
+          String nexusSnapshotUrl = 'https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/org/talend/sdk/component'
           if (devBranch_mavenDeploy) {
-            repo = ['artifacts-zl.talend.com',
-                    'https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/org/talend/sdk/component']
+            repo = ['artifacts-zl.talend.com', nexusSnapshotUrl]
           } else {
             repo = ['oss.sonatype.org',
                     'https://central.sonatype.com/repository/maven-snapshots/org/talend/sdk/component/']
           }
 
           JenkinsStatusController.jobDescriptionAppend("Maven artefact deployed as ${finalVersion} on [${repo[0]}](${repo[1]})  ")
+          if (stdBranch_buildOnly) {
+            JenkinsStatusController.jobDescriptionAppend("Maven artefact also deployed as ${finalVersion} on [artifacts-zl.talend.com](${nexusSnapshotUrl})  ")
+          }
         }
       }
     }

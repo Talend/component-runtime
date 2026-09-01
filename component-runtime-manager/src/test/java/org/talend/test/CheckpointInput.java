@@ -15,8 +15,6 @@
  */
 package org.talend.test;
 
-import static java.util.stream.Collectors.toList;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +66,7 @@ public class CheckpointInput implements Serializable {
 
     @PostConstruct
     public void init() {
-        data = IntStream.range(0, 10).boxed().collect(toList());
+        data = IntStream.range(0, 10).boxed().toList();
         if (configuration.checkpoint == null) {
             log.info("[resume] No valid checkpoint configuration found, using start of dataset.");
             bookmark = 0;

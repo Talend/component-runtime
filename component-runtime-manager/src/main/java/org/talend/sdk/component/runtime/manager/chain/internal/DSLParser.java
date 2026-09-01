@@ -84,8 +84,7 @@ public class DSLParser {
                         parameterComplete = true;
                         pos++;
                         break;
-                    case '%':
-                    case '+':
+                    case '%', '+':
                         // Decoding required
                         if (parsingName) {
                             decodeName = true;

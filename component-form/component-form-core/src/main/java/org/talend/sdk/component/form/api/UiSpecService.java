@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.form.api;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.ArrayList;
@@ -113,7 +112,7 @@ public class UiSpecService<T> implements AutoCloseable {
                             prop.getName(), prop.getDisplayName(), prop.getType(), prop.getDefaultValue(),
                             prop.getValidation(), prop.getMetadata(), prop.getPlaceholder(),
                             prop.getProposalDisplayNames()))
-                    .collect(toList());
+                    .toList();
             isRootProperty = p -> p.getPath().equals(def.getName());
         } else {
             props = node.getProperties();

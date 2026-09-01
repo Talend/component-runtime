@@ -74,14 +74,14 @@ public class DIPipeline extends Pipeline {
 
     private <PT extends POutput> PTransform<? super PBegin, PT>
             wrapTransformIfNeeded(final PTransform<? super PBegin, PT> root) {
-        if (root instanceof Read.Bounded) {
-            final BoundedSource source = ((Read.Bounded) root).getSource();
+        if (root instanceof Read.Bounded bounded) {
+            final BoundedSource source = bounded.getSource();
             final DelegatingBoundedSource boundedSource = new DelegatingBoundedSource(source, null);
             setState(boundedSource);
             return Read.from(boundedSource);
         }
-        if (root instanceof Read.Unbounded) {
-            final UnboundedSource source = ((Read.Unbounded) root).getSource();
+        if (root instanceof Read.Unbounded unbounded) {
+            final UnboundedSource source = unbounded.getSource();
             if (source instanceof InMemoryQueueIO.UnboundedQueuedInput) {
                 return root;
             }

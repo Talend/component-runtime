@@ -33,7 +33,7 @@ public class DynamicValuesServices {
      *
      */
 
-    public final static String DYNAMIC_VALUES = "action_DYNAMIC_VALUES";
+    public static final String DYNAMIC_VALUES = "action_DYNAMIC_VALUES";
 
     /**
      * DynamicValues action

@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.runtime.visitor;
 
-import static java.util.stream.Collectors.toList;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -46,6 +44,7 @@ import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.LastGroup;
+import org.talend.sdk.component.api.processor.MultiOutputIterator;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
@@ -129,18 +128,17 @@ public class ModelVisitor {
                 throw new IllegalArgumentException(m + " must not have any parameter without @PartitionSize");
             }
             final Type splitReturnType = m.getGenericReturnType();
-            if (!(splitReturnType instanceof ParameterizedType)) {
+            if (!(splitReturnType instanceof ParameterizedType splitPt)) {
                 throw new IllegalArgumentException(m + " must return a Collection<" + type.getName() + ">");
             }
 
-            final ParameterizedType splitPt = (ParameterizedType) splitReturnType;
-            if (!(splitPt.getRawType() instanceof Class)
-                    || !Collection.class.isAssignableFrom((Class) splitPt.getRawType())) {
+            if (!(splitPt.getRawType() instanceof Class clazz)
+                    || !Collection.class.isAssignableFrom(clazz)) {
                 throw new IllegalArgumentException(m + " must return a List of partition mapper, found: " + splitPt);
             }
 
             final Type arg = splitPt.getActualTypeArguments().length != 1 ? null : splitPt.getActualTypeArguments()[0];
-            if (!(arg instanceof Class) || !type.isAssignableFrom((Class) arg)) {
+            if (!(arg instanceof Class aClass) || !type.isAssignableFrom(aClass)) {
                 throw new IllegalArgumentException(
                         m + " must return a Collection<" + type.getName() + "> but found: " + arg);
             }
@@ -162,7 +160,7 @@ public class ModelVisitor {
 
     private void validateEmitter(final Class<?> input) {
         final List<Method> producers =
-                Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(Producer.class)).collect(toList());
+                Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(Producer.class)).toList();
         if (producers.size() != 1) {
             throw new IllegalArgumentException(input + " must have a single @Producer method");
         }
@@ -179,7 +177,7 @@ public class ModelVisitor {
         final List<Method> driverRunners = Stream
                 .of(standalone.getMethods())
                 .filter(m -> m.isAnnotationPresent(RunAtDriver.class))
-                .collect(toList());
+                .toList();
         if (driverRunners.size() != 1) {
             throw new IllegalArgumentException(standalone + " must have a single @RunAtDriver method");
         }
@@ -194,17 +192,18 @@ public class ModelVisitor {
 
     private void validateProcessor(final Class<?> input) {
         final List<Method> afterGroups =
-                Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(AfterGroup.class)).collect(toList());
+                Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(AfterGroup.class)).toList();
         afterGroups.forEach(m -> {
             final List<Parameter> invalidParams = Stream.of(m.getParameters()).peek(p -> {
                 if (p.isAnnotationPresent(Output.class) && !validOutputParam(p)) {
-                    throw new IllegalArgumentException("@Output parameter must be of type OutputEmitter");
+                    throw new IllegalArgumentException(
+                            "@Output parameter must be of type OutputEmitter or MultiOutputIterator");
                 }
             })
                     .filter(p -> !p.isAnnotationPresent(Output.class))
                     .filter(p -> !p.isAnnotationPresent(LastGroup.class))
                     .filter(p -> !Parameters.isGroupBuffer(p.getParameterizedType()))
-                    .collect(toList());
+                    .toList();
             if (!invalidParams.isEmpty()) {
                 throw new IllegalArgumentException("Parameter of AfterGroup method need to be annotated with Output");
             }
@@ -233,7 +232,7 @@ public class ModelVisitor {
         final List<Method> producers = Stream
                 .of(input.getMethods())
                 .filter(m -> m.isAnnotationPresent(ElementListener.class))
-                .collect(toList());
+                .toList();
         if (producers.size() > 1) {
             throw new IllegalArgumentException(input + " must have a single @ElementListener method");
         }
@@ -246,7 +245,8 @@ public class ModelVisitor {
 
         if (!producers.isEmpty() && Stream.of(producers.get(0).getParameters()).peek(p -> {
             if (p.isAnnotationPresent(Output.class) && !validOutputParam(p)) {
-                throw new IllegalArgumentException("@Output parameter must be of type OutputEmitter");
+                throw new IllegalArgumentException(
+                        "@Output parameter must be of type OutputEmitter or MultiOutputIterator");
             }
         }).filter(p -> !p.isAnnotationPresent(Output.class)).count() < 1) {
             throw new IllegalArgumentException(input + " doesn't have the input parameter on its producer method");
@@ -254,11 +254,17 @@ public class ModelVisitor {
     }
 
     private boolean validOutputParam(final Parameter p) {
-        if (!(p.getParameterizedType() instanceof ParameterizedType)) {
+        if (!(p.getParameterizedType() instanceof ParameterizedType pt)) {
             return false;
         }
-        final ParameterizedType pt = (ParameterizedType) p.getParameterizedType();
-        return OutputEmitter.class == pt.getRawType();
+        if (OutputEmitter.class == pt.getRawType()) {
+            if (p.getAnnotation(Output.class).branches().length > 0) {
+                throw new IllegalArgumentException(
+                        "@Output#branches is only supported on MultiOutputIterator parameters, use @Output(\"name\")");
+            }
+            return true;
+        }
+        return MultiOutputIterator.class == pt.getRawType();
     }
 
     private Stream<Class<? extends Annotation>> getPartitionMapperMethods(final boolean infinite) {
@@ -274,7 +280,7 @@ public class ModelVisitor {
         List<Method> markedMethods = Stream
                 .of(type.getMethods())
                 .filter(m -> m.isAnnotationPresent(AfterVariableContainer.class))
-                .collect(toList());
+                .toList();
         if (markedMethods.size() > 1) {
             String methods = markedMethods.stream().map(Method::toGenericString).collect(Collectors.joining(","));
             throw new IllegalArgumentException("The methods can't have more than 1 after variable container. "
@@ -314,16 +320,15 @@ public class ModelVisitor {
      * Where the key is String and value is Object
      */
     private static boolean isValidAfterVariableContainer(final Type type) {
-        if (!(type instanceof ParameterizedType)) {
+        if (!(type instanceof ParameterizedType paramType)) {
             return false;
         }
 
-        final ParameterizedType paramType = (ParameterizedType) type;
-        if (!(paramType.getRawType() instanceof Class) || paramType.getActualTypeArguments().length != 2) {
+        if (!(paramType.getRawType() instanceof Class<?> containerType)
+                || paramType.getActualTypeArguments().length != 2) {
             return false;
         }
 
-        final Class<?> containerType = (Class<?>) paramType.getRawType();
         return Map.class.isAssignableFrom(containerType) && paramType.getActualTypeArguments()[0].equals(String.class)
                 && paramType.getActualTypeArguments()[1].equals(Object.class);
     }
@@ -334,7 +339,7 @@ public class ModelVisitor {
                 .filter(annotation -> !SUPPORTED_AFTER_VARIABLES_TYPES.contains(annotation.type()))
                 .map(annotation -> "The after variable with name '" + annotation.value() + "' has incorrect type: '"
                         + annotation.type() + "'")
-                .collect(toList());
+                .toList();
         if (!incorrectDeclarations.isEmpty()) {
             String message = incorrectDeclarations
                     .stream()

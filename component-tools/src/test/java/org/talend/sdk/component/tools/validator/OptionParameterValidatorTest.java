@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -34,7 +33,7 @@ class OptionParameterValidatorTest {
     private List<String> validate(final Class<?> testClass) {
         final OptionParameterValidator validator = new OptionParameterValidator();
         final AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(testClass));
-        return validator.validate(finder, Arrays.asList(testClass)).collect(Collectors.toUnmodifiableList());
+        return validator.validate(finder, Arrays.asList(testClass)).toList();
     }
 
     @Test

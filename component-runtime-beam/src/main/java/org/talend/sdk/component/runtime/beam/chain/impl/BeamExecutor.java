@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.runtime.beam.chain.impl;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.Collection;
@@ -209,7 +208,7 @@ public class BeamExecutor implements Job.ExecutorBuilder {
 
     private List<Job.Edge> getEdges(final List<Job.Edge> edges, final Job.Component step,
             final Function<Job.Edge, Job.Component> componentMapper) {
-        return edges.stream().filter(edge -> componentMapper.apply(edge).equals(step)).collect(toList());
+        return edges.stream().filter(edge -> componentMapper.apply(edge).equals(step)).toList();
     }
 
     private PipelineOptions createPipelineOptions() {

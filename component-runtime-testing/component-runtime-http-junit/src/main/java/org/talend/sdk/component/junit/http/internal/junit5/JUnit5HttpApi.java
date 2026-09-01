@@ -85,7 +85,7 @@ public class JUnit5HttpApi extends HttpApiHandler<JUnit5HttpApi>
     public void beforeEach(final ExtensionContext extensionContext) {
         // test name
         final ResponseLocator responseLocator = getResponseLocator();
-        if (!(responseLocator instanceof DefaultResponseLocator)) {
+        if (!(responseLocator instanceof DefaultResponseLocator defaultResponseLocator)) {
             return;
         }
         final String test = extensionContext.getTestMethod().map(m -> {
@@ -99,7 +99,7 @@ public class JUnit5HttpApi extends HttpApiHandler<JUnit5HttpApi>
                     .orElseGet(() -> m.getDeclaringClass().getName() + "_" + m.getName()
                             + (displayName.equals(m.getName()) ? "" : ("_" + displayName)));
         }).orElse(null);
-        ((DefaultResponseLocator) responseLocator).setTest(test);
+        defaultResponseLocator.setTest(test);
     }
 
     @Override

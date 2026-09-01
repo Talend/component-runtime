@@ -17,14 +17,12 @@ package org.talend.sdk.component.maven;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.stream.Stream;
@@ -84,7 +82,6 @@ public class ComponentMetadataMojo extends ComponentManagerBasedMojo {
                                                 .orElse(p.getName()),
                                         p.getIcon(), emptyList(), singletonList("MAIN"))),
                                 c.getProcessors().values().stream().map(p -> {
-                                    final Method listener = p.getListener();
                                     return new Component(p.getParent().getCategories(), p.getParent().getName(),
                                             p.getName(),
                                             p
@@ -106,7 +103,7 @@ public class ComponentMetadataMojo extends ComponentManagerBasedMojo {
                                                         .orElse(p.getName()),
                                                 p.getIcon(), emptyList(), emptyList())))
                         .flatMap(t -> t))
-                .collect(toList());
+                .toList();
 
         try (final Jsonb mapper = inPluginContext(JsonbBuilder::newBuilder)
                 .withConfig(new JsonbConfig()

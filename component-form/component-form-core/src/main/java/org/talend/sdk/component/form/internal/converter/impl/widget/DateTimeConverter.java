@@ -67,8 +67,7 @@ public class DateTimeConverter extends AbstractWidgetConverter {
                 schema.setWidget("date");
                 schema.setOptions(singletonMap("dateFormat", dateFormat));
                 break;
-            case "datetime":
-            case "zoneddatetime": {
+            case "datetime", "zoneddatetime": {
                 schema.setWidget("datetime");
                 final Map<String, Object> options = new HashMap<>();
                 options.put("useSeconds", useSeconds);

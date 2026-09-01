@@ -79,7 +79,7 @@ public class TalendIOTest implements Serializable {
     private static final Jsonb JSONB = JsonbBuilder.create();
 
     @Rule
-    public transient final TestPipeline pipeline = TestPipeline.create();
+    public final transient TestPipeline pipeline = TestPipeline.create();
 
     @Test
     public void input() {
@@ -243,9 +243,9 @@ public class TalendIOTest implements Serializable {
                 .apply(UUID.randomUUID().toString(), toSampleLength())
                 .apply(UUID.randomUUID().toString(), toInt());
 
-        final List<Integer> expected = data.stream().map(Sample::getData).map(String::length).collect(toList());
+        final List<Integer> expected = data.stream().map(Sample::getData).map(String::length).toList();
         PAssert.that(out).satisfies((SerializableFunction<Iterable<Integer>, Void>) input -> {
-            final List<Integer> actual = StreamSupport.stream(input.spliterator(), false).sorted().collect(toList());
+            final List<Integer> actual = StreamSupport.stream(input.spliterator(), false).sorted().toList();
             assertEquals(expected, actual);
             return null;
         });
@@ -328,7 +328,7 @@ public class TalendIOTest implements Serializable {
         private int len;
     }
 
-    private static abstract class BaseTestProcessor implements Serializable, Processor {
+    private abstract static class BaseTestProcessor implements Serializable, Processor {
 
         @Override
         public void beforeGroup() {
@@ -366,7 +366,7 @@ public class TalendIOTest implements Serializable {
         }
     }
 
-    private static abstract class BaseTestInput implements Serializable, Input {
+    private abstract static class BaseTestInput implements Serializable, Input {
 
         @Override
         public String plugin() {
@@ -394,7 +394,7 @@ public class TalendIOTest implements Serializable {
         }
     }
 
-    private static abstract class TheTestMapper implements Serializable, Mapper {
+    private abstract static class TheTestMapper implements Serializable, Mapper {
 
         @Override
         public boolean isStream() {

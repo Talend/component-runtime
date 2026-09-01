@@ -93,7 +93,7 @@ public class RequestParser {
     }
 
     @AllArgsConstructor
-    final static class ReflectionInstanceCreator implements InstanceCreator {
+    static final class ReflectionInstanceCreator implements InstanceCreator {
 
         private final ReflectionService reflections;
 
@@ -233,8 +233,8 @@ public class RequestParser {
             if (payload == null) {
                 return Optional.empty();
             }
-            if (payload instanceof byte[]) {
-                return Optional.of((byte[]) payload);
+            if (payload instanceof byte[] bytes) {
+                return Optional.of(bytes);
             }
             if (encoders.size() == 1) {
                 return Optional.of(encoders.values().iterator().next().encode(payload));
@@ -257,13 +257,12 @@ public class RequestParser {
 
     static Class<?> toClassType(final Type type) {
         Class<?> cType = null;
-        if (type instanceof Class) {
-            cType = (Class) type;
-        } else if (type instanceof ParameterizedType) {
-            final ParameterizedType pt = (ParameterizedType) type;
+        if (type instanceof Class aClass) {
+            cType = aClass;
+        } else if (type instanceof ParameterizedType pt) {
             if (pt.getRawType() == Response.class && pt.getActualTypeArguments().length == 1
-                    && pt.getActualTypeArguments()[0] instanceof Class) {
-                cType = (Class) pt.getActualTypeArguments()[0];
+                    && pt.getActualTypeArguments()[0] instanceof Class ptClass) {
+                cType = ptClass;
             }
         }
 
@@ -412,8 +411,8 @@ public class RequestParser {
 
         private Stream<AbstractMap.SimpleEntry<String, String>> mapValues(final QueryEncodable config, final String key,
                 final Object v) {
-            if (v instanceof Collection) {
-                final Stream<String> collection = ((Collection<?>) v)
+            if (v instanceof Collection<?> objects) {
+                final Stream<String> collection = objects
                         .stream()
                         .filter(Objects::nonNull)
                         .map(String::valueOf)
@@ -422,7 +421,7 @@ public class RequestParser {
                     case MULTI:
                         return collection.map(q -> new AbstractMap.SimpleEntry<>(key, q));
                     case CSV:
-                        return of(new AbstractMap.SimpleEntry<>(key, String.join(",", collection.collect(toList()))));
+                        return of(new AbstractMap.SimpleEntry<>(key, String.join(",", collection.toList())));
                     default:
                         throw new IllegalArgumentException("Unsupported formatting: " + config);
                 }

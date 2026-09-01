@@ -31,9 +31,9 @@ public class CloseConnectionServices {
      *
      */
 
-    public final static String CLOSE_CONNECTION_TRUE = "action_CLOSE_CONNECTION_TRUE";
+    public static final String CLOSE_CONNECTION_TRUE = "action_CLOSE_CONNECTION_TRUE";
 
-    public final static String CLOSE_CONNECTION_FALSE = "action_CLOSE_CONNECTION_FALSE";
+    public static final String CLOSE_CONNECTION_FALSE = "action_CLOSE_CONNECTION_FALSE";
 
     /**
      * Close Connection action True

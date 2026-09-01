@@ -35,7 +35,7 @@ public class DiscoverDatasetResult {
     }
 
     @Getter
-    public final static class DatasetDescription {
+    public static final class DatasetDescription {
 
         public DatasetDescription(final String name) {
             this.name = name;

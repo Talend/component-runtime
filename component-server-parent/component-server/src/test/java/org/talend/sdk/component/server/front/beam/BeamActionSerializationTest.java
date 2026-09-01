@@ -42,15 +42,38 @@ class BeamActionSerializationTest {
                 .queryParam("lang", "it")
                 .request(APPLICATION_JSON_TYPE)
                 .post(Entity.entity(emptyMap(), APPLICATION_JSON_TYPE), String.class);
-        final String attended = "{\n" + "  \"entries\":[\n" + "    {\n" + "      \"elementSchema\":{\n"
-                + "        \"entries\":[\n" + "        ],\n" + "        \"metadata\":[\n" + "        ],\n"
-                + "        \"props\":{\n" + "\n" + "        },\n" + "        \"type\":\"STRING\"\n" + "      },\n"
-                + "      \"errorCapable\":false,\n      \"metadata\":false,\n"
-                + "      \"name\":\"array\",\n" + "      \"nullable\":false,\n"
-                + "      \"props\":{\n" + "\n" + "      },\n" + "      \"type\":\"ARRAY\",\n" +
-                "      \"valid\":true\n    }\n" + "  ],\n"
-                + "  \"metadata\":[\n" + "  ],\n" + "  \"props\":{\n" + "    \"talend.fields.order\":\"array\"\n"
-                + "  },\n" + "  \"type\":\"RECORD\"\n" + "}";
+        final String attended = """
+                                {
+                                  "entries":[
+                                    {
+                                      "elementSchema":{
+                                        "entries":[
+                                        ],
+                                        "metadata":[
+                                        ],
+                                        "props":{
+
+                                        },
+                                        "type":"STRING"
+                                      },
+                                      "errorCapable":false,
+                                      "metadata":false,
+                                      "name":"array",
+                                      "nullable":false,
+                                      "props":{
+
+                                      },
+                                      "type":"ARRAY",
+                                      "valid":true
+                                    }
+                                  ],
+                                  "metadata":[
+                                  ],
+                                  "props":{
+                                    "talend.fields.order":"array"
+                                  },
+                                  "type":"RECORD"
+                                }""";
         assertEquals(attended, schema);
     }
 }

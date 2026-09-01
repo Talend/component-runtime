@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.runtime.input;
 
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -94,7 +93,7 @@ public class PartitionMapperImplTest {
 
         @Split
         public Collection<SampleMapper> split(@PartitionSize final int partitions) {
-            return IntStream.range(0, partitions).mapToObj(i -> new SampleMapper()).collect(toList());
+            return IntStream.range(0, partitions).mapToObj(i -> new SampleMapper()).toList();
         }
 
         @Emitter

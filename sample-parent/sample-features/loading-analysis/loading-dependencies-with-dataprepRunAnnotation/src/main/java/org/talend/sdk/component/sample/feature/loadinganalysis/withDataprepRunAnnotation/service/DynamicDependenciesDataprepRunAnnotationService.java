@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DynamicDependenciesDataprepRunAnnotationService extends AbstractDynamicDependenciesService
         implements Serializable {
 
-    public final static String DEPENDENCY_WITHDATAPREPRUN_ACTION = "DEPENDENCY_WITHDATAPREPRUN_ACTION";
+    public static final String DEPENDENCY_WITHDATAPREPRUN_ACTION = "DEPENDENCY_WITHDATAPREPRUN_ACTION";
 
     @DynamicDependencies
     public List<String> getDynamicDependencies(@Option("theConfig") final Config config) {
@@ -44,7 +44,7 @@ public class DynamicDependenciesDataprepRunAnnotationService extends AbstractDyn
     }
 
     @DiscoverSchemaExtended(DEPENDENCY_WITHDATAPREPRUN_ACTION)
-    public Schema guessSchema4Input(final @Option("configuration") Config config) {
+    public Schema guessSchema4Input(@Option("configuration") final Config config) {
         return super.buildSchema();
     }
 

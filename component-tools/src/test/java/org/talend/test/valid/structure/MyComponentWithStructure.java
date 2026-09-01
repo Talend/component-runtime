@@ -75,10 +75,13 @@ public class MyComponentWithStructure implements Serializable {
 
         public class MySchema implements Serializable {
 
+            @SuppressWarnings("java:S1068")
             private String label;
 
+            @SuppressWarnings("java:S1068")
             private int length;
 
+            @SuppressWarnings("java:S1068")
             private int precision;
         }
 

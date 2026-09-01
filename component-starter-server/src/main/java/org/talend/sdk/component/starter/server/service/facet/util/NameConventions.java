@@ -71,8 +71,7 @@ public class NameConventions {
                 return "boolean";
             case "double":
                 return "double";
-            case "int":
-            case "integer":
+            case "int", "integer":
                 return "int";
             case "uri": // todo: import
                 return "java.net.URI";

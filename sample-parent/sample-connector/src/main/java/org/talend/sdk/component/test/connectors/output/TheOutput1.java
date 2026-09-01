@@ -50,7 +50,7 @@ public class TheOutput1 implements Serializable {
 
     private OutputConfig config;
 
-    public TheOutput1(final @Option("configout") OutputConfig config) {
+    public TheOutput1(@Option("configout") final OutputConfig config) {
 
         this.config = config;
     }

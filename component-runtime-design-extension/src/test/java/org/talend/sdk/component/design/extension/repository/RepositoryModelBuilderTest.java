@@ -21,7 +21,6 @@ import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static org.apache.xbean.asm9.ClassReader.EXPAND_FRAMES;
 import static org.apache.xbean.asm9.ClassWriter.COMPUTE_FRAMES;
 import static org.apache.ziplock.JarLocation.jarLocation;
@@ -124,7 +123,7 @@ class RepositoryModelBuilderTest {
                         }), new MigrationHandlerFactory(
                                 new ReflectionService(new ParameterModelService(registry), registry)));
         final List<Config> configs =
-                model.getFamilies().stream().flatMap(f -> f.getConfigs().get().stream()).collect(toList());
+                model.getFamilies().stream().flatMap(f -> f.getConfigs().get().stream()).toList();
         assertEquals(1, configs.size());
     }
 

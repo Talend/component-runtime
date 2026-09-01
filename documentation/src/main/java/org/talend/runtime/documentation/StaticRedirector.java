@@ -29,15 +29,17 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = PRIVATE)
 public class StaticRedirector {
 
-    public static final String LATEST_REDIRECT = "<!DOCTYPE html>\n" +
-            "<meta charset=\"utf-8\">\n" +
-            "<link rel=\"canonical\" href=\"https://talend.github.io/component-runtime/main/latest/index.html\">\n" +
-            "<script>location=\"main/latest/index.html\"</script>\n" +
-            "<meta http-equiv=\"refresh\" content=\"0; url=main/latest/index.html\">\n" +
-            "<meta name=\"robots\" content=\"noindex\">\n" +
-            "<title>Redirect Notice</title>\n" +
-            "<h1>Redirect Notice</h1>\n" +
-            "<p>The page you requested has been relocated to <a href=\"main/latest/index.html\">https://talend.github.io/component-runtime/main/latest/index.html</a>.</p>";
+    public static final String LATEST_REDIRECT =
+            """
+            <!DOCTYPE html>
+            <meta charset="utf-8">
+            <link rel="canonical" href="https://talend.github.io/component-runtime/main/latest/index.html">
+            <script>location="main/latest/index.html"</script>
+            <meta http-equiv="refresh" content="0; url=main/latest/index.html">
+            <meta name="robots" content="noindex">
+            <title>Redirect Notice</title>
+            <h1>Redirect Notice</h1>
+            <p>The page you requested has been relocated to <a href="main/latest/index.html">https://talend.github.io/component-runtime/main/latest/index.html</a>.</p>""";
 
     public static void main(final String[] args) {
         log.info("Creating redirection file to latest.");

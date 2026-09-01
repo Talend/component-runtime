@@ -90,7 +90,7 @@ public class DataListWidgetConverter extends AbstractWidgetConverter {
                 return pairs.thenApply(namedValues -> {
                     schema.setTitleMap(namedValues);
                     schema.setRestricted(true);
-                    jsonSchema.setEnumValues(namedValues.stream().map(UiSchema.NameValue::getValue).collect(toList()));
+                    jsonSchema.setEnumValues(namedValues.stream().map(UiSchema.NameValue::getValue).toList());
                     return context;
                 });
             } else {

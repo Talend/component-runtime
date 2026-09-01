@@ -19,7 +19,6 @@ import static java.util.Collections.singletonMap;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.BufferedOutputStream;
@@ -119,7 +118,7 @@ public class ExtensionComponentMetadataManager {
                                             .concat(createBuiltInLinks(it),
                                                     it.getLinks() == null ? Stream.empty() : it.getLinks().stream())
                                             .distinct()
-                                            .collect(toList()),
+                                            .toList(),
                                     singletonMap("mapper::infinite", "false")))
                             .collect(toMap(it -> it.getId().getId(), identity(), (a, b) -> {
                                 throw new IllegalArgumentException(a + " and " + b + " are conflicting");

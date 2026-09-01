@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.di.beam.components;
 
 import static java.util.Collections.singletonMap;
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -34,10 +33,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
-import javax.json.spi.JsonProvider;
 
 import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.transforms.Create;
@@ -239,20 +236,15 @@ class DIBatchSimulationTest {
         final Map<Class<?>, Object> servicesMapper =
                 manager.findPlugin(mapperMapper.plugin()).get().get(ComponentManager.AllServices.class).getServices();
         final Jsonb jsonbMapper = (Jsonb) servicesMapper.get(Jsonb.class);
-        final JsonProvider jsonProvider = (JsonProvider) servicesMapper.get(JsonProvider.class);
-        final JsonBuilderFactory jsonBuilderFactory =
-                (JsonBuilderFactory) servicesMapper.get(JsonBuilderFactory.class);
         final RecordBuilderFactory recordBuilderMapper =
                 (RecordBuilderFactory) servicesMapper.get(RecordBuilderFactory.class);
         final RecordConverters converters = new RecordConverters();
 
-        final RecordConverters.MappingMetaRegistry registry = new RecordConverters.MappingMetaRegistry();
-
         Object dataMapper;
         while ((dataMapper = inputMapper.next()) != null) {
             final String jsonValueMapper;
-            if (dataMapper instanceof javax.json.JsonValue) {
-                jsonValueMapper = ((javax.json.JsonValue) dataMapper).toString();
+            if (dataMapper instanceof javax.json.JsonValue jsonValue) {
+                jsonValueMapper = jsonValue.toString();
             } else if (dataMapper instanceof org.talend.sdk.component.api.record.Record) {
                 jsonValueMapper = jsonbMapper
                         .toJson(converters
@@ -342,7 +334,7 @@ class DIBatchSimulationTest {
                             .of(IntStream
                                     .range(0, count)
                                     .mapToObj(i -> new Record("id_" + i, "record_" + i))
-                                    .collect(toList()))
+                                    .toList())
                             .withCoder(SerializableCoder.of(Record.class)));
         }
     }

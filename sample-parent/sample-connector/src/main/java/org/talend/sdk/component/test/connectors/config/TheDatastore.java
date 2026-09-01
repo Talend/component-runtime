@@ -40,7 +40,7 @@ import lombok.Data;
                 @GridLayout.Row({ "auth" }) })
 public class TheDatastore implements Serializable {
 
-    public final static int DATASTORE_VERSION = 2;
+    public static final int DATASTORE_VERSION = 2;
 
     @Option
     @Required

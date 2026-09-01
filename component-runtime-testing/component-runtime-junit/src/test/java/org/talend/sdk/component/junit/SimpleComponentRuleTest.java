@@ -17,7 +17,6 @@ package org.talend.sdk.component.junit;
 
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -209,7 +208,7 @@ public class SimpleComponentRuleTest {
         latch.countDown();
 
         final Stream<String> collect = COMPONENT_FACTORY.collect(String.class, mapper, 2, 2);
-        final List<String> threads = collect.collect(toList());
+        final List<String> threads = collect.toList();
         assertEquals(threads.toString(), 2, threads.size());
         threads.forEach(n -> assertTrue(n, n.startsWith("SimpleComponentRule-pool-")));
     }

@@ -112,8 +112,7 @@ public class PayloadMapper {
                     }
                 }
                 break;
-            case ENUM:
-            case STRING: {
+            case ENUM, STRING: {
                 final String value = config.get(newPath);
                 parameterVisitor.onParameter(definition, value == null ? JsonValue.NULL : jsonp.createValue(value));
                 ofNullable(value).ifPresent(v -> json.add(name, v));
@@ -186,8 +185,7 @@ public class PayloadMapper {
             case NUMBER:
                 final Double number = Double.valueOf(value.trim());
                 return number == number.longValue() ? jsonp.createValue(number.longValue()) : jsonp.createValue(number);
-            case ENUM:
-            case STRING:
+            case ENUM, STRING:
                 return jsonp.createValue(value);
             default:
                 throw new IllegalArgumentException("Unsupported structure in " + "array: " + itemDef.getType());

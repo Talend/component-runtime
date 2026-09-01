@@ -15,12 +15,14 @@
  */
 package org.talend.sdk.component.runtime.di;
 
+import java.util.Iterator;
 import java.util.Map;
 
-import javax.json.JsonBuilderFactory;
 import javax.json.bind.Jsonb;
-import javax.json.spi.JsonProvider;
 
+import org.talend.sdk.component.api.processor.MultiOutputIterator;
+import org.talend.sdk.component.api.processor.OutputEmitter;
+import org.talend.sdk.component.api.processor.TaggedOutput;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.output.OutputFactory;
@@ -28,29 +30,64 @@ import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegis
 
 public class OutputsHandler extends BaseIOHandler {
 
-    private final JsonProvider jsonProvider;
-
-    private final JsonBuilderFactory jsonBuilderFactory;
-
     private final MappingMetaRegistry registry = new MappingMetaRegistry();
 
     public OutputsHandler(final Jsonb jsonb, final Map<Class<?>, Object> servicesMapper) {
         super(jsonb, servicesMapper);
-        this.jsonProvider = (JsonProvider) servicesMapper.get(JsonProvider.class);
-        this.jsonBuilderFactory = (JsonBuilderFactory) servicesMapper.get(JsonBuilderFactory.class);
     }
 
     public OutputFactory asOutputFactory() {
-        return name -> value -> {
-            final BaseIOHandler.IO ref = connections.get(getActualName(name));
-            if (ref != null && value != null) {
-                if (value instanceof javax.json.JsonValue) {
-                    ref.add(jsonb.fromJson(value.toString(), ref.getType()));
-                } else if (value instanceof Record) {
-                    ref.add(registry.find(ref.getType()).newInstance((Record) value));
-                } else {
-                    ref.add(jsonb.fromJson(jsonb.toJson(value), ref.getType()));
-                }
+        return new OutputFactory() {
+
+            @Override
+            public OutputEmitter create(final String name) {
+                final BaseIOHandler.IO ref = connections.get(getActualName(name));
+                return value -> {
+                    if (ref != null && value != null) {
+                        ref.add(convert(value, ref));
+                    }
+                };
+            }
+
+            @Override
+            public <T> MultiOutputIterator<T> createMultiOutputIterator() {
+                return new MultiOutputIterator<T>() {
+
+                    @Override
+                    public void setIterator(final Iterator<TaggedOutput<T>> iterator) {
+                        setTaggedSource(() -> {
+                            if (!iterator.hasNext()) {
+                                return false;
+                            }
+                            final TaggedOutput<T> tagged = iterator.next();
+                            final String name = tagged.getOutputName();
+                            final BaseIOHandler.IO ref = connections.get(name);
+                            setPending(name,
+                                    ref != null ? convert(tagged.getRecord(), ref) : tagged.getRecord());
+                            return true;
+                        });
+                    }
+
+                    @Override
+                    public void setIterator(final String outputName, final Iterator<T> iterator) {
+                        final BaseIOHandler.IO ref = connections.get(outputName);
+                        if (ref == null) {
+                            return;
+                        }
+                        ref.setSource(new Iterator() {
+
+                            @Override
+                            public boolean hasNext() {
+                                return iterator.hasNext();
+                            }
+
+                            @Override
+                            public Object next() {
+                                return convert(iterator.next(), ref);
+                            }
+                        });
+                    }
+                };
             }
         };
     }
@@ -67,8 +104,8 @@ public class OutputsHandler extends BaseIOHandler {
             if (ref != null && value != null) {
                 if (value instanceof javax.json.JsonValue) {
                     ref.add(jsonb.fromJson(value.toString(), ref.getType()));
-                } else if (value instanceof Record) {
-                    ref.add(((Record) value).getSchema());
+                } else if (value instanceof Record rec) {
+                    ref.add(rec.getSchema());
                 } else if (value instanceof Schema) {
                     ref.add(value);
                 } else {
@@ -76,6 +113,18 @@ public class OutputsHandler extends BaseIOHandler {
                 }
             }
         };
+    }
+
+    private Object convert(final Object value, final BaseIOHandler.IO ref) {
+        if (value == null) {
+            return null;
+        } else if (value instanceof javax.json.JsonValue) {
+            return jsonb.fromJson(value.toString(), ref.getType());
+        } else if (value instanceof Record rec) {
+            return registry.find(ref.getType()).newInstance(rec);
+        } else {
+            return jsonb.fromJson(jsonb.toJson(value), ref.getType());
+        }
     }
 
 }

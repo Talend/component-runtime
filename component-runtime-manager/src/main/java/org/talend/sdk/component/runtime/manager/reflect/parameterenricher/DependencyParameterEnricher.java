@@ -57,14 +57,13 @@ public class DependencyParameterEnricher extends BaseParameterEnricher {
     // don't work with Map (composed collection), nor List<? extends ConnectorReference> (not used in framework)
     private boolean isCollectionConnectorReference(final Type parameterType) {
         // check generic
-        if (!(parameterType instanceof ParameterizedType)) {
+        if (!(parameterType instanceof ParameterizedType parameterClass)) {
             return false;
         }
-        final ParameterizedType parameterClass = (ParameterizedType) parameterType;
 
         // Check it's a Collection (java.util)
         final Type rawType = parameterClass.getRawType();
-        if ((!(rawType instanceof Class)) || !Collection.class.isAssignableFrom((Class) rawType)) {
+        if ((!(rawType instanceof Class aClass)) || !Collection.class.isAssignableFrom(aClass)) {
             return false;
         }
 
@@ -79,8 +78,8 @@ public class DependencyParameterEnricher extends BaseParameterEnricher {
 
     // Check if parameter is of type or subtype of ConnectorReference
     private boolean isConnectorReference(final Type parameterType) {
-        return parameterType instanceof Class
-                && Stream.of(((Class<?>) parameterType).getDeclaredFields())
+        return parameterType instanceof Class<?> aClass
+                && Stream.of(aClass.getDeclaredFields())
                         .anyMatch(field -> field.isAnnotationPresent(ConnectorRef.class));
     }
 }

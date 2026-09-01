@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.runtime.manager.service.http;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
@@ -95,7 +93,6 @@ class RequestParserTest {
                         .getDeclaredMethod("complexe", String.class, String.class, String.class, String.class,
                                 Integer.class, Map.class));
         {
-            final Type responseType = complexe.getResponseType();
             final HttpRequestCreator creator = complexe.getRequestCreator();
             Assertions.assertNotNull(creator);
             Map<String, String> queryParams = new HashMap<>();

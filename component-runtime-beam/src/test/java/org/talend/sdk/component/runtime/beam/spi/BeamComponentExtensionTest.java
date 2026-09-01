@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.beam.spi;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -138,7 +137,7 @@ class BeamComponentExtensionTest {
         private final Create.Values<Sample> source;
 
         public BeamSource(final Collection<String> values) {
-            this.source = Create.of(values.stream().map(Sample::new).collect(toList()));
+            this.source = Create.of(values.stream().map(Sample::new).toList());
         }
 
         @Override

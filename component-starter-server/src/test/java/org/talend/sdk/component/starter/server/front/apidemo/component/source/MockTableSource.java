@@ -37,6 +37,7 @@ public class MockTableSource implements Serializable {
 
     private final TableDataSet ds;
 
+    @SuppressWarnings("java:S1068")
     private final Messages i18n;
 
     private BufferizedProducerSupport<JsonValue> bufferedReader;

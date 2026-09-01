@@ -32,11 +32,9 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.spi.JsonbProvider;
-import javax.json.spi.JsonProvider;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,10 +58,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 class CheckpointInputTest {
-
-    private final JsonProvider jsonp = JsonProvider.provider();
-
-    private final JsonBuilderFactory jsonFactory = jsonp.createBuilderFactory(emptyMap());
 
     private final Jsonb jsonb = JsonbProvider.provider().create().build();
 
@@ -207,9 +201,8 @@ class CheckpointInputTest {
             final Input input = chainedMapper.create(); // ChainedInput
             input.start();
             //
-            Object rawData;
             int counted = 0;
-            while ((rawData = input.next()) != null) {
+            while (input.next() != null) {
                 // data conversion of rawData to rowStruct and operate on rowStruct...
                 if (input.isCheckpointReady()) {
                     System.err.println(input.getCheckpoint());
@@ -241,10 +234,8 @@ class CheckpointInputTest {
             //
             final Input input = chainedMapper.create(); // ChainedInput
             input.start((s) -> log.info("[studioLifecycleWithResume] state: {}.", s));
-            Object rawData;
             int counted = 0;
-            // RowStruct rowStruct = new RowStruct(); // @Data static class RowStruct {Integer data;}
-            while ((rawData = input.next()) != null) {
+            while (input.next() != null) {
                 // data conversion of rawData to rowStruct ...
                 // operate on rowStruct...
                 counted++;
@@ -295,9 +286,8 @@ class CheckpointInputTest {
             //
             final Input input = getInput(mgr, "resumeable-input", 1, configuration);
             input.start();
-            Record record;
             int counted = 0;
-            while ((record = (Record) input.next()) != null) {
+            while (input.next() != null) {
                 counted++;
                 if (input.isCheckpointReady()) {
                     assertNotNull(input.getCheckpoint());
@@ -326,9 +316,8 @@ class CheckpointInputTest {
             //
             final Input input = getInput(mgr, "resumeable-input", 1, configuration);
             input.start();
-            Record record;
             int counted = 0;
-            while ((record = (Record) input.next()) != null) {
+            while (input.next() != null) {
                 counted++;
                 assertFalse(input.isCheckpointReady());
             }

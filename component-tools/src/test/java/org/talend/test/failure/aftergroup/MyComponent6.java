@@ -41,7 +41,7 @@ public class MyComponent6 implements Serializable {
     }
 
     @ElementListener
-    public Foo passthrough(final Foo item, final @Output("out1") OutputEmitter<JsonObject> out) {
+    public Foo passthrough(final Foo item, @Output("out1") final OutputEmitter<JsonObject> out) {
         return item;
     }
 

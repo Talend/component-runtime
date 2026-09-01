@@ -22,7 +22,6 @@ import static java.util.Locale.ROOT;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.PACKAGE;
 
@@ -227,7 +226,8 @@ public class VirtualDependenciesService {
         mainAttributes.putValue("Created-By", "Talend Component Kit Server");
         mainAttributes.putValue("Talend-Time", Long.toString(System.currentTimeMillis()));
         mainAttributes.putValue("Talend-Family-Name", family);
-        try (final JarOutputStream jar = new JarOutputStream(new BufferedOutputStream(outputStream), manifest)) {
+        try (final BufferedOutputStream buffered = new BufferedOutputStream(outputStream);
+                final JarOutputStream jar = new JarOutputStream(buffered, manifest)) {
             jar.putNextEntry(new JarEntry("TALEND-INF/local-configuration.properties"));
             userConfiguration.store(jar, "Configuration of the family " + family);
             jar.closeEntry();
@@ -300,9 +300,8 @@ public class VirtualDependenciesService {
         if (!Files.isDirectory(familyFolder)) {
             return emptyMap();
         }
-        try {
-            return Files
-                    .list(familyFolder)
+        try (final Stream<Path> files = Files.list(familyFolder)) {
+            return files
                     .filter(file -> file.getFileName().toString().endsWith(".jar"))
                     .collect(toMap(it -> {
                         try {
@@ -398,10 +397,10 @@ public class VirtualDependenciesService {
         @Override
         public Set<String> keys() {
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-            if (!(loader instanceof ConfigurableClassLoader)) {
+            if (!(loader instanceof ConfigurableClassLoader configurableClassLoader)) {
                 return emptySet();
             }
-            final String id = ((ConfigurableClassLoader) loader).getId();
+            final String id = configurableClassLoader.getId();
             final Enrichment enrichment = delegate.getEnrichmentFor(id);
             if (enrichment == null || enrichment.customConfiguration == null) {
                 return emptySet();
@@ -421,7 +420,7 @@ public class VirtualDependenciesService {
         @Override
         public Collection<Artifact> findContributions(final String pluginId) {
             delegate.onDeploy(pluginId);
-            return delegate.userArtifactsFor(pluginId).collect(toList());
+            return delegate.userArtifactsFor(pluginId).toList();
         }
 
         @Override

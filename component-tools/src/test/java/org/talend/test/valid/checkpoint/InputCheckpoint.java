@@ -66,6 +66,7 @@ public class InputCheckpoint implements Serializable {
     @Checkpoint
     public static class CheckpointConfig implements Serializable {
 
+        @SuppressWarnings("java:S1068")
         private String position;
     }
 }
