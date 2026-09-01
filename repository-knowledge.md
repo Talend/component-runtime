@@ -190,17 +190,6 @@ _Discovered: QTDI-3123, 2026-07-10_
 `images/component-starter-server-image`, `reporting`) — bumping it in one place remediates all
 consumers simultaneously; no per-module edit is ever needed for a CXF version bump/CVE fix.
 
-### CXF 3.6.x bump can turn optional reflective `Feature` loads into `NoClassDefFoundError`
-
-[2026-08-25 | QTDI-3340] Bumping `cxf.version` across the CXF `3.6.x` line can turn a previously
-successful reflective load of an optional CXF `Feature` subclass (e.g. `GZIPFeature`, as done in
-`documentation`'s `Github.java` and `component-server`'s `ComponentServerConfiguration#init`) into
-a `NoClassDefFoundError` instead of a normal exception, because `cxf-rt-frontend-jaxrs` stops
-transitively supplying `jakarta.xml.ws-api` at that line. Any `catch (Exception e)` guard around
-such a reflective load must be widened to `catch (Exception | NoClassDefFoundError e)` (an `Error`,
-not caught by `Exception`) — the existing `ComponentServerConfiguration` idiom is the reference
-pattern to reuse, not reinvent.
-
 ---
 
 ## Coding rules delta
