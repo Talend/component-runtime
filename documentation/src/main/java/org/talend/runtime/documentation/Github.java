@@ -76,7 +76,7 @@ public class Github {
                             .currentThread()
                             .getContextClassLoader()
                             .loadClass("org.apache.cxf.transport.common.gzip.GZIPFeature"));
-        } catch (final Exception e) {
+        } catch (final Exception | NoClassDefFoundError e) {
             // not critical
         }
         final WebTarget gravatarBase = client.target(Gravatars.GRAVATAR_BASE);

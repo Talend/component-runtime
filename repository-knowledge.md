@@ -178,6 +178,20 @@ _Discovered: QTDI-3123, 2026-07-10_
 
 ---
 
+## Dependency version bumps
+
+### Single `cxf.version` property governs every CXF consumer in the reactor
+
+[2026-08-25 | QTDI-3340] The root `pom.xml`'s single `cxf.version` property governs every
+`org.apache.cxf` artifact resolved anywhere in the reactor (currently 10 modules:
+`component-server-parent/component-server`, `vault-client`, `documentation`,
+`talend-component-maven-plugin`, `component-starter-server`, `component-tools`,
+`component-tools-webapp`, `images/component-server-image`,
+`images/component-starter-server-image`, `reporting`) — bumping it in one place remediates all
+consumers simultaneously; no per-module edit is ever needed for a CXF version bump/CVE fix.
+
+---
+
 ## Coding rules delta
 
 No known repo-specific exceptions to the shared [coding-rules.md](https://github.com/Talend/di-ai-commons/blob/main/knowledge/rules/coding-rules.md).
