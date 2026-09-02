@@ -250,7 +250,7 @@ pipeline {
             description = """
             ---------------------------------------------------  
             This is a DRY RUN:  
-            - poms are rewritten and validated locally only  
+            - poms are rewritten and validated locally only 
             - nothing is committed, tagged, pushed or deployed  
             ---------------------------------------------------  
             
