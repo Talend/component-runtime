@@ -173,7 +173,7 @@
     <ziplock.test.version>8.0.14</ziplock.test.version>
     <meecrowave.version>1.2.15</meecrowave.version>
     <owb.version>2.0.27</owb.version>
-    <tomcat.version>9.0.118</tomcat.version>
+    <tomcat.version>9.0.121</tomcat.version>
     <cxf.version>3.6.12</cxf.version>
 
     <woodstox.version>6.5.0</woodstox.version>
@@ -914,7 +914,7 @@
       <dependency>
         <groupId>at.yawk.lz4</groupId>
         <artifactId>lz4-java</artifactId>
-        <version>1.10.4</version>
+        <version>1.11.1</version>
       </dependency>
       <dependency>
         <groupId>com.google.protobuf</groupId>
