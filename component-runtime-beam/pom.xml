@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.96.0-SNAPSHOT</version>
+    <version>1.2610.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-runtime-beam</artifactId>
@@ -83,6 +83,13 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-compress</artifactId>
+      <version>${commons-compress.version}</version>
+    </dependency>
+
+    <!-- for UT -->
     <dependency>
       <groupId>org.apache.beam</groupId>
       <artifactId>beam-runners-spark-3</artifactId>
