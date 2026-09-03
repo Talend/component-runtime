@@ -64,6 +64,8 @@ String nextVersion         // Final version after the release
 String tagName             // created git tag name
 String maintenanceVersion  // Final version after the release for created maintenance branch
 String maintenanceBranch   // created maintenance branch name
+final String repository = 'component-runtime'
+LinkedHashMap changelog = [:]
 
 pipeline {
   libraries {
@@ -181,6 +183,13 @@ pipeline {
         name: 'JENKINS_DEBUG',
         defaultValue: false,
         description: 'Add an extra step to the pipeline allowing to keep the pod alive for debug purposes.')
+
+    booleanParam(
+        name: 'DRAFT_CHANGELOG',
+        defaultValue: true,
+        description: '''
+            Create a draft release changelog. User will need to approve it on github.
+            Only used on release action''')
   }
 
   stages {
@@ -429,6 +438,45 @@ pipeline {
       }
     }
 
+    stage('Release changelog') {
+      when {
+        expression { !params.FAKE_RELEASE }
+      }
+      steps {
+        withCredentials([gitCredentials]) {
+          // Do not failed the build in case of changelog issue.
+          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+            script {
+              String releaseVersion = pomVersion.split('-')[0]
+              String previousVersion = evaluatePreviousVersion(releaseVersion)
+
+              sh """
+                bash .jenkins/changelog.sh \
+                    '${repository}' \
+                    '${previousVersion}' \
+                    '${releaseVersion}' \
+                    '${params.DRAFT_CHANGELOG}' \
+                    "\${BRANCH_NAME}" \
+                    "\${GITHUB_LOGIN}" \
+                    "\${GITHUB_TOKEN}"
+                """
+
+              String checkMsg = """
+                Please make sure you already published the Release Note!
+                You can find the Release Note in
+                https://github.com/Talend/${repository}/releases
+                **Have you published the Release Note?**
+              """.stripIndent()
+              input message: "$checkMsg", ok: 'Yes'
+
+              changelog = gitHubTools.getGitHubLatestChangelog("Talend/${repository}", GITHUB_TOKEN)
+              echo "ChangelogUrl: ${changelog['url']}, ChangelogTag: ${changelog['tag']}, ChangelogName: ${changelog['name']}"
+            }
+          }
+        }
+      }
+    }
+
     stage('Prepare next iteration') {
       steps {
         withCredentials([gitCredentials,
@@ -472,6 +520,13 @@ pipeline {
       script {
         if (params.JENKINS_DEBUG) {
           JenkinsController.jenkinsBreakpoint()
+        }
+      }
+    }
+    success {
+      script {
+        if (changelog) {
+          alertingTools.slack_changelog(changelog)`
         }
       }
     }
