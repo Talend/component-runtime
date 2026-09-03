@@ -84,6 +84,13 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-compress</artifactId>
+      <version>${commons-compress.version}</version>
+    </dependency>
+
+    <!-- for UT -->
+    <dependency>
       <groupId>org.apache.beam</groupId>
       <artifactId>beam-runners-spark-3</artifactId>
       <version>${beam.version}</version>
