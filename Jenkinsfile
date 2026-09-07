@@ -181,6 +181,7 @@ pipeline {
         description: '''
             Deploy jars with the given version qualifier. No effect on master and maintenance.
              - DEFAULT means the qualifier will be the Jira id extracted from the branch name.
+             - an empty String means that the version of the pom will be used.
             From "user/JIRA-12345_some_information" the qualifier will be JIRA-12345.''')
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -367,7 +368,7 @@ pipeline {
                 "$params.VERSION_QUALIFIER" as String)
 
             echo """
-                          Configure the version qualifier for the curent branche: $branch_name  
+                          Configure the version qualifier for the current branch: $branch_name
                           requested qualifier: $params.VERSION_QUALIFIER  
                           with User = $branch_user, Ticket = $branch_ticket, Description = $branch_description  
                           Qualified Version = $finalVersion  """
@@ -888,6 +889,8 @@ private static String add_qualifier_to_version(String version, String ticket, St
     } else {
       new_version = "$version-$ticket".toString()
     }
+  } else if ("".equals(user_qualifier) {
+      new_version = version
   } else {
     new_version = version.replace("-SNAPSHOT", "-$user_qualifier-SNAPSHOT" as String)
   }
