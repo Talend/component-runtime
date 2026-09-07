@@ -22,7 +22,7 @@
   <packaging>pom</packaging>
 
   <name>Component Runtime</name>
-  <description>Talend Component Kit Runtime</description>
+  <description>Talend Component Kit Runtime - test</description>
   <url>https://talend.github.io/component-runtime/</url>
   <licenses>
     <license>
