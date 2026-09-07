@@ -24,7 +24,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-redux": "^7.2.9",
-    "react-router-dom": "^6.30.4",
+    "react-router-dom": "^7.18.3",
     "redux": "^4.2.1",
     "redux-thunk": "2.4.2"
   },
@@ -35,7 +35,7 @@
     "body-parser": "^1.18.3",
     "cross-env": "^7.0.3",
     "webpack": "5.105.4",
-    "webpack-dev-server": "^5.2.6"
+    "webpack-dev-server": "^6.0.0"
   },
   "overrides": {
     "@babel/core": "^7.29.6",
@@ -45,7 +45,7 @@
     "@tootallnate/once": "^3.0.1",
     "ajv": "^6.14.0",
     "brace-expansion": "^2.1.4",
-    "fast-uri": "^3.1.6",
+    "fast-uri": "^3.1.7",
     "flatted": "^3.4.2",
     "follow-redirects": "^1.16.0",
     "form-data": "^4.0.6",
@@ -62,7 +62,7 @@
     "minimatch@5": "^5.1.8",
     "path-to-regexp@0": "^0.1.13",
     "path-to-regexp@3": "^3.3.0",
-    "postcss": "^8.5.26",
+    "postcss": "^8.5.28",
     "qs": "^6.15.2",
     "serialize-javascript": "^7.0.5",
     "shell-quote": "^1.10.0",
