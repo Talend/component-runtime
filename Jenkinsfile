@@ -889,7 +889,7 @@ private static String add_qualifier_to_version(String version, String ticket, St
     } else {
       new_version = "$version-$ticket".toString()
     }
-  } else if ("".equals(user_qualifier) {
+  } else if ("".equals(user_qualifier)) {
       new_version = version
   } else {
     new_version = version.replace("-SNAPSHOT", "-$user_qualifier-SNAPSHOT" as String)
