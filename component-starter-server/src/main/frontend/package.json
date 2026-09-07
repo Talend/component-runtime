@@ -22,15 +22,15 @@
     "react-ace": "^12.0.0",
     "react-dom": "^18.3.1",
     "react-i18next": "^13.5.0",
-    "react-router": "~6.30.4",
-    "react-router-dom": "~6.30.4"
+    "react-router": "~8.3.1",
+    "react-router-dom": "~7.18.3"
   },
   "devDependencies": {
     "@talend/scripts-config-react-webpack": "^16.8.1",
     "@talend/scripts-core": "^16.5.1",
     "atob": "^2.1.2",
     "body-parser": "^1.18.3",
-    "webpack-dev-server": "^5.2.6"
+    "webpack-dev-server": "^6.0.0"
   },
   "proxy": "http://localhost:8080/",
   "overrides": {
@@ -41,7 +41,7 @@
     "ajv@6": "^6.14.0",
     "ajv@8": "^8.18.0",
     "brace-expansion": "^2.1.4",
-    "fast-uri": "^3.1.6",
+    "fast-uri": "^3.1.7",
     "flatted": "^3.4.2",
     "follow-redirects": "^1.16.0",
     "form-data": "^4.0.6",
@@ -61,7 +61,7 @@
     "path-to-regexp": "^0.1.13",
     "picomatch@2": "^2.3.2",
     "picomatch@4": "^4.0.4",
-    "postcss": "^8.5.26",
+    "postcss": "^8.5.28",
     "qs": "^6.15.2",
     "serialize-javascript": "^7.0.5",
     "shell-quote": "^1.10.0",
