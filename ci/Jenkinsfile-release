@@ -102,12 +102,17 @@ pipeline {
         name: 'ACTION',
         choices: ['TYPE_OF_RELEASE', 'GA', 'MAINTENANCE'],
         description: '''
-          Type of release:
-            GA: release for General Available
+          Type of release. The branch you run this job from MUST match the chosen ACTION,
+          otherwise the job fails fast in the "Version management" stage:
+            GA: release for General Availability.
+              REQUIRES running on the `master` branch (fails with "On master branch, you can only
+              execute a GA release action" style error if run elsewhere).
               ex: 1.2610.0-SNAPSHOT is released as 1.2610.0 and master branch is bumped as 1.2611.0-SNAPSHOT
               The December to January rollover is handled: 1.2612.0 is followed by 1.2701.0-SNAPSHOT
-            MAINTENANCE: release for General Available of MAINTENANCE
-              ex: 1.2610.1-SNAPSHOT is released as 1.2610.1 and branch is bumped as 1.2610.2-SNAPSHOT''')
+            MAINTENANCE: release for General Availability of a MAINTENANCE branch.
+              REQUIRES running on a `maintenance/...` branch (fails with "On maintenance branch, you
+              can only execute a MAINTENANCE release action" style error if run elsewhere, e.g. on master).
+              ex: 1.2610.1-SNAPSHOT is released as 1.2610.1 and the maintenance branch is bumped as 1.2610.2-SNAPSHOT''')
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -169,17 +174,25 @@ pipeline {
     booleanParam(
         name: 'DRY_RUN',
         defaultValue: false,
-        description: '''Simulate a release without publishing anything.  
-                        `release:prepare` runs with `-DdryRun=true`: poms are rewritten and validated locally, 
-                        but nothing is committed, tagged or pushed.  
-                        The perform, studio modules, docker, next iteration and maintenance branch stages are skipped.  
-                        Use it to validate the computed versions and the pipeline itself before a real release.''')
+        description: '''OBJECTIVE: validate the computed release/next versions and the pipeline logic itself,
+                        without publishing anything anywhere.
+                        CONSEQUENCES:
+                        - `release:prepare` runs with `-DdryRun=true`: poms are rewritten and validated locally only.
+                        - Nothing is committed, tagged or pushed to git (real repo or fork).
+                        - The perform, studio modules, docker, next iteration and maintenance branch stages are all skipped.
+                        - Nothing is deployed/published to any repository.
+                        Use this first, before a real release, to sanity-check the versions and the job.''')
     booleanParam(
         name: 'FAKE_RELEASE',
         defaultValue: false,
-        description: '''For debug purposes, the job will:  
-                        - not tag/commit on git talend/component-runtime but on the fork from FAKE_REPOSITORY  
-                        Note: to only simulate a release without publishing anything, use DRY_RUN instead.''')
+        description: '''OBJECTIVE: debug the real release mechanics (git tag/commit/push, perform, docker, etc.)
+                        end-to-end, without touching the real talend/component-runtime repository.
+                        CONSEQUENCES:
+                        - This IS a real release: it commits, tags and pushes, and can deploy/publish artifacts.
+                        - The git target is redirected to the fork given by FAKE_REPOSITORY instead of
+                        talend/component-runtime.
+                        Note: if you only want to simulate a release and publish nothing, use DRY_RUN instead —
+                        DRY_RUN and FAKE_RELEASE address different needs and are not interchangeable.''')
     string(
         name: 'FAKE_REPOSITORY',
         defaultValue: 'acatoire/component-runtime',
