@@ -152,8 +152,8 @@ pipeline {
         defaultValue: false,
         description: '''
             Force MAVEN deploy stage for development branches. No effect on master and maintenance.
-            INFO: master/maintenance branch are deploying on <oss.sonatype.org>
-                  dev branches are deploying on <artifacts-zl.talend.com>''')
+            INFO: master/maintenance branch deploys artefacts on <oss.sonatype.org>
+                  dev branches deploy artefacts on <artifacts-zl.talend.com>''')
     booleanParam(
         name: 'DOCKER_PUSH',
         defaultValue: false,
@@ -166,7 +166,7 @@ pipeline {
                   'component-starter-server',
                   'remote-engine-customizer',
                   'All'],
-        description: 'Choose which docker image you want to build and push. Only available if DOCKER_PUSH == True.')
+        description: 'Choose which Docker image you want to build and push. Only available if DOCKER_PUSH == True.')
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     separator(name: "QUALIFIER_CONFIG",
@@ -181,7 +181,9 @@ pipeline {
         description: '''
             Deploy jars with the given version qualifier. No effect on master and maintenance.
              - DEFAULT means the qualifier will be the Jira id extracted from the branch name.
-            From "user/JIRA-12345_some_information" the qualifier will be JIRA-12345.''')
+               From "user/JIRA-12345_some_information" the qualifier will be JIRA-12345.
+            If you want to deploy a snapshot version without qualifier, use the NO_QUALIFIER parameter below
+            ''')
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     separator(name: "ADVANCED_CONFIG",
@@ -193,7 +195,7 @@ pipeline {
     string(
         name: 'EXTRA_BUILD_PARAMS',
         defaultValue: '',
-        description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
+        description: 'Add some extra parameters to all maven commands.')
     booleanParam(
         name: 'DISABLE_SONAR',
         defaultValue: false,
@@ -239,7 +241,7 @@ pipeline {
     booleanParam(
         name: 'JENKINS_DEBUG',
         defaultValue: false,
-        description: 'Add an extra step to the pipeline allowing to keep the pod alive for debug purposes.')
+        description: 'Add an extra step to the pipeline to keep the pod alive for debug purposes.')
     booleanParam(
         name: 'NO_QUALIFIER',
         defaultValue: false,
