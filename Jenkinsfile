@@ -153,7 +153,7 @@ pipeline {
         description: '''
             Force MAVEN deploy stage for development branches. No effect on master and maintenance.
             INFO: master/maintenance branch deploys artefacts on <oss.sonatype.org>
-                  dev branches deploys artefacts on <artifacts-zl.talend.com>''')
+                  dev branches deploy artefacts on <artifacts-zl.talend.com>''')
     booleanParam(
         name: 'DOCKER_PUSH',
         defaultValue: false,
