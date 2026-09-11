@@ -1991,6 +1991,11 @@
             <artifactId>central-publishing-maven-plugin</artifactId>
             <extensions>true</extensions>
             <configuration>
+              <!-- Without publishingServerId, the plugin defaults to server id "central" which is not
+                   declared in .jenkins/settings.xml, causing a NullPointerException when this profile
+                   is the only one activating the plugin's extensions (e.g. the standalone studio
+                   modules release, activated only with "release-zl" + "no-staging"). -->
+              <publishingServerId>central.portal</publishingServerId>
               <skipPublishing>true</skipPublishing>
             </configuration>
           </plugin>

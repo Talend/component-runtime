@@ -20,9 +20,22 @@ set -xe
 # Parameters:
 # $1: branch name
 # $2: extra build args for all mvn cmd
+#
+# Environment:
+# DRY_RUN: when "true", the final push is simulated with "git push --dry-run" without actually
+#          updating the remote. Note: this only catches repository-level access issues (e.g. no
+#          access at all to the repo); it does NOT reliably reproduce a server-side rejection of a
+#          specific ref (e.g. branch protection, restricted credentials) since that only happens
+#          during the real object transfer, which --dry-run skips. Defaults to false.
 main() {
   local branchName="${1?Missing actual project version}"; shift
   local extraBuildParams=("$@")
+
+  local pushDryRunParams=()
+  if [[ "${DRY_RUN:-false}" == "true" ]]; then
+    printf ">> DRY RUN: push to github will be simulated with --dry-run\n"
+    pushDryRunParams=(--dry-run)
+  fi
 
   printf ">> Rebuilding %s and updating it (doc) for next iteration\n" "${branchName}"
   git reset --hard
@@ -37,8 +50,10 @@ main() {
                     "${extraBuildParams[@]}" || true
 
   printf "Push to github\n"
+  # "|| true" is here to avoid blocking the jenkins pipeline when there is nothing to commit
   git commit -a -m "Updating doc for next iteration" || true
-  git push -u origin "${branchName}" || true
+  # NOT swallowing failures here: a rejected push (e.g. permission denied) must fail the stage
+  git push "${pushDryRunParams[@]}" -u origin "${branchName}"
 
 }
 

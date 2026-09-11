@@ -179,7 +179,11 @@ pipeline {
                         CONSEQUENCES:
                         - `release:prepare` runs with `-DdryRun=true`: poms are rewritten and validated locally only.
                         - Nothing is committed, tagged or pushed to git (real repo or fork).
-                        - The perform, studio modules, docker, next iteration and maintenance branch stages are all skipped.
+                        - The perform and studio modules stages are skipped (they need a real, tagged
+                        `release:prepare` output to run against).
+                        - The docker, next iteration and maintenance branch stages still run, but in mock
+                        mode: the docker image is only built to a local tar (never pushed), and every
+                        git push is simulated with `git push --dry-run` (no ref is actually updated).
                         - Nothing is deployed/published to any repository.
                         Use this first, before a real release, to sanity-check the versions and the job.''')
     booleanParam(
@@ -480,7 +484,7 @@ pipeline {
 
     stage('Release Docker image') {
       when {
-        expression { !params.NO_DOCKER && !params.DRY_RUN }
+        expression { !params.NO_DOCKER }
       }
       steps {
         withCredentials([gitCredentials,
@@ -489,23 +493,27 @@ pipeline {
                          dockerCredentials]) {
           script {
             echo "Docker image creation from branch $branchName with tag: $tagName on version $releaseVersion"
-            sh "bash .jenkins/scripts/release/release-4-docker-image-creation.sh $releaseVersion $tagName $branchName"
+            // Under DRY_RUN, the script builds a local tar with jib instead of pushing to the
+            // registry, and simulates the git push with "--dry-run" (see script for details).
+            withEnv(["DRY_RUN=${params.DRY_RUN}"]) {
+              sh "bash .jenkins/scripts/release/release-4-docker-image-creation.sh $releaseVersion $tagName $branchName"
+            }
           }
         }
       }
     }
 
     stage('Prepare next iteration') {
-      when {
-        expression { !params.DRY_RUN }
-      }
       steps {
         withCredentials([gitCredentials,
                          nexusCredentials,
                          ossrhCredentials]) {
           script {
             echo "Prepare next iteration on $branchName"
-            sh "bash .jenkins/scripts/release/release-5-prepare-next-iteration.sh $branchName $extraBuildParams"
+            // Under DRY_RUN, the final git push is simulated with "--dry-run" (see script).
+            withEnv(["DRY_RUN=${params.DRY_RUN}"]) {
+              sh "bash .jenkins/scripts/release/release-5-prepare-next-iteration.sh $branchName $extraBuildParams"
+            }
           }
         }
       }
@@ -513,7 +521,7 @@ pipeline {
 
     stage('Create maintenance branch') {
       when {
-        expression { isMasterBranch && params.ACTION == "GA" && !params.DRY_RUN }
+        expression { isMasterBranch && params.ACTION == "GA" }
       }
       steps {
         withCredentials([gitCredentials,
@@ -521,7 +529,10 @@ pipeline {
                          ossrhCredentials]) {
           script {
             echo "Creating a new branch named $maintenanceBranch with version $maintenanceVersion"
-            sh "bash .jenkins/scripts/release/release-6-create-maintenance-branch.sh $maintenanceBranch $maintenanceVersion"
+            // Under DRY_RUN, the final git push is simulated with "--dry-run" (see script).
+            withEnv(["DRY_RUN=${params.DRY_RUN}"]) {
+              sh "bash .jenkins/scripts/release/release-6-create-maintenance-branch.sh $maintenanceBranch $maintenanceVersion"
+            }
           }
         }
       }
