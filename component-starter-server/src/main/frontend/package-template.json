@@ -63,7 +63,7 @@
     "picomatch@2": "^2.3.2",
     "picomatch@4": "^4.0.4",
     "postcss": "^8.5.26",
-    "qs": "^6.15.2",
+    "qs": "^6.16.0",
     "serialize-javascript": "^7.0.5",
     "shell-quote": "^1.10.0",
     "sockjs": "^0.3.24",
