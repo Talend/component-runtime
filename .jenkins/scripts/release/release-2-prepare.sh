@@ -22,11 +22,21 @@ set -xe
 # $2: next version
 # $3: tag name
 # $4: extra build args for all mvn cmd
+#
+# Environment:
+# DRY_RUN: when "true", release:prepare runs with -DdryRun=true. Poms are rewritten and validated
+#          locally, but nothing is committed, tagged or pushed. Defaults to false.
 main() {
   local releaseVersion="${1?Missing release version}"; shift
   local nextVersion="${1?Missing actual project version}"; shift
   local tagName="${1?Missing actual project version}"; shift
   local extraBuildParams=("$@")
+
+  local dryRunParams=()
+  if [[ "${DRY_RUN:-false}" == "true" ]]; then
+    printf ">> DRY RUN: release:prepare will not commit, tag nor push\n"
+    dryRunParams=(--define dryRun=true)
+  fi
 
   printf ">> Maven prepare release %s (next-dev: %s; tag: %s)\n" "${releaseVersion}" "${nextVersion}" "${tagName}"
 
@@ -41,6 +51,7 @@ main() {
     --define arguments="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip" \
     --settings .jenkins/settings.xml \
     --activate-profiles "$release_profiles" \
+    "${dryRunParams[@]}" \
     "${extraBuildParams[@]}"
 }
 

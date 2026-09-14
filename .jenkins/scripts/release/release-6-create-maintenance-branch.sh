@@ -20,9 +20,22 @@ set -xe
 # Parameters:
 # $1: maintenance branch name
 # $2: maintenance version
+#
+# Environment:
+# DRY_RUN: when "true", the final push is simulated with "git push --dry-run" without actually
+#          updating the remote. Note: this only catches repository-level access issues (e.g. no
+#          access at all to the repo); it does NOT reliably reproduce a server-side rejection of a
+#          specific ref (e.g. branch protection, restricted credentials) since that only happens
+#          during the real object transfer, which --dry-run skips. Defaults to false.
 main() {
   local maintenanceBranch="${1?Missing maintenance branch name}"
   local maintenanceVersion="${2?Missing maintenance version}"
+
+  local pushDryRunParams=()
+  if [[ "${DRY_RUN:-false}" == "true" ]]; then
+    printf ">> DRY RUN: push maintenance branch will be simulated with --dry-run\n"
+    pushDryRunParams=(--dry-run)
+  fi
 
   printf ">> Creating %s with %s\n" "${maintenanceBranch}" "${maintenanceVersion}"
 
@@ -37,7 +50,7 @@ main() {
 
   printf "Push maintenance branch\n"
   git commit -a -m "[jenkins-release] prepare for next development iteration ${maintenanceBranch}"
-  git push -u origin "${maintenanceBranch}"
+  git push "${pushDryRunParams[@]}" -u origin "${maintenanceBranch}"
 
 }
 
