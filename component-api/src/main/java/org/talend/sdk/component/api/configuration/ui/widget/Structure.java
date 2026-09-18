@@ -45,6 +45,11 @@ public @interface Structure {
     String discoverSchema() default "";
 
     /**
+     * @return true if current one support studio metadata dataset retrieve schema in UI
+     */
+    boolean supportMetadata() default false;
+
+    /**
      * @return type of connection the field modelises.
      */
     Type type() default Type.IN;
