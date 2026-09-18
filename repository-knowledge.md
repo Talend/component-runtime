@@ -59,6 +59,24 @@ property in their parent POM — it does not need to be built locally for connec
 
 ## Key patterns
 
+### `@Required` + `@DefaultValue` interaction — empty string is not a default
+
+In `ReflectionService.PayloadValidator` (`component-runtime-manager`), when a config key is
+absent, the declared `@DefaultValue` normally suppresses the `@Required` validation error
+(the framework will apply the default). **An empty-string default (`@DefaultValue("")`) is
+the exception**: it is treated as "no default declared" — the required-field error still
+fires for an absent key. This mirrors Studio's existing behaviour.
+
+```java
+@Option
+@Required
+@DefaultValue("")
+private String fieldWithEmptyDefault; // absent key still throws IllegalArgumentException
+```
+
+[2026-08-31 | QTDI-2489] Confirmed by reviewer decision — see `isRequiredAndMissingWithoutDefault`
+in `ReflectionService.java`.
+
 ### Changing or adding a TCK annotation
 > TODO: SME to fill
 
