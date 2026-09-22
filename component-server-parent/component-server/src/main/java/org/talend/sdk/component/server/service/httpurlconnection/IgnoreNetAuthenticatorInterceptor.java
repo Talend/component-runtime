@@ -17,12 +17,12 @@ package org.talend.sdk.component.server.service.httpurlconnection;
 
 import java.io.Serializable;
 
-import javax.annotation.Priority;
-import javax.inject.Inject;
-import javax.interceptor.AroundConstruct;
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.Interceptor;
-import javax.interceptor.InvocationContext;
+import jakarta.annotation.Priority;
+import jakarta.inject.Inject;
+import jakarta.interceptor.AroundConstruct;
+import jakarta.interceptor.AroundInvoke;
+import jakarta.interceptor.Interceptor;
+import jakarta.interceptor.InvocationContext;
 
 @Interceptor
 @IgnoreNetAuthenticator

@@ -33,10 +33,10 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.WriteListener;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class InMemoryResponse implements HttpServletResponse {
 
@@ -93,11 +93,6 @@ public class InMemoryResponse implements HttpServletResponse {
     }
 
     @Override
-    public void setStatus(final int i, final String s) {
-        setCode(i);
-    }
-
-    @Override
     public void addCookie(final Cookie cookie) {
         setHeader(cookie.getName(), cookie.getValue());
     }
@@ -135,16 +130,6 @@ public class InMemoryResponse implements HttpServletResponse {
     @Override
     public String encodeRedirectURL(final String s) {
         return toEncoded(s);
-    }
-
-    @Override
-    public String encodeUrl(final String s) {
-        return toEncoded(s);
-    }
-
-    @Override
-    public String encodeRedirectUrl(final String s) {
-        return encodeRedirectURL(s);
     }
 
     public String getHeader(final String name) {

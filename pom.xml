@@ -174,7 +174,24 @@
     <meecrowave.version>1.2.15</meecrowave.version>
     <owb.version>2.0.27</owb.version>
     <tomcat.version>9.0.121</tomcat.version>
-    <cxf.version>3.6.12</cxf.version>
+    <cxf.version>4.1.8</cxf.version>
+
+    <!-- jakarta-namespaced twins of meecrowave/owb/tomcat above, used only where the javax->jakarta migration
+         (CXF 4.x) applies: component-server, component-server-model, component-server-extension-api, vault-client,
+         component-starter-server, component-tools-webapp, documentation. Kept distinct from the shared properties
+         above so unrelated javax-based modules (component-tools, component-studio, connectors, ...) are unaffected -->
+    <meecrowave-jakarta.version>2.0.0</meecrowave-jakarta.version>
+    <owb-jakarta.version>4.0.3</owb-jakarta.version>
+    <tomcat-jakarta.version>10.1.45</tomcat-jakarta.version>
+
+    <!-- Jakarta EE 9+ APIs consumed by CXF/Meecrowave/OpenWebBeans 4.x - keep aligned with cxf-parent:${cxf.version} -->
+    <jakarta.ws.rs-api.version>3.1.0</jakarta.ws.rs-api.version>
+    <jakarta.annotation-api.version>2.1.1</jakarta.annotation-api.version>
+    <jakarta.enterprise.cdi-api.version>4.0.1</jakarta.enterprise.cdi-api.version>
+    <jakarta.inject-api.version>2.0.1</jakarta.inject-api.version>
+    <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
+    <jakarta.json-api.version>2.1.3</jakarta.json-api.version>
+    <jakarta.json.bind-api.version>3.0.2</jakarta.json.bind-api.version>
 
     <woodstox.version>6.5.0</woodstox.version>
 
@@ -197,13 +214,25 @@
     <geronimo-jaxrs.version>1.1</geronimo-jaxrs.version>
     <asciidoctorj.version>2.5.2</asciidoctorj.version>
     <asciidoctorj-pdf.version>1.6.0</asciidoctorj-pdf.version>
-    <microprofile-config-api.version>1.3</microprofile-config-api.version>
+    <!-- microprofile-config-api is bumped to the Jakarta EE 9+ (MicroProfile Config 3.x) line, only consumed by
+         the jakarta-migrated component-server/vault-client/component-starter-server family. Apache Geronimo
+         Config (the previous javax impl, last release 1.2.3) never migrated to jakarta.*, so it is replaced by
+         SmallRye Config, the actively maintained MicroProfile Config reference implementation with a jakarta
+         CDI extension. SmallRye's ConfigProducer bean would otherwise get registered twice under our
+         Meecrowave/OpenWebBeans runtime (once via its own portable CDI extension, once via implicit classpath
+         scanning) - each consuming module excludes "smallrye-config" from implicit scanning via the
+         Meecrowave-specific `scanning-exclude`/`scanningExcludes` setting (component-server and
+         component-starter-server's src/main/resources/meecrowave.properties, component-server's
+         meecrowave-maven-plugin config, and per-@MeecrowaveConfig(scanningExcludes=...) on affected test
+         classes across component-server/component-starter-server/vault-client - see QTDI-3358 notes). This is
+         a Meecrowave/OWB scan setting, not a CDI beans.xml <scan><exclude> (beans.xml has no bearing on it). -->
+    <microprofile-config-api.version>3.1</microprofile-config-api.version>
+    <smallrye-config.version>3.12.4</smallrye-config.version>
     <microprofile-openapi-api.version>1.1.1</microprofile-openapi-api.version>
     <microprofile-metrics-api.version>1.1.1</microprofile-metrics-api.version>
     <geronimo-microprofile.version>1.0.2</geronimo-microprofile.version>
     <geronimo-openapi.version>1.0.12</geronimo-openapi.version>
     <geronimo-metrics.version>1.0.3</geronimo-metrics.version>
-    <geronimo-config.version>1.2.2</geronimo-config.version>
     <junit5.version>5.14.3</junit5.version>
     <mockito4.version>4.8.1</mockito4.version>
     <hamcrest.version>1.3</hamcrest.version>
@@ -297,6 +326,12 @@
     <coverage.fail>false</coverage.fail>
 
     <johnzon.version>1.2.21</johnzon.version>
+    <!-- jakarta-namespaced Johnzon, used only where the javax->jakarta migration (CXF 4.x) applies:
+         component-server, component-starter-server, component-tools-webapp, documentation -->
+    <johnzon-jakarta.version>2.1.0</johnzon-jakarta.version>
+    <!-- see the javax.json/yasson dependencyManagement comment above -->
+    <glassfish-javax-json.version>1.1.4</glassfish-javax-json.version>
+    <yasson-javax.version>1.0.11</yasson-javax.version>
     <slf4j.version>1.7.34</slf4j.version>
     <log4j2.version>2.25.5</log4j2.version>
     <rhino.version>1.9.0</rhino.version>
@@ -321,6 +356,27 @@
         <groupId>org.apache.johnzon</groupId>
         <artifactId>johnzon-core</artifactId>
         <version>${johnzon.version}</version>
+      </dependency>
+      <!-- javax.json.spi.JsonProvider/javax.json.bind.spi.JsonbProvider fallback for modules pinned to
+           jakarta-namespaced johnzon-core (see johnzon-jakarta.version above): org.apache.johnzon:johnzon-core
+           can only implement ONE of javax.json.spi.JsonProvider/jakarta.json.spi.JsonProvider per resolved
+           version (same fully-qualified class name org.apache.johnzon.core.JsonProviderImpl in both lines), so
+           once a module needs jakarta-line johnzon-core for its own jakarta CXF/Meecrowave stack, any
+           out-of-scope javax-only code it still depends on (component-runtime-manager, component-form) has no
+           javax.json provider left on the classpath - JsonProvider.provider()/JsonbProvider.provider() would
+           otherwise fail. org.glassfish:javax.json and org.eclipse:yasson are distinct GAs (no collision with
+           johnzon-core) providing genuine javax.json/javax.json.bind implementations for that purpose; see
+           component-server/pom.xml and its META-INF/services/javax.json.spi.JsonProvider registration
+           (QTDI-3358 notes). -->
+      <dependency>
+        <groupId>org.glassfish</groupId>
+        <artifactId>javax.json</artifactId>
+        <version>${glassfish-javax-json.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse</groupId>
+        <artifactId>yasson</artifactId>
+        <version>${yasson-javax.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
@@ -400,9 +456,9 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.apache.geronimo.config</groupId>
-        <artifactId>geronimo-config-impl</artifactId>
-        <version>${geronimo-config.version}</version>
+        <groupId>io.smallrye.config</groupId>
+        <artifactId>smallrye-config</artifactId>
+        <version>${smallrye-config.version}</version>
       </dependency>
       <dependency>
         <groupId>org.eclipse.microprofile.config</groupId>
@@ -661,6 +717,42 @@
       </dependency>
 
       <dependency>
+        <groupId>jakarta.ws.rs</groupId>
+        <artifactId>jakarta.ws.rs-api</artifactId>
+        <version>${jakarta.ws.rs-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.annotation</groupId>
+        <artifactId>jakarta.annotation-api</artifactId>
+        <version>${jakarta.annotation-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.enterprise</groupId>
+        <artifactId>jakarta.enterprise.cdi-api</artifactId>
+        <version>${jakarta.enterprise.cdi-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.inject</groupId>
+        <artifactId>jakarta.inject-api</artifactId>
+        <version>${jakarta.inject-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.servlet</groupId>
+        <artifactId>jakarta.servlet-api</artifactId>
+        <version>${jakarta.servlet-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.json</groupId>
+        <artifactId>jakarta.json-api</artifactId>
+        <version>${jakarta.json-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.json.bind</groupId>
+        <artifactId>jakarta.json.bind-api</artifactId>
+        <version>${jakarta.json.bind-api.version}</version>
+      </dependency>
+
+      <dependency>
         <groupId>com.fasterxml.woodstox</groupId>
         <artifactId>woodstox-core</artifactId>
         <version>${woodstox.version}</version>
@@ -739,10 +831,6 @@
             <artifactId>jboss-rmi-api_1.0_spec</artifactId>
           </exclusion>
           <exclusion>
-            <groupId>jakarta.activation</groupId>
-            <artifactId>jakarta.activation-api</artifactId>
-          </exclusion>
-          <exclusion>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
           </exclusion>
@@ -806,10 +894,6 @@
             <artifactId>jakarta.ws.rs-api</artifactId>
           </exclusion>
           <exclusion>
-            <groupId>jakarta.activation</groupId>
-            <artifactId>jakarta.activation-api</artifactId>
-          </exclusion>
-          <exclusion>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
           </exclusion>
@@ -855,10 +939,6 @@
           <exclusion>
             <groupId>jakarta.ws.rs</groupId>
             <artifactId>jakarta.ws.rs-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>jakarta.activation</groupId>
-            <artifactId>jakarta.activation-api</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -1075,17 +1155,19 @@
         <plugin>
           <groupId>org.apache.meecrowave</groupId>
           <artifactId>meecrowave-maven-plugin</artifactId>
-          <version>${meecrowave.version}</version>
+          <!-- only consumed by the CXF 4.x/jakarta-migrated modules (component-server, component-starter-server,
+               component-tools-webapp, documentation) -->
+          <version>${meecrowave-jakarta.version}</version>
           <dependencies>
             <dependency>
               <groupId>org.apache.johnzon</groupId>
               <artifactId>johnzon-jaxrs</artifactId>
-              <version>${johnzon.version}</version>
+              <version>${johnzon-jakarta.version}</version>
             </dependency>
             <dependency>
               <groupId>org.apache.johnzon</groupId>
               <artifactId>johnzon-jsonb</artifactId>
-              <version>${johnzon.version}</version>
+              <version>${johnzon-jakarta.version}</version>
             </dependency>
             <dependency>
               <groupId>org.apache.cxf</groupId>
@@ -1115,10 +1197,6 @@
                 <exclusion>
                   <groupId>org.jboss.spec.javax.rmi</groupId>
                   <artifactId>jboss-rmi-api_1.0_spec</artifactId>
-                </exclusion>
-                <exclusion>
-                  <groupId>jakarta.activation</groupId>
-                  <artifactId>jakarta.activation-api</artifactId>
                 </exclusion>
                 <exclusion>
                   <groupId>javax.ws.rs</groupId>
@@ -1167,10 +1245,6 @@
                   <groupId>jakarta.ws.rs</groupId>
                   <artifactId>jakarta.ws.rs-api</artifactId>
                 </exclusion>
-                <exclusion>
-                  <groupId>jakarta.activation</groupId>
-                  <artifactId>jakarta.activation-api</artifactId>
-                </exclusion>
               </exclusions>
             </dependency>
             <dependency>
@@ -1197,10 +1271,6 @@
                 <exclusion>
                   <groupId>jakarta.ws.rs</groupId>
                   <artifactId>jakarta.ws.rs-api</artifactId>
-                </exclusion>
-                <exclusion>
-                  <groupId>jakarta.activation</groupId>
-                  <artifactId>jakarta.activation-api</artifactId>
                 </exclusion>
               </exclusions>
             </dependency>

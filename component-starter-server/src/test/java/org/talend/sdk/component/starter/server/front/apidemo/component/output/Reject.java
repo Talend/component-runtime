@@ -17,7 +17,7 @@ package org.talend.sdk.component.starter.server.front.apidemo.component.output;
 
 import java.io.Serializable;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

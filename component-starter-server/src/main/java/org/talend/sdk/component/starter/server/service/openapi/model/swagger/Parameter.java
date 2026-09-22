@@ -15,8 +15,8 @@
  */
 package org.talend.sdk.component.starter.server.service.openapi.model.swagger;
 
-import javax.json.JsonObject;
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 import org.talend.sdk.component.starter.server.service.openapi.model.common.ParameterBase;
 

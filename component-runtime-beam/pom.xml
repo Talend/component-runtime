@@ -42,6 +42,17 @@
   </dependencyManagement>
 
   <dependencies>
+    <!-- Provided-scope only (not transitive): lets AvroSchema/AvroRecord dual-annotate a handful of
+         methods/fields with both javax.json.bind.annotation.JsonbTransient (this module's own,
+         primary, javax-only line) and jakarta.json.bind.annotation.JsonbTransient, mirroring the
+         same fix in component-api/component-runtime-impl - so a jakarta-based Jsonb runtime (e.g.
+         component-server) also honors the exclusion when serializing an Avro-backed Schema/Record.
+         See QTDI-3358. -->
+    <dependency>
+      <groupId>jakarta.json.bind</groupId>
+      <artifactId>jakarta.json.bind-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-manager</artifactId>

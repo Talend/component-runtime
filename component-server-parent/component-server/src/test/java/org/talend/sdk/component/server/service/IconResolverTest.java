@@ -22,16 +22,18 @@ import static org.talend.sdk.component.server.front.ComponentResourceImpl.IMAGE_
 import static org.talend.sdk.component.server.front.ComponentResourceImpl.THEME_DARK;
 import static org.talend.sdk.component.server.front.ComponentResourceImpl.THEME_LIGHT;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
-import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
+import org.apache.meecrowave.junit5.MeecrowaveConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 
-@MonoMeecrowaveConfig
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@MeecrowaveConfig(scanningExcludes = "smallrye-config")
 class IconResolverTest {
 
     public static final String PLUGIN_DB_INPUT = "db-input";

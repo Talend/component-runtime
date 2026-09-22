@@ -35,6 +35,46 @@
     <talend.build.name>${talend.build.name.base}.tools.webapp</talend.build.name>
   </properties>
 
+  <!-- this module (transitively via component-server) pulls meecrowave-core's jakarta-namespaced tomcat/openwebbeans
+       artifacts, which would otherwise be forced back to the shared javax-based ${meecrowave.version}/
+       ${tomcat.version}/${owb.version} by the root pom's dependencyManagement (meecrowave-core is only a transitive
+       dependency here, so component-server's own explicit version override does not apply). Re-pin them to the
+       jakarta twins for this module only. -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.meecrowave</groupId>
+        <artifactId>meecrowave-core</artifactId>
+        <version>${meecrowave-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-catalina</artifactId>
+        <version>${tomcat-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-jaspic-api</artifactId>
+        <version>${tomcat-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-jni</artifactId>
+        <version>${tomcat-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-spi</artifactId>
+        <version>${owb-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-web</artifactId>
+        <version>${owb-jakarta.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
@@ -55,6 +95,7 @@
     <dependency>
       <groupId>org.apache.openwebbeans</groupId>
       <artifactId>openwebbeans-se</artifactId>
+      <version>${owb-jakarta.version}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
@@ -86,7 +127,7 @@
       <plugin>
         <groupId>org.apache.meecrowave</groupId>
         <artifactId>meecrowave-maven-plugin</artifactId>
-        <version>${meecrowave.version}</version>
+        <version>${meecrowave-jakarta.version}</version>
         <configuration>
           <httpPort>10101</httpPort>
           <webapp>${project.basedir}/src/main/frontend/dist</webapp>
@@ -101,7 +142,7 @@
           <dependency>
             <groupId>org.apache.johnzon</groupId>
             <artifactId>johnzon-jsonb</artifactId>
-            <version>${johnzon.version}</version>
+            <version>${johnzon-jakarta.version}</version>
           </dependency>
           <dependency>
             <groupId>org.apache.logging.log4j</groupId>

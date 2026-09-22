@@ -50,7 +50,7 @@ import java.util.jar.Manifest;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
-import javax.json.bind.config.PropertyOrderStrategy;
+import jakarta.json.bind.config.PropertyOrderStrategy;
 
 import org.apache.meecrowave.Meecrowave;
 import org.apache.meecrowave.configuration.Configuration;

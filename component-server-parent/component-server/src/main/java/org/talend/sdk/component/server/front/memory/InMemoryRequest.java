@@ -24,7 +24,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.Principal;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -33,19 +32,20 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import javax.servlet.AsyncContext;
-import javax.servlet.DispatcherType;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletInputStream;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpUpgradeHandler;
-import javax.servlet.http.Part;
+import jakarta.servlet.AsyncContext;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConnection;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpUpgradeHandler;
+import jakarta.servlet.http.Part;
 
 import org.apache.cxf.transport.servlet.ServletController;
 import org.apache.tomcat.util.http.FastHttpDateFormat;
@@ -58,11 +58,6 @@ import lombok.Setter;
 public class InMemoryRequest implements HttpServletRequest {
 
     private static final Cookie[] NO_COOKIE = new Cookie[0];
-
-    private static final SimpleDateFormat[] DATE_FORMATS =
-            { new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US),
-                    new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US),
-                    new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US) };
 
     private final Map<String, Object> attributes = new HashMap<>();
 
@@ -122,12 +117,7 @@ public class InMemoryRequest implements HttpServletRequest {
             return -1L;
         }
 
-        final SimpleDateFormat[] formats = new SimpleDateFormat[DATE_FORMATS.length];
-        for (int i = 0; i < formats.length; i++) {
-            formats[i] = (SimpleDateFormat) DATE_FORMATS[i].clone();
-        }
-
-        final long result = FastHttpDateFormat.parseDate(value, formats);
+        final long result = FastHttpDateFormat.parseDate(value);
         if (result != -1L) {
             return result;
         }
@@ -249,11 +239,6 @@ public class InMemoryRequest implements HttpServletRequest {
 
     @Override
     public boolean isRequestedSessionIdFromURL() {
-        return false;
-    }
-
-    @Override
-    public boolean isRequestedSessionIdFromUrl() {
         return false;
     }
 
@@ -412,11 +397,6 @@ public class InMemoryRequest implements HttpServletRequest {
     }
 
     @Override
-    public String getRealPath(final String s) {
-        return null;
-    }
-
-    @Override
     public int getRemotePort() {
         return 0;
     }
@@ -439,6 +419,22 @@ public class InMemoryRequest implements HttpServletRequest {
     @Override
     public ServletContext getServletContext() {
         return servletContext;
+    }
+
+    @Override
+    public ServletConnection getServletConnection() {
+        // no real network connection backs this in-memory request
+        return null;
+    }
+
+    @Override
+    public String getRequestId() {
+        return String.valueOf(hashCode());
+    }
+
+    @Override
+    public String getProtocolRequestId() {
+        return "";
     }
 
     @Override

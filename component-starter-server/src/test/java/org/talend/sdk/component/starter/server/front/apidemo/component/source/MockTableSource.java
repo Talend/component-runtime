@@ -21,10 +21,10 @@ import static org.talend.sdk.component.starter.server.front.apidemo.component.se
 
 import java.io.Serializable;
 
-import javax.annotation.PostConstruct;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonValue;
+import jakarta.annotation.PostConstruct;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonValue;
 
 import org.talend.sdk.component.api.base.BufferizedProducerSupport;
 import org.talend.sdk.component.api.configuration.Option;

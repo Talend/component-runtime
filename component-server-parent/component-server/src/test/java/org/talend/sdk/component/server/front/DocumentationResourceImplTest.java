@@ -15,24 +15,26 @@
  */
 package org.talend.sdk.component.server.front;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.function.Function;
 
-import javax.inject.Inject;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 
-import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
+import org.apache.meecrowave.junit5.MeecrowaveConfig;
 import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.TestInstance;
 import org.talend.sdk.component.server.front.model.DocumentationContent;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.server.test.ComponentClient;
 import org.talend.sdk.component.server.test.websocket.WebsocketClient;
 
-@MonoMeecrowaveConfig
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@MeecrowaveConfig(scanningExcludes = "smallrye-config")
 class DocumentationResourceImplTest {
 
     @Inject

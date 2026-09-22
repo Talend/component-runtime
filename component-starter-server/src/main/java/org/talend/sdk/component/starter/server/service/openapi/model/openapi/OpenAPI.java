@@ -20,7 +20,7 @@ import static java.util.Optional.ofNullable;
 import java.util.List;
 import java.util.Map;
 
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 import org.talend.sdk.component.starter.server.service.openapi.model.ApiModel;
 import org.talend.sdk.component.starter.server.service.openapi.model.common.ExternalDocs;
