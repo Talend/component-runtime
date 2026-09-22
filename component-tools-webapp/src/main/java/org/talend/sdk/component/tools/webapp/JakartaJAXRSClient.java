@@ -26,6 +26,7 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.GenericType;
 
+import org.apache.johnzon.jaxrs.jsonb.jaxrs.JsonbJaxrsProvider;
 import org.talend.sdk.component.form.api.Client;
 
 /**
@@ -51,6 +52,10 @@ public class JakartaJAXRSClient<T> implements Client<T> {
             final boolean closeClient) {
         this.delegate = client;
         this.closeClient = closeClient;
+        // CXF's JAX-RS client does not auto-discover a JSON-B MessageBodyReader/Writer for plain
+        // Map<String, Object> payloads - register johnzon-jsonb's provider explicitly, otherwise both the
+        // request payload conversion and the response mapping in #action fail at runtime.
+        client.register(JsonbJaxrsProvider.class);
         this.target = client.target(base);
         this.mapType = new GenericType<Map<String, Object>>() {
         };
