@@ -204,6 +204,7 @@ public class CDIJCacheHelper {
                     return idx;
                 }
             }
+            idx++;
         }
         return -1;
     }
