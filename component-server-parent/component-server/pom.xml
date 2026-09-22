@@ -522,6 +522,7 @@
             </goals>
             <phase>test</phase>
             <configuration>
+              <reuseForks>false</reuseForks>
               <includes>
                 <include>**/beam/*Test.java</include>
               </includes>
