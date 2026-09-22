@@ -72,6 +72,25 @@
         <artifactId>openwebbeans-web</artifactId>
         <version>${owb-jakarta.version}</version>
       </dependency>
+      <!-- johnzon-jsonb (declared below) would otherwise pull its own transitive johnzon-core/johnzon-mapper
+           down to the shared javax ${johnzon.version} - re-pin all three to the jakarta line so the
+           jakarta.json.spi.JsonProvider lookup used by jakarta.json.bind.Jsonb resolves, mirroring
+           component-server/pom.xml. -->
+      <dependency>
+        <groupId>org.apache.johnzon</groupId>
+        <artifactId>johnzon-core</artifactId>
+        <version>${johnzon-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.johnzon</groupId>
+        <artifactId>johnzon-mapper</artifactId>
+        <version>${johnzon-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.johnzon</groupId>
+        <artifactId>johnzon-jsonb</artifactId>
+        <version>${johnzon-jakarta.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -80,6 +99,14 @@
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-server</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <!-- JakartaJAXRSClient directly imports johnzon-jsonb's JAX-RS provider (org.apache.johnzon.jaxrs.jsonb.jaxrs.
+         JsonbJaxrsProvider) to register JSON-B support on the client it builds - make the dependency explicit
+         rather than relying on it arriving transitively via component-server. -->
+    <dependency>
+      <groupId>org.apache.johnzon</groupId>
+      <artifactId>johnzon-jsonb</artifactId>
+      <version>${johnzon-jakarta.version}</version>
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
