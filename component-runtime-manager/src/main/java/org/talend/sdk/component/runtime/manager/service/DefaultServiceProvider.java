@@ -47,6 +47,7 @@ import javax.json.spi.JsonProvider;
 import javax.json.stream.JsonGeneratorFactory;
 import javax.json.stream.JsonParserFactory;
 
+import org.apache.johnzon.jsonb.JohnzonBuilder;
 import org.apache.johnzon.mapper.MapperBuilder;
 import org.talend.sdk.component.api.record.RecordPointerFactory;
 import org.talend.sdk.component.api.service.cache.LocalCache;
@@ -229,14 +230,22 @@ public class DefaultServiceProvider {
                                 emptyMap()),
                         jsonpReaderFactory))
                 .withConfig(jsonbConfig);
-        try { // to passthrough the writer, otherwise RecoderJsonGenerator is broken
-            final Field mapper = jsonbBuilder.getClass().getDeclaredField("builder");
-            if (!mapper.isAccessible()) {
-                mapper.setAccessible(true);
+        // to passthrough the writer, otherwise RecoderJsonGenerator is broken - only applies to the
+        // Johnzon JsonbBuilder implementation, other JSON-B providers (e.g. Yasson) don't expose this
+        // internal field and don't need the optimization
+        if (jsonbBuilder instanceof JohnzonBuilder) {
+            try {
+                final Field mapper = jsonbBuilder.getClass().getDeclaredField("builder");
+                if (!mapper.isAccessible()) {
+                    mapper.setAccessible(true);
+                }
+                ((MapperBuilder) mapper.get(jsonbBuilder)).setDoCloseOnStreams(true);
+            } catch (final NoSuchFieldException | IllegalAccessException e) {
+                throw new IllegalStateException(e);
             }
-            ((MapperBuilder) mapper.get(jsonbBuilder)).setDoCloseOnStreams(true);
-        } catch (final Exception e) {
-            throw new IllegalStateException(e);
+        } else {
+            log.debug("JsonbBuilder implementation {} is not Johnzon's, skipping doCloseOnStreams optimization",
+                    jsonbBuilder.getClass().getName());
         }
         return jsonbBuilder;
     }
