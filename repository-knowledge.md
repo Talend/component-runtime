@@ -192,6 +192,47 @@ consumers simultaneously; no per-module edit is ever needed for a CXF version bu
 
 ---
 
+## Build / validation gotchas
+
+### RAT check can fail locally on untracked ai-commons tooling files (CI is unaffected)
+
+[2026-09-22 | QTDI-3358] The root pom's `apache-rat-plugin` excludes (`**/.*`, `**/.*/*`) only
+match files directly inside a dot-folder, not files nested further down — e.g.
+`.ai-commons/agents/ai-cve/scripts/sample.env` (3 levels deep) is **not** excluded and fails
+`mvn clean install -Dgpg.skip=true -Denforcer.skip=true` (the documented CI-mirroring command)
+with "Too many files with unapproved license" when di-ai-commons tooling is installed locally.
+Since `.ai-commons/` is itself gitignored and untracked, CI never sees this — it is a local-only
+false failure. **Fix**: add `-Drat.skip=true` when running a full local reactor validation build
+in a checkout that has `.ai-commons/` present, or `rm -rf` any stray manually-created scratch
+directories/files before running RAT-sensitive goals.
+
+### Full-reactor `documentation` build regenerates two `.adoc` files as a side effect
+
+[2026-09-22 | QTDI-3358] Building the `documentation` module (or the full reactor, which builds it
+last) regenerates `generated_rest-resources.adoc` (from CXF/JAX-RS-annotated classes) and
+`generated_contributors.adoc` (from git history) every time — even when only running a build for
+unrelated verification purposes. If any of the currently-active CXF consumers uses an OpenAPI/doc
+plugin without a matching release for the annotation namespace in use (e.g.
+`geronimo-openapi-maven-plugin` has no `jakarta.*`-namespace release as of this writing), the
+regenerated `generated_rest-resources.adoc` content can differ from — or actively regress —
+the committed version. Always run `git status`/`git diff` on both files after any local
+verification build and `git checkout HEAD -- <path>` to revert unintended regeneration before
+committing or rebasing.
+
+### `-T 1C` parallel reactor builds can hang a `component-runtime-manager` HTTP-client test
+
+[2026-09-22 | QTDI-3358] `component-runtime-manager`'s `HttpClientFactoryImpl`-backed test(s) make
+a real (non-mocked) network call with no read timeout. Run standalone (`mvn test -pl
+component-runtime-manager`) the full suite (316 tests) completes cleanly in ~10s. Run as part of a
+`-T 1C` parallel full-reactor build alongside other modules, the same test can stall indefinitely
+(confirmed via `jstack` — blocked in `SocketDispatcher.read`) — likely resource contention under
+concurrent module execution. **Workaround**: validate large changesets with sequential, per-module
+`mvn test -pl <module>` runs (per `AGENTS.md`'s documented single-module invocation) rather than a
+parallel (`-T 1C`) full-reactor test run; reserve `-T 1C` for compile/package-only validation
+(`-DskipTests`), where it is reliable.
+
+---
+
 ## Coding rules delta
 
 No known repo-specific exceptions to the shared [coding-rules.md](https://github.com/Talend/di-ai-commons/blob/main/knowledge/rules/coding-rules.md).
