@@ -97,6 +97,25 @@
         <artifactId>openwebbeans-web</artifactId>
         <version>${owb-jakarta.version}</version>
       </dependency>
+      <!-- johnzon-jsonb (declared below) would otherwise pull its own transitive johnzon-core/johnzon-mapper
+           down to the shared javax ${johnzon.version} - re-pin all three to the jakarta line so the
+           jakarta.json.spi.JsonProvider lookup used by jakarta.json.bind.Jsonb resolves, mirroring
+           component-server/pom.xml. -->
+      <dependency>
+        <groupId>org.apache.johnzon</groupId>
+        <artifactId>johnzon-core</artifactId>
+        <version>${johnzon-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.johnzon</groupId>
+        <artifactId>johnzon-mapper</artifactId>
+        <version>${johnzon-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.johnzon</groupId>
+        <artifactId>johnzon-jsonb</artifactId>
+        <version>${johnzon-jakarta.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
