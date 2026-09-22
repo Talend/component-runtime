@@ -80,13 +80,12 @@ public class CacheRemoveAllInterceptor implements Serializable {
         final CacheResolver cacheResolver = cacheResolverFactory.getCacheResolver(context);
         final Cache<Object, Object> cache = cacheResolver.resolveCache(context);
 
-        // NOTE (Talend): inherited as-is from upstream geronimo-jcache-simple's MakeJCacheCDIInterceptorFriendly -
-        // this reads the co-located @CachePut's afterInvocation flag instead of @CacheRemoveAll's own
-        // (JSR-107 defaults @CacheRemoveAll#afterInvocation() to true, evict-after). No method in this codebase
-        // currently combines @CacheRemoveAll with @CachePut or sets afterInvocation explicitly (only
-        // @CacheResult is used in production), so this pre-existing upstream quirk has no active runtime impact
-        // today; flagging here for whoever adds the first standalone @CacheRemoveAll usage.
-        final boolean afterInvocation = methodMeta.isCachePutAfter();
+        // NOTE (Talend): originally ported as-is from upstream geronimo-jcache-simple's
+        // MakeJCacheCDIInterceptorFriendly, which read the co-located @CachePut's afterInvocation flag instead
+        // of @CacheRemoveAll's own. Fixed during review (QTDI-3358 round 2) to read the correct annotation so
+        // eviction timing (before/after invocation) always follows this method's own @CacheRemoveAll setting,
+        // regardless of whether @CachePut is also present.
+        final boolean afterInvocation = methodMeta.getCacheRemoveAll().afterInvocation();
         if (!afterInvocation) {
             cache.removeAll();
         }
