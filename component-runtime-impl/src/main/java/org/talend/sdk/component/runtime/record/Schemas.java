@@ -173,18 +173,21 @@ public abstract class Schemas implements Schema, Schema.Builder {
 
     @Override
     @JsonbTransient
+    @jakarta.json.bind.annotation.JsonbTransient
     public Stream<Entry> getAllEntries() {
         return Stream.empty();
     }
 
     @Override
     @JsonbTransient
+    @jakarta.json.bind.annotation.JsonbTransient
     public List<Entry> getEntriesOrdered() {
         return emptyList();
     }
 
     @Override
     @JsonbTransient
+    @jakarta.json.bind.annotation.JsonbTransient
     public Builder moveBefore(final String before, final String name) {
         throw new UnsupportedOperationException("#moveBefore()");
     }
@@ -251,6 +254,7 @@ public abstract class Schemas implements Schema, Schema.Builder {
 
     @Override
     @JsonbTransient
+    @jakarta.json.bind.annotation.JsonbTransient
     public List<Entry> getEntriesOrdered(final Comparator<Entry> comparator) {
         throw new UnsupportedOperationException("#getEntriesOrdered()");
     }

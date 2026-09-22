@@ -55,11 +55,55 @@
     <indexation.skip>false</indexation.skip>
   </properties>
 
+  <!-- this module (transitively via component-server) pulls meecrowave-core's jakarta-namespaced tomcat/openwebbeans
+       artifacts, which would otherwise be forced back to the shared javax-based ${meecrowave.version}/
+       ${tomcat.version}/${owb.version} by the root pom's dependencyManagement (meecrowave-core is only a transitive
+       dependency here, so component-server's own explicit version override does not apply). Re-pin them to the
+       jakarta twins for this module only. -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.meecrowave</groupId>
+        <artifactId>meecrowave-core</artifactId>
+        <version>${meecrowave-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-catalina</artifactId>
+        <version>${tomcat-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-jaspic-api</artifactId>
+        <version>${tomcat-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-jni</artifactId>
+        <version>${tomcat-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-se</artifactId>
+        <version>${owb-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-spi</artifactId>
+        <version>${owb-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-web</artifactId>
+        <version>${owb-jakarta.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-jaxrs_2.1_spec</artifactId>
-      <version>${geronimo-jaxrs.version}</version>
+      <groupId>jakarta.ws.rs</groupId>
+      <artifactId>jakarta.ws.rs-api</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -169,6 +213,7 @@
     <dependency>
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
+      <version>${johnzon-jakarta.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -232,7 +277,7 @@
           <dependency>
             <groupId>org.apache.johnzon</groupId>
             <artifactId>johnzon-jsonb</artifactId>
-            <version>${johnzon.version}</version>
+            <version>${johnzon-jakarta.version}</version>
           </dependency>
           <dependency>
             <groupId>org.asciidoctor</groupId>
@@ -285,19 +330,19 @@
             <version>${geronimo-openapi.version}</version>
           </dependency>
           <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-json_1.1_spec</artifactId>
-            <version>${geronimo-json.version}</version>
+            <groupId>jakarta.json</groupId>
+            <artifactId>jakarta.json-api</artifactId>
+            <version>${jakarta.json-api.version}</version>
           </dependency>
           <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jsonb_1.0_spec</artifactId>
-            <version>${geronimo-jsonb.version}</version>
+            <groupId>jakarta.json.bind</groupId>
+            <artifactId>jakarta.json.bind-api</artifactId>
+            <version>${jakarta.json.bind-api.version}</version>
           </dependency>
           <dependency>
             <groupId>org.apache.johnzon</groupId>
             <artifactId>johnzon-jsonb</artifactId>
-            <version>${johnzon.version}</version>
+            <version>${johnzon-jakarta.version}</version>
           </dependency>
           <dependency>
             <groupId>com.github.crawler-commons</groupId>
@@ -320,9 +365,9 @@
             <version>${commons-text.version}</version>
           </dependency>
           <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaxrs_2.1_spec</artifactId>
-            <version>${geronimo-jaxrs.version}</version>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+            <version>${jakarta.ws.rs-api.version}</version>
           </dependency>
           <dependency>
             <groupId>org.asciidoctor</groupId>
@@ -415,9 +460,9 @@
             <version>${plexus-sec-dispatcher.version}</version>
           </dependency>
           <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaxrs_2.1_spec</artifactId>
-            <version>${geronimo-jaxrs.version}</version>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+            <version>${jakarta.ws.rs-api.version}</version>
           </dependency>
           <dependency>
             <groupId>org.talend.sdk.component</groupId>
@@ -832,7 +877,7 @@
       <plugin>
         <groupId>org.apache.meecrowave</groupId>
         <artifactId>meecrowave-maven-plugin</artifactId>
-        <version>${meecrowave.version}</version>
+        <version>${meecrowave-jakarta.version}</version>
         <configuration>
           <webResourceCached>false</webResourceCached>
           <cdiConversation>false</cdiConversation>

@@ -22,7 +22,7 @@ import static org.talend.sdk.component.starter.server.service.Strings.capitalize
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.talend.sdk.component.starter.server.service.Strings;
 import org.talend.sdk.component.starter.server.service.domain.ProjectRequest;

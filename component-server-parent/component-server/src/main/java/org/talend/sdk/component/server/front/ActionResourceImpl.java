@@ -15,10 +15,10 @@
  */
 package org.talend.sdk.component.server.front;
 
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,12 +33,13 @@ import java.util.stream.Stream;
 
 import javax.cache.annotation.CacheDefaults;
 import javax.cache.annotation.CacheResult;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
 
 import org.talend.sdk.component.api.exception.ComponentException;
 import org.talend.sdk.component.runtime.manager.ComponentManager;

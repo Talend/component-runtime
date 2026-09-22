@@ -47,6 +47,17 @@
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
     </dependency>
+    <!-- Provided-scope only (not transitive): lets these classes dual-annotate a handful of
+         methods with both javax.json.bind.annotation.JsonbTransient (this module's own,
+         primary, javax-only line) and jakarta.json.bind.annotation.JsonbTransient, so the
+         exclusion is also honored by consumers (e.g. component-server) whose own Jsonb runtime
+         is jakarta-based and would otherwise be unable to recognize the javax-typed annotation
+         at all. See QTDI-3358. -->
+    <dependency>
+      <groupId>jakarta.json.bind</groupId>
+      <artifactId>jakarta.json.bind-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-slf4j-impl</artifactId>

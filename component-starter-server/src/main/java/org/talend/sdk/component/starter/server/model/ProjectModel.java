@@ -17,8 +17,8 @@ package org.talend.sdk.component.starter.server.model;
 
 import java.util.Collection;
 
-import javax.json.JsonObject;
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 import lombok.Data;
 

@@ -24,23 +24,22 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
+import jakarta.annotation.PreDestroy;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
 
 import org.talend.sdk.component.form.api.Client;
-import org.talend.sdk.component.form.internal.jaxrs.JAXRSClient;
 
 import lombok.experimental.Delegate;
 
@@ -74,10 +73,10 @@ public class LazyClient implements Client<Object> {
                                     return thread;
                                 }
                             });
-                    final javax.ws.rs.client.Client jaxrsClient =
+                    final jakarta.ws.rs.client.Client jaxrsClient =
                             ClientBuilder.newBuilder().property("executorService", executorService).build();
                     webTarget = jaxrsClient.target(baseValue);
-                    client = new JAXRSClient<>(jaxrsClient, baseValue, true);
+                    client = new JakartaJAXRSClient<>(jaxrsClient, baseValue, true);
                 }
             }
         }
