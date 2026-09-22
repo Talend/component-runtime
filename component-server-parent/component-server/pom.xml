@@ -37,16 +37,70 @@
     <talend.component.server.tomcat.valve.error.debug>false</talend.component.server.tomcat.valve.error.debug>
   </properties>
 
+  <!-- meecrowave-core here is pinned to the jakarta line (${meecrowave-jakarta.version}) but its transitive
+       tomcat/openwebbeans artifacts would otherwise be forced back to the shared javax-based ${tomcat.version}/
+       ${owb.version} by the root pom's dependencyManagement. Re-pin them to the jakarta twins for this module only. -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-catalina</artifactId>
+        <version>${tomcat-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-jaspic-api</artifactId>
+        <version>${tomcat-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-jni</artifactId>
+        <version>${tomcat-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-se</artifactId>
+        <version>${owb-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-spi</artifactId>
+        <version>${owb-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-web</artifactId>
+        <version>${owb-jakarta.version}</version>
+      </dependency>
+      <!-- johnzon-jsonb (declared below) would otherwise pull its own transitive johnzon-core/johnzon-mapper
+           down to the shared javax ${johnzon.version}, while component-runtime-manager separately brings in
+           johnzon-core at the javax line too - re-pin all three to the jakarta line so the
+           jakarta.json.spi.JsonProvider lookup used by jakarta.json.bind.Jsonb resolves. -->
+      <dependency>
+        <groupId>org.apache.johnzon</groupId>
+        <artifactId>johnzon-core</artifactId>
+        <version>${johnzon-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.johnzon</groupId>
+        <artifactId>johnzon-mapper</artifactId>
+        <version>${johnzon-jakarta.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-manager</artifactId>
       <version>${project.version}</version>
+      <!-- geronimo-json_1.1_spec/geronimo-jsonb_1.0_spec (transitively pulled in on the javax line) are
+           excluded here since component-server supplies its own javax.json/javax.json.bind implementations
+           (org.glassfish:javax.json, org.eclipse:yasson, declared below) instead - see the dependencyManagement
+           comment in the root pom (QTDI-3358 notes). geronimo-annotation_1.3_spec (javax.annotation.PostConstruct/
+           PreDestroy) is NOT excluded: component-runtime-manager's own bytecode (out of scope for the jakarta
+           migration) genuinely needs it at runtime, and nothing else on this module's classpath provides it. -->
       <exclusions>
-        <exclusion>
-          <groupId>org.apache.geronimo.specs</groupId>
-          <artifactId>geronimo-annotation_1.3_spec</artifactId>
-        </exclusion>
         <exclusion>
           <groupId>org.apache.geronimo.specs</groupId>
           <artifactId>geronimo-json_1.1_spec</artifactId>
@@ -78,10 +132,24 @@
       <artifactId>commons-cli</artifactId>
       <version>${commons-cli.version}</version>
     </dependency>
-    <!-- override until we upgrade meecrowave -->
+    <!-- jakarta-namespaced JSON-B implementation, required by the CXF 4.x/jakarta migration -->
     <dependency>
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
+      <version>${johnzon-jakarta.version}</version>
+    </dependency>
+    <!-- javax.json.spi.JsonProvider/javax.json.bind.spi.JsonbProvider implementations for the out-of-scope
+         javax-only code this module still pulls in (component-runtime-manager, component-form): johnzon-core
+         is pinned to the jakarta line above for our own jakarta CXF/Meecrowave stack, so no javax.json
+         provider is left on the classpath otherwise - see the dependencyManagement comment in the root pom
+         and META-INF/services/javax.json.spi.JsonProvider below (QTDI-3358 notes). -->
+    <dependency>
+      <groupId>org.glassfish</groupId>
+      <artifactId>javax.json</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse</groupId>
+      <artifactId>yasson</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -90,7 +158,7 @@
     <dependency>
       <groupId>org.apache.meecrowave</groupId>
       <artifactId>meecrowave-core</artifactId>
-      <version>${meecrowave.version}</version>
+      <version>${meecrowave-jakarta.version}</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.microprofile.config</groupId>
@@ -104,8 +172,8 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo.config</groupId>
-      <artifactId>geronimo-config-impl</artifactId>
+      <groupId>io.smallrye.config</groupId>
+      <artifactId>smallrye-config</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
@@ -136,7 +204,7 @@
     <dependency>
       <groupId>org.apache.tomcat</groupId>
       <artifactId>tomcat-websocket</artifactId>
-      <version>${tomcat.version}</version>
+      <version>${tomcat-jakarta.version}</version>
     </dependency>
 
     <dependency>
@@ -155,7 +223,7 @@
     <dependency>
       <groupId>org.apache.meecrowave</groupId>
       <artifactId>meecrowave-junit</artifactId>
-      <version>${meecrowave.version}</version>
+      <version>${meecrowave-jakarta.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -392,7 +460,7 @@
         <configuration>
           <cdiConversation>false</cdiConversation>
           <watcherBouncing>-1</watcherBouncing>
-          <scanningExcludes>apiguardian,brave,kafka,lz4,talend-icon,zipkin,container-core,component-runtime,beam,paranamer,joda-time,avro,objenesis,xz,snappy,component-spi,component-api,tomcat-websocket</scanningExcludes>
+          <scanningExcludes>apiguardian,brave,kafka,lz4,talend-icon,zipkin,container-core,component-runtime,beam,paranamer,joda-time,avro,objenesis,xz,snappy,component-spi,component-api,tomcat-websocket,smallrye-config</scanningExcludes>
           <!--<webapp>${project.basedir}/src/dev/webapp</webapp>-->
           <!--
           <systemProperties>
@@ -426,6 +494,7 @@
             </goals>
             <phase>test</phase>
             <configuration>
+              <reuseForks>false</reuseForks>
               <excludes>
                 <exclude>**/beam/*Test.java</exclude>
               </excludes>

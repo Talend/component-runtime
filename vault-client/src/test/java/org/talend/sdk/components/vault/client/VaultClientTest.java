@@ -15,7 +15,7 @@
  */
 package org.talend.sdk.components.vault.client;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -28,23 +28,33 @@ import java.util.Map;
 import java.util.concurrent.CompletionException;
 import java.util.function.Predicate;
 
-import javax.enterprise.inject.se.SeContainer;
-import javax.enterprise.inject.se.SeContainerInitializer;
-import javax.inject.Inject;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
+import jakarta.enterprise.inject.se.SeContainer;
+import jakarta.enterprise.inject.se.SeContainerInitializer;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 
 import org.apache.meecrowave.Meecrowave;
-import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
+import org.apache.meecrowave.junit5.MeecrowaveConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.talend.sdk.components.vault.server.error.ErrorPayload;
 
-@MonoMeecrowaveConfig
+// scanningExcludes stops OpenWebBeans' classpath-wide bean scan from ALSO picking up SmallRye Config's
+// ConfigProducer (it registers itself via its own CDI extension already), which otherwise causes a
+// duplicate-bean AmbiguousResolutionException for every @ConfigProperty injection point - see QTDI-3358.
+// @MonoMeecrowaveConfig has no per-test-class configuration point for this, hence the switch to
+// @MeecrowaveConfig (this is the only test class in this module, so the shared-container optimization
+// Mono offers is not needed here). @TestInstance(PER_CLASS) makes MeecrowaveExtension boot the container
+// once per class (beforeAll/afterAll) instead of once per method (beforeEach/afterEach) - the latter
+// triggers repeated OWB deployments that collide on internal bean ids (DuplicateDefinitionException).
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@MeecrowaveConfig(scanningExcludes = "smallrye-config")
 class VaultClientTest {
 
     @Inject

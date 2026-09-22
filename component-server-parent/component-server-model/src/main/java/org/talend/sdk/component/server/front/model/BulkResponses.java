@@ -18,7 +18,7 @@ package org.talend.sdk.component.server.front.model;
 import java.util.List;
 import java.util.Map;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

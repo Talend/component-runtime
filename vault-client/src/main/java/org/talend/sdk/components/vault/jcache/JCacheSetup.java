@@ -25,10 +25,11 @@ import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.spi.CachingProvider;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Disposes;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Disposes;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.components.vault.client.DecryptedValue;
@@ -45,8 +46,12 @@ public class JCacheSetup {
 
     @Inject
     @Documentation("JCache `CacheManager` properties used to initialized the instance.")
-    @ConfigProperty(name = "talend.vault.cache.jcache.manager.properties", defaultValue = "")
-    private String configurationProperties;
+    // SmallRye Config's built-in String converter unconditionally treats a resolved empty-string value as
+    // null (SRCFG00040), so a plain String field with defaultValue = "" fails eager @ConfigProperty
+    // validation under SmallRye - Optional<String> (no defaultValue) is the MicroProfile Config idiom for
+    // "no value configured" and avoids the empty-string conversion path entirely. See QTDI-3358 notes.
+    @ConfigProperty(name = "talend.vault.cache.jcache.manager.properties")
+    private Optional<String> configurationProperties;
 
     @Inject
     private CacheConfigurationFactory cacheConfiguration;
@@ -66,7 +71,7 @@ public class JCacheSetup {
     public CacheManager cacheManager(final CachingProvider provider) {
         return provider
                 .getCacheManager(URI.create(configurationUri), Thread.currentThread().getContextClassLoader(),
-                        Optional.of(configurationProperties).filter(it -> !it.isEmpty()).map(it -> {
+                        configurationProperties.filter(it -> !it.isEmpty()).map(it -> {
                             final Properties properties = new Properties();
                             try (final StringReader reader = new StringReader(it)) {
                                 properties.load(reader);

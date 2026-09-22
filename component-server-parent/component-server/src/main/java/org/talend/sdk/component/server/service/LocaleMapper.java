@@ -24,9 +24,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.function.Predicate;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 
