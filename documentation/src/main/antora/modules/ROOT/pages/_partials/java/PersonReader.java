@@ -25,8 +25,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.MigrationHandler;
