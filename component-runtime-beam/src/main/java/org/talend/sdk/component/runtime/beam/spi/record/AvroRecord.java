@@ -54,9 +54,11 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     private static final RecordConverters RECORD_CONVERTERS = new RecordConverters();
 
     @JsonbTransient
+    @jakarta.json.bind.annotation.JsonbTransient
     private final IndexedRecord delegate;
 
     @JsonbTransient
+    @jakarta.json.bind.annotation.JsonbTransient
     private final AvroSchema schema;
 
     public AvroRecord(final IndexedRecord record) {

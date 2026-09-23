@@ -541,20 +541,20 @@ public class ComponentManager implements AutoCloseable {
                 recordBuilderFactoryProvider, propertyEditorRegistry);
     }
 
+    // Intentionally *not* referencing org.apache.johnzon.jsonb.JohnzonProvider directly: some downstream
+    // modules (e.g. component-server) pin johnzon-core/johnzon-jsonb to the jakarta.json.* line, whose
+    // classes no longer implement javax.json.bind.spi.JsonbProvider. A hardcoded "new JohnzonProvider()"
+    // whose declared return type is the javax interface fails class verification (VerifyError) as soon
+    // as this class is loaded, before the try/catch below ever runs. Going through the ServiceLoader-based
+    // JsonbProvider.provider() keeps this class link-safe regardless of which johnzon-core is on the
+    // classpath; whichever javax.json.bind.spi.JsonbProvider implementation is actually present wins.
     private JsonbProvider loadJsonbProvider() {
-        try {
-            return new org.apache.johnzon.jsonb.JohnzonProvider();
-        } catch (final RuntimeException re) {
-            return JsonbProvider.provider();
-        }
+        return JsonbProvider.provider();
     }
 
+    // See loadJsonbProvider() above - same rationale applies to javax.json.spi.JsonProvider.
     private JsonProvider loadJsonProvider() {
-        try {
-            return new org.apache.johnzon.core.JsonProviderImpl();
-        } catch (final RuntimeException re) {
-            return JsonProvider.provider();
-        }
+        return JsonProvider.provider();
     }
 
     protected Supplier<Locale> getLocalSupplier() {

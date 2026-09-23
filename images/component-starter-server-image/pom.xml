@@ -36,6 +36,70 @@
     <docker.image.port>8080</docker.image.port>
   </properties>
 
+  <!-- this module (transitively via component-starter-server) pulls meecrowave-core's jakarta-namespaced
+       tomcat/openwebbeans artifacts, which would otherwise be forced back to the shared javax-based
+       ${meecrowave.version}/${tomcat.version}/${owb.version} by the root pom's dependencyManagement
+       (meecrowave-core is only a transitive dependency here, so component-starter-server's own explicit
+       version override does not apply). Re-pin them to the jakarta twins for this module only. -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.meecrowave</groupId>
+        <artifactId>meecrowave-core</artifactId>
+        <version>${meecrowave-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-catalina</artifactId>
+        <version>${tomcat-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-jaspic-api</artifactId>
+        <version>${tomcat-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-jni</artifactId>
+        <version>${tomcat-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-se</artifactId>
+        <version>${owb-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-spi</artifactId>
+        <version>${owb-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-web</artifactId>
+        <version>${owb-jakarta.version}</version>
+      </dependency>
+      <!-- johnzon-jsonb (declared below) would otherwise pull its own transitive johnzon-core/johnzon-mapper
+           down to the shared javax ${johnzon.version} - re-pin all three to the jakarta line so the
+           jakarta.json.spi.JsonProvider lookup used by jakarta.json.bind.Jsonb resolves, mirroring
+           component-server/pom.xml. -->
+      <dependency>
+        <groupId>org.apache.johnzon</groupId>
+        <artifactId>johnzon-core</artifactId>
+        <version>${johnzon-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.johnzon</groupId>
+        <artifactId>johnzon-mapper</artifactId>
+        <version>${johnzon-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.johnzon</groupId>
+        <artifactId>johnzon-jsonb</artifactId>
+        <version>${johnzon-jakarta.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>

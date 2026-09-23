@@ -15,23 +15,29 @@
  */
 package org.talend.sdk.component.starter.server.front;
 
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static java.lang.Thread.sleep;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.util.Collection;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 
-import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
+import org.apache.meecrowave.junit5.MeecrowaveConfig;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.Timeout;
 import org.talend.sdk.component.starter.server.model.ProjectModel;
 import org.talend.sdk.component.starter.server.test.Client;
 
-@MonoMeecrowaveConfig
+// scanningExcludes="smallrye-config" avoids CDI AmbiguousResolutionException from SmallRye Config's
+// ConfigProducer bean being registered twice (same root cause/fix as component-server's 19 converted
+// classes - see QTDI-3358 notes); @MonoMeecrowaveConfig has no scanningExcludes equivalent, hence the
+// switch to per-class @MeecrowaveConfig + @TestInstance(PER_CLASS) (one container per test class).
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@MeecrowaveConfig(scanningExcludes = "smallrye-config")
 @Client.Active
 class RRDEndpointTest {
 

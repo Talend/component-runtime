@@ -15,7 +15,7 @@
  */
 package org.talend.sdk.component.starter.server.service.openapi.model.common;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 import lombok.Data;
 

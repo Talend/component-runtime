@@ -1,0 +1,628 @@
+/**
+ * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.talend.sdk.component.server.service.jcache.cdi;
+
+/*
+ * NOTE (Talend): This file is adapted from
+ * org.apache.geronimo:geronimo-jcache-simple:1.0.5 (Apache License, Version 2.0),
+ * class org.apache.geronimo.jcache.simple.cdi.CDIJCacheHelper.
+ * It has been repackaged into the CDI/Interceptors "jakarta.*" namespace (JSR-107/
+ * "javax.cache.*" types are intentionally left unchanged, since the JCache specification
+ * itself has not migrated to a "jakarta.cache" package) so that the JSR-107 declarative
+ * caching annotations (@CacheResult, @CachePut, @CacheRemove, @CacheRemoveAll) keep working
+ * once component-server runs on a jakarta CDI container. See the original Apache License,
+ * Version 2.0 header below, retained from the upstream source file.
+ */
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+import javax.cache.annotation.CacheDefaults;
+import javax.cache.annotation.CacheKey;
+import javax.cache.annotation.CacheKeyGenerator;
+import javax.cache.annotation.CachePut;
+import javax.cache.annotation.CacheRemove;
+import javax.cache.annotation.CacheRemoveAll;
+import javax.cache.annotation.CacheResolverFactory;
+import javax.cache.annotation.CacheResult;
+import javax.cache.annotation.CacheValue;
+
+import jakarta.annotation.PreDestroy;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.spi.CreationalContext;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.inject.Inject;
+import jakarta.interceptor.InvocationContext;
+
+import org.apache.geronimo.jcache.simple.cdi.CacheKeyGeneratorImpl;
+import org.apache.geronimo.jcache.simple.cdi.CacheResolverFactoryImpl;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@ApplicationScoped
+public class CDIJCacheHelper {
+
+    private static final boolean CLOSE_CACHE = !Boolean.getBoolean("org.apache.geronimo.jcache.simple.cdi.skip-close");
+
+    private final CacheKeyGeneratorImpl defaultCacheKeyGenerator = new CacheKeyGeneratorImpl();
+
+    private final Collection<CreationalContext<?>> toRelease = new ArrayList<>();
+
+    private final ConcurrentMap<MethodKey, MethodMeta> methods = new ConcurrentHashMap<>();
+
+    // Sonar S3077 (non-primitive volatile field) is a known false positive here: this is the textbook
+    // double-checked-locking lazy singleton pattern (see #defaultCacheResolverFactory() below), where
+    // `volatile` on the reference alone is sufficient for correct publication - the referenced
+    // CacheResolverFactoryImpl is fully constructed before the reference is ever published, and it is
+    // never mutated afterward. Eager initialization would defeat the deliberate laziness (documented
+    // below: "not create any cache if not needed"), ported unchanged from upstream geronimo-jcache-simple.
+    @SuppressWarnings("java:S3077")
+    private volatile CacheResolverFactoryImpl defaultCacheResolverFactory = null; // lazy to not create any cache if not
+                                                                                  // needed
+
+    // Sonar S6813 (field injection) is a deliberate deviation here, unlike the interceptor classes in this
+    // package: CDIJCacheHelper is @ApplicationScoped (normal-scoped), so the CDI container generates a
+    // client proxy for it. OpenWebBeans requires a normal-scoped bean to expose a no-arg constructor for
+    // that proxy to be buildable, even when an @Inject constructor is also present (confirmed by a
+    // deployment failure - UnproxyableResolutionException - when this was converted to constructor
+    // injection during this review). Field injection is therefore kept, matching the interceptor classes'
+    // upstream geronimo-jcache-simple style but required here for a different (proxyability) reason.
+    @SuppressWarnings("java:S6813")
+    @Inject
+    private BeanManager beanManager;
+
+    @PreDestroy
+    private void release() {
+        if (CLOSE_CACHE && defaultCacheResolverFactory != null) {
+            defaultCacheResolverFactory.release();
+        }
+        for (final CreationalContext<?> cc : toRelease) {
+            try {
+                cc.release();
+            } catch (final RuntimeException re) {
+                log.warn("Error releasing a JCache CreationalContext", re);
+            }
+        }
+    }
+
+    public MethodMeta findMeta(final InvocationContext ic) {
+        final Method mtd = ic.getMethod();
+        final Class<?> refType = findKeyType(ic.getTarget());
+        final MethodKey key = new MethodKey(refType, mtd);
+        return methods.computeIfAbsent(key, k -> createMeta(ic));
+    }
+
+    private Class<?> findKeyType(final Object target) {
+        if (null == target) {
+            return null;
+        }
+        return target.getClass();
+    }
+
+    // it is unlikely we have all annotations but for now we have a single meta model
+    private MethodMeta createMeta(final InvocationContext ic) {
+        final CacheDefaults defaults =
+                findDefaults(ic.getTarget() == null ? null : ic.getTarget().getClass(), ic.getMethod());
+
+        final Class<?>[] parameterTypes = ic.getMethod().getParameterTypes();
+        final Annotation[][] parameterAnnotations = ic.getMethod().getParameterAnnotations();
+        final List<Set<Annotation>> annotations = new ArrayList<>();
+        for (final Annotation[] parameterAnnotation : parameterAnnotations) {
+            final Set<Annotation> set = new HashSet<>(parameterAnnotation.length);
+            set.addAll(Arrays.asList(parameterAnnotation));
+            annotations.add(set);
+        }
+
+        final Set<Annotation> mtdAnnotations = new HashSet<>();
+        mtdAnnotations.addAll(Arrays.asList(ic.getMethod().getAnnotations()));
+
+        final CacheResult cacheResult = ic.getMethod().getAnnotation(CacheResult.class);
+        final String cacheResultCacheResultName = cacheResult == null ? null
+                : defaultName(ic.getMethod(), defaults, cacheResult.cacheName());
+        final CacheResolverFactory cacheResultCacheResolverFactory = cacheResult == null ? null
+                : cacheResolverFactoryFor(defaults, cacheResult.cacheResolverFactory());
+        final CacheKeyGenerator cacheResultCacheKeyGenerator = cacheResult == null ? null
+                : cacheKeyGeneratorFor(defaults, cacheResult.cacheKeyGenerator());
+
+        final CachePut cachePut = ic.getMethod().getAnnotation(CachePut.class);
+        final String cachePutCachePutName =
+                cachePut == null ? null : defaultName(ic.getMethod(), defaults, cachePut.cacheName());
+        final CacheResolverFactory cachePutCacheResolverFactory = cachePut == null ? null
+                : cacheResolverFactoryFor(defaults, cachePut.cacheResolverFactory());
+        final CacheKeyGenerator cachePutCacheKeyGenerator = cachePut == null ? null
+                : cacheKeyGeneratorFor(defaults, cachePut.cacheKeyGenerator());
+
+        final CacheRemove cacheRemove = ic.getMethod().getAnnotation(CacheRemove.class);
+        final String cacheRemoveCacheRemoveName = cacheRemove == null ? null
+                : defaultName(ic.getMethod(), defaults, cacheRemove.cacheName());
+        final CacheResolverFactory cacheRemoveCacheResolverFactory = cacheRemove == null ? null
+                : cacheResolverFactoryFor(defaults, cacheRemove.cacheResolverFactory());
+        final CacheKeyGenerator cacheRemoveCacheKeyGenerator = cacheRemove == null ? null
+                : cacheKeyGeneratorFor(defaults, cacheRemove.cacheKeyGenerator());
+
+        final CacheRemoveAll cacheRemoveAll = ic.getMethod().getAnnotation(CacheRemoveAll.class);
+        final String cacheRemoveAllCacheRemoveAllName = cacheRemoveAll == null ? null
+                : defaultName(ic.getMethod(), defaults, cacheRemoveAll.cacheName());
+        final CacheResolverFactory cacheRemoveAllCacheResolverFactory = cacheRemoveAll == null ? null
+                : cacheResolverFactoryFor(defaults, cacheRemoveAll.cacheResolverFactory());
+
+        return new MethodMeta(parameterTypes, annotations, mtdAnnotations, keyParameterIndexes(ic.getMethod()),
+                getValueParameter(annotations), cacheResultCacheResultName,
+                cacheResultCacheResolverFactory, cacheResultCacheKeyGenerator, cacheResult, cachePutCachePutName,
+                cachePutCacheResolverFactory, cachePutCacheKeyGenerator, cachePut != null && cachePut.afterInvocation(),
+                cachePut,
+                cacheRemoveCacheRemoveName, cacheRemoveCacheResolverFactory, cacheRemoveCacheKeyGenerator,
+                cacheRemove != null && cacheRemove.afterInvocation(), cacheRemove, cacheRemoveAllCacheRemoveAllName,
+                cacheRemoveAllCacheResolverFactory, cacheRemoveAll,
+                CompletionStage.class.isAssignableFrom(ic.getMethod().getReturnType()));
+    }
+
+    private Integer getValueParameter(final List<Set<Annotation>> annotations) {
+        int idx = 0;
+        for (final Set<Annotation> set : annotations) {
+            for (final Annotation a : set) {
+                if (a.annotationType() == CacheValue.class) {
+                    return idx;
+                }
+            }
+            idx++;
+        }
+        return -1;
+    }
+
+    private String defaultName(final Method method, final CacheDefaults defaults, final String cacheName) {
+        if (!cacheName.isEmpty()) {
+            return cacheName;
+        }
+        if (defaults != null) {
+            final String name = defaults.cacheName();
+            if (!name.isEmpty()) {
+                return name;
+            }
+        }
+
+        final StringBuilder name = new StringBuilder(method.getDeclaringClass().getName());
+        name.append(".");
+        name.append(method.getName());
+        name.append("(");
+        final Class<?>[] parameterTypes = method.getParameterTypes();
+        for (int pIdx = 0; pIdx < parameterTypes.length; pIdx++) {
+            name.append(parameterTypes[pIdx].getName());
+            if ((pIdx + 1) < parameterTypes.length) {
+                name.append(",");
+            }
+        }
+        name.append(")");
+        return name.toString();
+    }
+
+    private CacheDefaults findDefaults(final Class<?> targetType, final Method method) {
+        if (Proxy.isProxyClass(targetType)) { // target doesnt hold annotations
+            final Class<?> api = method.getDeclaringClass();
+            for (final Class<?> type : targetType.getInterfaces()) {
+                if (!api.isAssignableFrom(type)) {
+                    continue;
+                }
+                return extractDefaults(type);
+            }
+        }
+        return extractDefaults(targetType);
+    }
+
+    private CacheDefaults extractDefaults(final Class<?> type) {
+        CacheDefaults annotation = null;
+        Class<?> clazz = type;
+        while (clazz != null && clazz != Object.class) {
+            annotation = clazz.getAnnotation(CacheDefaults.class);
+            if (annotation != null) {
+                break;
+            }
+            clazz = clazz.getSuperclass();
+        }
+        return annotation;
+    }
+
+    public boolean isIncluded(final Class<?> aClass, final Class<?>[] in, final Class<?>[] out) {
+        if (in.length == 0 && out.length == 0) {
+            return false;
+        }
+        for (final Class<?> potentialIn : in) {
+            if (potentialIn.isAssignableFrom(aClass)) {
+                for (final Class<?> potentialOut : out) {
+                    if (potentialOut.isAssignableFrom(aClass)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private CacheKeyGenerator cacheKeyGeneratorFor(final CacheDefaults defaults,
+            final Class<? extends CacheKeyGenerator> cacheKeyGenerator) {
+        if (!CacheKeyGenerator.class.equals(cacheKeyGenerator)) {
+            return instance(cacheKeyGenerator);
+        }
+        if (defaults != null) {
+            final Class<? extends CacheKeyGenerator> defaultCacheKeyGeneratorType = defaults.cacheKeyGenerator();
+            if (!CacheKeyGenerator.class.equals(defaultCacheKeyGeneratorType)) {
+                return instance(defaultCacheKeyGeneratorType);
+            }
+        }
+        return defaultCacheKeyGenerator;
+    }
+
+    private CacheResolverFactory cacheResolverFactoryFor(final CacheDefaults defaults,
+            final Class<? extends CacheResolverFactory> cacheResolverFactory) {
+        if (!CacheResolverFactory.class.equals(cacheResolverFactory)) {
+            return instance(cacheResolverFactory);
+        }
+        if (defaults != null) {
+            final Class<? extends CacheResolverFactory> defaultCacheResolverFactoryType =
+                    defaults.cacheResolverFactory();
+            if (!CacheResolverFactory.class.equals(defaultCacheResolverFactoryType)) {
+                return instance(defaultCacheResolverFactoryType);
+            }
+        }
+        return defaultCacheResolverFactory();
+    }
+
+    // Sonar S1135 (TODO) accepted: the release-timing question predates this migration (ported unchanged
+    // from upstream geronimo-jcache-simple) and is a design note, not a defect tracked by this ticket.
+    @SuppressWarnings("java:S1135")
+    private <T> T instance(final Class<T> type) {
+        final Set<Bean<?>> beans = beanManager.getBeans(type);
+        if (beans.isEmpty()) {
+            if (CacheKeyGenerator.class == type) {
+                return (T) defaultCacheKeyGenerator;
+            }
+            if (CacheResolverFactory.class == type) {
+                return (T) defaultCacheResolverFactory();
+            }
+            return null;
+        }
+        final Bean<?> bean = beanManager.resolve(beans);
+        final CreationalContext<?> context = beanManager.createCreationalContext(bean);
+        final Class<? extends Annotation> scope = bean.getScope();
+        final boolean normalScope = beanManager.isNormalScope(scope);
+        try {
+            final Object reference = beanManager.getReference(bean, bean.getBeanClass(), context);
+            if (!normalScope) {
+                toRelease.add(context);
+            }
+            return (T) reference;
+        } finally {
+            if (normalScope) { // TODO: release at the right moment, @PreDestroy? question is: do we assume it is thread
+                               // safe?
+                context.release();
+            }
+        }
+    }
+
+    private CacheResolverFactoryImpl defaultCacheResolverFactory() {
+        if (defaultCacheResolverFactory != null) {
+            return defaultCacheResolverFactory;
+        }
+        synchronized (this) {
+            if (defaultCacheResolverFactory != null) {
+                return defaultCacheResolverFactory;
+            }
+            defaultCacheResolverFactory = new CacheResolverFactoryImpl();
+        }
+        return defaultCacheResolverFactory;
+    }
+
+    private Integer[] keyParameterIndexes(final Method method) {
+        final Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+
+        // first check if keys are specified explicitely
+        List<Integer> keys = explicitKeyIndices(method, parameterAnnotations);
+
+        // if not then use all parameters but value ones
+        if (keys.isEmpty()) {
+            keys = valueExcludedIndices(method, parameterAnnotations);
+        }
+        return keys.toArray(new Integer[keys.size()]);
+    }
+
+    private List<Integer> explicitKeyIndices(final Method method, final Annotation[][] parameterAnnotations) {
+        final List<Integer> keys = new LinkedList<>();
+        for (int i = 0; i < method.getParameterTypes().length; i++) {
+            for (final Annotation a : parameterAnnotations[i]) {
+                if (a.annotationType().equals(CacheKey.class)) {
+                    keys.add(i);
+                    break;
+                }
+            }
+        }
+        return keys;
+    }
+
+    private List<Integer> valueExcludedIndices(final Method method, final Annotation[][] parameterAnnotations) {
+        final List<Integer> keys = new LinkedList<>();
+        for (int i = 0; i < method.getParameterTypes().length; i++) {
+            if (!isValueParameter(parameterAnnotations[i])) {
+                keys.add(i);
+            }
+        }
+        return keys;
+    }
+
+    private boolean isValueParameter(final Annotation[] annotations) {
+        for (final Annotation a : annotations) {
+            if (a.annotationType().equals(CacheValue.class)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static final class MethodKey {
+
+        private final Class<?> base;
+
+        private final Method delegate;
+
+        private final int hash;
+
+        private MethodKey(final Class<?> base, final Method delegate) {
+            this.base = base; // we need a class to ensure inheritance don't fall in the same key
+            this.delegate = delegate;
+            this.hash = 31 * delegate.hashCode() + (base == null ? 0 : base.hashCode());
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            final MethodKey classKey = MethodKey.class.cast(o);
+            return delegate.equals(classKey.delegate)
+                    && ((base == null && classKey.base == null) || (base != null && base.equals(classKey.base)));
+        }
+
+        @Override
+        public int hashCode() {
+            return hash;
+        }
+    }
+
+    // TODO: split it in 5?
+    // Sonar S1135 (TODO) accepted: a refactor-scope note ported unchanged from upstream
+    // geronimo-jcache-simple, not a defect tracked by this ticket.
+    @SuppressWarnings("java:S1135")
+    public static class MethodMeta {
+
+        private final Class<?>[] parameterTypes;
+
+        private final List<Set<Annotation>> parameterAnnotations;
+
+        private final Set<Annotation> annotations;
+
+        private final Integer[] keysIndices;
+
+        private final Integer valueIndex;
+
+        private final String cacheResultCacheName;
+
+        private final CacheResolverFactory cacheResultResolverFactory;
+
+        private final CacheKeyGenerator cacheResultKeyGenerator;
+
+        private final CacheResult cacheResult;
+
+        private final String cachePutCacheName;
+
+        private final CacheResolverFactory cachePutResolverFactory;
+
+        private final CacheKeyGenerator cachePutKeyGenerator;
+
+        private final boolean cachePutAfter;
+
+        private final CachePut cachePut;
+
+        private final String cacheRemoveCacheName;
+
+        private final CacheResolverFactory cacheRemoveResolverFactory;
+
+        private final CacheKeyGenerator cacheRemoveKeyGenerator;
+
+        private final boolean cacheRemoveAfter;
+
+        private final CacheRemove cacheRemove;
+
+        private final String cacheRemoveAllCacheName;
+
+        private final CacheResolverFactory cacheRemoveAllResolverFactory;
+
+        private final CacheRemoveAll cacheRemoveAll;
+
+        private final boolean completionStage;
+
+        // this constructor is a direct field-per-cache-annotation carrier ported from geronimo-jcache-simple;
+        // splitting it into a builder is out of scope for this migration - suppress the parameter count check
+        // Sonar S107 (too many parameters) / S125 (Sonar mis-detects this explanatory comment block as
+        // commented-out code) both accepted for the reasons stated above and in the CHECKSTYLE:OFF note.
+        // CHECKSTYLE:OFF
+        @SuppressWarnings({ "java:S107", "java:S125" })
+        public MethodMeta(final Class<?>[] parameterTypes, final List<Set<Annotation>> parameterAnnotations,
+                final Set<Annotation> annotations,
+                final Integer[] keysIndices, final Integer valueIndex, final String cacheResultCacheName,
+                final CacheResolverFactory cacheResultResolverFactory,
+                final CacheKeyGenerator cacheResultKeyGenerator,
+                final CacheResult cacheResult, final String cachePutCacheName,
+                final CacheResolverFactory cachePutResolverFactory,
+                final CacheKeyGenerator cachePutKeyGenerator, final boolean cachePutAfter, final CachePut cachePut,
+                final String cacheRemoveCacheName,
+                final CacheResolverFactory cacheRemoveResolverFactory,
+                final CacheKeyGenerator cacheRemoveKeyGenerator,
+                final boolean cacheRemoveAfter, final CacheRemove cacheRemove, final String cacheRemoveAllCacheName,
+                final CacheResolverFactory cacheRemoveAllResolverFactory, final CacheRemoveAll cacheRemoveAll,
+                final boolean completionStage) {
+            // CHECKSTYLE:ON
+            this.parameterTypes = parameterTypes;
+            this.parameterAnnotations = parameterAnnotations;
+            this.annotations = annotations;
+            this.keysIndices = keysIndices;
+            this.valueIndex = valueIndex;
+            this.cacheResultCacheName = cacheResultCacheName;
+            this.cacheResultResolverFactory = cacheResultResolverFactory;
+            this.cacheResultKeyGenerator = cacheResultKeyGenerator;
+            this.cacheResult = cacheResult;
+            this.cachePutCacheName = cachePutCacheName;
+            this.cachePutResolverFactory = cachePutResolverFactory;
+            this.cachePutKeyGenerator = cachePutKeyGenerator;
+            this.cachePutAfter = cachePutAfter;
+            this.cachePut = cachePut;
+            this.cacheRemoveCacheName = cacheRemoveCacheName;
+            this.cacheRemoveResolverFactory = cacheRemoveResolverFactory;
+            this.cacheRemoveKeyGenerator = cacheRemoveKeyGenerator;
+            this.cacheRemoveAfter = cacheRemoveAfter;
+            this.cacheRemove = cacheRemove;
+            this.cacheRemoveAllCacheName = cacheRemoveAllCacheName;
+            this.cacheRemoveAllResolverFactory = cacheRemoveAllResolverFactory;
+            this.cacheRemoveAll = cacheRemoveAll;
+            this.completionStage = completionStage;
+        }
+
+        public boolean isCompletionStage() {
+            return completionStage;
+        }
+
+        public boolean isCacheRemoveAfter() {
+            return cacheRemoveAfter;
+        }
+
+        public boolean isCachePutAfter() {
+            return cachePutAfter;
+        }
+
+        public Class<?>[] getParameterTypes() {
+            return parameterTypes;
+        }
+
+        public List<Set<Annotation>> getParameterAnnotations() {
+            return parameterAnnotations;
+        }
+
+        public String getCacheResultCacheName() {
+            return cacheResultCacheName;
+        }
+
+        public CacheResolverFactory getCacheResultResolverFactory() {
+            return cacheResultResolverFactory;
+        }
+
+        public CacheKeyGenerator getCacheResultKeyGenerator() {
+            return cacheResultKeyGenerator;
+        }
+
+        public CacheResult getCacheResult() {
+            return cacheResult;
+        }
+
+        public Set<Annotation> getAnnotations() {
+            return annotations;
+        }
+
+        public Integer[] getKeysIndices() {
+            return keysIndices;
+        }
+
+        public Integer getValueIndex() {
+            return valueIndex;
+        }
+
+        public String getCachePutCacheName() {
+            return cachePutCacheName;
+        }
+
+        public CacheResolverFactory getCachePutResolverFactory() {
+            return cachePutResolverFactory;
+        }
+
+        public CacheKeyGenerator getCachePutKeyGenerator() {
+            return cachePutKeyGenerator;
+        }
+
+        public CachePut getCachePut() {
+            return cachePut;
+        }
+
+        public String getCacheRemoveCacheName() {
+            return cacheRemoveCacheName;
+        }
+
+        public CacheResolverFactory getCacheRemoveResolverFactory() {
+            return cacheRemoveResolverFactory;
+        }
+
+        public CacheKeyGenerator getCacheRemoveKeyGenerator() {
+            return cacheRemoveKeyGenerator;
+        }
+
+        public CacheRemove getCacheRemove() {
+            return cacheRemove;
+        }
+
+        public String getCacheRemoveAllCacheName() {
+            return cacheRemoveAllCacheName;
+        }
+
+        public CacheResolverFactory getCacheRemoveAllResolverFactory() {
+            return cacheRemoveAllResolverFactory;
+        }
+
+        public CacheRemoveAll getCacheRemoveAll() {
+            return cacheRemoveAll;
+        }
+    }
+}

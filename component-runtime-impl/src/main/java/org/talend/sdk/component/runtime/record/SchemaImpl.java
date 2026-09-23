@@ -53,16 +53,19 @@ public class SchemaImpl implements Schema {
     private final List<Entry> entries;
 
     @JsonbTransient
+    @jakarta.json.bind.annotation.JsonbTransient
     private final List<Entry> metadataEntries;
 
     @Getter
     private final Map<String, String> props;
 
     @JsonbTransient
+    @jakarta.json.bind.annotation.JsonbTransient
     private final EntriesOrder entriesOrder;
 
     @Getter
     @JsonbTransient
+    @jakarta.json.bind.annotation.JsonbTransient
     private Map<String, Entry> entryMap = new HashMap<>();
 
     public static final String ENTRIES_ORDER_PROP = "talend.fields.order";
@@ -127,6 +130,7 @@ public class SchemaImpl implements Schema {
 
     @Override
     @JsonbTransient
+    @jakarta.json.bind.annotation.JsonbTransient
     public Stream<Entry> getAllEntries() {
         return Stream.concat(this.metadataEntries.stream(), this.entries.stream());
     }
@@ -146,12 +150,14 @@ public class SchemaImpl implements Schema {
 
     @Override
     @JsonbTransient
+    @jakarta.json.bind.annotation.JsonbTransient
     public List<Entry> getEntriesOrdered() {
         return getAllEntries().sorted(entriesOrder).collect(toList());
     }
 
     @Override
     @JsonbTransient
+    @jakarta.json.bind.annotation.JsonbTransient
     public EntriesOrder naturalOrder() {
         return entriesOrder;
     }
@@ -411,6 +417,7 @@ public class SchemaImpl implements Schema {
 
         @Override
         @JsonbTransient
+        @jakarta.json.bind.annotation.JsonbTransient
         public String getOriginalFieldName() {
             return rawName != null ? rawName : name;
         }

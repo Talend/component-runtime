@@ -76,6 +76,7 @@ public final class RecordImpl implements Record {
 
     @Getter
     @JsonbTransient
+    @jakarta.json.bind.annotation.JsonbTransient
     private final Schema schema;
 
     private RecordImpl(final Map<String, Object> values, final Schema schema) {

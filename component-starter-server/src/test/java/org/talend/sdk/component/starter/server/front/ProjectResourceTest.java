@@ -37,21 +37,27 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.bind.Jsonb;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
+import jakarta.inject.Inject;
+import jakarta.json.Json;
+import jakarta.json.bind.Jsonb;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 
-import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
+import org.apache.meecrowave.junit5.MeecrowaveConfig;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.talend.sdk.component.starter.server.model.FactoryConfiguration;
 import org.talend.sdk.component.starter.server.model.ProjectModel;
 import org.talend.sdk.component.starter.server.service.info.ServerInfo;
 import org.talend.sdk.component.starter.server.test.Client;
 
-@MonoMeecrowaveConfig
+// scanningExcludes="smallrye-config" avoids CDI AmbiguousResolutionException from SmallRye Config's
+// ConfigProducer bean being registered twice (same root cause/fix as component-server's 19 converted
+// classes - see QTDI-3358 notes); @MonoMeecrowaveConfig has no scanningExcludes equivalent, hence the
+// switch to per-class @MeecrowaveConfig + @TestInstance(PER_CLASS) (one container per test class).
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@MeecrowaveConfig(scanningExcludes = "smallrye-config")
 @Client.Active
 class ProjectResourceTest {
 

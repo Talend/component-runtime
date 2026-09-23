@@ -17,8 +17,8 @@ package org.talend.sdk.component.starter.server.front.apidemo.component.service.
 
 import java.util.List;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
 
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.service.http.Codec;
