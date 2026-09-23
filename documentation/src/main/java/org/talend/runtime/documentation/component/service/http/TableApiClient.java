@@ -17,8 +17,8 @@ package org.talend.runtime.documentation.component.service.http;
 
 import java.util.List;
 
-import jakarta.json.JsonArray;
-import jakarta.json.JsonObject;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
 
 import org.talend.runtime.documentation.component.configuration.CommonConfig;
 import org.talend.runtime.documentation.component.service.http.codec.InvalidContentDecoder;
