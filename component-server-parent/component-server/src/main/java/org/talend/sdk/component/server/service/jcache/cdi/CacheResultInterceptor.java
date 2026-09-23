@@ -126,6 +126,10 @@ public class CacheResultInterceptor implements Serializable {
     // Extracted out of #cache to keep its Cognitive Complexity manageable (Sonar S3776): resolves whether a
     // previously cached result or cached exception already answers this invocation, without touching the
     // underlying network call. Returns Optional.empty() when the intercepted method must still be invoked.
+    // Sonar S112 (generic Exception) accepted: rethrows whatever Throwable was cached from a prior
+    // #cache invocation (see the catch block above) - it can never narrow to a specific exception type
+    // since that cached value originated from an arbitrary intercepted method.
+    @SuppressWarnings("java:S112")
     private Optional<Object> lookupCachedResult(final Cache<Object, Object> cache, final GeneratedCacheKey cacheKey,
             final CacheResult cacheResult, final CacheResolverFactory cacheResolverFactory,
             final CacheKeyInvocationContext<CacheResult> context, final CDIJCacheHelper.MethodMeta methodMeta)
