@@ -170,13 +170,7 @@ class CacheRemoveAllInterceptorTest {
 
     private static boolean isEmpty(final String cacheName) {
         final Cache<Object, Object> cache = Caching.getCachingProvider().getCacheManager().getCache(cacheName);
-        if (cache == null) {
-            return true;
-        }
-        for (final Cache.Entry<Object, Object> ignored : cache) {
-            return false;
-        }
-        return true;
+        return cache == null || !cache.iterator().hasNext();
     }
 
     private InvocationContext mockContext(final Method method, final Object... parameters) {
