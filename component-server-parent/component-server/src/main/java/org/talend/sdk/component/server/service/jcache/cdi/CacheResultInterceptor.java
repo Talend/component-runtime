@@ -46,6 +46,7 @@ package org.talend.sdk.component.server.service.jcache.cdi;
  */
 
 import java.io.Serializable;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
 import javax.cache.Cache;
@@ -66,8 +67,12 @@ import jakarta.interceptor.InvocationContext;
 @Priority(/* LIBRARY_BEFORE */1000)
 public class CacheResultInterceptor implements Serializable {
 
+    private final CDIJCacheHelper helper;
+
     @Inject
-    private CDIJCacheHelper helper;
+    public CacheResultInterceptor(final CDIJCacheHelper helper) {
+        this.helper = helper;
+    }
 
     @AroundInvoke
     public Object cache(final InvocationContext ic) throws Throwable {
@@ -77,8 +82,7 @@ public class CacheResultInterceptor implements Serializable {
 
         final CacheResult cacheResult = methodMeta.getCacheResult();
         final CacheKeyInvocationContext<CacheResult> context =
-                new CacheKeyInvocationContextImpl<CacheResult>(ic, cacheResult,
-                        cacheName, methodMeta);
+                new CacheKeyInvocationContextImpl<>(ic, cacheResult, cacheName, methodMeta);
 
         final CacheResolverFactory cacheResolverFactory = methodMeta.getCacheResultResolverFactory();
         final CacheResolver cacheResolver = cacheResolverFactory.getCacheResolver(context);
@@ -86,50 +90,22 @@ public class CacheResultInterceptor implements Serializable {
 
         final GeneratedCacheKey cacheKey = methodMeta.getCacheResultKeyGenerator().generateCacheKey(context);
 
-        Cache<Object, Object> exceptionCache = null; // lazily created
-
-        Object result;
-        if (!cacheResult.skipGet()) {
-            result = cache.get(cacheKey);
-            if (result != null) {
-                return result;
-            }
-
-            if (!cacheResult.exceptionCacheName().isEmpty()) {
-                exceptionCache = cacheResolverFactory.getExceptionCacheResolver(context).resolveCache(context);
-                final Object exception = exceptionCache.get(cacheKey);
-                if (exception != null) {
-                    if (methodMeta.isCompletionStage()) {
-                        return exception;
-                    }
-                    throw Throwable.class.cast(exception);
-                }
-            }
+        final Optional<Object> cached =
+                lookupCachedResult(cache, cacheKey, cacheResult, cacheResolverFactory, context, methodMeta);
+        if (cached.isPresent()) {
+            return cached.get();
         }
 
         try {
-            result = ic.proceed();
+            final Object result = ic.proceed();
             if (result != null) {
                 cache.put(cacheKey, result);
-                if (CompletionStage.class.isInstance(result)) {
-                    final CompletionStage<?> completionStage = CompletionStage.class.cast(result);
-                    completionStage.exceptionally(t -> {
-                        if (helper.isIncluded(t.getClass(), cacheResult.cachedExceptions(),
-                                cacheResult.nonCachedExceptions())) {
-                            cacheResolverFactory.getExceptionCacheResolver(context)
-                                    .resolveCache(context)
-                                    .put(cacheKey, completionStage);
-                        } else {
-                            cache.remove(cacheKey);
-                        }
-                        if (RuntimeException.class.isInstance(t)) {
-                            throw RuntimeException.class.cast(t);
-                        }
-                        throw new IllegalStateException(t);
-                    });
+                if (result instanceof CompletionStage) {
+                    final CompletionStage<?> completionStage = (CompletionStage<?>) result;
+                    completionStage.exceptionally(t -> onAsyncFailure(t, cache, cacheKey, context,
+                            cacheResolverFactory, cacheResult, completionStage));
                 }
             }
-
             return result;
         } catch (final Throwable t) {
             // Deliberately catches Throwable (Sonar S2221 accepted exception): a generic JSR-107 caching
@@ -137,13 +113,62 @@ public class CacheResultInterceptor implements Serializable {
             // order to decide cache-eviction/exception-caching behavior - it can never narrow to a specific
             // exception type since it wraps an arbitrary intercepted method. Ported unchanged from upstream
             // geronimo-jcache-simple, which used the same javax.interceptor pattern.
-            if (helper.isIncluded(t.getClass(), cacheResult.cachedExceptions(), cacheResult.nonCachedExceptions())) {
-                if (exceptionCache == null) {
-                    exceptionCache = cacheResolverFactory.getExceptionCacheResolver(context).resolveCache(context);
-                }
-                exceptionCache.put(cacheKey, t);
-            }
+            cacheThrowableIfIncluded(t, cacheKey, context, cacheResolverFactory, cacheResult);
             throw t;
+        }
+    }
+
+    // Extracted out of #cache to keep its Cognitive Complexity manageable (Sonar S3776): resolves whether a
+    // previously cached result or cached exception already answers this invocation, without touching the
+    // underlying network call. Returns Optional.empty() when the intercepted method must still be invoked.
+    private Optional<Object> lookupCachedResult(final Cache<Object, Object> cache, final GeneratedCacheKey cacheKey,
+            final CacheResult cacheResult, final CacheResolverFactory cacheResolverFactory,
+            final CacheKeyInvocationContext<CacheResult> context, final CDIJCacheHelper.MethodMeta methodMeta)
+            throws Throwable {
+        if (cacheResult.skipGet()) {
+            return Optional.empty();
+        }
+        final Object result = cache.get(cacheKey);
+        if (result != null) {
+            return Optional.of(result);
+        }
+        if (cacheResult.exceptionCacheName().isEmpty()) {
+            return Optional.empty();
+        }
+        final Object exception =
+                cacheResolverFactory.getExceptionCacheResolver(context).resolveCache(context).get(cacheKey);
+        if (exception == null) {
+            return Optional.empty();
+        }
+        if (methodMeta.isCompletionStage()) {
+            return Optional.of(exception);
+        }
+        throw (Throwable) exception;
+    }
+
+    private <T> T onAsyncFailure(final Throwable t, final Cache<Object, Object> cache,
+            final GeneratedCacheKey cacheKey, final CacheKeyInvocationContext<CacheResult> context,
+            final CacheResolverFactory cacheResolverFactory, final CacheResult cacheResult,
+            final CompletionStage<?> completionStage) {
+        if (helper.isIncluded(t.getClass(), cacheResult.cachedExceptions(), cacheResult.nonCachedExceptions())) {
+            cacheResolverFactory.getExceptionCacheResolver(context)
+                    .resolveCache(context)
+                    .put(cacheKey,
+                            completionStage);
+        } else {
+            cache.remove(cacheKey);
+        }
+        if (t instanceof RuntimeException) {
+            throw (RuntimeException) t;
+        }
+        throw new IllegalStateException(t);
+    }
+
+    private void cacheThrowableIfIncluded(final Throwable t, final GeneratedCacheKey cacheKey,
+            final CacheKeyInvocationContext<CacheResult> context, final CacheResolverFactory cacheResolverFactory,
+            final CacheResult cacheResult) {
+        if (helper.isIncluded(t.getClass(), cacheResult.cachedExceptions(), cacheResult.nonCachedExceptions())) {
+            cacheResolverFactory.getExceptionCacheResolver(context).resolveCache(context).put(cacheKey, t);
         }
     }
 }

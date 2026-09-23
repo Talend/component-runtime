@@ -66,8 +66,12 @@ import jakarta.interceptor.InvocationContext;
 @Priority(/* LIBRARY_BEFORE */1000)
 public class CacheRemoveInterceptor implements Serializable {
 
+    private final CDIJCacheHelper helper;
+
     @Inject
-    private CDIJCacheHelper helper;
+    public CacheRemoveInterceptor(final CDIJCacheHelper helper) {
+        this.helper = helper;
+    }
 
     @AroundInvoke
     public Object cache(final InvocationContext ic) throws Throwable {
@@ -76,7 +80,7 @@ public class CacheRemoveInterceptor implements Serializable {
         final String cacheName = methodMeta.getCacheRemoveCacheName();
 
         final CacheResolverFactory cacheResolverFactory = methodMeta.getCacheRemoveResolverFactory();
-        final CacheKeyInvocationContext<CacheRemove> context = new CacheKeyInvocationContextImpl<CacheRemove>(ic,
+        final CacheKeyInvocationContext<CacheRemove> context = new CacheKeyInvocationContextImpl<>(ic,
                 methodMeta.getCacheRemove(), cacheName, methodMeta);
         final CacheResolver cacheResolver = cacheResolverFactory.getCacheResolver(context);
         final Cache<Object, Object> cache = cacheResolver.resolveCache(context);
@@ -92,19 +96,10 @@ public class CacheRemoveInterceptor implements Serializable {
         final Object result;
         try {
             result = ic.proceed();
-            if (CompletionStage.class.isInstance(result)) {
-                final CompletionStage<?> completionStage = CompletionStage.class.cast(result);
-                completionStage.exceptionally(t -> {
-                    if (afterInvocation) {
-                        if (helper.isIncluded(t.getClass(), cacheRemove.evictFor(), cacheRemove.noEvictFor())) {
-                            cache.remove(cacheKey);
-                        }
-                    }
-                    if (RuntimeException.class.isInstance(t)) {
-                        throw RuntimeException.class.cast(t);
-                    }
-                    throw new IllegalStateException(t);
-                });
+            if (result instanceof CompletionStage) {
+                final CompletionStage<?> completionStage = (CompletionStage<?>) result;
+                completionStage
+                        .exceptionally(t -> onFailure(t, cache, cacheKey, cacheRemove, afterInvocation));
             }
         } catch (final Throwable t) {
             // Deliberately catches Throwable (Sonar S2221 accepted exception): a generic JSR-107 caching
@@ -112,12 +107,7 @@ public class CacheRemoveInterceptor implements Serializable {
             // order to decide cache-eviction/exception-caching behavior - it can never narrow to a specific
             // exception type since it wraps an arbitrary intercepted method. Ported unchanged from upstream
             // geronimo-jcache-simple, which used the same javax.interceptor pattern.
-            if (afterInvocation) {
-                if (helper.isIncluded(t.getClass(), cacheRemove.evictFor(), cacheRemove.noEvictFor())) {
-                    cache.remove(cacheKey);
-                }
-            }
-
+            removeIfIncluded(t, cache, cacheKey, cacheRemove, afterInvocation);
             throw t;
         }
 
@@ -126,5 +116,22 @@ public class CacheRemoveInterceptor implements Serializable {
         }
 
         return result;
+    }
+
+    private <T> T onFailure(final Throwable t, final Cache<Object, Object> cache, final GeneratedCacheKey cacheKey,
+            final CacheRemove cacheRemove, final boolean afterInvocation) {
+        removeIfIncluded(t, cache, cacheKey, cacheRemove, afterInvocation);
+        if (t instanceof RuntimeException) {
+            throw (RuntimeException) t;
+        }
+        throw new IllegalStateException(t);
+    }
+
+    private void removeIfIncluded(final Throwable t, final Cache<Object, Object> cache,
+            final GeneratedCacheKey cacheKey,
+            final CacheRemove cacheRemove, final boolean afterInvocation) {
+        if (afterInvocation && helper.isIncluded(t.getClass(), cacheRemove.evictFor(), cacheRemove.noEvictFor())) {
+            cache.remove(cacheKey);
+        }
     }
 }
