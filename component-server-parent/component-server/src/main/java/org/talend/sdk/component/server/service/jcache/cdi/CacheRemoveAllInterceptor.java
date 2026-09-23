@@ -65,8 +65,12 @@ import jakarta.interceptor.InvocationContext;
 @Priority(/* LIBRARY_BEFORE */1000)
 public class CacheRemoveAllInterceptor implements Serializable {
 
+    private final CDIJCacheHelper helper;
+
     @Inject
-    private CDIJCacheHelper helper;
+    public CacheRemoveAllInterceptor(final CDIJCacheHelper helper) {
+        this.helper = helper;
+    }
 
     @AroundInvoke
     public Object cache(final InvocationContext ic) throws Throwable {
@@ -75,7 +79,7 @@ public class CacheRemoveAllInterceptor implements Serializable {
         final String cacheName = methodMeta.getCacheRemoveAllCacheName();
 
         final CacheResolverFactory cacheResolverFactory = methodMeta.getCacheRemoveAllResolverFactory();
-        final CacheKeyInvocationContext<CacheRemoveAll> context = new CacheKeyInvocationContextImpl<CacheRemoveAll>(ic,
+        final CacheKeyInvocationContext<CacheRemoveAll> context = new CacheKeyInvocationContextImpl<>(ic,
                 methodMeta.getCacheRemoveAll(), cacheName, methodMeta);
         final CacheResolver cacheResolver = cacheResolverFactory.getCacheResolver(context);
         final Cache<Object, Object> cache = cacheResolver.resolveCache(context);
@@ -85,7 +89,8 @@ public class CacheRemoveAllInterceptor implements Serializable {
         // of @CacheRemoveAll's own. Fixed during review (QTDI-3358 round 2) to read the correct annotation so
         // eviction timing (before/after invocation) always follows this method's own @CacheRemoveAll setting,
         // regardless of whether @CachePut is also present.
-        final boolean afterInvocation = methodMeta.getCacheRemoveAll().afterInvocation();
+        final CacheRemoveAll cacheRemoveAll = methodMeta.getCacheRemoveAll();
+        final boolean afterInvocation = cacheRemoveAll.afterInvocation();
         if (!afterInvocation) {
             cache.removeAll();
         }
@@ -93,20 +98,10 @@ public class CacheRemoveAllInterceptor implements Serializable {
         final Object result;
         try {
             result = ic.proceed();
-            if (CompletionStage.class.isInstance(result)) {
-                final CompletionStage<?> completionStage = CompletionStage.class.cast(result);
-                completionStage.exceptionally(t -> {
-                    if (afterInvocation) {
-                        if (helper.isIncluded(t.getClass(), methodMeta.getCacheRemoveAll().evictFor(),
-                                methodMeta.getCacheRemoveAll().noEvictFor())) {
-                            cache.removeAll();
-                        }
-                    }
-                    if (RuntimeException.class.isInstance(t)) {
-                        throw RuntimeException.class.cast(t);
-                    }
-                    throw new IllegalStateException(t);
-                });
+            if (result instanceof CompletionStage) {
+                final CompletionStage<?> completionStage = (CompletionStage<?>) result;
+                completionStage
+                        .exceptionally(t -> onFailure(t, cache, cacheRemoveAll, afterInvocation));
             }
         } catch (final Throwable t) {
             // Deliberately catches Throwable (Sonar S2221 accepted exception): a generic JSR-107 caching
@@ -114,12 +109,7 @@ public class CacheRemoveAllInterceptor implements Serializable {
             // order to decide cache-eviction/exception-caching behavior - it can never narrow to a specific
             // exception type since it wraps an arbitrary intercepted method. Ported unchanged from upstream
             // geronimo-jcache-simple, which used the same javax.interceptor pattern.
-            if (afterInvocation) {
-                if (helper.isIncluded(t.getClass(), methodMeta.getCacheRemoveAll().evictFor(),
-                        methodMeta.getCacheRemoveAll().noEvictFor())) {
-                    cache.removeAll();
-                }
-            }
+            removeAllIfIncluded(t, cache, cacheRemoveAll, afterInvocation);
             throw t;
         }
 
@@ -128,5 +118,22 @@ public class CacheRemoveAllInterceptor implements Serializable {
         }
 
         return result;
+    }
+
+    private <T> T onFailure(final Throwable t, final Cache<Object, Object> cache, final CacheRemoveAll cacheRemoveAll,
+            final boolean afterInvocation) {
+        removeAllIfIncluded(t, cache, cacheRemoveAll, afterInvocation);
+        if (t instanceof RuntimeException) {
+            throw (RuntimeException) t;
+        }
+        throw new IllegalStateException(t);
+    }
+
+    private void removeAllIfIncluded(final Throwable t, final Cache<Object, Object> cache,
+            final CacheRemoveAll cacheRemoveAll, final boolean afterInvocation) {
+        if (afterInvocation
+                && helper.isIncluded(t.getClass(), cacheRemoveAll.evictFor(), cacheRemoveAll.noEvictFor())) {
+            cache.removeAll();
+        }
     }
 }

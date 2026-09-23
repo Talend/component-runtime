@@ -90,13 +90,26 @@ public class CDIJCacheHelper {
 
     private final CacheKeyGeneratorImpl defaultCacheKeyGenerator = new CacheKeyGeneratorImpl();
 
-    private final Collection<CreationalContext<?>> toRelease = new ArrayList<CreationalContext<?>>();
+    private final Collection<CreationalContext<?>> toRelease = new ArrayList<>();
 
-    private final ConcurrentMap<MethodKey, MethodMeta> methods = new ConcurrentHashMap<MethodKey, MethodMeta>();
+    private final ConcurrentMap<MethodKey, MethodMeta> methods = new ConcurrentHashMap<>();
 
+    // Sonar S3077 (non-primitive volatile field) is a known false positive here: this is the textbook
+    // double-checked-locking lazy singleton pattern (see #defaultCacheResolverFactory() below), where
+    // `volatile` on the reference alone is sufficient for correct publication - the referenced
+    // CacheResolverFactoryImpl is fully constructed before the reference is ever published, and it is
+    // never mutated afterward. Eager initialization would defeat the deliberate laziness (documented
+    // below: "not create any cache if not needed"), ported unchanged from upstream geronimo-jcache-simple.
     private volatile CacheResolverFactoryImpl defaultCacheResolverFactory = null; // lazy to not create any cache if not
                                                                                   // needed
 
+    // Sonar S6813 (field injection) is a deliberate deviation here, unlike the interceptor classes in this
+    // package: CDIJCacheHelper is @ApplicationScoped (normal-scoped), so the CDI container generates a
+    // client proxy for it. OpenWebBeans requires a normal-scoped bean to expose a no-arg constructor for
+    // that proxy to be buildable, even when an @Inject constructor is also present (confirmed by a
+    // deployment failure - UnproxyableResolutionException - when this was converted to constructor
+    // injection during this review). Field injection is therefore kept, matching the interceptor classes'
+    // upstream geronimo-jcache-simple style but required here for a different (proxyability) reason.
     @Inject
     private BeanManager beanManager;
 
@@ -118,17 +131,7 @@ public class CDIJCacheHelper {
         final Method mtd = ic.getMethod();
         final Class<?> refType = findKeyType(ic.getTarget());
         final MethodKey key = new MethodKey(refType, mtd);
-        MethodMeta methodMeta = methods.get(key);
-        if (methodMeta == null) {
-            synchronized (this) {
-                methodMeta = methods.get(key);
-                if (methodMeta == null) {
-                    methodMeta = createMeta(ic);
-                    methods.put(key, methodMeta);
-                }
-            }
-        }
-        return methodMeta;
+        return methods.computeIfAbsent(key, k -> createMeta(ic));
     }
 
     private Class<?> findKeyType(final Object target) {
@@ -145,14 +148,14 @@ public class CDIJCacheHelper {
 
         final Class<?>[] parameterTypes = ic.getMethod().getParameterTypes();
         final Annotation[][] parameterAnnotations = ic.getMethod().getParameterAnnotations();
-        final List<Set<Annotation>> annotations = new ArrayList<Set<Annotation>>();
+        final List<Set<Annotation>> annotations = new ArrayList<>();
         for (final Annotation[] parameterAnnotation : parameterAnnotations) {
-            final Set<Annotation> set = new HashSet<Annotation>(parameterAnnotation.length);
+            final Set<Annotation> set = new HashSet<>(parameterAnnotation.length);
             set.addAll(Arrays.asList(parameterAnnotation));
             annotations.add(set);
         }
 
-        final Set<Annotation> mtdAnnotations = new HashSet<Annotation>();
+        final Set<Annotation> mtdAnnotations = new HashSet<>();
         mtdAnnotations.addAll(Arrays.asList(ic.getMethod().getAnnotations()));
 
         final CacheResult cacheResult = ic.getMethod().getAnnotation(CacheResult.class);
@@ -284,9 +287,9 @@ public class CDIJCacheHelper {
             return instance(cacheKeyGenerator);
         }
         if (defaults != null) {
-            final Class<? extends CacheKeyGenerator> defaultCacheKeyGenerator = defaults.cacheKeyGenerator();
-            if (!CacheKeyGenerator.class.equals(defaultCacheKeyGenerator)) {
-                return instance(defaultCacheKeyGenerator);
+            final Class<? extends CacheKeyGenerator> defaultCacheKeyGeneratorType = defaults.cacheKeyGenerator();
+            if (!CacheKeyGenerator.class.equals(defaultCacheKeyGeneratorType)) {
+                return instance(defaultCacheKeyGeneratorType);
             }
         }
         return defaultCacheKeyGenerator;
@@ -298,9 +301,10 @@ public class CDIJCacheHelper {
             return instance(cacheResolverFactory);
         }
         if (defaults != null) {
-            final Class<? extends CacheResolverFactory> defaultCacheResolverFactory = defaults.cacheResolverFactory();
-            if (!CacheResolverFactory.class.equals(defaultCacheResolverFactory)) {
-                return instance(defaultCacheResolverFactory);
+            final Class<? extends CacheResolverFactory> defaultCacheResolverFactoryType =
+                    defaults.cacheResolverFactory();
+            if (!CacheResolverFactory.class.equals(defaultCacheResolverFactoryType)) {
+                return instance(defaultCacheResolverFactoryType);
             }
         }
         return defaultCacheResolverFactory();
@@ -349,37 +353,48 @@ public class CDIJCacheHelper {
     }
 
     private Integer[] keyParameterIndexes(final Method method) {
-        final List<Integer> keys = new LinkedList<Integer>();
         final Annotation[][] parameterAnnotations = method.getParameterAnnotations();
 
         // first check if keys are specified explicitely
+        List<Integer> keys = explicitKeyIndices(method, parameterAnnotations);
+
+        // if not then use all parameters but value ones
+        if (keys.isEmpty()) {
+            keys = valueExcludedIndices(method, parameterAnnotations);
+        }
+        return keys.toArray(new Integer[keys.size()]);
+    }
+
+    private List<Integer> explicitKeyIndices(final Method method, final Annotation[][] parameterAnnotations) {
+        final List<Integer> keys = new LinkedList<>();
         for (int i = 0; i < method.getParameterTypes().length; i++) {
-            final Annotation[] annotations = parameterAnnotations[i];
-            for (final Annotation a : annotations) {
+            for (final Annotation a : parameterAnnotations[i]) {
                 if (a.annotationType().equals(CacheKey.class)) {
                     keys.add(i);
                     break;
                 }
             }
         }
+        return keys;
+    }
 
-        // if not then use all parameters but value ones
-        if (keys.isEmpty()) {
-            for (int i = 0; i < method.getParameterTypes().length; i++) {
-                final Annotation[] annotations = parameterAnnotations[i];
-                boolean value = false;
-                for (final Annotation a : annotations) {
-                    if (a.annotationType().equals(CacheValue.class)) {
-                        value = true;
-                        break;
-                    }
-                }
-                if (!value) {
-                    keys.add(i);
-                }
+    private List<Integer> valueExcludedIndices(final Method method, final Annotation[][] parameterAnnotations) {
+        final List<Integer> keys = new LinkedList<>();
+        for (int i = 0; i < method.getParameterTypes().length; i++) {
+            if (!isValueParameter(parameterAnnotations[i])) {
+                keys.add(i);
             }
         }
-        return keys.toArray(new Integer[keys.size()]);
+        return keys;
+    }
+
+    private boolean isValueParameter(final Annotation[] annotations) {
+        for (final Annotation a : annotations) {
+            if (a.annotationType().equals(CacheValue.class)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static final class MethodKey {

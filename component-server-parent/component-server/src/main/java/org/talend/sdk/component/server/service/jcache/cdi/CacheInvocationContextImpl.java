@@ -90,8 +90,8 @@ public class CacheInvocationContextImpl<A extends Annotation> extends CacheMetho
     }
 
     protected CacheInvocationParameter[] doGetAllParameters(final Integer[] indexes) {
-        final Object[] parameters = delegate.getParameters();
-        final Object[] args = parameters == null ? EMPTY_ARGS : parameters;
+        final Object[] delegateParameters = delegate.getParameters();
+        final Object[] args = delegateParameters == null ? EMPTY_ARGS : delegateParameters;
         final Class<?>[] parameterTypes = meta.getParameterTypes();
         final List<Set<Annotation>> parameterAnnotations = meta.getParameterAnnotations();
 

@@ -117,15 +117,12 @@ class JakartaJAXRSClientTest {
 
     @Test
     void closeDelegatesToUnderlyingClientOnlyWhenOwned() {
-        final jakarta.ws.rs.client.Client delegate = jakarta.ws.rs.client.ClientBuilder.newClient();
-        try {
+        try (final jakarta.ws.rs.client.Client delegate = jakarta.ws.rs.client.ClientBuilder.newClient()) {
             // closeClient=false: this instance does not own the delegate, close() must be a no-op on it
             final JakartaJAXRSClient<Void> nonOwning = new JakartaJAXRSClient<>(delegate, baseUrl(), false);
             nonOwning.close();
             // the delegate is still usable after a non-owning close()
             assertNull(probeDelegateClosed(delegate));
-        } finally {
-            delegate.close();
         }
     }
 
