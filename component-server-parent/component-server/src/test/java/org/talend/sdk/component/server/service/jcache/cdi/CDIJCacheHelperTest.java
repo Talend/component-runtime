@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -267,8 +266,7 @@ class CDIJCacheHelperTest {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private <T> CreationalContext<?> mockBean(final Class<T> type, final T instance, final boolean normalScope)
-            throws Exception {
+    private <T> CreationalContext<?> mockBean(final Class<T> type, final T instance, final boolean normalScope) {
         final Bean bean = mock(Bean.class);
         final Set<Bean<?>> beans = new HashSet<>();
         beans.add(bean);
@@ -279,7 +277,7 @@ class CDIJCacheHelperTest {
         when(bean.getScope()).thenReturn(normalScope ? ApplicationScoped.class : RequestScoped.class);
         when(beanManager.isNormalScope(any())).thenReturn(normalScope);
         when(bean.getBeanClass()).thenReturn((Class) type);
-        when(beanManager.getReference(eq(bean), eq((Class) type), eq(context))).thenReturn(instance);
+        when(beanManager.getReference(bean, (Class) type, context)).thenReturn(instance);
         return context;
     }
 
