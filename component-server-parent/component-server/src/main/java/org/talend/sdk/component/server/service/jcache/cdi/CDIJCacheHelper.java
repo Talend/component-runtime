@@ -100,6 +100,7 @@ public class CDIJCacheHelper {
     // CacheResolverFactoryImpl is fully constructed before the reference is ever published, and it is
     // never mutated afterward. Eager initialization would defeat the deliberate laziness (documented
     // below: "not create any cache if not needed"), ported unchanged from upstream geronimo-jcache-simple.
+    @SuppressWarnings("java:S3077")
     private volatile CacheResolverFactoryImpl defaultCacheResolverFactory = null; // lazy to not create any cache if not
                                                                                   // needed
 
@@ -110,6 +111,7 @@ public class CDIJCacheHelper {
     // deployment failure - UnproxyableResolutionException - when this was converted to constructor
     // injection during this review). Field injection is therefore kept, matching the interceptor classes'
     // upstream geronimo-jcache-simple style but required here for a different (proxyability) reason.
+    @SuppressWarnings("java:S6813")
     @Inject
     private BeanManager beanManager;
 
@@ -310,6 +312,9 @@ public class CDIJCacheHelper {
         return defaultCacheResolverFactory();
     }
 
+    // Sonar S1135 (TODO) accepted: the release-timing question predates this migration (ported unchanged
+    // from upstream geronimo-jcache-simple) and is a design note, not a defect tracked by this ticket.
+    @SuppressWarnings("java:S1135")
     private <T> T instance(final Class<T> type) {
         final Set<Bean<?>> beans = beanManager.getBeans(type);
         if (beans.isEmpty()) {
@@ -431,6 +436,9 @@ public class CDIJCacheHelper {
     }
 
     // TODO: split it in 5?
+    // Sonar S1135 (TODO) accepted: a refactor-scope note ported unchanged from upstream
+    // geronimo-jcache-simple, not a defect tracked by this ticket.
+    @SuppressWarnings("java:S1135")
     public static class MethodMeta {
 
         private final Class<?>[] parameterTypes;
@@ -481,7 +489,10 @@ public class CDIJCacheHelper {
 
         // this constructor is a direct field-per-cache-annotation carrier ported from geronimo-jcache-simple;
         // splitting it into a builder is out of scope for this migration - suppress the parameter count check
+        // Sonar S107 (too many parameters) / S125 (Sonar mis-detects this explanatory comment block as
+        // commented-out code) both accepted for the reasons stated above and in the CHECKSTYLE:OFF note.
         // CHECKSTYLE:OFF
+        @SuppressWarnings({ "java:S107", "java:S125" })
         public MethodMeta(final Class<?>[] parameterTypes, final List<Set<Annotation>> parameterAnnotations,
                 final Set<Annotation> annotations,
                 final Integer[] keysIndices, final Integer valueIndex, final String cacheResultCacheName,

@@ -73,6 +73,11 @@ public class CachePutInterceptor implements Serializable {
         this.helper = helper;
     }
 
+    // Sonar S112 (generic Exception) / S1181 (catch Throwable) accepted: this JSR-107 declarative caching
+    // interceptor wraps an arbitrary intercepted method and must propagate whatever it throws - of any
+    // type - unmodified, so the signature/catch clause can never narrow to a specific exception type. See
+    // the inline rationale in the catch block below (ported unchanged from upstream geronimo-jcache-simple).
+    @SuppressWarnings({ "java:S112", "java:S1181" })
     @AroundInvoke
     public Object cache(final InvocationContext ic) throws Throwable {
         final CDIJCacheHelper.MethodMeta methodMeta = helper.findMeta(ic);
@@ -122,8 +127,8 @@ public class CachePutInterceptor implements Serializable {
             final CacheKeyInvocationContext<CachePut> context, final CachePut cachePut,
             final boolean afterInvocation) {
         putIfIncluded(t, cache, cacheKey, context, cachePut, afterInvocation);
-        if (t instanceof RuntimeException) {
-            throw (RuntimeException) t;
+        if (t instanceof RuntimeException runtimeException) {
+            throw runtimeException;
         }
         throw new IllegalStateException(t);
     }
