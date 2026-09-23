@@ -76,6 +76,9 @@ import jakarta.enterprise.inject.spi.Extension;
 // TODO: observe annotated type (or maybe sthg else) to cache data and inject this extension (used as metadata cache)
 // to get class model and this way allow to add cache annotation on the fly - == avoid java pure reflection to get
 // metadata
+// Sonar S1135 (TODO) accepted: a refactor-scope note ported unchanged from upstream geronimo-jcache-simple,
+// not a defect tracked by this ticket.
+@SuppressWarnings("java:S1135")
 public class MakeJCacheCDIInterceptorFriendly implements Extension {
 
     private static final boolean SKIP = Boolean.getBoolean("org.apache.geronimo.jcache.simple.skip-cdi");
