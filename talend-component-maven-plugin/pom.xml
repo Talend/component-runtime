@@ -41,6 +41,28 @@
     <it-component-snapshot-artifact-id>salesforce</it-component-snapshot-artifact-id>
   </properties>
 
+  <!-- johnzon still has a separate javax/jakarta version split (see root pom's johnzon.version /
+       johnzon-jakarta.version), unrelated to the tomcat/meecrowave/owb unification (QTDI-3358): this module
+       explicitly depends on the jakarta johnzon-jsonb below (both ComponentMetadataMojo's jakarta.json.bind
+       usage and WebMojo's embedded meecrowave-core/CXF instance need it), but its own transitive
+       johnzon-core/johnzon-mapper would otherwise be pulled back down to the shared javax ${johnzon.version}
+       by this reactor's root pom dependencyManagement - re-pin them to the jakarta line too, mirroring
+       component-server/pom.xml. -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.johnzon</groupId>
+        <artifactId>johnzon-core</artifactId>
+        <version>${johnzon-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.johnzon</groupId>
+        <artifactId>johnzon-mapper</artifactId>
+        <version>${johnzon-jakarta.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
@@ -90,18 +112,22 @@
       <version>${maven-shared-utils.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-jsonb_1.0_spec</artifactId>
-      <version>${geronimo-jsonb.version}</version>
+      <!-- ComponentMetadataMojo uses jakarta.json.bind.Jsonb - matches WebMojo's embedded Meecrowave/CXF
+           instance below (org.apache.meecrowave.cxf.ConfigurableBus also needs a jakarta.json.spi.JsonProvider
+           and a jakarta-namespaced johnzon-jsonb JAX-RS provider on this classpath), so both consumers now
+           agree on the jakarta line - no dependencyManagement re-pin conflict like other javax/jakarta split
+           modules in this reactor. -->
+      <groupId>jakarta.json.bind</groupId>
+      <artifactId>jakarta.json.bind-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-json_1.1_spec</artifactId>
-      <version>${geronimo-json.version}</version>
+      <groupId>jakarta.json</groupId>
+      <artifactId>jakarta.json-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
+      <version>${johnzon-jakarta.version}</version>
     </dependency>
 
     <dependency>

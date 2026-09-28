@@ -164,13 +164,20 @@ public class InMemoryResponse implements HttpServletResponse {
 
     @Override
     public void sendRedirect(final String path) throws IOException {
+        sendRedirect(path, SC_FOUND, true);
+    }
+
+    @Override
+    public void sendRedirect(final String path, final int sc, final boolean clearBuffer) throws IOException {
         if (commited) {
             throw new IllegalStateException("response already committed");
         }
-        resetBuffer();
+        if (clearBuffer) {
+            resetBuffer();
+        }
 
         try {
-            setStatus(SC_FOUND);
+            setStatus(sc);
 
             setHeader("Location", toEncoded(path));
         } catch (final IllegalArgumentException e) {
