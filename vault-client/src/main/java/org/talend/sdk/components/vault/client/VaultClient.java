@@ -216,20 +216,14 @@ public class VaultClient {
         if ("no-vault".equals(setup.getVaultUrl())) {
             return true;
         }
-        Response response = null;
-        try {
-            response = vault
-                    .path("v1/sys/health")
-                    .request()
-                    .get();
+        try (final Response response = vault
+                .path("v1/sys/health")
+                .request()
+                .get()) {
             return response.getStatus() == Response.Status.OK.getStatusCode();
         } catch (final javax.ws.rs.ProcessingException e) {
             log.warn("Vault ping failed: {}", e.getMessage());
             return false;
-        } finally {
-            if (response != null) {
-                response.close();
-            }
         }
     }
 

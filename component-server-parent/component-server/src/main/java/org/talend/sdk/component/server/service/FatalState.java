@@ -22,8 +22,9 @@ import javax.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Singleton that records whether the JVM has encountered a fatal error (VirtualMachineError)
- * during request processing. Once set, the state is never cleared — the pod must be restarted.
+ * CDI {@code @ApplicationScoped} bean — one instance per application, managed by the container —
+ * that records whether the JVM has encountered a fatal error (VirtualMachineError) during request
+ * processing. Once set, the state is never cleared — the pod must be restarted.
  */
 @Slf4j
 @ApplicationScoped

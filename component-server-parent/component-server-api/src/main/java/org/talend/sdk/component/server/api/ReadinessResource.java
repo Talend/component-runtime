@@ -38,13 +38,13 @@ public interface ReadinessResource {
     @Operation(operationId = "getReadiness",
             description = "Readiness probe: returns 200 when the component index is loaded and the server is ready "
                     + "to serve traffic. Returns 503 with a cause otherwise.")
-            @APIResponse(responseCode = "200",
-                    description = "Server is ready.",
-                    content = @Content(mediaType = APPLICATION_JSON,
-                            schema = @Schema(implementation = HealthStatus.class)))
-            @APIResponse(responseCode = "503",
-                    description = "Server is not ready.",
-                    content = @Content(mediaType = APPLICATION_JSON,
-                            schema = @Schema(implementation = HealthStatus.class)))
+    @APIResponse(responseCode = "200",
+            description = "Server is ready.",
+            content = @Content(mediaType = APPLICATION_JSON,
+                    schema = @Schema(implementation = HealthStatus.class)))
+    @APIResponse(responseCode = "503",
+            description = "Server is not ready.",
+            content = @Content(mediaType = APPLICATION_JSON,
+                    schema = @Schema(implementation = HealthStatus.class)))
     Response getReadiness();
 }

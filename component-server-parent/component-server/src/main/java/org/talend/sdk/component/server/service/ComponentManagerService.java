@@ -39,6 +39,7 @@ import java.util.Properties;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -121,7 +122,7 @@ public class ComponentManagerService {
 
     private Connectors connectors;
 
-    private volatile boolean started;
+    private final AtomicBoolean started = new AtomicBoolean(false);
 
     private Path m2;
 
@@ -182,12 +183,12 @@ public class ComponentManagerService {
                             configuration.getPluginsReloadInterval());
         }
 
-        started = true;
+        started.set(true);
     }
 
     @PreDestroy
     private void destroy() {
-        started = false;
+        started.set(false);
         instance.getContainer().unregisterListener(deploymentListener);
         instance.close();
         // shutdown auto-reload service
@@ -323,7 +324,7 @@ public class ComponentManagerService {
                 instance.addWithLocationPlugin(pluginGAV, m2.resolve(pluginPath).toAbsolutePath().toString());
         lastUpdated = new Date();
         synchronizeConnectors();
-        if (started) {
+        if (started.get()) {
             deployedComponentEvent.fire(new DeployedComponent());
         }
         return plugin;
@@ -461,7 +462,7 @@ public class ComponentManagerService {
     }
 
     public boolean isStarted() {
-        return started;
+        return started.get();
     }
 
 }
