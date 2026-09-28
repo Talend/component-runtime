@@ -69,6 +69,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
     }
 
     @JsonbTransient
+    @jakarta.json.bind.annotation.JsonbTransient
     private final Schema delegate;
 
     private AvroSchema elementSchema;
@@ -76,9 +77,11 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
     private List<Entry> entries;
 
     @JsonbTransient
+    @jakarta.json.bind.annotation.JsonbTransient
     private Map<String, Entry> entryMap;
 
     @JsonbTransient
+    @jakarta.json.bind.annotation.JsonbTransient
     private List<Entry> metadataEntries;
 
     private Type type;
@@ -173,12 +176,14 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
 
     @Override
     @JsonbTransient
+    @jakarta.json.bind.annotation.JsonbTransient
     public Stream<Entry> getAllEntries() {
         return Stream.concat(this.getEntries().stream(), this.getMetadata().stream());
     }
 
     @Override
     @JsonbTransient
+    @jakarta.json.bind.annotation.JsonbTransient
     public Map<String, Entry> getEntryMap() {
         synchronized (this) {
             if (entryMap == null || entryMap.isEmpty()) {
@@ -193,6 +198,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
 
     @Override
     @JsonbTransient
+    @jakarta.json.bind.annotation.JsonbTransient
     public EntriesOrder naturalOrder() {
         return EntriesOrder.of(getActualDelegate().getProp(ENTRIES_ORDER_PROP));
     }

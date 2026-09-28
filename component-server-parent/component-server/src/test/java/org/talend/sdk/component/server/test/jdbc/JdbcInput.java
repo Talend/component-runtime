@@ -29,8 +29,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 
 import org.talend.sdk.component.api.component.DatabaseMapping;
 import org.talend.sdk.component.api.component.Icon;

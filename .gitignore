@@ -74,3 +74,4 @@ documentation/rebuildpdf.bat
 .claude/CLAUDE.md
 .github/copilot-instructions.md
 .claude/settings.json
+.ai-commons/skills/manage-zephyr-test-cases/scripts/.env

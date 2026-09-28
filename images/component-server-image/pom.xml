@@ -36,6 +36,31 @@
     <docker.talend.image.tag>${project.version}-${maven.build.timestamp}</docker.talend.image.tag>
   </properties>
 
+  <!-- johnzon still has a separate javax/jakarta version split (see root pom's johnzon.version /
+       johnzon-jakarta.version), unrelated to the tomcat/meecrowave/owb unification (QTDI-3358): johnzon-jsonb
+       (declared below) would otherwise pull its own transitive johnzon-core/johnzon-mapper down to the shared
+       javax ${johnzon.version} - re-pin all three to the jakarta line so the jakarta.json.spi.JsonProvider
+       lookup used by jakarta.json.bind.Jsonb resolves, mirroring component-server/pom.xml. -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.johnzon</groupId>
+        <artifactId>johnzon-core</artifactId>
+        <version>${johnzon-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.johnzon</groupId>
+        <artifactId>johnzon-mapper</artifactId>
+        <version>${johnzon-jakarta.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.johnzon</groupId>
+        <artifactId>johnzon-jsonb</artifactId>
+        <version>${johnzon-jakarta.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>

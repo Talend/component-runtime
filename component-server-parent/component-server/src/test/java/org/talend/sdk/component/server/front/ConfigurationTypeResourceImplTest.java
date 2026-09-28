@@ -15,9 +15,9 @@
  */
 package org.talend.sdk.component.server.front;
 
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singleton;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,24 +27,26 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import javax.inject.Inject;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.spi.JsonProvider;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
+import jakarta.inject.Inject;
+import jakarta.json.JsonBuilderFactory;
+import jakarta.json.JsonObject;
+import jakarta.json.spi.JsonProvider;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
 
-import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
+import org.apache.meecrowave.junit5.MeecrowaveConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.server.test.websocket.WebsocketClient;
 
-@MonoMeecrowaveConfig
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@MeecrowaveConfig(scanningExcludes = "smallrye-config")
 class ConfigurationTypeResourceImplTest {
 
     @Inject

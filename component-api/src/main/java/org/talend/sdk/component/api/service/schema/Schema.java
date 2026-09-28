@@ -123,6 +123,7 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
         }
 
         @JsonbTransient
+        @jakarta.json.bind.annotation.JsonbTransient
         @Override
         public String getOriginalFieldName() {
             return null;

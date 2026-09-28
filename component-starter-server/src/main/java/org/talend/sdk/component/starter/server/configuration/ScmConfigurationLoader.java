@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.enterprise.inject.Vetoed;
+import jakarta.enterprise.inject.Vetoed;
 
 import org.eclipse.microprofile.config.spi.ConfigSource;
 

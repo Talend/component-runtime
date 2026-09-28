@@ -17,7 +17,7 @@ package org.talend.sdk.component.starter.server.service.openapi.model.openapi;
 
 import java.util.List;
 
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 import lombok.Data;
 

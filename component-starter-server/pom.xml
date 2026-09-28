@@ -36,9 +36,22 @@
 
     <dependencies>
         <dependency>
-            <!-- override until we upgrade meecrowave -->
+            <!-- jakarta-namespaced JSON-B implementation, required by the CXF 4.x/jakarta migration -->
             <groupId>org.apache.johnzon</groupId>
             <artifactId>johnzon-jsonb</artifactId>
+            <version>${johnzon-jakarta.version}</version>
+        </dependency>
+        <dependency>
+            <!-- johnzon-jsonb's own transitive johnzon-core would otherwise resolve to the root pom's
+                 javax-line ${johnzon.version} pin (org.apache.johnzon.core.JsonProviderImpl only implements
+                 ONE of javax.json.spi.JsonProvider/jakarta.json.spi.JsonProvider per resolved version - same
+                 FQN in both lines, see root pom's johnzon-core dependencyManagement comment), leaving no
+                 jakarta.json.spi.JsonProvider on the classpath and making JsonProvider.provider() fall back
+                 to the JSON-P spec's hardcoded (and here absent) org.eclipse.parsson.JsonProviderImpl -
+                 pin it directly here, exactly like johnzon-jsonb above, so it wins over the root pin. -->
+            <groupId>org.apache.johnzon</groupId>
+            <artifactId>johnzon-core</artifactId>
+            <version>${johnzon-jakarta.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.meecrowave</groupId>
@@ -79,8 +92,8 @@
             <artifactId>microprofile-config-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.geronimo.config</groupId>
-            <artifactId>geronimo-config-impl</artifactId>
+            <groupId>io.smallrye.config</groupId>
+            <artifactId>smallrye-config</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -262,7 +275,7 @@
                     <dependency>
                         <groupId>org.apache.johnzon</groupId>
                         <artifactId>johnzon-jsonb</artifactId>
-                        <version>${johnzon.version}</version>
+                        <version>${johnzon-jakarta.version}</version>
                     </dependency>
                     <dependency>
                         <groupId>org.apache.logging.log4j</groupId>

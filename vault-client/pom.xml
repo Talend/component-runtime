@@ -31,10 +31,36 @@
         <talend.build.name>${talend.build.name.base}.vault.client</talend.build.name>
     </properties>
 
+    <!-- johnzon still has a separate javax/jakarta version split (see root pom's johnzon.version /
+         johnzon-jakarta.version), unrelated to the tomcat/meecrowave/owb unification (QTDI-3358):
+         meecrowave-core's own johnzon-jsonb dependency would otherwise be pulled down to the shared javax
+         ${johnzon.version}; force its own transitive johnzon-core/johnzon-mapper to the jakarta line too, so
+         the jakarta.json.spi.JsonProvider lookup used by jakarta.json.bind.Jsonb resolves. -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.johnzon</groupId>
+                <artifactId>johnzon-core</artifactId>
+                <version>${johnzon-jakarta.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.johnzon</groupId>
+                <artifactId>johnzon-mapper</artifactId>
+                <version>${johnzon-jakarta.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.johnzon</groupId>
+                <artifactId>johnzon-jsonb</artifactId>
+                <version>${johnzon-jakarta.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.meecrowave</groupId>
             <artifactId>meecrowave-core</artifactId>
+            <version>${meecrowave.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.xbean</groupId>
@@ -70,8 +96,8 @@
             <artifactId>microprofile-config-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.geronimo.config</groupId>
-            <artifactId>geronimo-config-impl</artifactId>
+            <groupId>io.smallrye.config</groupId>
+            <artifactId>smallrye-config</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
