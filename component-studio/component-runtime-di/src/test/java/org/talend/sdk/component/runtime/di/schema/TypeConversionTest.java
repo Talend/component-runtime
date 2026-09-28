@@ -31,7 +31,7 @@ class TypeConversionTest {
     @Test
     void jsonValueToTalendType() {
         JavaTypesManager javaTypesManager = new JavaTypesManager();
-        final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(null, null, null, null, null, null);
+        final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(null, null, null, null, null, null, null);
         assertEquals(javaTypesManager.LONG.getId(), guessSchema.getTalendType(jsonProvider.createValue(1)));
         assertEquals(javaTypesManager.LONG.getId(), guessSchema.getTalendType(jsonProvider.createValue(1L)));
         assertEquals(javaTypesManager.DOUBLE.getId(), guessSchema.getTalendType(jsonProvider.createValue(1.1d)));

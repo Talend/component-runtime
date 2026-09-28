@@ -21,10 +21,22 @@ set -xe
 # $1: docker tag version
 # $2: should tag as latest (true/false) default is false
 # $3: requested image, if not given, all will be pushed
+#
+# Environment:
+# DRY_RUN: when "true", images are built to a local tar file ("jib:buildTar") instead of being built
+#          and pushed to the registry ("jib:build"). This lets the whole stage be exercised (including
+#          the Maven/Jib configuration) without needing registry credentials or a daemon, and without
+#          publishing anything. Defaults to false.
 
 _TAG="${1?Missing tag}"
 _IS_LATEST="${2-false}"
 _ONLY_ONE_IMAGE="${3}"
+
+_JIB_GOAL="jib:build@build"
+if [[ "${DRY_RUN:-false}" == "true" ]]; then
+  printf ">> DRY RUN: images will be built to a local tar file instead of being pushed\n"
+  _JIB_GOAL="jib:buildTar@build"
+fi
 
 dockerBuild() {
   _IMAGE="${1}"
@@ -35,13 +47,13 @@ dockerBuild() {
 
   local skip_for_docker_build="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip -Dspotless.skip=true"
 
-  mvn package jib:build@build \
+  mvn package "${_JIB_GOAL}" \
     --file "images/${_IMAGE}-image/pom.xml" \
     --define docker.talend.image.tag="${_TAG}" \
     $skip_for_docker_build
 
   if [[ ${_IS_LATEST} == 'true' ]]; then
-    mvn package jib:build@build \
+    mvn package "${_JIB_GOAL}" \
     --file "images/${_IMAGE}-image/pom.xml" \
     --define docker.talend.image.tag=latest \
     $skip_for_docker_build
