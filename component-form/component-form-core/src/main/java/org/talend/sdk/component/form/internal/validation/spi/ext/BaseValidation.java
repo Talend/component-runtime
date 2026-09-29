@@ -18,14 +18,14 @@ package org.talend.sdk.component.form.internal.validation.spi.ext;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import javax.json.JsonArray;
-import javax.json.JsonNumber;
-import javax.json.JsonObject;
-import javax.json.JsonString;
-import javax.json.JsonValue;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonNumber;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonString;
+import jakarta.json.JsonValue;
 
-import org.apache.johnzon.jsonschema.ValidationResult;
-import org.apache.johnzon.jsonschema.ValidationResult.ValidationError;
+import org.talend.sdk.component.form.internal.validation.jsonschema.ValidationResult;
+import org.talend.sdk.component.form.internal.validation.jsonschema.ValidationResult.ValidationError;
 
 abstract class BaseValidation implements Function<JsonValue, Stream<ValidationError>> {
 

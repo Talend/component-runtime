@@ -49,9 +49,9 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.bind.JsonbBuilder;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.JsonbBuilder;
 
 import org.apache.xbean.propertyeditor.AbstractConverter;
 import org.apache.xbean.propertyeditor.PropertyEditorRegistry;

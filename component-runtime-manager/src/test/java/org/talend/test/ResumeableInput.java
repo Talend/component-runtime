@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-import javax.json.bind.Jsonb;
+import jakarta.annotation.PostConstruct;
+import jakarta.json.bind.Jsonb;
 
 import org.talend.sdk.component.api.component.MigrationHandler;
 import org.talend.sdk.component.api.component.Version;

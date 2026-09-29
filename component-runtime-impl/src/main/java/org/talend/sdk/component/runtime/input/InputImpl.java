@@ -26,7 +26,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
-import javax.json.bind.Jsonb;
+import jakarta.json.bind.Jsonb;
 
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.input.Producer;

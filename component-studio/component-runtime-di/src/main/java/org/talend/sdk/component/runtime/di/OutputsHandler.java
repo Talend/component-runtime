@@ -18,7 +18,7 @@ package org.talend.sdk.component.runtime.di;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.json.bind.Jsonb;
+import jakarta.json.bind.Jsonb;
 
 import org.talend.sdk.component.api.processor.MultiOutputIterator;
 import org.talend.sdk.component.api.processor.OutputEmitter;
@@ -102,7 +102,7 @@ public class OutputsHandler extends BaseIOHandler {
         return name -> value -> {
             final BaseIOHandler.IO ref = connections.get(getActualName(name));
             if (ref != null && value != null) {
-                if (value instanceof javax.json.JsonValue) {
+                if (value instanceof jakarta.json.JsonValue) {
                     ref.add(jsonb.fromJson(value.toString(), ref.getType()));
                 } else if (value instanceof Record rec) {
                     ref.add(rec.getSchema());
@@ -118,7 +118,7 @@ public class OutputsHandler extends BaseIOHandler {
     private Object convert(final Object value, final BaseIOHandler.IO ref) {
         if (value == null) {
             return null;
-        } else if (value instanceof javax.json.JsonValue) {
+        } else if (value instanceof jakarta.json.JsonValue) {
             return jsonb.fromJson(value.toString(), ref.getType());
         } else if (value instanceof Record rec) {
             return registry.find(ref.getType()).newInstance(rec);

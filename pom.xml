@@ -337,10 +337,13 @@
     <coverage.min>0.75</coverage.min>
     <coverage.fail>false</coverage.fail>
 
-    <johnzon.version>1.2.21</johnzon.version>
-    <!-- jakarta-namespaced Johnzon, used only where the javax->jakarta migration (CXF 4.x) applies:
-         component-server, component-starter-server, component-tools-webapp, documentation -->
-    <johnzon-jakarta.version>2.2.0</johnzon-jakarta.version>
+    <!-- QTDI-3497 (experimental, jakarta-only spike): johnzon used to have a separate javax/jakarta
+         version split (johnzon.version=1.2.21 vs johnzon-jakarta.version=2.2.0). Now that the whole
+         reactor is jakarta-only, that split is gone - a single version (the former jakarta line) is
+         used everywhere. org.glassfish:javax.json/org.eclipse:yasson below remain as a genuine javax
+         fallback, only for loading third-party connector jars still compiled against the old javax
+         component-api at runtime (component-server), not for anything in this reactor's own code. -->
+    <johnzon.version>2.2.0</johnzon.version>
     <!-- see the javax.json/yasson dependencyManagement comment above -->
     <glassfish-javax-json.version>1.1.4</glassfish-javax-json.version>
     <yasson-javax.version>1.0.11</yasson-javax.version>
@@ -369,17 +372,14 @@
         <artifactId>johnzon-core</artifactId>
         <version>${johnzon.version}</version>
       </dependency>
-      <!-- javax.json.spi.JsonProvider/javax.json.bind.spi.JsonbProvider fallback for modules pinned to
-           jakarta-namespaced johnzon-core (see johnzon-jakarta.version above): org.apache.johnzon:johnzon-core
-           can only implement ONE of javax.json.spi.JsonProvider/jakarta.json.spi.JsonProvider per resolved
-           version (same fully-qualified class name org.apache.johnzon.core.JsonProviderImpl in both lines), so
-           once a module needs jakarta-line johnzon-core for its own jakarta CXF/Meecrowave stack, any
-           out-of-scope javax-only code it still depends on (component-runtime-manager, component-form) has no
-           javax.json provider left on the classpath - JsonProvider.provider()/JsonbProvider.provider() would
-           otherwise fail. org.glassfish:javax.json and org.eclipse:yasson are distinct GAs (no collision with
-           johnzon-core) providing genuine javax.json/javax.json.bind implementations for that purpose; see
-           component-server/pom.xml and its META-INF/services/javax.json.spi.JsonProvider registration
-           (QTDI-3358 notes). -->
+      <!-- javax.json.spi.JsonProvider/javax.json.bind.spi.JsonbProvider fallback for component-server:
+           this reactor is now jakarta-only (QTDI-3497), so org.apache.johnzon:johnzon-core only
+           implements jakarta.json.spi.JsonProvider - it can't also serve as the javax.json.spi.JsonProvider
+           needed to load and run third-party connector jars still compiled against the old javax
+           component-api at runtime. org.glassfish:javax.json and org.eclipse:yasson are distinct GAs
+           (no collision with johnzon-core) providing genuine javax.json/javax.json.bind implementations
+           for that purpose; see component-server/pom.xml and its
+           META-INF/services/javax.json.spi.JsonProvider registration (QTDI-3358 notes). -->
       <dependency>
         <groupId>org.glassfish</groupId>
         <artifactId>javax.json</artifactId>
@@ -1179,12 +1179,12 @@
             <dependency>
               <groupId>org.apache.johnzon</groupId>
               <artifactId>johnzon-jaxrs</artifactId>
-              <version>${johnzon-jakarta.version}</version>
+              <version>${johnzon.version}</version>
             </dependency>
             <dependency>
               <groupId>org.apache.johnzon</groupId>
               <artifactId>johnzon-jsonb</artifactId>
-              <version>${johnzon-jakarta.version}</version>
+              <version>${johnzon.version}</version>
             </dependency>
             <dependency>
               <groupId>org.apache.cxf</groupId>

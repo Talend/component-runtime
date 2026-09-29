@@ -19,7 +19,7 @@ import static org.talend.sdk.component.api.component.DatabaseMapping.Mapping.CUS
 
 import java.io.Serializable;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 import org.talend.sdk.component.api.component.DatabaseMapping;
 import org.talend.sdk.component.api.configuration.Option;

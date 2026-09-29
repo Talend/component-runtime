@@ -18,10 +18,10 @@ package org.talend.sdk.component.form.internal.validation.spi.ext;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import javax.json.JsonNumber;
-import javax.json.JsonValue;
+import jakarta.json.JsonNumber;
+import jakarta.json.JsonValue;
 
-import org.apache.johnzon.jsonschema.ValidationResult;
+import org.talend.sdk.component.form.internal.validation.jsonschema.ValidationResult;
 
 /**
  * Delete this class when next johnzon-jsonschema release is out

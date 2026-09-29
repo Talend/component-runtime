@@ -36,15 +36,15 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
+    <!-- QTDI-3497 (experimental, jakarta-only spike): replaces the javax geronimo specs with
+         their jakarta equivalents. -->
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-json_1.1_spec</artifactId>
-      <version>${geronimo-json.version}</version>
+      <groupId>jakarta.json</groupId>
+      <artifactId>jakarta.json-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-jsonb_1.0_spec</artifactId>
-      <version>${geronimo-jsonb.version}</version>
+      <groupId>jakarta.json.bind</groupId>
+      <artifactId>jakarta.json.bind-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
@@ -57,12 +57,11 @@
       <version>${project.version}</version>
     </dependency>
 
-    <!-- to remove after having a full json schema validator -->
-    <dependency>
-      <groupId>org.apache.johnzon</groupId>
-      <artifactId>johnzon-jsonschema</artifactId>
-      <version>${johnzon.version}</version>
-    </dependency>
+    <!-- QTDI-3497 (experimental, jakarta-only spike): johnzon-jsonschema has no jakarta release
+         and its public API exposes javax.json types directly, so its validation engine was
+         vendored/ported (jakarta-converted) into
+         org.talend.sdk.component.form.internal.validation.jsonschema - see that package for the
+         Apache License 2.0 attribution. This dependency is no longer needed. -->
     <dependency>
       <groupId>org.mozilla</groupId>
       <artifactId>rhino</artifactId>
@@ -79,6 +78,7 @@
     <dependency>
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
+      <version>${johnzon.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

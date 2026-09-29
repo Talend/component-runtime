@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import javax.json.bind.Jsonb;
+import jakarta.json.bind.Jsonb;
 
 import org.apache.beam.sdk.transforms.DoFn;
 import org.talend.sdk.component.api.processor.OutputEmitter;

@@ -23,12 +23,12 @@ import java.lang.reflect.Proxy;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.spi.JsonProvider;
-import javax.json.stream.JsonGeneratorFactory;
+import jakarta.json.Json;
+import jakarta.json.JsonBuilderFactory;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
+import jakarta.json.spi.JsonProvider;
+import jakarta.json.stream.JsonGeneratorFactory;
 
 import org.apache.johnzon.core.JsonProviderImpl;
 import org.apache.johnzon.mapper.MapperBuilder;
