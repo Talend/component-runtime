@@ -167,7 +167,15 @@ public class WebServer implements Runnable {
                             + "jsr305,listenablefuture,talend-component-maven-plugin,"
                             + "avro,beam,paranamer,xz,component-api,component-spi,component-runtime-impl,"
                             + "component-runtime-manager,component-runtime-design-extension,container-core,"
-                            + "component-runtime-beam");
+                            + "component-runtime-beam,"
+                            // smallrye-config has no META-INF/beans.xml and registers its own producer beans
+                            // (e.g. io.smallrye.config.inject.ConfigProducer) programmatically through its
+                            // jakarta.enterprise.inject.spi.Extension; scanning it as a normal (implicit) bean
+                            // archive on top of that causes duplicate bean registrations and
+                            // AmbiguousResolutionException at CDI validation time. component-server's own test
+                            // suite already excludes it the same way via @MeecrowaveConfig(scanningExcludes =
+                            // "smallrye-config").
+                            + "smallrye-config");
         }
         if (!args.contains("--use-shutdown-hook")) {
             args.add("--use-shutdown-hook");

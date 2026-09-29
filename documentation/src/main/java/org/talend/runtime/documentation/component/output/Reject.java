@@ -17,7 +17,7 @@ package org.talend.runtime.documentation.component.output;
 
 import java.io.Serializable;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

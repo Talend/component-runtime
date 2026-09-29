@@ -31,12 +31,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
-import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
+import org.apache.meecrowave.junit5.MeecrowaveConfig;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
@@ -47,7 +48,8 @@ import org.talend.sdk.component.server.dao.ComponentActionDao;
 import org.talend.sdk.component.server.dao.ComponentDao;
 import org.talend.sdk.component.server.dao.ComponentFamilyDao;
 
-@MonoMeecrowaveConfig
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@MeecrowaveConfig(scanningExcludes = "smallrye-config")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ComponentManagerServiceTest {
 

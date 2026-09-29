@@ -36,9 +36,20 @@
 
     <dependencies>
         <dependency>
-            <!-- override until we upgrade meecrowave -->
+            <!-- jakarta-namespaced JSON-B implementation, required by the CXF 4.x/jakarta migration -->
             <groupId>org.apache.johnzon</groupId>
             <artifactId>johnzon-jsonb</artifactId>
+            <version>${johnzon.version}</version>
+        </dependency>
+        <dependency>
+            <!-- QTDI-3497 (experimental, jakarta-only spike): johnzon-jsonb's own transitive
+                 johnzon-core is already resolved via the root pom's unified (jakarta-line)
+                 ${johnzon.version} default; this explicit dependency just makes it a first-class,
+                 directly-declared one since jakarta.json.spi.JsonProvider.provider() is looked up
+                 by this module's own code. -->
+            <groupId>org.apache.johnzon</groupId>
+            <artifactId>johnzon-core</artifactId>
+            <version>${johnzon.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.meecrowave</groupId>
@@ -79,8 +90,8 @@
             <artifactId>microprofile-config-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.geronimo.config</groupId>
-            <artifactId>geronimo-config-impl</artifactId>
+            <groupId>io.smallrye.config</groupId>
+            <artifactId>smallrye-config</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

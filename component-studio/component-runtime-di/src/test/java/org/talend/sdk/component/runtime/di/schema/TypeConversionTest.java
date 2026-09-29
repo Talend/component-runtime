@@ -19,8 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
 
-import javax.json.JsonValue;
-import javax.json.spi.JsonProvider;
+import jakarta.json.JsonValue;
+import jakarta.json.spi.JsonProvider;
 
 import org.junit.jupiter.api.Test;
 

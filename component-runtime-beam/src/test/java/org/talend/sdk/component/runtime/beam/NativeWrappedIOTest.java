@@ -34,11 +34,11 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbConfig;
-import javax.json.spi.JsonProvider;
+import jakarta.json.JsonBuilderFactory;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbConfig;
+import jakarta.json.spi.JsonProvider;
 
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.testing.PAssert;

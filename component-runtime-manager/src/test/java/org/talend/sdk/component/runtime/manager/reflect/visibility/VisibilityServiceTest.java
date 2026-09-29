@@ -22,8 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.json.Json;
-import javax.json.spi.JsonProvider;
+import jakarta.json.Json;
+import jakarta.json.spi.JsonProvider;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;

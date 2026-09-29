@@ -24,11 +24,11 @@ import java.io.OutputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.json.JsonReaderFactory;
-import javax.json.JsonWriter;
-import javax.json.JsonWriterFactory;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonReader;
+import jakarta.json.JsonReaderFactory;
+import jakarta.json.JsonWriter;
+import jakarta.json.JsonWriterFactory;
 
 import org.apache.beam.sdk.coders.CustomCoder;
 import org.apache.beam.sdk.util.VarInt;

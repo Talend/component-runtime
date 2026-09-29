@@ -20,17 +20,17 @@ import static java.util.Optional.ofNullable;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.enterprise.event.Observes;
-import javax.enterprise.inject.spi.AfterBeanDiscovery;
-import javax.enterprise.inject.spi.AfterDeploymentValidation;
-import javax.enterprise.inject.spi.BeanManager;
-import javax.enterprise.inject.spi.EventContext;
-import javax.enterprise.inject.spi.Extension;
-import javax.enterprise.inject.spi.ObserverMethod;
-import javax.enterprise.inject.spi.ProcessObserverMethod;
-import javax.enterprise.inject.spi.ProcessSyntheticObserverMethod;
-import javax.enterprise.inject.spi.configurator.ObserverMethodConfigurator;
-import javax.inject.Named;
+import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.inject.spi.AfterBeanDiscovery;
+import jakarta.enterprise.inject.spi.AfterDeploymentValidation;
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.EventContext;
+import jakarta.enterprise.inject.spi.Extension;
+import jakarta.enterprise.inject.spi.ObserverMethod;
+import jakarta.enterprise.inject.spi.ProcessObserverMethod;
+import jakarta.enterprise.inject.spi.ProcessSyntheticObserverMethod;
+import jakarta.enterprise.inject.spi.configurator.ObserverMethodConfigurator;
+import jakarta.inject.Named;
 
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.server.service.security.event.OnCommand;

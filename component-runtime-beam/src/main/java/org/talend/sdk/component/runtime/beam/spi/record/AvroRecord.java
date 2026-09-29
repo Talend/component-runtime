@@ -32,7 +32,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import javax.json.bind.annotation.JsonbTransient;
+import jakarta.json.bind.annotation.JsonbTransient;
 
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.generic.GenericArray;

@@ -15,9 +15,9 @@
  */
 package org.talend.sdk.component.tools.webapp;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Disposes;
-import javax.enterprise.inject.Produces;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Disposes;
+import jakarta.enterprise.inject.Produces;
 
 import org.talend.sdk.component.form.api.ActionService;
 import org.talend.sdk.component.form.api.Client;

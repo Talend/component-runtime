@@ -21,10 +21,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.bind.JsonbBuilder;
-import javax.json.spi.JsonProvider;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.JsonbBuilder;
+import jakarta.json.spi.JsonProvider;
 
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;

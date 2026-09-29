@@ -30,7 +30,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.json.bind.annotation.JsonbTransient;
+import jakarta.json.bind.annotation.JsonbTransient;
 
 import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes;

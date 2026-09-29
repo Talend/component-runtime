@@ -54,11 +54,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbConfig;
-import javax.json.spi.JsonProvider;
+import jakarta.json.JsonBuilderFactory;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbConfig;
+import jakarta.json.spi.JsonProvider;
 
 import org.apache.xbean.finder.filter.Filter;
 import org.talend.sdk.component.api.record.Record;
