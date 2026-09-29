@@ -1,0 +1,218 @@
+[
+  {
+    "id": "SVC-001",
+    "name": "@Service",
+    "category": "SVC",
+    "level": 0,
+    "designer": "none (services are reached only through actions, see ACT-002).",
+    "runtime": "MUST scan each plugin for `@Service` classes, instantiate one instance per plugin, inject by type into components and services, and honor the lifecycle in SVC-027.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/Service.java"
+  },
+  {
+    "id": "SVC-002",
+    "name": "BaseService",
+    "category": "SVC",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST set the `serializationHelper` on every `BaseService` instance it creates so distributed engines can serialize and re-resolve the service on workers.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/BaseService.java"
+  },
+  {
+    "id": "SVC-003",
+    "name": "Serial",
+    "category": "SVC",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST make deserialized service references resolve to the target worker's plugin instance (via `ContainerFinder`, SPI `org.talend.sdk.component.runtime.serialization.ContainerFinder`); MUST NOT ship service state across the wire. A custom container implementation MUST supply an equivalent replacement for non-Serializable services (or make services extend `BaseService`, SVC-002).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/serialization/Serial.java"
+  },
+  {
+    "id": "SVC-005",
+    "name": "LocalConfiguration",
+    "category": "SVC",
+    "level": 0,
+    "designer": "MUST NOT resolve `local_configuration:` itself if it talks to a Component Server (values arrive resolved); MAY expose server-side configuration through the server's own `LocalConfiguration` SPI (`VirtualDependenciesService$LocalConfigurationImpl`).",
+    "runtime": "MUST inject a `LocalConfiguration` scoped to the plugin id, honoring the lookup order above; SHOULD NOT rely on it for runtime-critical values because runtime and design-time environments differ. SHOULD provide plugin settings (retry strategy, `_maxBatchSize`, streaming caps, cache eviction) through system properties or environment variables using the documented keys (merged from LCM-020).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/configuration/LocalConfiguration.java"
+  },
+  {
+    "id": "SVC-006",
+    "name": "@Configuration",
+    "category": "SVC",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST support `@Configuration(\"prefix\") Supplier<X>` on service fields (re-evaluated at each `get()`) and `@Configuration(\"prefix\") X` on constructor parameters.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/configuration/Configuration.java"
+  },
+  {
+    "id": "SVC-007",
+    "name": "Injector",
+    "category": "SVC",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST provide an injector that resolves against the plugin's service map.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/injector/Injector.java"
+  },
+  {
+    "id": "SVC-008",
+    "name": "LocalCache",
+    "category": "SVC",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST inject a cache per plugin and release it on plugin undeploy (`@PreDestroy release()`); SHOULD keep default unlimited behaviour unless configured.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/cache/LocalCache.java"
+  },
+  {
+    "id": "SVC-009",
+    "name": "@Cached",
+    "category": "SVC",
+    "level": 1,
+    "designer": "none",
+    "runtime": "SHOULD wrap services with interceptors (proxy) so `@Cached` is honored; if unsupported, the method MUST still execute correctly (uncached). MUST provide `LocalCache` (reference `LocalCacheService`).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/cache/Cached.java"
+  },
+  {
+    "id": "SVC-012",
+    "name": "ProducerFinder",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY provide it; if provided MUST resolve mappers across all deployed plugins and MUST convert emitted objects to `Record`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/source/ProducerFinder.java"
+  },
+  {
+    "id": "SVC-013",
+    "name": "Resolver",
+    "category": "SVC",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST inject a `Resolver` bound to the plugin repository and MUST create an isolated `ConfigurableClassLoader` for `mapDescriptorToClassLoader`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/dependency/Resolver.java"
+  },
+  {
+    "id": "SVC-014",
+    "name": "ClassLoaderDefinition",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY support it; an implementation that does not MUST throw `UnsupportedOperationException` (the API default).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/dependency/ClassLoaderDefinition.java"
+  },
+  {
+    "id": "SVC-015",
+    "name": "ObjectFactory",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MUST provide it when hosting components that inject it.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/factory/ObjectFactory.java"
+  },
+  {
+    "id": "SVC-016",
+    "name": "JSON-P services",
+    "category": "SVC",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST inject these six types by exact type; injected instances MUST be `Serializable`.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/service/DefaultServiceProvider.java"
+  },
+  {
+    "id": "SVC-017",
+    "name": "Jsonb",
+    "category": "SVC",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST inject a `Jsonb` per plugin sharing the JSON-P buffers.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/service/DefaultServiceProvider.java"
+  },
+  {
+    "id": "SVC-018",
+    "name": "ContainerInfo and ProxyGenerator (internal services)",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY expose them; hosts not built on `component-runtime-manager` can omit them.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/service/ContainerInfo.java"
+  },
+  {
+    "id": "SVC-019",
+    "name": "@RuntimeContext",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "A Studio-compatible runtime MUST inject the holder into annotated fields before `start`; other runtimes MAY leave the field null and components MUST tolerate that.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/context/RuntimeContext.java"
+  },
+  {
+    "id": "SVC-020",
+    "name": "RuntimeContextHolder",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "Studio runtime MUST create one per connector instance sharing the global map.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/context/RuntimeContextHolder.java"
+  },
+  {
+    "id": "SVC-021",
+    "name": "ComponentExtension",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY support; if supported MUST load via `ServiceLoader` with the manager classloader, sort by `priority()`, call `onComponent` for every scanned component class, and merge `getExtensionServices` into the plugin's services when the extension owns the component. MUST NOT expect extensions to run without `ComponentManager`.",
+    "source": "component-spi/src/main/java/org/talend/sdk/component/spi/component/ComponentExtension.java"
+  },
+  {
+    "id": "SVC-022",
+    "name": "ComponentExtension.ComponentContext",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MUST provide a per-component context to each extension.",
+    "source": "component-spi/src/main/java/org/talend/sdk/component/spi/component/ComponentExtension.java"
+  },
+  {
+    "id": "SVC-023",
+    "name": "ComponentExtension.ComponentInstance",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MUST pass the native instance and its coordinates to the extension.",
+    "source": "component-spi/src/main/java/org/talend/sdk/component/spi/component/ComponentExtension.java"
+  },
+  {
+    "id": "SVC-024",
+    "name": "GenericComponentExtension",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY support; if so MUST consult it before standard lookup and enforce the single-implementation rule.",
+    "source": "component-spi/src/main/java/org/talend/sdk/component/spi/component/GenericComponentExtension.java"
+  },
+  {
+    "id": "SVC-025",
+    "name": "ContainerListenerExtension",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY support (only relevant if reusing `component-runtime-manager`).",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/spi/ContainerListenerExtension.java"
+  },
+  {
+    "id": "SVC-026",
+    "name": "ContainerClasspathContributor and ComponentManager.Customizer",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY support; WARNING internal. MAY implement a `Customizer` to integrate with a host-specific class/dependency layout.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/ComponentManager.java"
+  },
+  {
+    "id": "SVC-027",
+    "name": "Service instantiation, injection and lifecycle order",
+    "category": "SVC",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST follow this order so `@PostConstruct` sees injected services; MUST call `@PreDestroy` on undeploy. MUST expose the built-in service set when replacing `DefaultServiceProvider`; MUST run `@PostConstruct` of services once per container start.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/ComponentManager.java"
+  }
+]

@@ -1,0 +1,236 @@
+[
+  {
+    "id": "HTTP-001",
+    "name": "HttpClientFactory",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST inject a serializable `HttpClientFactory` scoped to the plugin (serialization via `SerializableService`); MUST also auto-create and register a proxy for every `HttpClient` sub-interface that declares `@Request` methods so it can be injected by type (HTTP-002).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/HttpClientFactory.java"
+  },
+  {
+    "id": "HTTP-002",
+    "name": "HttpClient",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST let components call `client.base(url)` (typically in `@PostConstruct`) and store it in the proxy handler; the base MUST be preserved when the proxy is copied.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/HttpClient.java"
+  },
+  {
+    "id": "HTTP-003",
+    "name": "@Request",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST parse each method once (annotations + parameters) and cache the execution plan; MUST fail creation on missing `@Request`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Request.java"
+  },
+  {
+    "id": "HTTP-004",
+    "name": "@Base",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST use it in preference to the proxy base; URL = base + `/` + path (single slash join, empty parts tolerated).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Base.java"
+  },
+  {
+    "id": "HTTP-005",
+    "name": "@Url",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST ignore base and request path when present.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Url.java"
+  },
+  {
+    "id": "HTTP-006",
+    "name": "@HttpMethod",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST honor the override.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/HttpMethod.java"
+  },
+  {
+    "id": "HTTP-007",
+    "name": "@Path",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST apply exactly the encoding above.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Path.java"
+  },
+  {
+    "id": "HTTP-008",
+    "name": "@Query",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST preserve declaration order of query parameters.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Query.java"
+  },
+  {
+    "id": "HTTP-009",
+    "name": "@QueryParams",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST support Map arguments.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/QueryParams.java"
+  },
+  {
+    "id": "HTTP-010",
+    "name": "QueryFormat",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST implement both; any other value is an `IllegalArgumentException(\"Unsupported formatting\")`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/QueryFormat.java"
+  },
+  {
+    "id": "HTTP-011",
+    "name": "@Header",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST set headers with `setRequestProperty` semantics before the configurer runs.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Header.java"
+  },
+  {
+    "id": "HTTP-012",
+    "name": "@Headers",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST support Map arguments.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Headers.java"
+  },
+  {
+    "id": "HTTP-013",
+    "name": "@Codec",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST instantiate codecs with service injection and merge them with the defaults of HTTP-017 (user codecs win on identical content type).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Codec.java"
+  },
+  {
+    "id": "HTTP-014",
+    "name": "Encoder",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST call `encode` only for non-null, non-`byte[]` payloads.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Encoder.java"
+  },
+  {
+    "id": "HTTP-015",
+    "name": "Decoder",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST pass the generic `Type` (the `Response<T>` argument when wrapped).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Decoder.java"
+  },
+  {
+    "id": "HTTP-016",
+    "name": "@ContentType",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST register codecs under this value; two codecs with the same key are an error (`IllegalArgumentException`).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/ContentType.java"
+  },
+  {
+    "id": "HTTP-017",
+    "name": "Default codecs and content-type matching",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST implement exactly these defaults and this matching order.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/service/http/RequestParser.java"
+  },
+  {
+    "id": "HTTP-018",
+    "name": "@UseConfigurer",
+    "category": "HTTP",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST call `configure(connection, configuration)` once per invocation.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/UseConfigurer.java"
+  },
+  {
+    "id": "HTTP-019",
+    "name": "Configurer",
+    "category": "HTTP",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST expose the current `HttpURLConnection` state through `Connection` and apply `postConfigure` (follow-redirect flag) before connecting.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Configurer.java"
+  },
+  {
+    "id": "HTTP-020",
+    "name": "@ConfigurerOption",
+    "category": "HTTP",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST pass the raw (unconverted) argument object.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/ConfigurerOption.java"
+  },
+  {
+    "id": "HTTP-021",
+    "name": "OAuth1 configurer",
+    "category": "HTTP",
+    "level": 2,
+    "designer": "none",
+    "runtime": "SHOULD ship an `OAuth1Provider` if it wants to run connectors using it (the manager registers `OAuth1ProviderImpl` through `META-INF/services/org.talend.sdk.component.api.service.http.configurer.oauth1.OAuth1$OAuth1Provider`).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/configurer/oauth1/OAuth1.java"
+  },
+  {
+    "id": "HTTP-022",
+    "name": "OAuth1Provider (SPI)",
+    "category": "HTTP",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY provide an alternative implementation via `ServiceLoader`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/configurer/oauth1/OAuth1.java"
+  },
+  {
+    "id": "HTTP-023",
+    "name": "Response",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST NOT throw for error statuses when the method returns `Response`; MUST expose the error body via `error()`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Response.java"
+  },
+  {
+    "id": "HTTP-024",
+    "name": "HttpException",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "MAY show `getResponse().error(String.class)` for action failures (actions surface as `ComponentException`/HTTP 520 in the server).",
+    "runtime": "MUST propagate as a component failure (error propagation, level 0).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/HttpException.java"
+  },
+  {
+    "id": "HTTP-025",
+    "name": "Request execution semantics",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST reproduce this order; SHOULD prefer `InputStream` return types for large payloads.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/service/http/ExecutionContext.java"
+  },
+  {
+    "id": "HTTP-026",
+    "name": "Payload parameter",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST enforce at most one payload parameter.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/service/http/RequestParser.java"
+  }
+]

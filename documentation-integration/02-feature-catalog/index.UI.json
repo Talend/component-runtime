@@ -1,0 +1,200 @@
+[
+  {
+    "id": "UI-001",
+    "name": "@Ui (meta-annotation)",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST read UI hints only from `metadata` keys starting with `ui::` and MUST ignore unknown ones.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/meta/Ui.java"
+  },
+  {
+    "id": "UI-002",
+    "name": "@GridLayout",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST render one row per `|` segment and one column per `,` item; MUST render tabs as above; SHOULD show an option that is missing from every layout nowhere (validator logs an error for such options).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/layout/GridLayout.java"
+  },
+  {
+    "id": "UI-003",
+    "name": "@GridLayouts",
+    "category": "UI",
+    "level": 1,
+    "designer": "same as `UI-002`.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/layout/GridLayouts.java"
+  },
+  {
+    "id": "UI-004",
+    "name": "@AutoLayout",
+    "category": "UI",
+    "level": 2,
+    "designer": "MAY choose its own layout; SHOULD keep declaration order (inferred).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/layout/AutoLayout.java"
+  },
+  {
+    "id": "UI-005",
+    "name": "@HorizontalLayout",
+    "category": "UI",
+    "level": 2,
+    "designer": "MAY lay children out in one row.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/layout/HorizontalLayout.java"
+  },
+  {
+    "id": "UI-006",
+    "name": "@VerticalLayout",
+    "category": "UI",
+    "level": 2,
+    "designer": "SHOULD stack children vertically (default).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/layout/VerticalLayout.java"
+  },
+  {
+    "id": "UI-007",
+    "name": "@TextArea",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST render a multiline input for `ui::textarea=true`.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/widget/TextArea.java"
+  },
+  {
+    "id": "UI-008",
+    "name": "@Code",
+    "category": "UI",
+    "level": 1,
+    "designer": "SHOULD render a code editor with the given language; MAY fall back to a text area.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/widget/Code.java"
+  },
+  {
+    "id": "UI-009",
+    "name": "@Credential",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST mask the value (password input) and MUST NOT log or display it in clear; SHOULD store it encrypted when the host has a secret store.",
+    "runtime": "SHOULD keep the value out of logs.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/widget/Credential.java"
+  },
+  {
+    "id": "UI-010",
+    "name": "@DateTime",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST render a picker and MUST serialize to the string form the runtime converter accepts (ISO-like, per Java type; inferred); SHOULD honor the three options.",
+    "runtime": "MUST parse the string with the xbean converters of the component manager.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/widget/DateTime.java"
+  },
+  {
+    "id": "UI-011",
+    "name": "@ModuleList",
+    "category": "UI",
+    "level": 2,
+    "designer": "Studio-like hosts MAY render a module chooser; others MUST render a plain text field.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/widget/ModuleList.java"
+  },
+  {
+    "id": "UI-012",
+    "name": "@Path",
+    "category": "UI",
+    "level": 2,
+    "designer": "Studio-like hosts MAY render a file/directory chooser; others MUST render a text field.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/widget/Path.java"
+  },
+  {
+    "id": "UI-013",
+    "name": "@Structure",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST offer schema discovery (button) for `OUT` structures and MUST write the returned schema entries into the option (inferred from `options.path`/`type`); SHOULD keep IN structures editable.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/widget/Structure.java"
+  },
+  {
+    "id": "UI-014",
+    "name": "@BasedOnSchema",
+    "category": "UI",
+    "level": 2,
+    "designer": "Studio-like hosts MAY auto-fill the column from the schema.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/widget/BasedOnSchema.java"
+  },
+  {
+    "id": "UI-015",
+    "name": "@ReadOnly",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST NOT let the user edit the value; MUST keep sending the value.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/widget/ReadOnly.java"
+  },
+  {
+    "id": "UI-016",
+    "name": "@ActiveIf",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST hide inactive options, re-evaluate on every change of the target, and SHOULD exclude inactive options from validation; MUST keep hidden values consistent (do not fail on them).",
+    "runtime": "MUST skip constraint validation of inactive options (the framework does via `VisibilityService`; hosts validating themselves MUST replicate this).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/condition/ActiveIf.java"
+  },
+  {
+    "id": "UI-017",
+    "name": "@ActiveIfs",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST combine the conditions with the operator.",
+    "runtime": "same as `UI-016`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/condition/ActiveIfs.java"
+  },
+  {
+    "id": "UI-018",
+    "name": "@Condition (meta-annotation)",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST support at least the types `if` and `ifs`.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/condition/meta/Condition.java"
+  },
+  {
+    "id": "UI-019",
+    "name": "UIScope",
+    "category": "UI",
+    "level": 2,
+    "designer": "MUST declare its scope (Studio-like hosts: `studio*`, web hosts: `cloud`) and show/hide options accordingly; unknown scopes SHOULD be treated as not matching.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/condition/UIScope.java"
+  },
+  {
+    "id": "UI-020",
+    "name": "Type-driven default widgets",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST offer at least a text control per type and MUST honor `enumValues` restriction; SHOULD implement the priority order above.",
+    "runtime": "none.",
+    "source": "component-form/component-form-core/src/main/java/org/talend/sdk/component/form/internal/converter/impl/UiSchemaConverter.java"
+  },
+  {
+    "id": "UI-021",
+    "name": "UiSchema and JSON Schema generation contract",
+    "category": "UI",
+    "level": 1,
+    "designer": "MAY reuse `component-form` (Java) or MUST reimplement the same mapping; a custom renderer MUST honor `condition`, `triggers`, `titleMap`, `restricted`, `readOnly`, `required` semantics.",
+    "runtime": "none.",
+    "source": "component-form/component-form-core/src/main/java/org/talend/sdk/component/form/api/UiSpecService.java"
+  },
+  {
+    "id": "UI-022",
+    "name": "Layout tab name translation",
+    "category": "UI",
+    "level": 2,
+    "designer": "SHOULD NOT hard-code `Main`/`Advanced` when the server may translate tab names; the Studio does not support this option.",
+    "runtime": "none.",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/service/PropertiesService.java"
+  }
+]

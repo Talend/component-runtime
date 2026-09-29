@@ -1,0 +1,443 @@
+[
+  {
+    "id": "RUN-001",
+    "name": "@Emitter",
+    "category": "RUN",
+    "level": 0,
+    "designer": "MUST show it as an input component (no input flow, one `__default__` output flow).",
+    "runtime": "MUST obtain it through `ComponentManager.findMapper(plugin, name, version, config)`, call `create()` on the mapper and drive the `Input` (RUN-024).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/input/Emitter.java"
+  },
+  {
+    "id": "RUN-002",
+    "name": "@PartitionMapper",
+    "category": "RUN",
+    "level": 0,
+    "designer": "MUST show it as an input component; if `stoppable`, MUST render the extra options `$maxRecords` and `$maxDurationMs` returned in the component properties (default -1 = unlimited).",
+    "runtime": "MUST call `assess()`, `split(desiredSize)` on the coordinator side and `create()` per split on the worker side; MUST treat `isStream()` as streaming mode.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/input/PartitionMapper.java"
+  },
+  {
+    "id": "RUN-003",
+    "name": "@Assessor",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST call `Mapper.assess()` on a started mapper and use the value to compute the split size; the unit is component-defined (bytes by convention).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/input/Assessor.java"
+  },
+  {
+    "id": "RUN-004",
+    "name": "@Split",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST call `Mapper.split(desiredSize)` and create one `Input` per returned Mapper (sequentially or in parallel); returned mappers are Serializable and MAY be shipped to workers.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/input/Split.java"
+  },
+  {
+    "id": "RUN-005",
+    "name": "@PartitionSize",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST pass the value it wants to `split(long)`; for `int` parameters the runtime narrows with `intValue()`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/input/PartitionSize.java"
+  },
+  {
+    "id": "RUN-006",
+    "name": "@Producer",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST loop `Input.next()` until it returns null (batch) or until the stop strategy / external stop (streaming); MUST call `Input.start()` before and `Input.stop()` after.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/input/Producer.java"
+  },
+  {
+    "id": "RUN-007",
+    "name": "BufferizedProducerSupport",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/base/BufferizedProducerSupport.java"
+  },
+  {
+    "id": "RUN-008",
+    "name": "@Processor",
+    "category": "RUN",
+    "level": 0,
+    "designer": "MUST render one input connection per input flow and one output connection per output flow returned by the server.",
+    "runtime": "MUST create it with `ComponentManager.findProcessor(...)`, call `start()`, then per group `beforeGroup()`, `onNext(...)` per record, `afterGroup(...)`, finally `stop()`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/Processor.java"
+  },
+  {
+    "id": "RUN-009",
+    "name": "@ElementListener",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST feed each record through `Processor.onNext(InputFactory, OutputFactory)`; InputFactory.read(name) returns the current record of that input branch (null if none).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/ElementListener.java"
+  },
+  {
+    "id": "RUN-010",
+    "name": "@BeforeGroup",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST call `Processor.beforeGroup()` before the first `onNext` of each group.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/BeforeGroup.java"
+  },
+  {
+    "id": "RUN-011",
+    "name": "@AfterGroup",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST call `Processor.afterGroup(OutputFactory)` (or `afterGroup(OutputFactory, boolean last)` when `isLastGroupUsed()`) at group end and at end of data (flush); MUST route emitted records like `onNext` outputs.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/AfterGroup.java"
+  },
+  {
+    "id": "RUN-012",
+    "name": "@LastGroup",
+    "category": "RUN",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST call `afterGroup(output, last)` when `Processor.isLastGroupUsed()` is true, with `last=true` exactly on the final flush.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/LastGroup.java"
+  },
+  {
+    "id": "RUN-013",
+    "name": "@Input",
+    "category": "RUN",
+    "level": 1,
+    "designer": "MUST create one input connection per distinct name (`ComponentDetail.inputFlows`) and label them.",
+    "runtime": "MUST return, in `InputFactory.read(name)`, the record for that branch.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/Input.java"
+  },
+  {
+    "id": "RUN-014",
+    "name": "@Output",
+    "category": "RUN",
+    "level": 0,
+    "designer": "MUST create one output connection per branch (`ComponentDetail.outputFlows`); connection named `REJECT` is the reject connection.",
+    "runtime": "MUST provide an `OutputFactory` whose `create(name)` returns an emitter for every name; unknown/unconnected branches MUST NOT fail (discard).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/Output.java"
+  },
+  {
+    "id": "RUN-015",
+    "name": "OutputEmitter",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST implement it in `OutputFactory.create(name)`; MUST convert non-Record values.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/OutputEmitter.java"
+  },
+  {
+    "id": "RUN-016",
+    "name": "MultiOutputIterator",
+    "category": "RUN",
+    "level": 2,
+    "designer": "SHOULD display all branches listed in `@Output(branches)`.",
+    "runtime": "MAY implement `createMultiOutputIterator()`; if not implemented, components using it fail at runtime (Beam reference does not).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/MultiOutputIterator.java"
+  },
+  {
+    "id": "RUN-017",
+    "name": "TaggedOutput",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY interpret `FLOW` as `__default__` if MultiOutputIterator is implemented.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/TaggedOutput.java"
+  },
+  {
+    "id": "RUN-018",
+    "name": "Named branches (__default__, REJECT)",
+    "category": "RUN",
+    "level": 1,
+    "designer": "MUST expose one connection per name in `inputFlows`/`outputFlows`; SHOULD style `REJECT` differently.",
+    "runtime": "MUST route by exact branch name; job edges default to `__default__` (`Job.from(id)` / `to(id)`).",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/output/Branches.java"
+  },
+  {
+    "id": "RUN-019",
+    "name": "Output component (sink)",
+    "category": "RUN",
+    "level": 0,
+    "designer": "MUST treat a processor with empty `outputFlows` as a terminal component (no outgoing connection allowed).",
+    "runtime": "MUST run it as the last stage; it MUST still get `beforeGroup/afterGroup` calls and a final flush.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/Processor.java"
+  },
+  {
+    "id": "RUN-020",
+    "name": "Combiner (not supported)",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "documentation/src/main/antora/modules/ROOT/pages/component-combiner.adoc"
+  },
+  {
+    "id": "RUN-021",
+    "name": "@DriverRunner",
+    "category": "RUN",
+    "level": 0,
+    "designer": "MUST show it without connections; SHOULD allow it in a job as an independent step/trigger target.",
+    "runtime": "MUST obtain it with `ComponentManager.findDriverRunner(plugin, name, version, config)`, call `start()`, `runAtDriver()`, `stop()` on the coordinator; it MUST NOT handle records.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/standalone/DriverRunner.java"
+  },
+  {
+    "id": "RUN-022",
+    "name": "@RunAtDriver",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST invoke `DriverRunner.runAtDriver()` exactly once per execution, inside the plugin classloader (TCCL) - `DriverRunnerImpl` handles it.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/standalone/RunAtDriver.java"
+  },
+  {
+    "id": "RUN-023",
+    "name": "Component lifecycle hooks (@PostConstruct / @PreDestroy)",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST call `start()` before use and `stop()` in a finally block, on every component instance including every split Input; MUST NOT reuse a stopped instance.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/base/LifecycleImpl.java"
+  },
+  {
+    "id": "RUN-024",
+    "name": "Runtime wrapper interfaces (Lifecycle, Mapper, Input, Processor, DriverRunner)",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST code the host engine against these interfaces (they are the only stable surface with the manager).",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/input/Mapper.java"
+  },
+  {
+    "id": "RUN-025",
+    "name": "Component instantiation (ComponentManager.find*)",
+    "category": "RUN",
+    "level": 0,
+    "designer": "MUST persist the component `version` together with each saved configuration (ComponentDetail.version at design time).",
+    "runtime": "MUST pass the persisted version so migration runs; MUST handle empty Optional as 'component missing'.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/ComponentManager.java"
+  },
+  {
+    "id": "RUN-026",
+    "name": "Batch grouping and maxBatchSize",
+    "category": "RUN",
+    "level": 1,
+    "designer": "MUST render `$maxBatchSize` (it is delivered as a normal property) and send its value back in the flat configuration.",
+    "runtime": "MUST apply `$maxBatchSize` as an upper bound of the group size (default 1 in the local runner when absent) and MUST always flush at end of data.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/chain/AutoChunkProcessor.java"
+  },
+  {
+    "id": "RUN-027",
+    "name": "Streaming input (infinite mapper)",
+    "category": "RUN",
+    "level": 2,
+    "designer": "SHOULD flag `mapper::infinite=true` components as streaming (job never ends unless stop conditions are set).",
+    "runtime": "MUST treat `Mapper.isStream()` as unbounded; MUST provide a way to stop (call `Input.stop()` or set stop conditions).",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/input/StreamingInputImpl.java"
+  },
+  {
+    "id": "RUN-028",
+    "name": "Streaming stop conditions ($maxRecords, $maxDurationMs)",
+    "category": "RUN",
+    "level": 2,
+    "designer": "MUST render the two options for stoppable inputs (they are ordinary properties).",
+    "runtime": "MUST honour them by passing the flat properties to `findMapper`; the framework enforces them in `StreamingInputImpl`.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/input/Streaming.java"
+  },
+  {
+    "id": "RUN-029",
+    "name": "Streaming retry strategy",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "SHOULD expose these keys through its LocalConfiguration implementation (family-prefixed keys `<family>.<key>` are tried first).",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/input/Streaming.java"
+  },
+  {
+    "id": "RUN-030",
+    "name": "@Checkpoint",
+    "category": "RUN",
+    "level": 2,
+    "designer": "SHOULD hide checkpoint properties from the normal form (they are state), or show them in the `CHECKPOINT` form type.",
+    "runtime": "MUST persist the state emitted by RUN-031/RUN-033 and MUST re-inject it as `$checkpoint.*` at restart; only when `talend.checkpoint.enabled=true`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/input/checkpoint/Checkpoint.java"
+  },
+  {
+    "id": "RUN-031",
+    "name": "@CheckpointData",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MUST call `Input.getCheckpoint()` only when `isCheckpointReady()` is true (or via the callback) and MUST serialize the state.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/input/checkpoint/CheckpointData.java"
+  },
+  {
+    "id": "RUN-032",
+    "name": "@CheckpointAvailable",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MUST poll `Input.isCheckpointReady()` after `next()` (explicit mode) or supply a callback to `Input.start(Consumer<CheckpointState>)` (automatic mode).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/input/checkpoint/CheckpointAvailable.java"
+  },
+  {
+    "id": "RUN-033",
+    "name": "Checkpoint runtime protocol ($checkpoint, CheckpointState)",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MUST implement persistence/restore of the JSON above; MUST migrate the state when `__version` is older (the framework's nested migration applies to the checkpoint type).",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/input/CheckpointState.java"
+  },
+  {
+    "id": "RUN-034",
+    "name": "@ConditionalOutput",
+    "category": "RUN",
+    "level": 2,
+    "designer": "MAY call `type=available_output` (ACT-014) with the current configuration to filter `outputFlows`.",
+    "runtime": "none",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/meta/ConditionalOutput.java"
+  },
+  {
+    "id": "RUN-036",
+    "name": "@ReturnVariables / @ReturnVariable",
+    "category": "RUN",
+    "level": 2,
+    "designer": "MAY expose the variables to downstream expressions (Studio-like host).",
+    "runtime": "none",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/component/ReturnVariables.java"
+  },
+  {
+    "id": "RUN-037",
+    "name": "@AfterVariables / @AfterVariable / @AfterVariableContainer",
+    "category": "RUN",
+    "level": 2,
+    "designer": "MAY expose the variables.",
+    "runtime": "MAY call the container method after the component finished.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/component/AfterVariables.java"
+  },
+  {
+    "id": "RUN-038",
+    "name": "optionalRow",
+    "category": "RUN",
+    "level": 2,
+    "designer": "MAY relax the requirement of an outgoing connection for such inputs.",
+    "runtime": "none",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/input/PartitionMapper.java"
+  },
+  {
+    "id": "RUN-039",
+    "name": "Serialization requirements",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST ship the plugin to every worker and register it before deserializing; MUST set the whitelist in secured deployments; MUST use `ContainerFinder.Instance.set(...)` when the default finder cannot see plugins.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/base/LifecycleImpl.java"
+  },
+  {
+    "id": "RUN-040",
+    "name": "Internal configuration keys ($-prefix)",
+    "category": "RUN",
+    "level": 1,
+    "designer": "MUST send them under the same prefix as the other properties of the component configuration root.",
+    "runtime": "MUST forward them unchanged to `findMapper`/`findProcessor`.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/ComponentManager.java"
+  },
+  {
+    "id": "RUN-041",
+    "name": "Flat configuration to constructor arguments",
+    "category": "RUN",
+    "level": 0,
+    "designer": "MUST serialize form values into these exact key shapes using each property's `path` from ComponentDetail.",
+    "runtime": "MUST pass the full map (including defaults) to the manager; MUST surface the validation IllegalArgumentException as user error.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/reflect/ReflectionService.java"
+  },
+  {
+    "id": "RUN-042",
+    "name": "Job DSL and local runner",
+    "category": "RUN",
+    "level": 1,
+    "designer": "MAY use `family://name?...` URIs as a portable job serialization for tests.",
+    "runtime": "MAY reuse the Job API as a reference or embedded engine; a custom engine MUST reproduce the semantics (levels, branch wiring, flush). SHOULD be compared against for acceptance tests: the same chain must give the same output in the host.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/chain/Job.java"
+  },
+  {
+    "id": "RUN-043",
+    "name": "Beam translation of a job",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "Reference for an engine adapter: MUST reproduce branch filtering/mapping, key-based multi-input join and group semantics on the target engine.",
+    "source": "component-runtime-beam/src/main/java/org/talend/sdk/component/runtime/beam/chain/impl/BeamExecutor.java"
+  },
+  {
+    "id": "RUN-044",
+    "name": "Beam I/O adapters (TalendIO, TalendFn)",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY reuse these classes; if embedded, MUST have `component-runtime-beam` and Beam on the container parent classloader (see `BeamCustomizer` class index).",
+    "source": "component-runtime-beam/src/main/java/org/talend/sdk/component/runtime/beam/TalendIO.java"
+  },
+  {
+    "id": "RUN-045",
+    "name": "Beam coders and schema registry",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "A distributed host MUST guarantee that the schema id resolves on the decoding side.",
+    "source": "component-runtime-beam/src/main/java/org/talend/sdk/component/runtime/beam/coder/registry/SchemaRegistryCoder.java"
+  },
+  {
+    "id": "RUN-046",
+    "name": "Component validation at registration (ModelVisitor)",
+    "category": "RUN",
+    "level": 1,
+    "designer": "none",
+    "runtime": "A host registering plugins through ComponentManager gets this for free; a host with its own scanner MUST replicate these rules.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/visitor/ModelVisitor.java"
+  },
+  {
+    "id": "RUN-047",
+    "name": "Runtime Mode (UNSAFE)",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY set UNSAFE in production once plugins have been validated at build time.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/impl/Mode.java"
+  },
+  {
+    "id": "RUN-048",
+    "name": "Input and output flows (FlowsFactory)",
+    "category": "RUN",
+    "level": 0,
+    "designer": "MUST use `inputFlows` / `outputFlows` of ComponentDetail to build connectors.",
+    "runtime": "MUST honour the same names when wiring branches.",
+    "source": "component-runtime-design-extension/src/main/java/org/talend/sdk/component/design/extension/flows/FlowsFactory.java"
+  },
+  {
+    "id": "RUN-049",
+    "name": "Processor input conversion and group buffer",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST call `beforeGroup()` before the first `onNext` (it initializes reflection state and the buffer) - `onNext` before `beforeGroup` fails with NullPointerException on `parameterBuilderProcess`.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/output/ProcessorImpl.java"
+  },
+  {
+    "id": "RUN-050",
+    "name": "Multi-input record grouping (GroupKeyProvider)",
+    "category": "RUN",
+    "level": 2,
+    "designer": "MAY let users configure the join key per input.",
+    "runtime": "MUST provide a join strategy for multi-input processors.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/chain/GroupKeyProvider.java"
+  }
+]

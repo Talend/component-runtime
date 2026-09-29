@@ -1,0 +1,272 @@
+[
+  {
+    "id": "DAT-001",
+    "name": "Record",
+    "category": "DAT",
+    "level": 0,
+    "designer": "MUST NOT implement or instantiate; only handle schemas (DAT-004) exchanged as JSON.",
+    "runtime": "MUST create records via RecordBuilderFactory (DAT-016) and pass them unchanged between components.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Record.java"
+  },
+  {
+    "id": "DAT-002",
+    "name": "Record.Builder",
+    "category": "DAT",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST call `build()` once per record; SHOULD provide a schema for predictable output; name collisions are auto-renamed (DAT-013).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Record.java"
+  },
+  {
+    "id": "DAT-003",
+    "name": "Record value access and coercion",
+    "category": "DAT",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST use typed accessors matching `Entry.getType()`; SHOULD use `getOptionalXxx` for nullable entries.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/record/RecordConverters.java"
+  },
+  {
+    "id": "DAT-004",
+    "name": "Schema",
+    "category": "DAT",
+    "level": 0,
+    "designer": "MUST be able to read the Schema JSON returned by schema-discovery actions and MAY store it as design-time schema of a connection.",
+    "runtime": "MUST treat schemas as immutable value objects; MUST create them via RecordBuilderFactory (DAT-016).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Schema.java"
+  },
+  {
+    "id": "DAT-005",
+    "name": "Schema.Type",
+    "category": "DAT",
+    "level": 0,
+    "designer": "MUST map each constant to a UI/column type and to the host's internal type system.",
+    "runtime": "MUST support all 11 constants in the host record model (or convert losslessly, see DAT-031 for Avro).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Schema.java"
+  },
+  {
+    "id": "DAT-006",
+    "name": "Schema.Entry",
+    "category": "DAT",
+    "level": 0,
+    "designer": "MUST display name, type, nullable and comment; SHOULD show rawName as label when present.",
+    "runtime": "MUST keep name/rawName pairs intact across components.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Schema.java"
+  },
+  {
+    "id": "DAT-007",
+    "name": "Schema.Entry.Builder",
+    "category": "DAT",
+    "level": 0,
+    "designer": "none",
+    "runtime": "SHOULD set `nullable` explicitly (builder default is false).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Schema.java"
+  },
+  {
+    "id": "DAT-008",
+    "name": "Schema.Builder",
+    "category": "DAT",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST build RECORD schemas through the factory (DAT-016) so the host-selected implementation (memory or Avro, DAT-034) is used.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Schema.java"
+  },
+  {
+    "id": "DAT-009",
+    "name": "Schema.EntriesOrder",
+    "category": "DAT",
+    "level": 1,
+    "designer": "SHOULD display columns using the order given by `getEntriesOrdered()` / prop `talend.fields.order`.",
+    "runtime": "SHOULD preserve the order property when copying/transforming schemas.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Schema.java"
+  },
+  {
+    "id": "DAT-010",
+    "name": "OrderedMap",
+    "category": "DAT",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY reuse when implementing a custom Record/Schema; otherwise none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/OrderedMap.java"
+  },
+  {
+    "id": "DAT-011",
+    "name": "SchemaProperty",
+    "category": "DAT",
+    "level": 1,
+    "designer": "SHOULD honor `field.key`, `field.size`, `field.scale`, `field.pattern`, `field.origin.type` when showing or mapping schemas.",
+    "runtime": "MUST preserve props when copying entries; SHOULD NOT invent semantics for unknown keys.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/SchemaProperty.java"
+  },
+  {
+    "id": "DAT-012",
+    "name": "SchemaProperty.LogicalType",
+    "category": "DAT",
+    "level": 1,
+    "designer": "SHOULD render DATE/TIME/TIMESTAMP with the matching widget/format.",
+    "runtime": "MUST keep `field.logical.type` when converting to/from Avro.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/SchemaProperty.java"
+  },
+  {
+    "id": "DAT-013",
+    "name": "SchemaCompanionUtil (name sanitization and collisions)",
+    "category": "DAT",
+    "level": 0,
+    "designer": "MUST use `name` (sanitized) as the technical identifier and MAY show `rawName`.",
+    "runtime": "MUST NOT rely on original field names for lookups; use `Entry.getName()`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/SchemaCompanionUtil.java"
+  },
+  {
+    "id": "DAT-014",
+    "name": "Entry-level error support",
+    "category": "DAT",
+    "level": 2,
+    "designer": "MAY display invalid cells using the entry props.",
+    "runtime": "MAY set the system property; SHOULD check `entry.isValid()` before reading and MUST NOT treat invalid entries as data.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Record.java"
+  },
+  {
+    "id": "DAT-015",
+    "name": "Nullable check switch",
+    "category": "DAT",
+    "level": 2,
+    "designer": "none",
+    "runtime": "SHOULD leave the default; MAY set true for performance in a trusted environment.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Record.java"
+  },
+  {
+    "id": "DAT-016",
+    "name": "RecordBuilderFactory",
+    "category": "DAT",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST provide it as an injectable service to every plugin container (ComponentManager does by default).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/record/RecordBuilderFactory.java"
+  },
+  {
+    "id": "DAT-017",
+    "name": "RecordService",
+    "category": "DAT",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST provide it as a built-in service when hosting TCK plugins with a custom container; SHOULD reuse `RecordServiceImpl`. The injected instance MUST be backed by the plugin's `RecordBuilderFactory` and JSON-B.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/record/RecordService.java"
+  },
+  {
+    "id": "DAT-018",
+    "name": "RecordVisitor",
+    "category": "DAT",
+    "level": 2,
+    "designer": "none",
+    "runtime": "SHOULD implement RecordService.visit to support it; not needed otherwise.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/record/RecordVisitor.java"
+  },
+  {
+    "id": "DAT-019",
+    "name": "RecordPointer",
+    "category": "DAT",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MUST implement with the semantics of DAT-020 if RecordPointerFactory is provided.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/RecordPointer.java"
+  },
+  {
+    "id": "DAT-020",
+    "name": "RecordPointerFactory",
+    "category": "DAT",
+    "level": 1,
+    "designer": "none",
+    "runtime": "SHOULD provide the reference semantics (RFC 6901 adapted to records). MUST inject a factory scoped to the plugin.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/RecordPointerFactory.java"
+  },
+  {
+    "id": "DAT-021",
+    "name": "Deprecated schema API (service.schema.Schema and Type)",
+    "category": "DAT",
+    "level": 2,
+    "designer": "MUST still accept schemas returned by legacy components (same JSON shape).",
+    "runtime": "none",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/schema/Schema.java"
+  },
+  {
+    "id": "DAT-024",
+    "name": "@FixedSchema",
+    "category": "DAT",
+    "level": 1,
+    "designer": "MUST NOT let the user edit the schema of the listed flows; MUST re-call the action when a `watch` path changes.",
+    "runtime": "none",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/schema/FixedSchema.java"
+  },
+  {
+    "id": "DAT-029",
+    "name": "Component data type conversion (Record / JsonObject / POJO)",
+    "category": "DAT",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST convert non-Record values to Record before handing data to the engine (as `InputImpl.next()` and `BeamOutputEmitter` do); SHOULD standardize on `Record`.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/record/RecordConverters.java"
+  },
+  {
+    "id": "DAT-030",
+    "name": "JSON-P / JSON-B mapping of Record",
+    "category": "DAT",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST use a Johnzon-compatible JSON-B/JSON-P provider with the settings above when it produces JSON from records; MUST decode BYTES as Base64.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/record/json/RecordJsonGenerator.java"
+  },
+  {
+    "id": "DAT-031",
+    "name": "Avro mapping (Beam runtime)",
+    "category": "DAT",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY use the Avro implementation; if used, MUST run with `talend.component.record.skip.sanitize=false`; MUST NOT mix implementations inside one plugin.",
+    "source": "component-runtime-beam/src/main/java/org/talend/sdk/component/runtime/beam/spi/record/AvroSchemaBuilder.java"
+  },
+  {
+    "id": "DAT-032",
+    "name": "Schema JSON serialization (SchemaConverter)",
+    "category": "DAT",
+    "level": 1,
+    "designer": "MUST serialize a chosen schema with these keys when a component option is of type `Schema`.",
+    "runtime": "MUST accept this JSON in the option value.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/xbean/converter/SchemaConverter.java"
+  },
+  {
+    "id": "DAT-033",
+    "name": "Type conversion rules (MappingUtils.coerce)",
+    "category": "DAT",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST reproduce these rules if the host supplies its own Record implementation; SHOULD reuse `RecordImpl`.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/record/MappingUtils.java"
+  },
+  {
+    "id": "DAT-034",
+    "name": "RecordBuilderFactoryProvider SPI",
+    "category": "DAT",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY provide one implementation per JVM; MUST make it return Serializable factories (they serialize as SerializableService).",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/service/record/RecordBuilderFactoryProvider.java"
+  },
+  {
+    "id": "DAT-035",
+    "name": "Metadata entries",
+    "category": "DAT",
+    "level": 2,
+    "designer": "SHOULD hide metadata entries from the default column list and expose them separately.",
+    "runtime": "MUST NOT drop metadata entries when copying records.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Schema.java"
+  },
+  {
+    "id": "DAT-036",
+    "name": "Arrays and nested records",
+    "category": "DAT",
+    "level": 1,
+    "designer": "MUST handle ARRAY/RECORD entries (render nested, or flatten) when propagating schemas.",
+    "runtime": "MUST handle nested types in transport and conversion.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Schema.java"
+  }
+]

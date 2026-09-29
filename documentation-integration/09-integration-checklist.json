@@ -1,0 +1,3727 @@
+{
+  "frameworkVersion": "1.2611.0-SNAPSHOT",
+  "features": 284,
+  "featuresPerLevel": {
+    "0": {
+      "Designer": 3,
+      "Runtime": 50,
+      "Both": 29
+    },
+    "1": {
+      "Designer": 39,
+      "Runtime": 17,
+      "Both": 34
+    },
+    "2": {
+      "Designer": 35,
+      "Runtime": 41,
+      "Both": 36
+    }
+  },
+  "checksPerLevel": {
+    "0": {
+      "Designer": 32,
+      "Runtime": 79
+    },
+    "1": {
+      "Designer": 73,
+      "Runtime": 51
+    },
+    "2": {
+      "Designer": 71,
+      "Runtime": 77
+    }
+  },
+  "items": [
+    {
+      "id": "DSG-001",
+      "name": "@Components",
+      "category": "DSG",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST group the palette by `family` and `categories` from `ComponentIndex`. MUST use (family, name) as the component identity. SHOULD display `familyDisplayName` and translated category names.",
+      "verify": "Load two components of one family and one of another: the palette shows two groups labelled `familyDisplayName`; two components with the same name in different families stay distinct."
+    },
+    {
+      "id": "DSG-001",
+      "name": "@Components",
+      "category": "DSG",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST resolve components by plugin id + family + name. family is the key for shared services and actions.",
+      "verify": "Register a plugin and call `findMapper/findProcessor` with plugin id + name: the right component is returned; a wrong family/name yields an empty Optional."
+    },
+    {
+      "id": "DSG-002",
+      "name": "@Icon",
+      "category": "DSG",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST fall back to a default icon when the icon is missing or unknown. SHOULD fetch the image via the icon endpoints (see 03). MAY use the inline icon content when the index is requested with `includeIconContent`.",
+      "verify": "run a fixture component/payload that uses `@Icon` and check that the Designer host does: fall back to a default icon when the icon is missing or unknown."
+    },
+    {
+      "id": "DSG-003",
+      "name": "Icon key resolution and Icon.IconType",
+      "category": "DSG",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST treat the icon as an opaque key (never assume it is one of `IconType`). MUST support keys that only exist as custom icons on the server.",
+      "verify": "run a fixture component/payload that uses `Icon key resolution and Icon.IconType` and check that the Designer host does: treat the icon as an opaque key (never assume it is one of `IconType`)."
+    },
+    {
+      "id": "DSG-005",
+      "name": "@Metadatas / @Metadatas.Metadata",
+      "category": "DSG",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST ignore unknown keys. MAY read the `metadata` map for host-specific behavior.",
+      "verify": "run a fixture component/payload that uses `@Metadatas / @Metadatas.Metadata` and check that the Designer host does: ignore unknown keys."
+    },
+    {
+      "id": "DSG-006",
+      "name": "ComponentMetadataEnricher SPI",
+      "category": "DSG",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST treat unknown metadata keys as opaque. none (consumes the resulting keys, see `DSG-008`).",
+      "verify": "run a fixture component/payload that uses `ComponentMetadataEnricher SPI` and check that the Designer host does: treat unknown metadata keys as opaque."
+    },
+    {
+      "id": "DSG-006",
+      "name": "ComponentMetadataEnricher SPI",
+      "category": "DSG",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "SHOULD keep the `ServiceLoader` discovery intact when embedding `component-runtime-manager` so the built-in keys exist.",
+      "verify": "run a fixture component/payload that uses `ComponentMetadataEnricher SPI` and check that the Runtime host does: keep the `ServiceLoader` discovery intact when embedding `component-runtime-manager` so the built-in keys exist."
+    },
+    {
+      "id": "DSG-007",
+      "name": "@Documentation",
+      "category": "DSG",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "SHOULD show `documentation::value` as help text (or as `tooltip` when `documentation::tooltip` is `true`). MAY also fetch the rendered component documentation (`/documentation/component/{id}`).",
+      "verify": "run a fixture component/payload that uses `@Documentation` and check that the Designer host does: show `documentation::value` as help text (or as `tooltip` when `documentation::tooltip` is `true`)."
+    },
+    {
+      "id": "DSG-008",
+      "name": "Component metadata map (keys)",
+      "category": "DSG",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST tolerate unknown keys. MAY use `mapper::infinite`/`mapper::optionalRow` to adapt the canvas (streaming source, optional incoming row). SHOULD refresh a fixed schema when a `watch` path changes (uses the action of the same id, see `ACT-007`/`ACT-008`).",
+      "verify": "run a fixture component/payload that uses `Component metadata map (keys)` and check that the Designer host does: tolerate unknown keys."
+    },
+    {
+      "id": "DSG-008",
+      "name": "Component metadata map (keys)",
+      "category": "DSG",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MAY use `mapper::infinite` to select streaming execution (details in RUN catalog).",
+      "verify": "run a fixture component/payload that uses `Component metadata map (keys)` and check that the Runtime host does: use `mapper::infinite` to select streaming execution (details in RUN catalog)."
+    },
+    {
+      "id": "DSG-009",
+      "name": "@Internal",
+      "category": "DSG",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "none.",
+      "verify": "run a fixture component/payload that uses `@Internal` and check that the Designer host does: none."
+    },
+    {
+      "id": "DSG-010",
+      "name": "@Partial",
+      "category": "DSG",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "SHOULD NOT assume full support (nested schemas) on features marked partial.",
+      "verify": "run a fixture component/payload that uses `@Partial` and check that the Designer host does: never assume full support (nested schemas) on features marked partial."
+    },
+    {
+      "id": "DSG-011",
+      "name": "@Internationalized",
+      "category": "DSG",
+      "level": 1,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST inject a proxy for `@Internationalized` interfaces (already done by `ComponentManager`). SHOULD supply the current locale (`$lang`).",
+      "verify": "run a fixture component/payload that uses `@Internationalized` and check that the Runtime host does: inject a proxy for `@Internationalized` interfaces (already done by `ComponentManager`)."
+    },
+    {
+      "id": "DSG-012",
+      "name": "@Language",
+      "category": "DSG",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST pass `lang` on action calls when it wants localized results.",
+      "verify": "run a fixture component/payload that uses `@Language` and check that the Designer host does: pass `lang` on action calls when it wants localized results."
+    },
+    {
+      "id": "DSG-012",
+      "name": "@Language",
+      "category": "DSG",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "SHOULD supply `$lang` when it executes actions in-process.",
+      "verify": "run a fixture component/payload that uses `@Language` and check that the Runtime host does: supply `$lang` when it executes actions in-process."
+    },
+    {
+      "id": "DSG-013",
+      "name": "Resource bundle key conventions (Messages.properties)",
+      "category": "DSG",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST pass the requested `language` on index/detail calls and MUST display server-translated strings as is. SHOULD fall back to `name` when `displayName` is absent.",
+      "verify": "run a fixture component/payload that uses `Resource bundle key conventions (Messages.properties)` and check that the Designer host does: pass the requested `language` on index/detail calls and display server-translated strings as is."
+    },
+    {
+      "id": "DSG-014",
+      "name": "@DatabaseMapping",
+      "category": "DSG",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "other hosts MUST ignore. MAY (Studio-like hosts only) read `tcomp::ui::schema::mapping` / `tcomp::ui::schema::mapper` (see `DSG-008`) to map column types.",
+      "verify": "run a fixture component/payload that uses `@DatabaseMapping` and check that the Designer host does: other hosts ignore."
+    },
+    {
+      "id": "DSG-015",
+      "name": "Custom icon file conventions",
+      "category": "DSG",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST NOT fail when the icon is missing. SHOULD request icon content as SVG when it supports it, PNG otherwise.",
+      "verify": "run a fixture component/payload that uses `Custom icon file conventions` and check that the Designer host does: never fail when the icon is missing."
+    },
+    {
+      "id": "CFG-001",
+      "name": "@Option",
+      "category": "CFG",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST build the form from the server `properties`, never from Java classes. MUST NOT invent option names. MUST treat names starting with `$` as technical (see `CFG-016`).",
+      "verify": "Render a component from `ComponentDetail.properties` only: every displayed field maps to a `path` from the server, none is invented, `$`-prefixed options are treated as technical."
+    },
+    {
+      "id": "CFG-001",
+      "name": "@Option",
+      "category": "CFG",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST provide configuration values through the component manager (flat map, see `CFG-002`). `@Option` fields MUST NOT be `final` (`NoFinalOptionValidator`).",
+      "verify": "Instantiate a component whose `@Option` fields are set from a flat map: the fields hold the given values; a `final` `@Option` field is rejected by validation."
+    },
+    {
+      "id": "CFG-002",
+      "name": "Option path and flat configuration map syntax",
+      "category": "CFG",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST serialize user input to this flat form (prefix rules and `[i]` indexes) for `/action/execute` and for saved configuration. MUST use the same paths for `@Suggestable`/`@Updatable`/`@ActiveIf` targets (relative-path syntax in 05).",
+      "verify": "Fill a form with a nested object, a list of 2 items and a map: the produced map contains `configuration.a.b`, `configuration.list[0].x`, `configuration.list[1].x` keys and is accepted by `/action/execute` and by the runtime."
+    },
+    {
+      "id": "CFG-002",
+      "name": "Option path and flat configuration map syntax",
+      "category": "CFG",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST convert the flat map to the component object graph via the component manager (`ReflectionService`). unknown keys are ignored (inferred), missing values keep field defaults.",
+      "verify": "Feed the same flat map to `ComponentManager`: the component object graph holds nested, list and map values; an unknown key is ignored."
+    },
+    {
+      "id": "CFG-003",
+      "name": "Parameter types and type mapping",
+      "category": "CFG",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST support at least `STRING`, `NUMBER`, `BOOLEAN`, `ENUM`, `OBJECT`, `ARRAY`. MUST treat unknown `type` values as `STRING` (inferred).",
+      "verify": "Load a component exposing STRING, NUMBER, BOOLEAN, ENUM, OBJECT, ARRAY properties: each gets a matching input control; an unknown `type` value is rendered as STRING."
+    },
+    {
+      "id": "CFG-003",
+      "name": "Parameter types and type mapping",
+      "category": "CFG",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST rely on the component manager conversion (property editors). MUST NOT reimplement type conversion.",
+      "verify": "Pass string values for int, boolean, enum and object options: the component receives correctly typed values without host-side conversion code."
+    },
+    {
+      "id": "CFG-004",
+      "name": "@DefaultValue",
+      "category": "CFG",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST pre-fill the field with `ui::defaultvalue::value` when present, else with `defaultValue`. MUST convert per property type.",
+      "verify": "run a fixture component/payload that uses `@DefaultValue` and check that the Designer host does: pre-fill the field with `ui::defaultvalue::value` when present, else with `defaultValue`."
+    },
+    {
+      "id": "CFG-004",
+      "name": "@DefaultValue",
+      "category": "CFG",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "none (the runtime receives the value the designer stored. the Java field initializer applies if absent).",
+      "verify": "run a fixture component/payload that uses `@DefaultValue` and check that the Runtime host does: none (the runtime receives the value the designer stored."
+    },
+    {
+      "id": "CFG-005",
+      "name": "@Hidden",
+      "category": "CFG",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST NOT show the field to the user. MUST still keep it in the model and send its value in flat configuration.",
+      "verify": "run a fixture component/payload that uses `@Hidden` and check that the Designer host does: never show the field to the user."
+    },
+    {
+      "id": "CFG-006",
+      "name": "@OptionsOrder",
+      "category": "CFG",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST render children in this order when no grid layout applies (one widget per row).",
+      "verify": "run a fixture component/payload that uses `@OptionsOrder` and check that the Designer host does: render children in this order when no grid layout applies (one widget per row)."
+    },
+    {
+      "id": "CFG-007",
+      "name": "@ConfigurationType (meta-annotation)",
+      "category": "CFG",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST use `configurationtype::type` to recognize reusable configuration nodes inside a component form.",
+      "verify": "run a fixture component/payload that uses `@ConfigurationType (meta-annotation)` and check that the Designer host does: use `configurationtype::type` to recognize reusable configuration nodes inside a component form."
+    },
+    {
+      "id": "CFG-008",
+      "name": "@DataStore",
+      "category": "CFG",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST offer datastore reuse (create/edit/pick a saved datastore) and MUST offer a connection test button when a health check of the same name exists.",
+      "verify": "run a fixture component/payload that uses `@DataStore` and check that the Designer host does: offer datastore reuse (create/edit/pick a saved datastore) and offer a connection test button when a health check of the same name exists."
+    },
+    {
+      "id": "CFG-008",
+      "name": "@DataStore",
+      "category": "CFG",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST feed the datastore values as part of the flat configuration of the referencing component.",
+      "verify": "run a fixture component/payload that uses `@DataStore` and check that the Runtime host does: feed the datastore values as part of the flat configuration of the referencing component."
+    },
+    {
+      "id": "CFG-009",
+      "name": "@DataSet",
+      "category": "CFG",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST allow selecting/creating a dataset for input/output components and SHOULD pass the dataset configuration to schema discovery.",
+      "verify": "run a fixture component/payload that uses `@DataSet` and check that the Designer host does: allow selecting/creating a dataset for input/output components and pass the dataset configuration to schema discovery."
+    },
+    {
+      "id": "CFG-009",
+      "name": "@DataSet",
+      "category": "CFG",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST inject the dataset values as part of the component configuration.",
+      "verify": "run a fixture component/payload that uses `@DataSet` and check that the Runtime host does: inject the dataset values as part of the component configuration."
+    },
+    {
+      "id": "CFG-010",
+      "name": "@DatasetDiscovery",
+      "category": "CFG",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MAY use it to let the user browse available datasets of a datastore (pairs with `ACT-009`).",
+      "verify": "run a fixture component/payload that uses `@DatasetDiscovery` and check that the Designer host does: use it to let the user browse available datasets of a datastore (pairs with `ACT-009`)."
+    },
+    {
+      "id": "CFG-010",
+      "name": "@DatasetDiscovery",
+      "category": "CFG",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST honor `retrieveDataset` semantics documented in `CFG-011` if it executes discovery components.",
+      "verify": "run a fixture component/payload that uses `@DatasetDiscovery` and check that the Runtime host does: honor `retrieveDataset` semantics documented in `CFG-011` if it executes discovery components."
+    },
+    {
+      "id": "CFG-011",
+      "name": "DatasetDiscoveryConfiguration",
+      "category": "CFG",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST render it like any boolean option.",
+      "verify": "run a fixture component/payload that uses `DatasetDiscoveryConfiguration` and check that the Designer host does: render it like any boolean option."
+    },
+    {
+      "id": "CFG-011",
+      "name": "DatasetDiscoveryConfiguration",
+      "category": "CFG",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST pass its value like any option.",
+      "verify": "run a fixture component/payload that uses `DatasetDiscoveryConfiguration` and check that the Runtime host does: pass its value like any option."
+    },
+    {
+      "id": "CFG-012",
+      "name": "@DynamicDependenciesConfiguration",
+      "category": "CFG",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MAY call the dynamic dependencies action with this configuration to resolve extra jars before running.",
+      "verify": "run a fixture component/payload that uses `@DynamicDependenciesConfiguration` and check that the Designer host does: call the dynamic dependencies action with this configuration to resolve extra jars before running."
+    },
+    {
+      "id": "CFG-012",
+      "name": "@DynamicDependenciesConfiguration",
+      "category": "CFG",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "SHOULD resolve the returned GAVs into the component classloader (details: SVC/LCM catalogs).",
+      "verify": "run a fixture component/payload that uses `@DynamicDependenciesConfiguration` and check that the Runtime host does: resolve the returned GAVs into the component classloader (details: SVC/LCM catalogs)."
+    },
+    {
+      "id": "CFG-013",
+      "name": "@ConnectorRef and ConnectorReference",
+      "category": "CFG",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST otherwise render normal strings. MAY offer a connector picker filling the fields.",
+      "verify": "run a fixture component/payload that uses `@ConnectorRef and ConnectorReference` and check that the Designer host does: otherwise render normal strings."
+    },
+    {
+      "id": "CFG-013",
+      "name": "@ConnectorRef and ConnectorReference",
+      "category": "CFG",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "none beyond normal option injection.",
+      "verify": "run a fixture component/payload that uses `@ConnectorRef and ConnectorReference` and check that the Runtime host does: none beyond normal option injection."
+    },
+    {
+      "id": "CFG-014",
+      "name": "Property definition and metadata model (SimplePropertyDefinition)",
+      "category": "CFG",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST build forms and default values from these records. MUST NOT expect `validation::*` keys in `metadata` (they are in `validation`). note the generated documentation pages (`generated_constraints.adoc`) still show `validation::*` web keys (documented as a discrepancy).",
+      "verify": "Parse a `ComponentDetail` fixture: defaults from `defaultValue` pre-fill the form, constraints come from `validation` (not `metadata`), missing optional fields do not fail."
+    },
+    {
+      "id": "CFG-014",
+      "name": "Property definition and metadata model (SimplePropertyDefinition)",
+      "category": "CFG",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "none (runtime uses in-JVM `ParameterMeta`).",
+      "verify": "run a fixture component/payload that uses `Property definition and metadata model (SimplePropertyDefinition)` and check that the Runtime host does: none (runtime uses in-JVM `ParameterMeta`)."
+    },
+    {
+      "id": "CFG-015",
+      "name": "ParameterExtensionEnricher SPI",
+      "category": "CFG",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST keep `ServiceLoader` discovery of built-in enrichers when embedding `component-runtime-manager`. MAY register custom enrichers (recommended: one key prefix per extension).",
+      "verify": "run a fixture component/payload that uses `ParameterExtensionEnricher SPI` and check that the Runtime host does: keep `ServiceLoader` discovery of built-in enrichers when embedding `component-runtime-manager`."
+    },
+    {
+      "id": "CFG-016",
+      "name": "Built-in technical options ($maxBatchSize, $maxRecords, $maxDurationMs, $lang)",
+      "category": "CFG",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST render them like normal options (they appear in `properties`) and MUST send them back in the flat configuration. MUST NOT treat the `$` prefix as an error.",
+      "verify": "run a fixture component/payload that uses `Built-in technical options ($maxBatchSize, $maxRecords, $maxDurationMs, $lang)` and check that the Designer host does: render them like normal options (they appear in `properties`) and send them back in the flat configuration."
+    },
+    {
+      "id": "CFG-016",
+      "name": "Built-in technical options ($maxBatchSize, $maxRecords, $maxDurationMs, $lang)",
+      "category": "CFG",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST honor `$maxBatchSize` for group sizing, `$maxRecords`/`$maxDurationMs` for stopping infinite sources (Beam reference: `BaseProcessorFn`, `TalendIO`).",
+      "verify": "run a fixture component/payload that uses `Built-in technical options ($maxBatchSize, $maxRecords, $maxDurationMs, $lang)` and check that the Runtime host does: honor `$maxBatchSize` for group sizing, `$maxRecords`/`$maxDurationMs` for stopping infinite sources (Beam reference: `BaseProcessorFn`, `TalendIO`)."
+    },
+    {
+      "id": "CFG-017",
+      "name": "Configuration type tree (ConfigTypeNode)",
+      "category": "CFG",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST browse the tree to offer reusable datastores/datasets, MUST resolve `parentId`/`edges`. MUST store the node `version` with saved instances and migrate on version change.",
+      "verify": "run a fixture component/payload that uses `Configuration type tree (ConfigTypeNode)` and check that the Designer host does: browse the tree to offer reusable datastores/datasets, resolve `parentId`/`edges`."
+    },
+    {
+      "id": "CFG-018",
+      "name": "ConfigurationMapper (object to flat map)",
+      "category": "CFG",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "none (browser hosts implement the same rules by hand).",
+      "verify": "run a fixture component/payload that uses `ConfigurationMapper (object to flat map)` and check that the Designer host does: none (browser hosts implement the same rules by hand)."
+    },
+    {
+      "id": "CFG-018",
+      "name": "ConfigurationMapper (object to flat map)",
+      "category": "CFG",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MAY use it to build configuration maps from typed objects (tests, adapters).",
+      "verify": "run a fixture component/payload that uses `ConfigurationMapper (object to flat map)` and check that the Runtime host does: use it to build configuration maps from typed objects (tests, adapters)."
+    },
+    {
+      "id": "CFG-019",
+      "name": "Datastore/dataset design rules (build-time)",
+      "category": "CFG",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MAY rely on these invariants (an input always has a dataset which contains a datastore).",
+      "verify": "run a fixture component/payload that uses `Datastore/dataset design rules (build-time)` and check that the Designer host does: rely on these invariants (an input always has a dataset which contains a datastore)."
+    },
+    {
+      "id": "UI-001",
+      "name": "@Ui (meta-annotation)",
+      "category": "UI",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST read UI hints only from `metadata` keys starting with `ui::` and MUST ignore unknown ones.",
+      "verify": "run a fixture component/payload that uses `@Ui (meta-annotation)` and check that the Designer host does: read UI hints only from `metadata` keys starting with `ui::` and ignore unknown ones."
+    },
+    {
+      "id": "UI-002",
+      "name": "@GridLayout",
+      "category": "UI",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST render one row per `|` segment and one column per `,` item. MUST render tabs as above. SHOULD show an option that is missing from every layout nowhere (validator logs an error for such options).",
+      "verify": "run a fixture component/payload that uses `@GridLayout` and check that the Designer host does: render one row per `|` segment and one column per `,` item."
+    },
+    {
+      "id": "UI-003",
+      "name": "@GridLayouts",
+      "category": "UI",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "same as `UI-002`.",
+      "verify": "run a fixture component/payload that uses `@GridLayouts` and check that the Designer host does: same as `UI-002`."
+    },
+    {
+      "id": "UI-004",
+      "name": "@AutoLayout",
+      "category": "UI",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MAY choose its own layout. SHOULD keep declaration order (inferred).",
+      "verify": "run a fixture component/payload that uses `@AutoLayout` and check that the Designer host does: choose its own layout."
+    },
+    {
+      "id": "UI-005",
+      "name": "@HorizontalLayout",
+      "category": "UI",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MAY lay children out in one row.",
+      "verify": "run a fixture component/payload that uses `@HorizontalLayout` and check that the Designer host does: lay children out in one row."
+    },
+    {
+      "id": "UI-006",
+      "name": "@VerticalLayout",
+      "category": "UI",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "SHOULD stack children vertically (default).",
+      "verify": "run a fixture component/payload that uses `@VerticalLayout` and check that the Designer host does: stack children vertically (default)."
+    },
+    {
+      "id": "UI-007",
+      "name": "@TextArea",
+      "category": "UI",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST render a multiline input for `ui::textarea=true`.",
+      "verify": "run a fixture component/payload that uses `@TextArea` and check that the Designer host does: render a multiline input for `ui::textarea=true`."
+    },
+    {
+      "id": "UI-008",
+      "name": "@Code",
+      "category": "UI",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "SHOULD render a code editor with the given language. MAY fall back to a text area.",
+      "verify": "run a fixture component/payload that uses `@Code` and check that the Designer host does: render a code editor with the given language."
+    },
+    {
+      "id": "UI-009",
+      "name": "@Credential",
+      "category": "UI",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST mask the value (password input) and MUST NOT log or display it in clear. SHOULD store it encrypted when the host has a secret store.",
+      "verify": "run a fixture component/payload that uses `@Credential` and check that the Designer host does: mask the value (password input) and must not log or display it in clear."
+    },
+    {
+      "id": "UI-009",
+      "name": "@Credential",
+      "category": "UI",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "SHOULD keep the value out of logs.",
+      "verify": "run a fixture component/payload that uses `@Credential` and check that the Runtime host does: keep the value out of logs."
+    },
+    {
+      "id": "UI-010",
+      "name": "@DateTime",
+      "category": "UI",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST render a picker and MUST serialize to the string form the runtime converter accepts (ISO-like, per Java type. inferred). SHOULD honor the three options.",
+      "verify": "run a fixture component/payload that uses `@DateTime` and check that the Designer host does: render a picker and serialize to the string form the runtime converter accepts (ISO-like, per Java type."
+    },
+    {
+      "id": "UI-010",
+      "name": "@DateTime",
+      "category": "UI",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST parse the string with the xbean converters of the component manager.",
+      "verify": "run a fixture component/payload that uses `@DateTime` and check that the Runtime host does: parse the string with the xbean converters of the component manager."
+    },
+    {
+      "id": "UI-011",
+      "name": "@ModuleList",
+      "category": "UI",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "others MUST render a plain text field. Studio-like hosts MAY render a module chooser.",
+      "verify": "run a fixture component/payload that uses `@ModuleList` and check that the Designer host does: others render a plain text field."
+    },
+    {
+      "id": "UI-012",
+      "name": "@Path",
+      "category": "UI",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "others MUST render a text field. Studio-like hosts MAY render a file/directory chooser.",
+      "verify": "run a fixture component/payload that uses `@Path` and check that the Designer host does: others render a text field."
+    },
+    {
+      "id": "UI-013",
+      "name": "@Structure",
+      "category": "UI",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST offer schema discovery (button) for `OUT` structures and MUST write the returned schema entries into the option (inferred from `options.path`/`type`). SHOULD keep IN structures editable.",
+      "verify": "run a fixture component/payload that uses `@Structure` and check that the Designer host does: offer schema discovery (button) for `OUT` structures and write the returned schema entries into the option (inferred from `options.path`/`type`)."
+    },
+    {
+      "id": "UI-014",
+      "name": "@BasedOnSchema",
+      "category": "UI",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "Studio-like hosts MAY auto-fill the column from the schema.",
+      "verify": "run a fixture component/payload that uses `@BasedOnSchema` and check that the Designer host does: Studio-like hosts auto-fill the column from the schema."
+    },
+    {
+      "id": "UI-015",
+      "name": "@ReadOnly",
+      "category": "UI",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST NOT let the user edit the value. MUST keep sending the value.",
+      "verify": "run a fixture component/payload that uses `@ReadOnly` and check that the Designer host does: never let the user edit the value."
+    },
+    {
+      "id": "UI-016",
+      "name": "@ActiveIf",
+      "category": "UI",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST hide inactive options, re-evaluate on every change of the target, and SHOULD exclude inactive options from validation. MUST keep hidden values consistent (do not fail on them).",
+      "verify": "run a fixture component/payload that uses `@ActiveIf` and check that the Designer host does: hide inactive options, re-evaluate on every change of the target, and exclude inactive options from validation."
+    },
+    {
+      "id": "UI-016",
+      "name": "@ActiveIf",
+      "category": "UI",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST skip constraint validation of inactive options (the framework does via `VisibilityService`. hosts validating themselves MUST replicate this).",
+      "verify": "run a fixture component/payload that uses `@ActiveIf` and check that the Runtime host does: skip constraint validation of inactive options (the framework does via `VisibilityService`."
+    },
+    {
+      "id": "UI-017",
+      "name": "@ActiveIfs",
+      "category": "UI",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST combine the conditions with the operator.",
+      "verify": "run a fixture component/payload that uses `@ActiveIfs` and check that the Designer host does: combine the conditions with the operator."
+    },
+    {
+      "id": "UI-017",
+      "name": "@ActiveIfs",
+      "category": "UI",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "same as `UI-016`.",
+      "verify": "run a fixture component/payload that uses `@ActiveIfs` and check that the Runtime host does: same as `UI-016`."
+    },
+    {
+      "id": "UI-018",
+      "name": "@Condition (meta-annotation)",
+      "category": "UI",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST support at least the types `if` and `ifs`.",
+      "verify": "run a fixture component/payload that uses `@Condition (meta-annotation)` and check that the Designer host does: support at least the types `if` and `ifs`."
+    },
+    {
+      "id": "UI-019",
+      "name": "UIScope",
+      "category": "UI",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST declare its scope (Studio-like hosts: `studio*`, web hosts: `cloud`) and show/hide options accordingly. unknown scopes SHOULD be treated as not matching.",
+      "verify": "run a fixture component/payload that uses `UIScope` and check that the Designer host does: declare its scope (Studio-like hosts: `studio*`, web hosts: `cloud`) and show/hide options accordingly."
+    },
+    {
+      "id": "UI-020",
+      "name": "Type-driven default widgets",
+      "category": "UI",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST offer at least a text control per type and MUST honor `enumValues` restriction. SHOULD implement the priority order above.",
+      "verify": "run a fixture component/payload that uses `Type-driven default widgets` and check that the Designer host does: offer at least a text control per type and honor `enumValues` restriction."
+    },
+    {
+      "id": "UI-021",
+      "name": "UiSchema and JSON Schema generation contract",
+      "category": "UI",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MAY reuse `component-form` (Java) or MUST reimplement the same mapping. a custom renderer MUST honor `condition`, `triggers`, `titleMap`, `restricted`, `readOnly`, `required` semantics.",
+      "verify": "run a fixture component/payload that uses `UiSchema and JSON Schema generation contract` and check that the Designer host does: reuse `component-form` (Java) or reimplement the same mapping."
+    },
+    {
+      "id": "UI-022",
+      "name": "Layout tab name translation",
+      "category": "UI",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "SHOULD NOT hard-code `Main`/`Advanced` when the server may translate tab names. the Studio does not support this option.",
+      "verify": "run a fixture component/payload that uses `Layout tab name translation` and check that the Designer host does: never hard-code `Main`/`Advanced` when the server may translate tab names."
+    },
+    {
+      "id": "VAL-001",
+      "name": "@Required",
+      "category": "VAL",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST refuse to save/run a configuration where an active (`UI-016`) required option is empty/null. MUST mark the field visually as required (`UiSchema.required`, JSON schema `required` array of the parent).",
+      "verify": "Leave an active `@Required` field empty: the field is flagged as required and saving/running is refused; the same field hidden by an `@ActiveIf` is not enforced."
+    },
+    {
+      "id": "VAL-001",
+      "name": "@Required",
+      "category": "VAL",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST reject a null value for an active required option (the component manager does, see `VAL-012`).",
+      "verify": "Run a component with a null value for an active required option: start fails with a configuration validation error."
+    },
+    {
+      "id": "VAL-002",
+      "name": "@Min",
+      "category": "VAL",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST enforce `min` on numbers, `minItems` on lists and `minLength` on strings.",
+      "verify": "run a fixture component/payload that uses `@Min` and check that the Designer host does: enforce `min` on numbers, `minItems` on lists and `minLength` on strings."
+    },
+    {
+      "id": "VAL-002",
+      "name": "@Min",
+      "category": "VAL",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST reject values below the bound (component manager does).",
+      "verify": "run a fixture component/payload that uses `@Min` and check that the Runtime host does: reject values below the bound (component manager does)."
+    },
+    {
+      "id": "VAL-003",
+      "name": "@Max",
+      "category": "VAL",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST enforce `max`, `maxItems`, `maxLength`.",
+      "verify": "run a fixture component/payload that uses `@Max` and check that the Designer host does: enforce `max`, `maxItems`, `maxLength`."
+    },
+    {
+      "id": "VAL-003",
+      "name": "@Max",
+      "category": "VAL",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST reject values above the bound.",
+      "verify": "run a fixture component/payload that uses `@Max` and check that the Runtime host does: reject values above the bound."
+    },
+    {
+      "id": "VAL-004",
+      "name": "@Pattern",
+      "category": "VAL",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST validate with a JavaScript regex engine (JSON schema `pattern`).",
+      "verify": "run a fixture component/payload that uses `@Pattern` and check that the Designer host does: validate with a JavaScript regex engine (JSON schema `pattern`)."
+    },
+    {
+      "id": "VAL-004",
+      "name": "@Pattern",
+      "category": "VAL",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST reject non-matching strings (component manager does).",
+      "verify": "run a fixture component/payload that uses `@Pattern` and check that the Runtime host does: reject non-matching strings (component manager does)."
+    },
+    {
+      "id": "VAL-005",
+      "name": "@Uniques",
+      "category": "VAL",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST prevent duplicate entries (JSON schema `uniqueItems`).",
+      "verify": "run a fixture component/payload that uses `@Uniques` and check that the Designer host does: prevent duplicate entries (JSON schema `uniqueItems`)."
+    },
+    {
+      "id": "VAL-005",
+      "name": "@Uniques",
+      "category": "VAL",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST reject duplicates (component manager compares JSON values).",
+      "verify": "run a fixture component/payload that uses `@Uniques` and check that the Runtime host does: reject duplicates (component manager compares JSON values)."
+    },
+    {
+      "id": "VAL-006",
+      "name": "@Validation and @Validations (meta-annotations)",
+      "category": "VAL",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "none (only the resulting names matter. unknown `validation` fields SHOULD be ignored).",
+      "verify": "run a fixture component/payload that uses `@Validation and @Validations (meta-annotations)` and check that the Designer host does: none (only the resulting names matter."
+    },
+    {
+      "id": "VAL-007",
+      "name": "PropertyValidation payload and JSON-schema mapping",
+      "category": "VAL",
+      "level": 0,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST read constraints from `validation` (not from `metadata`). MUST treat absent fields as unconstrained.",
+      "verify": "Feed a property with `validation.min/max/pattern/...`: the form enforces exactly those constraints; a property with an empty `validation` object is unconstrained."
+    },
+    {
+      "id": "VAL-008",
+      "name": "Implicit constraints from Java types",
+      "category": "VAL",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST enforce them like explicit constraints (they arrive in `validation`).",
+      "verify": "run a fixture component/payload that uses `Implicit constraints from Java types` and check that the Designer host does: enforce them like explicit constraints (they arrive in `validation`)."
+    },
+    {
+      "id": "VAL-008",
+      "name": "Implicit constraints from Java types",
+      "category": "VAL",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "none beyond `VAL-012`.",
+      "verify": "run a fixture component/payload that uses `Implicit constraints from Java types` and check that the Runtime host does: none beyond `VAL-012`."
+    },
+    {
+      "id": "VAL-009",
+      "name": "Enum value restriction",
+      "category": "VAL",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST restrict the input to `enumValues` (restricted list) and MUST store the constant name, not the label.",
+      "verify": "Render an ENUM property: only `enumValues` are selectable and the saved value is the constant name, not its label."
+    },
+    {
+      "id": "VAL-009",
+      "name": "Enum value restriction",
+      "category": "VAL",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST reject unknown constants (conversion fails: `Enum.valueOf`).",
+      "verify": "Pass an unknown constant name for an enum option: instantiation fails with a validation error."
+    },
+    {
+      "id": "VAL-010",
+      "name": "@AsyncValidation",
+      "category": "VAL",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST NOT block editing while it runs (inferred). SHOULD call the action when the validable field changes/loses focus and display `comment` on failure (`status = KO`).",
+      "verify": "run a fixture component/payload that uses `@AsyncValidation` and check that the Designer host does: never block editing while it runs (inferred)."
+    },
+    {
+      "id": "VAL-010",
+      "name": "@AsyncValidation",
+      "category": "VAL",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "none (design-time only).",
+      "verify": "run a fixture component/payload that uses `@AsyncValidation` and check that the Runtime host does: none (design-time only)."
+    },
+    {
+      "id": "VAL-011",
+      "name": "ValidationResult",
+      "category": "VAL",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST treat `KO` as a validation error on the field and show `comment`.",
+      "verify": "run a fixture component/payload that uses `ValidationResult` and check that the Designer host does: treat `KO` as a validation error on the field and show `comment`."
+    },
+    {
+      "id": "VAL-012",
+      "name": "Runtime configuration validation",
+      "category": "VAL",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST validate inputs at design time (see 05-configuration-and-ui.md) so this failure does not reach run time. SHOULD pre-validate so users see errors before execution.",
+      "verify": "Enter an invalid value (e.g. below `@Min`): the error is displayed at design time before any run is possible."
+    },
+    {
+      "id": "VAL-012",
+      "name": "Runtime configuration validation",
+      "category": "VAL",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST surface the validation error to the operator (job fails at start). MUST report the message to the user as a configuration (USER) error. MAY set the skip property only to bypass legacy configurations.",
+      "verify": "Start a job with an invalid configuration: it fails at start with a USER-origin configuration error message shown to the operator."
+    },
+    {
+      "id": "VAL-013",
+      "name": "Build-time model validators",
+      "category": "VAL",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "none.",
+      "verify": "run a fixture component/payload that uses `Build-time model validators` and check that the Designer host does: none."
+    },
+    {
+      "id": "ACT-001",
+      "name": "@Action (type user)",
+      "category": "ACT",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST ignore unknown ones. MAY expose custom actions via `GET /action/index?type=user`.",
+      "verify": "run a fixture component/payload that uses `@Action (type user)` and check that the Designer host does: ignore unknown ones."
+    },
+    {
+      "id": "ACT-002",
+      "name": "@ActionType (meta-annotation)",
+      "category": "ACT",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST dispatch response handling on the `type` id (`SRV-013` result table).",
+      "verify": "run a fixture component/payload that uses `@ActionType (meta-annotation)` and check that the Designer host does: dispatch response handling on the `type` id (`SRV-013` result table)."
+    },
+    {
+      "id": "ACT-002",
+      "name": "@ActionType (meta-annotation)",
+      "category": "ACT",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "an embedded server exposing them MUST run them inside the plugin classloader with services injected. MAY ignore actions (they are design-time).",
+      "verify": "run a fixture component/payload that uses `@ActionType (meta-annotation)` and check that the Runtime host does: an embedded server exposing them run them inside the plugin classloader with services injected."
+    },
+    {
+      "id": "ACT-003",
+      "name": "@HealthCheck and HealthCheckStatus",
+      "category": "ACT",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST offer a test-connection button on datastores having `action::healthcheck` and MUST display `comment` on `KO`. MUST send the datastore values as flat keys (parameter name from the action's first property, typically `datastore`).",
+      "verify": "run a fixture component/payload that uses `@HealthCheck and HealthCheckStatus` and check that the Designer host does: offer a test-connection button on datastores having `action::healthcheck` and display `comment` on `KO`."
+    },
+    {
+      "id": "ACT-004",
+      "name": "@Suggestions and SuggestionValues",
+      "category": "ACT",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST call the action when the field is focused/changed (`ACT-024`), display `label` (or `label (id)` when `labelDisplayMode=LABEL_ID`), store `id`. MUST honor `cacheable`. MUST allow free text (suggestions are not restrictive).",
+      "verify": "run a fixture component/payload that uses `@Suggestions and SuggestionValues` and check that the Designer host does: call the action when the field is focused/changed (`ACT-024`), display `label` (or `label (id)` when `labelDisplayMode=LABEL_ID`), store `id`."
+    },
+    {
+      "id": "ACT-005",
+      "name": "@DynamicValues and Values",
+      "category": "ACT",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST call it once when building the form (no parameters), render a restricted list (`titleMap` from `label`, value `id`). on failure MUST fall back to an empty list (the reference implementation logs and continues). SHOULD cache the result per form session.",
+      "verify": "run a fixture component/payload that uses `@DynamicValues and Values` and check that the Designer host does: call it once when building the form (no parameters), render a restricted list (`titleMap` from `label`, value `id`)."
+    },
+    {
+      "id": "ACT-006",
+      "name": "@Update",
+      "category": "ACT",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST render a button (title = action display name or `<name> (update)`), call the action with the parameters of `@Updatable.parameters`, and replace the value at the trigger `options.path` with the JSON response (merge semantics unspecified. the reference `component-form` sets `options=[{path,type}]`).",
+      "verify": "run a fixture component/payload that uses `@Update` and check that the Designer host does: render a button (title = action display name or `<name> (update)`), call the action with the parameters of `@Updatable.parameters`, and replace the value at the trigger `options.path` with the JSON ...."
+    },
+    {
+      "id": "ACT-007",
+      "name": "@DiscoverSchema",
+      "category": "ACT",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST call the action with the dataset configuration and convert the returned record `Schema` JSON (`entries[]{name,rawName,type,nullable,comment,metadata,errorCapable,valid,props,elementSchema}`, `metadata[]`, `props`, `type`) into the host schema. field semantics in 04.",
+      "verify": "run a fixture component/payload that uses `@DiscoverSchema` and check that the Designer host does: call the action with the dataset configuration and convert the returned record `Schema` JSON (`entries[]{name,rawName,type,nullable,comment,metadata,errorCapable,valid,props,elementSchema}`, ...."
+    },
+    {
+      "id": "ACT-007",
+      "name": "@DiscoverSchema",
+      "category": "ACT",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST NOT require it for execution. MAY call it to obtain design-time schemas.",
+      "verify": "run a fixture component/payload that uses `@DiscoverSchema` and check that the Runtime host does: never require it for execution."
+    },
+    {
+      "id": "ACT-008",
+      "name": "@DiscoverSchemaExtended",
+      "category": "ACT",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST pass the incoming schema JSON serialized as a string. MUST pass the incoming schema and branch when the method declares them. MAY call it to propagate schemas between components (schema propagation, see 07). SHOULD call it to propagate schemas through processors.",
+      "verify": "run a fixture component/payload that uses `@DiscoverSchemaExtended` and check that the Designer host does: pass the incoming schema JSON serialized as a string."
+    },
+    {
+      "id": "ACT-009",
+      "name": "@DiscoverDataset and DiscoverDatasetResult",
+      "category": "ACT",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST parse the `DiscoverDatasetResult` shape when the action is used. MAY offer a \"browse datasets\" step after a datastore is defined and create a dataset per selection (use `metadata` to prefill).",
+      "verify": "run a fixture component/payload that uses `@DiscoverDataset and DiscoverDatasetResult` and check that the Designer host does: parse the `DiscoverDatasetResult` shape when the action is used."
+    },
+    {
+      "id": "ACT-010",
+      "name": "@DynamicDependencies",
+      "category": "ACT",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MAY call it and request the listed artifacts from the dependency endpoints before running. SHOULD call it when the option using it changes, and make the returned GAVs available to the runtime (download via `/component/dependencies`, SRV-006).",
+      "verify": "run a fixture component/payload that uses `@DynamicDependencies` and check that the Designer host does: call it and request the listed artifacts from the dependency endpoints before running."
+    },
+    {
+      "id": "ACT-010",
+      "name": "@DynamicDependencies",
+      "category": "ACT",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "SHOULD resolve the returned GAVs into the component classloader (via `Resolver`, SVC catalog). Resolution may use `Resolver` (SVC-013) or `TALEND-INF/dynamic-dependencies.properties` (unverified) before instantiating the component.",
+      "verify": "run a fixture component/payload that uses `@DynamicDependencies` and check that the Runtime host does: resolve the returned GAVs into the component classloader (via `Resolver`, SVC catalog)."
+    },
+    {
+      "id": "ACT-011",
+      "name": "@CreateConnection",
+      "category": "ACT",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "Studio-like hosts SHOULD call it once and hand the connection to components using `@Connection`. other hosts MAY ignore.",
+      "verify": "run a fixture component/payload that uses `@CreateConnection` and check that the Designer host does: Studio-like hosts call it once and hand the connection to components using `@Connection`."
+    },
+    {
+      "id": "ACT-011",
+      "name": "@CreateConnection",
+      "category": "ACT",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "Studio-like runtimes MUST inject the created object into `@Connection` fields (`ACT-012`).",
+      "verify": "run a fixture component/payload that uses `@CreateConnection` and check that the Runtime host does: Studio-like runtimes inject the created object into `@Connection` fields (`ACT-012`)."
+    },
+    {
+      "id": "ACT-012",
+      "name": "@CloseConnection, CloseConnectionObject, @Connection",
+      "category": "ACT",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "Studio-like hosts MUST call the close object at end of job. other hosts MAY ignore.",
+      "verify": "run a fixture component/payload that uses `@CloseConnection, CloseConnectionObject, @Connection` and check that the Designer host does: Studio-like hosts call the close object at end of job."
+    },
+    {
+      "id": "ACT-012",
+      "name": "@CloseConnection, CloseConnectionObject, @Connection",
+      "category": "ACT",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "Studio-like runtimes MUST inject `@Connection` fields and close via the returned object.",
+      "verify": "run a fixture component/payload that uses `@CloseConnection, CloseConnectionObject, @Connection` and check that the Runtime host does: Studio-like runtimes inject `@Connection` fields and close via the returned object."
+    },
+    {
+      "id": "ACT-013",
+      "name": "@DatabaseSchemaMapping",
+      "category": "ACT",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "Studio-like hosts MAY call it to map DB column types. others ignore.",
+      "verify": "run a fixture component/payload that uses `@DatabaseSchemaMapping` and check that the Designer host does: Studio-like hosts call it to map DB column types."
+    },
+    {
+      "id": "ACT-014",
+      "name": "@AvailableOutputFlows",
+      "category": "ACT",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST otherwise use static `outputFlows` from `ComponentDetail`. MAY re-query available outputs when the configuration changes and rebuild the output ports.",
+      "verify": "run a fixture component/payload that uses `@AvailableOutputFlows` and check that the Designer host does: otherwise use static `outputFlows` from `ComponentDetail`."
+    },
+    {
+      "id": "ACT-014",
+      "name": "@AvailableOutputFlows",
+      "category": "ACT",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST accept any flow name the action returned as a valid output (branching rules in RUN catalog).",
+      "verify": "run a fixture component/payload that uses `@AvailableOutputFlows` and check that the Runtime host does: accept any flow name the action returned as a valid output (branching rules in RUN catalog)."
+    },
+    {
+      "id": "ACT-015",
+      "name": "@ActionRef (meta-annotation)",
+      "category": "ACT",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "none (consumes the metadata).",
+      "verify": "run a fixture component/payload that uses `@ActionRef (meta-annotation)` and check that the Designer host does: none (consumes the metadata)."
+    },
+    {
+      "id": "ACT-016",
+      "name": "@Suggestable",
+      "category": "ACT",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST implement `ACT-004` and honor `labelDisplayMode` (unknown values fall back to `LABEL`).",
+      "verify": "run a fixture component/payload that uses `@Suggestable` and check that the Designer host does: implement `ACT-004` and honor `labelDisplayMode` (unknown values fall back to `LABEL`)."
+    },
+    {
+      "id": "ACT-017",
+      "name": "@Proposable",
+      "category": "ACT",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST implement `ACT-005`.",
+      "verify": "run a fixture component/payload that uses `@Proposable` and check that the Designer host does: implement `ACT-005`."
+    },
+    {
+      "id": "ACT-018",
+      "name": "@Updatable",
+      "category": "ACT",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST implement `ACT-006` and the button placement/visibility rules above.",
+      "verify": "run a fixture component/payload that uses `@Updatable` and check that the Designer host does: implement `ACT-006` and the button placement/visibility rules above."
+    },
+    {
+      "id": "ACT-019",
+      "name": "@Validable",
+      "category": "ACT",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST implement `VAL-010`. trigger event when `onEvent` is absent is the renderer's choice (typically value change/blur, unverified).",
+      "verify": "run a fixture component/payload that uses `@Validable` and check that the Designer host does: implement `VAL-010`."
+    },
+    {
+      "id": "ACT-020",
+      "name": "@Checkable",
+      "category": "ACT",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST add the connection test button only when `action::healthcheck` is present.",
+      "verify": "run a fixture component/payload that uses `@Checkable` and check that the Designer host does: add the connection test button only when `action::healthcheck` is present."
+    },
+    {
+      "id": "ACT-021",
+      "name": "@BuiltInSuggestable",
+      "category": "ACT",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST NOT call the server for it (`remote=false`). MUST degrade to a plain text field when unsupported. MAY implement `INCOMING_SCHEMA_ENTRY_NAMES` (suggest incoming column names) locally. Components SHOULD NOT depend on it.",
+      "verify": "run a fixture component/payload that uses `@BuiltInSuggestable` and check that the Designer host does: never call the server for it (`remote=false`)."
+    },
+    {
+      "id": "ACT-024",
+      "name": "Trigger model (UiSchema.Trigger) and wiring semantics",
+      "category": "ACT",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST build request bodies from `parameters` (`body[key] = value(path)`). MUST fire `focus` triggers on field focus and `change` triggers on value change. MUST treat `remote=false` as client-only.",
+      "verify": "run a fixture component/payload that uses `Trigger model (UiSchema.Trigger) and wiring semantics` and check that the Designer host does: build request bodies from `parameters` (`body[key] = value(path)`)."
+    },
+    {
+      "id": "ACT-025",
+      "name": "Action parameter reference syntax",
+      "category": "ACT",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST implement this resolution identically (Studio counterpart `SettingsCreator.computeTargetPath`).",
+      "verify": "run a fixture component/payload that uses `Action parameter reference syntax` and check that the Designer host does: implement this resolution identically (Studio counterpart `SettingsCreator.computeTargetPath`)."
+    },
+    {
+      "id": "ACT-026",
+      "name": "Action metadata keys on options",
+      "category": "ACT",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST derive triggers from these keys plus `ActionReference` (`ACT-024`).",
+      "verify": "run a fixture component/payload that uses `Action metadata keys on options` and check that the Designer host does: derive triggers from these keys plus `ActionReference` (`ACT-024`)."
+    },
+    {
+      "id": "DAT-001",
+      "name": "Record",
+      "category": "DAT",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST NOT implement or instantiate. only handle schemas (DAT-004) exchanged as JSON.",
+      "verify": "Receive a schema JSON from a discovery action: the host reads it without instantiating any `Record`."
+    },
+    {
+      "id": "DAT-001",
+      "name": "Record",
+      "category": "DAT",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST create records via RecordBuilderFactory (DAT-016) and pass them unchanged between components.",
+      "verify": "Run an input feeding a processor: the processor receives the same `Record` instance content unchanged; records are created through `RecordBuilderFactory` only."
+    },
+    {
+      "id": "DAT-002",
+      "name": "Record.Builder",
+      "category": "DAT",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST call `build()` once per record. SHOULD provide a schema for predictable output. name collisions are auto-renamed (DAT-013).",
+      "verify": "Build a record with the builder and call `build()` once: a second `build()` is never issued by the host; two entries whose names collide are auto-renamed rather than lost."
+    },
+    {
+      "id": "DAT-003",
+      "name": "Record value access and coercion",
+      "category": "DAT",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST use typed accessors matching `Entry.getType()`. SHOULD use `getOptionalXxx` for nullable entries.",
+      "verify": "Read a record holding an INT, a nullable STRING and a DATETIME: typed accessors matching `Entry.getType()` return correct values; the nullable entry is read with `getOptional*` without NPE."
+    },
+    {
+      "id": "DAT-004",
+      "name": "Schema",
+      "category": "DAT",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST be able to read the Schema JSON returned by schema-discovery actions and MAY store it as design-time schema of a connection.",
+      "verify": "Display a discovered schema JSON: all entries are listed with name, type, nullable."
+    },
+    {
+      "id": "DAT-004",
+      "name": "Schema",
+      "category": "DAT",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST treat schemas as immutable value objects. MUST create them via RecordBuilderFactory (DAT-016).",
+      "verify": "Create a schema through `RecordBuilderFactory`, use it for two records: it is immutable and shared without copy."
+    },
+    {
+      "id": "DAT-005",
+      "name": "Schema.Type",
+      "category": "DAT",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST map each constant to a UI/column type and to the host's internal type system.",
+      "verify": "Map each of the 11 `Schema.Type` constants to a host column type: no constant is left unmapped."
+    },
+    {
+      "id": "DAT-005",
+      "name": "Schema.Type",
+      "category": "DAT",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST support all 11 constants in the host record model (or convert losslessly, see DAT-031 for Avro).",
+      "verify": "Round-trip one value of each of the 11 `Schema.Type` constants through the host record model: value equal after conversion."
+    },
+    {
+      "id": "DAT-006",
+      "name": "Schema.Entry",
+      "category": "DAT",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST display name, type, nullable and comment. SHOULD show rawName as label when present.",
+      "verify": "Show a schema with a `rawName` differing from `name`: name, type, nullable and comment are displayed, rawName is used as label."
+    },
+    {
+      "id": "DAT-006",
+      "name": "Schema.Entry",
+      "category": "DAT",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST keep name/rawName pairs intact across components.",
+      "verify": "Pass a record through two components: `name`/`rawName` pairs of entries are unchanged."
+    },
+    {
+      "id": "DAT-007",
+      "name": "Schema.Entry.Builder",
+      "category": "DAT",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "SHOULD set `nullable` explicitly (builder default is false).",
+      "verify": "Build an entry without calling `nullable(...)` and one with `nullable(true)`: the first is not nullable, the second accepts null."
+    },
+    {
+      "id": "DAT-008",
+      "name": "Schema.Builder",
+      "category": "DAT",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST build RECORD schemas through the factory (DAT-016) so the host-selected implementation (memory or Avro, DAT-034) is used.",
+      "verify": "Build a RECORD schema through the factory: the produced schema class is the implementation selected by the host (memory or Avro)."
+    },
+    {
+      "id": "DAT-009",
+      "name": "Schema.EntriesOrder",
+      "category": "DAT",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "SHOULD display columns using the order given by `getEntriesOrdered()` / prop `talend.fields.order`.",
+      "verify": "run a fixture component/payload that uses `Schema.EntriesOrder` and check that the Designer host does: display columns using the order given by `getEntriesOrdered()` / prop `talend.fields.order`."
+    },
+    {
+      "id": "DAT-009",
+      "name": "Schema.EntriesOrder",
+      "category": "DAT",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "SHOULD preserve the order property when copying/transforming schemas.",
+      "verify": "run a fixture component/payload that uses `Schema.EntriesOrder` and check that the Runtime host does: preserve the order property when copying/transforming schemas."
+    },
+    {
+      "id": "DAT-010",
+      "name": "OrderedMap",
+      "category": "DAT",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MAY reuse when implementing a custom Record/Schema. otherwise none.",
+      "verify": "run a fixture component/payload that uses `OrderedMap` and check that the Runtime host does: reuse when implementing a custom Record/Schema."
+    },
+    {
+      "id": "DAT-011",
+      "name": "SchemaProperty",
+      "category": "DAT",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "SHOULD honor `field.key`, `field.size`, `field.scale`, `field.pattern`, `field.origin.type` when showing or mapping schemas.",
+      "verify": "run a fixture component/payload that uses `SchemaProperty` and check that the Designer host does: honor `field.key`, `field.size`, `field.scale`, `field.pattern`, `field.origin.type` when showing or mapping schemas."
+    },
+    {
+      "id": "DAT-011",
+      "name": "SchemaProperty",
+      "category": "DAT",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST preserve props when copying entries. SHOULD NOT invent semantics for unknown keys.",
+      "verify": "run a fixture component/payload that uses `SchemaProperty` and check that the Runtime host does: preserve props when copying entries."
+    },
+    {
+      "id": "DAT-012",
+      "name": "SchemaProperty.LogicalType",
+      "category": "DAT",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "SHOULD render DATE/TIME/TIMESTAMP with the matching widget/format.",
+      "verify": "run a fixture component/payload that uses `SchemaProperty.LogicalType` and check that the Designer host does: render DATE/TIME/TIMESTAMP with the matching widget/format."
+    },
+    {
+      "id": "DAT-012",
+      "name": "SchemaProperty.LogicalType",
+      "category": "DAT",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST keep `field.logical.type` when converting to/from Avro.",
+      "verify": "run a fixture component/payload that uses `SchemaProperty.LogicalType` and check that the Runtime host does: keep `field.logical.type` when converting to/from Avro."
+    },
+    {
+      "id": "DAT-013",
+      "name": "SchemaCompanionUtil (name sanitization and collisions)",
+      "category": "DAT",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST use `name` (sanitized) as the technical identifier and MAY show `rawName`.",
+      "verify": "Load a schema with a sanitized name and a `rawName`: the technical identifier is `name`, `rawName` is display-only."
+    },
+    {
+      "id": "DAT-013",
+      "name": "SchemaCompanionUtil (name sanitization and collisions)",
+      "category": "DAT",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST NOT rely on original field names for lookups. use `Entry.getName()`.",
+      "verify": "Send a record whose column had an illegal character: lookup by `Entry.getName()` succeeds, lookup by original name is not used."
+    },
+    {
+      "id": "DAT-014",
+      "name": "Entry-level error support",
+      "category": "DAT",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MAY display invalid cells using the entry props.",
+      "verify": "run a fixture component/payload that uses `Entry-level error support` and check that the Designer host does: display invalid cells using the entry props."
+    },
+    {
+      "id": "DAT-014",
+      "name": "Entry-level error support",
+      "category": "DAT",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "SHOULD check `entry.isValid()` before reading and MUST NOT treat invalid entries as data. MAY set the system property.",
+      "verify": "run a fixture component/payload that uses `Entry-level error support` and check that the Runtime host does: check `entry.isValid()` before reading and must not treat invalid entries as data."
+    },
+    {
+      "id": "DAT-015",
+      "name": "Nullable check switch",
+      "category": "DAT",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "SHOULD leave the default. MAY set true for performance in a trusted environment.",
+      "verify": "run a fixture component/payload that uses `Nullable check switch` and check that the Runtime host does: leave the default."
+    },
+    {
+      "id": "DAT-016",
+      "name": "RecordBuilderFactory",
+      "category": "DAT",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST provide it as an injectable service to every plugin container (ComponentManager does by default).",
+      "verify": "Inject `RecordBuilderFactory` in a service of two plugins: both get a working factory and can build records."
+    },
+    {
+      "id": "DAT-017",
+      "name": "RecordService",
+      "category": "DAT",
+      "level": 1,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST provide it as a built-in service when hosting TCK plugins with a custom container. The injected instance MUST be backed by the plugin's `RecordBuilderFactory` and JSON-B. SHOULD reuse `RecordServiceImpl`.",
+      "verify": "run a fixture component/payload that uses `RecordService` and check that the Runtime host does: provide it as a built-in service when hosting TCK plugins with a custom container."
+    },
+    {
+      "id": "DAT-018",
+      "name": "RecordVisitor",
+      "category": "DAT",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "SHOULD implement RecordService.visit to support it. not needed otherwise.",
+      "verify": "run a fixture component/payload that uses `RecordVisitor` and check that the Runtime host does: implement RecordService.visit to support it."
+    },
+    {
+      "id": "DAT-019",
+      "name": "RecordPointer",
+      "category": "DAT",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST implement with the semantics of DAT-020 if RecordPointerFactory is provided.",
+      "verify": "run a fixture component/payload that uses `RecordPointer` and check that the Runtime host does: implement with the semantics of DAT-020 if RecordPointerFactory is provided."
+    },
+    {
+      "id": "DAT-020",
+      "name": "RecordPointerFactory",
+      "category": "DAT",
+      "level": 1,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST inject a factory scoped to the plugin. SHOULD provide the reference semantics (RFC 6901 adapted to records).",
+      "verify": "run a fixture component/payload that uses `RecordPointerFactory` and check that the Runtime host does: inject a factory scoped to the plugin."
+    },
+    {
+      "id": "DAT-021",
+      "name": "Deprecated schema API (service.schema.Schema and Type)",
+      "category": "DAT",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST still accept schemas returned by legacy components (same JSON shape).",
+      "verify": "run a fixture component/payload that uses `Deprecated schema API (service.schema.Schema and Type)` and check that the Designer host does: still accept schemas returned by legacy components (same JSON shape)."
+    },
+    {
+      "id": "DAT-024",
+      "name": "@FixedSchema",
+      "category": "DAT",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST NOT let the user edit the schema of the listed flows. MUST re-call the action when a `watch` path changes.",
+      "verify": "run a fixture component/payload that uses `@FixedSchema` and check that the Designer host does: never let the user edit the schema of the listed flows."
+    },
+    {
+      "id": "DAT-029",
+      "name": "Component data type conversion (Record / JsonObject / POJO)",
+      "category": "DAT",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST convert non-Record values to Record before handing data to the engine (as `InputImpl.next()` and `BeamOutputEmitter` do). SHOULD standardize on `Record`.",
+      "verify": "Run an input returning a POJO and one returning a `JsonObject`: the engine receives `Record` values in both cases."
+    },
+    {
+      "id": "DAT-030",
+      "name": "JSON-P / JSON-B mapping of Record",
+      "category": "DAT",
+      "level": 1,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST use a Johnzon-compatible JSON-B/JSON-P provider with the settings above when it produces JSON from records. MUST decode BYTES as Base64.",
+      "verify": "run a fixture component/payload that uses `JSON-P / JSON-B mapping of Record` and check that the Runtime host does: use a Johnzon-compatible JSON-B/JSON-P provider with the settings above when it produces JSON from records."
+    },
+    {
+      "id": "DAT-031",
+      "name": "Avro mapping (Beam runtime)",
+      "category": "DAT",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "if used, MUST run with `talend.component.record.skip.sanitize=false`. MUST NOT mix implementations inside one plugin. MAY use the Avro implementation.",
+      "verify": "run a fixture component/payload that uses `Avro mapping (Beam runtime)` and check that the Runtime host does: if used, run with `talend.component.record.skip.sanitize=false`."
+    },
+    {
+      "id": "DAT-032",
+      "name": "Schema JSON serialization (SchemaConverter)",
+      "category": "DAT",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST serialize a chosen schema with these keys when a component option is of type `Schema`.",
+      "verify": "run a fixture component/payload that uses `Schema JSON serialization (SchemaConverter)` and check that the Designer host does: serialize a chosen schema with these keys when a component option is of type `Schema`."
+    },
+    {
+      "id": "DAT-032",
+      "name": "Schema JSON serialization (SchemaConverter)",
+      "category": "DAT",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST accept this JSON in the option value.",
+      "verify": "run a fixture component/payload that uses `Schema JSON serialization (SchemaConverter)` and check that the Runtime host does: accept this JSON in the option value."
+    },
+    {
+      "id": "DAT-033",
+      "name": "Type conversion rules (MappingUtils.coerce)",
+      "category": "DAT",
+      "level": 1,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST reproduce these rules if the host supplies its own Record implementation. SHOULD reuse `RecordImpl`.",
+      "verify": "run a fixture component/payload that uses `Type conversion rules (MappingUtils.coerce)` and check that the Runtime host does: reproduce these rules if the host supplies its own Record implementation."
+    },
+    {
+      "id": "DAT-034",
+      "name": "RecordBuilderFactoryProvider SPI",
+      "category": "DAT",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST make it return Serializable factories (they serialize as SerializableService). MAY provide one implementation per JVM.",
+      "verify": "run a fixture component/payload that uses `RecordBuilderFactoryProvider SPI` and check that the Runtime host does: make it return Serializable factories (they serialize as SerializableService)."
+    },
+    {
+      "id": "DAT-035",
+      "name": "Metadata entries",
+      "category": "DAT",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "SHOULD hide metadata entries from the default column list and expose them separately.",
+      "verify": "run a fixture component/payload that uses `Metadata entries` and check that the Designer host does: hide metadata entries from the default column list and expose them separately."
+    },
+    {
+      "id": "DAT-035",
+      "name": "Metadata entries",
+      "category": "DAT",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST NOT drop metadata entries when copying records.",
+      "verify": "run a fixture component/payload that uses `Metadata entries` and check that the Runtime host does: never drop metadata entries when copying records."
+    },
+    {
+      "id": "DAT-036",
+      "name": "Arrays and nested records",
+      "category": "DAT",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST handle ARRAY/RECORD entries (render nested, or flatten) when propagating schemas.",
+      "verify": "run a fixture component/payload that uses `Arrays and nested records` and check that the Designer host does: handle ARRAY/RECORD entries (render nested, or flatten) when propagating schemas."
+    },
+    {
+      "id": "DAT-036",
+      "name": "Arrays and nested records",
+      "category": "DAT",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST handle nested types in transport and conversion.",
+      "verify": "run a fixture component/payload that uses `Arrays and nested records` and check that the Runtime host does: handle nested types in transport and conversion."
+    },
+    {
+      "id": "RUN-001",
+      "name": "@Emitter",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST show it as an input component (no input flow, one `__default__` output flow).",
+      "verify": "Load an `@Emitter` component: it shows as an input (no input connector, one `__default__` output)."
+    },
+    {
+      "id": "RUN-001",
+      "name": "@Emitter",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST obtain it through `ComponentManager.findMapper(plugin, name, version, config)`, call `create()` on the mapper and drive the `Input` (RUN-024).",
+      "verify": "Run an emitter job to completion: `findMapper`, `create()`, `Input.start/next/stop` are driven and all produced records reach the sink."
+    },
+    {
+      "id": "RUN-002",
+      "name": "@PartitionMapper",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST show it as an input component. if `stoppable`, MUST render the extra options `$maxRecords` and `$maxDurationMs` returned in the component properties (default -1 = unlimited).",
+      "verify": "Load a stoppable `@PartitionMapper`: `$maxRecords` and `$maxDurationMs` are rendered (default -1)."
+    },
+    {
+      "id": "RUN-002",
+      "name": "@PartitionMapper",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST call `assess()`, `split(desiredSize)` on the coordinator side and `create()` per split on the worker side. MUST treat `isStream()` as streaming mode.",
+      "verify": "Run a mapper: `assess()`, `split(n)` and `create()` are called; with `isStream()` true the job is handled as streaming."
+    },
+    {
+      "id": "RUN-003",
+      "name": "@Assessor",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST call `Mapper.assess()` on a started mapper and use the value to compute the split size. the unit is component-defined (bytes by convention).",
+      "verify": "Run a mapper: `assess()` is called once on a started mapper and its value is used to compute the split size."
+    },
+    {
+      "id": "RUN-004",
+      "name": "@Split",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST call `Mapper.split(desiredSize)` and create one `Input` per returned Mapper (sequentially or in parallel). returned mappers are Serializable and MAY be shipped to workers.",
+      "verify": "Split a mapper into 3: one `Input` per returned Mapper is created and the union of their records equals the sequential read."
+    },
+    {
+      "id": "RUN-005",
+      "name": "@PartitionSize",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST pass the value it wants to `split(long)`. for `int` parameters the runtime narrows with `intValue()`.",
+      "verify": "Split a mapper whose `@Split` takes an `int` and one taking a `long`: both receive the desired size without error."
+    },
+    {
+      "id": "RUN-006",
+      "name": "@Producer",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST loop `Input.next()` until it returns null (batch) or until the stop strategy / external stop (streaming). MUST call `Input.start()` before and `Input.stop()` after.",
+      "verify": "Run an input producing 5 records: `next()` is called until null, `start()` came first and `stop()` last; 5 records are emitted."
+    },
+    {
+      "id": "RUN-007",
+      "name": "BufferizedProducerSupport",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "none.",
+      "verify": "run a fixture component/payload that uses `BufferizedProducerSupport` and check that the Runtime host does: none."
+    },
+    {
+      "id": "RUN-008",
+      "name": "@Processor",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST render one input connection per input flow and one output connection per output flow returned by the server.",
+      "verify": "Load a processor with 2 input and 2 output flows: 2 input and 2 output connectors are drawn."
+    },
+    {
+      "id": "RUN-008",
+      "name": "@Processor",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST create it with `ComponentManager.findProcessor(...)`, call `start()`, then per group `beforeGroup()`, `onNext(...)` per record, `afterGroup(...)`, finally `stop()`.",
+      "verify": "Run a processor over 3 records: call order is `start`, `beforeGroup`, `onNext` x3, `afterGroup`, `stop`."
+    },
+    {
+      "id": "RUN-009",
+      "name": "@ElementListener",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST feed each record through `Processor.onNext(InputFactory, OutputFactory)`. InputFactory.read(name) returns the current record of that input branch (null if none).",
+      "verify": "Run a processor with one input: each incoming record triggers exactly one `onNext`, and `read(name)` returns the current record of that branch."
+    },
+    {
+      "id": "RUN-010",
+      "name": "@BeforeGroup",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST call `Processor.beforeGroup()` before the first `onNext` of each group.",
+      "verify": "Run 2 groups of records: `beforeGroup()` is called before the first record of each group."
+    },
+    {
+      "id": "RUN-011",
+      "name": "@AfterGroup",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST call `Processor.afterGroup(OutputFactory)` (or `afterGroup(OutputFactory, boolean last)` when `isLastGroupUsed()`) at group end and at end of data (flush). MUST route emitted records like `onNext` outputs.",
+      "verify": "Run 2 groups: `afterGroup` runs at the end of each group and once more at end of data; records it emits reach the outputs."
+    },
+    {
+      "id": "RUN-012",
+      "name": "@LastGroup",
+      "category": "RUN",
+      "level": 1,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST call `afterGroup(output, last)` when `Processor.isLastGroupUsed()` is true, with `last=true` exactly on the final flush.",
+      "verify": "run a fixture component/payload that uses `@LastGroup` and check that the Runtime host does: call `afterGroup(output, last)` when `Processor.isLastGroupUsed()` is true, with `last=true` exactly on the final flush."
+    },
+    {
+      "id": "RUN-013",
+      "name": "@Input",
+      "category": "RUN",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST create one input connection per distinct name (`ComponentDetail.inputFlows`) and label them.",
+      "verify": "run a fixture component/payload that uses `@Input` and check that the Designer host does: create one input connection per distinct name (`ComponentDetail.inputFlows`) and label them."
+    },
+    {
+      "id": "RUN-013",
+      "name": "@Input",
+      "category": "RUN",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST return, in `InputFactory.read(name)`, the record for that branch.",
+      "verify": "run a fixture component/payload that uses `@Input` and check that the Runtime host does: return, in `InputFactory.read(name)`, the record for that branch."
+    },
+    {
+      "id": "RUN-014",
+      "name": "@Output",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST create one output connection per branch (`ComponentDetail.outputFlows`). connection named `REJECT` is the reject connection.",
+      "verify": "Load an output component with a `REJECT` flow: a reject connector is offered next to the default output."
+    },
+    {
+      "id": "RUN-014",
+      "name": "@Output",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST provide an `OutputFactory` whose `create(name)` returns an emitter for every name. unknown/unconnected branches MUST NOT fail (discard).",
+      "verify": "Emit to a branch that has no connection: no failure, record discarded; a connected branch receives its records."
+    },
+    {
+      "id": "RUN-015",
+      "name": "OutputEmitter",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST implement it in `OutputFactory.create(name)`. MUST convert non-Record values.",
+      "verify": "Implement `OutputFactory.create(name)` for every name: writing a POJO to the emitter delivers a `Record` downstream."
+    },
+    {
+      "id": "RUN-016",
+      "name": "MultiOutputIterator",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "SHOULD display all branches listed in `@Output(branches)`.",
+      "verify": "run a fixture component/payload that uses `MultiOutputIterator` and check that the Designer host does: display all branches listed in `@Output(branches)`."
+    },
+    {
+      "id": "RUN-016",
+      "name": "MultiOutputIterator",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MAY implement `createMultiOutputIterator()`. if not implemented, components using it fail at runtime (Beam reference does not).",
+      "verify": "run a fixture component/payload that uses `MultiOutputIterator` and check that the Runtime host does: implement `createMultiOutputIterator()`."
+    },
+    {
+      "id": "RUN-017",
+      "name": "TaggedOutput",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MAY interpret `FLOW` as `__default__` if MultiOutputIterator is implemented.",
+      "verify": "run a fixture component/payload that uses `TaggedOutput` and check that the Runtime host does: interpret `FLOW` as `__default__` if MultiOutputIterator is implemented."
+    },
+    {
+      "id": "RUN-018",
+      "name": "Named branches (__default__, REJECT)",
+      "category": "RUN",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST expose one connection per name in `inputFlows`/`outputFlows`. SHOULD style `REJECT` differently.",
+      "verify": "run a fixture component/payload that uses `Named branches (__default__, REJECT)` and check that the Designer host does: expose one connection per name in `inputFlows`/`outputFlows`."
+    },
+    {
+      "id": "RUN-018",
+      "name": "Named branches (__default__, REJECT)",
+      "category": "RUN",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST route by exact branch name. job edges default to `__default__` (`Job.from(id)` / `to(id)`).",
+      "verify": "run a fixture component/payload that uses `Named branches (__default__, REJECT)` and check that the Runtime host does: route by exact branch name."
+    },
+    {
+      "id": "RUN-019",
+      "name": "Output component (sink)",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST treat a processor with empty `outputFlows` as a terminal component (no outgoing connection allowed).",
+      "verify": "Load a processor with empty `outputFlows`: no outgoing connection can be drawn from it."
+    },
+    {
+      "id": "RUN-019",
+      "name": "Output component (sink)",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST run it as the last stage. it MUST still get `beforeGroup/afterGroup` calls and a final flush.",
+      "verify": "Run a sink at the end of a job: it gets `beforeGroup`/`afterGroup` and a final flush."
+    },
+    {
+      "id": "RUN-020",
+      "name": "Combiner (not supported)",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "none.",
+      "verify": "run a fixture component/payload that uses `Combiner (not supported)` and check that the Runtime host does: none."
+    },
+    {
+      "id": "RUN-021",
+      "name": "@DriverRunner",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST show it without connections. SHOULD allow it in a job as an independent step/trigger target.",
+      "verify": "Load a `@DriverRunner` component: it has no connectors and can be run as an independent step."
+    },
+    {
+      "id": "RUN-021",
+      "name": "@DriverRunner",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST obtain it with `ComponentManager.findDriverRunner(plugin, name, version, config)`, call `start()`, `runAtDriver()`, `stop()` on the coordinator. it MUST NOT handle records.",
+      "verify": "Run it: `findDriverRunner`, `start()`, `runAtDriver()`, `stop()` are called on the coordinator; no records are handled."
+    },
+    {
+      "id": "RUN-022",
+      "name": "@RunAtDriver",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST invoke `DriverRunner.runAtDriver()` exactly once per execution, inside the plugin classloader (TCCL) - `DriverRunnerImpl` handles it.",
+      "verify": "Run a standalone component: `runAtDriver()` is invoked exactly once, with the plugin classloader as thread context classloader."
+    },
+    {
+      "id": "RUN-023",
+      "name": "Component lifecycle hooks (@PostConstruct / @PreDestroy)",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST call `start()` before use and `stop()` in a finally block, on every component instance including every split Input. MUST NOT reuse a stopped instance.",
+      "verify": "Fail a component in `onNext`: `stop()` is still called (finally); starting a stopped instance is never attempted; every split Input is started and stopped."
+    },
+    {
+      "id": "RUN-024",
+      "name": "Runtime wrapper interfaces (Lifecycle, Mapper, Input, Processor, DriverRunner)",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST code the host engine against these interfaces (they are the only stable surface with the manager).",
+      "verify": "Compile the engine against `Mapper`, `Input`, `Processor`, `DriverRunner`, `Lifecycle` only (no implementation classes) and run an input->processor->output job."
+    },
+    {
+      "id": "RUN-025",
+      "name": "Component instantiation (ComponentManager.find*)",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST persist the component `version` together with each saved configuration (ComponentDetail.version at design time).",
+      "verify": "Save a component then reload the job: the stored `ComponentDetail.version` is persisted with the configuration."
+    },
+    {
+      "id": "RUN-025",
+      "name": "Component instantiation (ComponentManager.find*)",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST pass the persisted version so migration runs. MUST handle empty Optional as 'component missing'.",
+      "verify": "Call `findMapper(plugin, name, oldVersion, config)` for a component with a `MigrationHandler`: migration runs; an unknown component gives an empty Optional handled as \"component missing\"."
+    },
+    {
+      "id": "RUN-026",
+      "name": "Batch grouping and maxBatchSize",
+      "category": "RUN",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST render `$maxBatchSize` (it is delivered as a normal property) and send its value back in the flat configuration.",
+      "verify": "run a fixture component/payload that uses `Batch grouping and maxBatchSize` and check that the Designer host does: render `$maxBatchSize` (it is delivered as a normal property) and send its value back in the flat configuration."
+    },
+    {
+      "id": "RUN-026",
+      "name": "Batch grouping and maxBatchSize",
+      "category": "RUN",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST apply `$maxBatchSize` as an upper bound of the group size (default 1 in the local runner when absent) and MUST always flush at end of data.",
+      "verify": "run a fixture component/payload that uses `Batch grouping and maxBatchSize` and check that the Runtime host does: apply `$maxBatchSize` as an upper bound of the group size (default 1 in the local runner when absent) and always flush at end of data."
+    },
+    {
+      "id": "RUN-027",
+      "name": "Streaming input (infinite mapper)",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "SHOULD flag `mapper::infinite=true` components as streaming (job never ends unless stop conditions are set).",
+      "verify": "run a fixture component/payload that uses `Streaming input (infinite mapper)` and check that the Designer host does: flag `mapper::infinite=true` components as streaming (job never ends unless stop conditions are set)."
+    },
+    {
+      "id": "RUN-027",
+      "name": "Streaming input (infinite mapper)",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST treat `Mapper.isStream()` as unbounded. MUST provide a way to stop (call `Input.stop()` or set stop conditions).",
+      "verify": "run a fixture component/payload that uses `Streaming input (infinite mapper)` and check that the Runtime host does: treat `Mapper.isStream()` as unbounded."
+    },
+    {
+      "id": "RUN-028",
+      "name": "Streaming stop conditions ($maxRecords, $maxDurationMs)",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST render the two options for stoppable inputs (they are ordinary properties).",
+      "verify": "run a fixture component/payload that uses `Streaming stop conditions ($maxRecords, $maxDurationMs)` and check that the Designer host does: render the two options for stoppable inputs (they are ordinary properties)."
+    },
+    {
+      "id": "RUN-028",
+      "name": "Streaming stop conditions ($maxRecords, $maxDurationMs)",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST honour them by passing the flat properties to `findMapper`. the framework enforces them in `StreamingInputImpl`.",
+      "verify": "run a fixture component/payload that uses `Streaming stop conditions ($maxRecords, $maxDurationMs)` and check that the Runtime host does: honour them by passing the flat properties to `findMapper`."
+    },
+    {
+      "id": "RUN-029",
+      "name": "Streaming retry strategy",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "SHOULD expose these keys through its LocalConfiguration implementation (family-prefixed keys `<family>.<key>` are tried first).",
+      "verify": "run a fixture component/payload that uses `Streaming retry strategy` and check that the Runtime host does: expose these keys through its LocalConfiguration implementation (family-prefixed keys `<family>.<key>` are tried first)."
+    },
+    {
+      "id": "RUN-030",
+      "name": "@Checkpoint",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "SHOULD hide checkpoint properties from the normal form (they are state), or show them in the `CHECKPOINT` form type.",
+      "verify": "run a fixture component/payload that uses `@Checkpoint` and check that the Designer host does: hide checkpoint properties from the normal form (they are state), or show them in the `CHECKPOINT` form type."
+    },
+    {
+      "id": "RUN-030",
+      "name": "@Checkpoint",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST persist the state emitted by RUN-031/RUN-033 and MUST re-inject it as `$checkpoint.*` at restart. only when `talend.checkpoint.enabled=true`.",
+      "verify": "run a fixture component/payload that uses `@Checkpoint` and check that the Runtime host does: persist the state emitted by RUN-031/RUN-033 and re-inject it as `$checkpoint.*` at restart."
+    },
+    {
+      "id": "RUN-031",
+      "name": "@CheckpointData",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST call `Input.getCheckpoint()` only when `isCheckpointReady()` is true (or via the callback) and MUST serialize the state.",
+      "verify": "run a fixture component/payload that uses `@CheckpointData` and check that the Runtime host does: call `Input.getCheckpoint()` only when `isCheckpointReady()` is true (or via the callback) and serialize the state."
+    },
+    {
+      "id": "RUN-032",
+      "name": "@CheckpointAvailable",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST poll `Input.isCheckpointReady()` after `next()` (explicit mode) or supply a callback to `Input.start(Consumer<CheckpointState>)` (automatic mode).",
+      "verify": "run a fixture component/payload that uses `@CheckpointAvailable` and check that the Runtime host does: poll `Input.isCheckpointReady()` after `next()` (explicit mode) or supply a callback to `Input.start(Consumer<CheckpointState>)` (automatic mode)."
+    },
+    {
+      "id": "RUN-033",
+      "name": "Checkpoint runtime protocol ($checkpoint, CheckpointState)",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST implement persistence/restore of the JSON above. MUST migrate the state when `__version` is older (the framework's nested migration applies to the checkpoint type).",
+      "verify": "run a fixture component/payload that uses `Checkpoint runtime protocol ($checkpoint, CheckpointState)` and check that the Runtime host does: implement persistence/restore of the JSON above."
+    },
+    {
+      "id": "RUN-034",
+      "name": "@ConditionalOutput",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MAY call `type=available_output` (ACT-014) with the current configuration to filter `outputFlows`.",
+      "verify": "run a fixture component/payload that uses `@ConditionalOutput` and check that the Designer host does: call `type=available_output` (ACT-014) with the current configuration to filter `outputFlows`."
+    },
+    {
+      "id": "RUN-036",
+      "name": "@ReturnVariables / @ReturnVariable",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MAY expose the variables to downstream expressions (Studio-like host).",
+      "verify": "run a fixture component/payload that uses `@ReturnVariables / @ReturnVariable` and check that the Designer host does: expose the variables to downstream expressions (Studio-like host)."
+    },
+    {
+      "id": "RUN-037",
+      "name": "@AfterVariables / @AfterVariable / @AfterVariableContainer",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MAY expose the variables.",
+      "verify": "run a fixture component/payload that uses `@AfterVariables / @AfterVariable / @AfterVariableContainer` and check that the Designer host does: expose the variables."
+    },
+    {
+      "id": "RUN-037",
+      "name": "@AfterVariables / @AfterVariable / @AfterVariableContainer",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MAY call the container method after the component finished.",
+      "verify": "run a fixture component/payload that uses `@AfterVariables / @AfterVariable / @AfterVariableContainer` and check that the Runtime host does: call the container method after the component finished."
+    },
+    {
+      "id": "RUN-038",
+      "name": "optionalRow",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MAY relax the requirement of an outgoing connection for such inputs.",
+      "verify": "run a fixture component/payload that uses `optionalRow` and check that the Designer host does: relax the requirement of an outgoing connection for such inputs."
+    },
+    {
+      "id": "RUN-039",
+      "name": "Serialization requirements",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST ship the plugin to every worker and register it before deserializing. MUST set the whitelist in secured deployments. MUST use `ContainerFinder.Instance.set(...)` when the default finder cannot see plugins.",
+      "verify": "Serialize a mapper and deserialize it on a second JVM/worker where the plugin is registered first: `create()` works; without the plugin registered the failure is explicit."
+    },
+    {
+      "id": "RUN-040",
+      "name": "Internal configuration keys ($-prefix)",
+      "category": "RUN",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST send them under the same prefix as the other properties of the component configuration root.",
+      "verify": "run a fixture component/payload that uses `Internal configuration keys ($-prefix)` and check that the Designer host does: send them under the same prefix as the other properties of the component configuration root."
+    },
+    {
+      "id": "RUN-040",
+      "name": "Internal configuration keys ($-prefix)",
+      "category": "RUN",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST forward them unchanged to `findMapper`/`findProcessor`.",
+      "verify": "run a fixture component/payload that uses `Internal configuration keys ($-prefix)` and check that the Runtime host does: forward them unchanged to `findMapper`/`findProcessor`."
+    },
+    {
+      "id": "RUN-041",
+      "name": "Flat configuration to constructor arguments",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST serialize form values into these exact key shapes using each property's `path` from ComponentDetail.",
+      "verify": "Serialize a nested + list configuration: the produced keys equal the `path` values of `ComponentDetail` with `[i]` indexes."
+    },
+    {
+      "id": "RUN-041",
+      "name": "Flat configuration to constructor arguments",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST pass the full map (including defaults) to the manager. MUST surface the validation IllegalArgumentException as user error.",
+      "verify": "Pass the full map including defaults: the component instance is built; an invalid value surfaces as a user (configuration) error."
+    },
+    {
+      "id": "RUN-042",
+      "name": "Job DSL and local runner",
+      "category": "RUN",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MAY use `family://name?...` URIs as a portable job serialization for tests.",
+      "verify": "run a fixture component/payload that uses `Job DSL and local runner` and check that the Designer host does: use `family://name?...` URIs as a portable job serialization for tests."
+    },
+    {
+      "id": "RUN-042",
+      "name": "Job DSL and local runner",
+      "category": "RUN",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "a custom engine MUST reproduce the semantics (levels, branch wiring, flush). MAY reuse the Job API as a reference or embedded engine. SHOULD be compared against for acceptance tests: the same chain must give the same output in the host.",
+      "verify": "run a fixture component/payload that uses `Job DSL and local runner` and check that the Runtime host does: a custom engine reproduce the semantics (levels, branch wiring, flush)."
+    },
+    {
+      "id": "RUN-043",
+      "name": "Beam translation of a job",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "Reference for an engine adapter: MUST reproduce branch filtering/mapping, key-based multi-input join and group semantics on the target engine.",
+      "verify": "run a fixture component/payload that uses `Beam translation of a job` and check that the Runtime host does: Reference for an engine adapter: reproduce branch filtering/mapping, key-based multi-input join and group semantics on the target engine."
+    },
+    {
+      "id": "RUN-044",
+      "name": "Beam I/O adapters (TalendIO, TalendFn)",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "if embedded, MUST have `component-runtime-beam` and Beam on the container parent classloader (see `BeamCustomizer` class index). MAY reuse these classes.",
+      "verify": "run a fixture component/payload that uses `Beam I/O adapters (TalendIO, TalendFn)` and check that the Runtime host does: if embedded, have `component-runtime-beam` and Beam on the container parent classloader (see `BeamCustomizer` class index)."
+    },
+    {
+      "id": "RUN-045",
+      "name": "Beam coders and schema registry",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "A distributed host MUST guarantee that the schema id resolves on the decoding side.",
+      "verify": "run a fixture component/payload that uses `Beam coders and schema registry` and check that the Runtime host does: A distributed host guarantee that the schema id resolves on the decoding side."
+    },
+    {
+      "id": "RUN-046",
+      "name": "Component validation at registration (ModelVisitor)",
+      "category": "RUN",
+      "level": 1,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "a host with its own scanner MUST replicate these rules. A host registering plugins through ComponentManager gets this for free.",
+      "verify": "run a fixture component/payload that uses `Component validation at registration (ModelVisitor)` and check that the Runtime host does: a host with its own scanner replicate these rules."
+    },
+    {
+      "id": "RUN-047",
+      "name": "Runtime Mode (UNSAFE)",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MAY set UNSAFE in production once plugins have been validated at build time.",
+      "verify": "run a fixture component/payload that uses `Runtime Mode (UNSAFE)` and check that the Runtime host does: set UNSAFE in production once plugins have been validated at build time."
+    },
+    {
+      "id": "RUN-048",
+      "name": "Input and output flows (FlowsFactory)",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST use `inputFlows` / `outputFlows` of ComponentDetail to build connectors.",
+      "verify": "Draw connectors for a component from its `inputFlows`/`outputFlows` names."
+    },
+    {
+      "id": "RUN-048",
+      "name": "Input and output flows (FlowsFactory)",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST honour the same names when wiring branches.",
+      "verify": "Wire branches by flow name: a record emitted to `reject` reaches the connection named `reject`, `__default__` reaches the default one."
+    },
+    {
+      "id": "RUN-049",
+      "name": "Processor input conversion and group buffer",
+      "category": "RUN",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST call `beforeGroup()` before the first `onNext` (it initializes reflection state and the buffer) - `onNext` before `beforeGroup` fails with NullPointerException on `parameterBuilderProcess`.",
+      "verify": "Call `onNext` without `beforeGroup` on a test processor: the host never does this; the normal run performs `beforeGroup` first without NPE."
+    },
+    {
+      "id": "RUN-050",
+      "name": "Multi-input record grouping (GroupKeyProvider)",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MAY let users configure the join key per input.",
+      "verify": "run a fixture component/payload that uses `Multi-input record grouping (GroupKeyProvider)` and check that the Designer host does: let users configure the join key per input."
+    },
+    {
+      "id": "RUN-050",
+      "name": "Multi-input record grouping (GroupKeyProvider)",
+      "category": "RUN",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST provide a join strategy for multi-input processors.",
+      "verify": "run a fixture component/payload that uses `Multi-input record grouping (GroupKeyProvider)` and check that the Runtime host does: provide a join strategy for multi-input processors."
+    },
+    {
+      "id": "LCM-001",
+      "name": "@Version",
+      "category": "LCM",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST store the component `version` (and each configuration type `version`) with every saved configuration and MUST send it back when calling migrate.",
+      "verify": "Save a configuration for component v2, reopen it: the stored version (2) is kept and sent as the `configurationVersion` path parameter of migrate."
+    },
+    {
+      "id": "LCM-001",
+      "name": "@Version",
+      "category": "LCM",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST pass the persisted version as the `version` argument of `findMapper`/`findProcessor`/`findDriverRunner`. MUST NOT rewrite the stored version silently.",
+      "verify": "Instantiate with the persisted version: it is the value passed to `find*`; the stored version is not rewritten silently."
+    },
+    {
+      "id": "LCM-002",
+      "name": "MigrationHandler",
+      "category": "LCM",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST NOT migrate itself. MUST rely on the manager (`BaseMeta.instantiate`) or the server migrate endpoint.",
+      "verify": "Load a configuration saved with an older version: the migrated values come from the manager/server, not from host code."
+    },
+    {
+      "id": "LCM-003",
+      "name": "Configuration migration protocol",
+      "category": "LCM",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST record `__version` for each nested configuration type it persists (datastore, dataset) and SHOULD call the migrate endpoints on load when `saved version < ComponentDetail.version`.",
+      "verify": "run a fixture component/payload that uses `Configuration migration protocol` and check that the Designer host does: record `__version` for each nested configuration type it persists (datastore, dataset) and call the migrate endpoints on load when `saved version < ComponentDetail.version`."
+    },
+    {
+      "id": "LCM-003",
+      "name": "Configuration migration protocol",
+      "category": "LCM",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST call `findMapper/findProcessor` with the saved component version (migration is applied inside) and MUST keep `<path>.__version` entries in the map.",
+      "verify": "run a fixture component/payload that uses `Configuration migration protocol` and check that the Runtime host does: call `findMapper/findProcessor` with the saved component version (migration is applied inside) and keep `<path>.__version` entries in the map."
+    },
+    {
+      "id": "LCM-004",
+      "name": "Plugin (container) model",
+      "category": "LCM",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST register every plugin before instantiating components. MUST call `removePlugin`/`close()` to release classloaders. SHOULD hold one ComponentManager per JVM.",
+      "verify": "Register 2 plugins, remove one: its classloader is released (closed) and the other still runs; one `ComponentManager` per JVM."
+    },
+    {
+      "id": "LCM-005",
+      "name": "Classloader isolation (ConfigurableClassLoader)",
+      "category": "LCM",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST give each plugin its own classloader whose parent exposes at least the API/SPI/runtime packages above. MUST set the thread context classloader to the plugin loader around every component call (LifecycleImpl does).",
+      "verify": "Load two plugins with conflicting versions of the same library: each works with its own version; the thread context classloader inside a component call is the plugin loader."
+    },
+    {
+      "id": "LCM-006",
+      "name": "Plugin discovery and registration sources",
+      "category": "LCM",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST decide how plugins are supplied (list, `.car` deployment, classpath) and register them at startup. SHOULD use stable ids (artifactId) so upgrades replace instead of duplicate.",
+      "verify": "Start the host with a plugin list, then restart with a newer plugin version: the plugin is replaced, not duplicated (stable id)."
+    },
+    {
+      "id": "LCM-007",
+      "name": "Dependency resolution (dependencies.txt)",
+      "category": "LCM",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST provide a Maven-layout repository (or nested repository) containing all `compile`/`runtime` dependencies. MAY replace resolution with a `ContainerClasspathContributor` or `Customizer.ignoreDefaultDependenciesDescriptor()`.",
+      "verify": "Deploy a plugin whose jar has a `TALEND-INF/dependencies.txt`: all listed compile/runtime dependencies are resolved from the Maven-layout repository and the component runs."
+    },
+    {
+      "id": "LCM-008",
+      "name": "Maven repository discovery (m2)",
+      "category": "LCM",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST set `talend.component.manager.m2.repository` (or pass the path to the ComponentManager constructor) in production. the default is intentionally not the user's ~/.m2.",
+      "verify": "Start the host with `talend.component.manager.m2.repository` set to an empty directory: dependency resolution reads only from it (not from `~/.m2`)."
+    },
+    {
+      "id": "LCM-009",
+      "name": "Nested Maven repository and shade transformers",
+      "category": "LCM",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MAY package the host runtime as an uber jar with these transformers. then the m2 path becomes irrelevant.",
+      "verify": "run a fixture component/payload that uses `Nested Maven repository and shade transformers` and check that the Runtime host does: package the host runtime as an uber jar with these transformers."
+    },
+    {
+      "id": "LCM-010",
+      "name": "Component archive (.car)",
+      "category": "LCM",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "SHOULD support deploying `.car` files (unpack repository, register the main GAV) for remote/engine deployment.",
+      "verify": "run a fixture component/payload that uses `Component archive (.car)` and check that the Runtime host does: support deploying `.car` files (unpack repository, register the main GAV) for remote/engine deployment."
+    },
+    {
+      "id": "LCM-011",
+      "name": "Component scanning rules",
+      "category": "LCM",
+      "level": 1,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST NOT scan itself. SHOULD provide `scanning.properties` in fat-jar deployments for startup speed.",
+      "verify": "run a fixture component/payload that uses `Component scanning rules` and check that the Runtime host does: never scan itself."
+    },
+    {
+      "id": "LCM-018",
+      "name": "ContainerListener and JMX exposure",
+      "category": "LCM",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MAY register listeners for monitoring hooks (checklist level 2).",
+      "verify": "run a fixture component/payload that uses `ContainerListener and JMX exposure` and check that the Runtime host does: register listeners for monitoring hooks (checklist level 2)."
+    },
+    {
+      "id": "INT-001",
+      "name": "@Intercepts",
+      "category": "INT",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST apply the chain in INT-003 when hosting services. the ComponentManager does it automatically.",
+      "verify": "run a fixture component/payload that uses `@Intercepts` and check that the Runtime host does: apply the chain in INT-003 when hosting services."
+    },
+    {
+      "id": "INT-002",
+      "name": "InterceptorHandler",
+      "category": "INT",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST honor the constructor injection rules if it re-implements the facade.",
+      "verify": "run a fixture component/payload that uses `InterceptorHandler` and check that the Runtime host does: honor the constructor injection rules if it re-implements the facade."
+    },
+    {
+      "id": "INT-003",
+      "name": "Interceptor chain resolution and service proxies",
+      "category": "INT",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST call service methods through the generated proxy so interceptors run. MUST NOT call the underlying instance directly.",
+      "verify": "run a fixture component/payload that uses `Interceptor chain resolution and service proxies` and check that the Runtime host does: call service methods through the generated proxy so interceptors run."
+    },
+    {
+      "id": "INT-005",
+      "name": "ComponentException",
+      "category": "INT",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST map it to a user-facing error: origin USER = fixable by the user (configuration), BACKEND = remote system problem.",
+      "verify": "Trigger a `ComponentException` with origin USER and one with BACKEND: the UI shows a user-fixable message for the first and a remote-system error for the second."
+    },
+    {
+      "id": "INT-005",
+      "name": "ComponentException",
+      "category": "INT",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST let it propagate as failure of the job/step and MUST NOT depend on the original exception classes (classloader isolation).",
+      "verify": "Throw `ComponentException` in a component: the job/step fails and the host sees `ComponentException`, not the plugin-specific exception class."
+    },
+    {
+      "id": "INT-006",
+      "name": "ComponentException.ErrorOrigin",
+      "category": "INT",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "SHOULD present USER errors as validation feedback and BACKEND errors as service unavailability.",
+      "verify": "run a fixture component/payload that uses `ComponentException.ErrorOrigin` and check that the Designer host does: present USER errors as validation feedback and BACKEND errors as service unavailability."
+    },
+    {
+      "id": "INT-006",
+      "name": "ComponentException.ErrorOrigin",
+      "category": "INT",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "SHOULD classify job failure causes with it.",
+      "verify": "run a fixture component/payload that uses `ComponentException.ErrorOrigin` and check that the Runtime host does: classify job failure causes with it."
+    },
+    {
+      "id": "INT-007",
+      "name": "DiscoverSchemaException",
+      "category": "INT",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MAY implement the recovery strategies (INT-008) for schema-guess failures.",
+      "verify": "run a fixture component/payload that uses `DiscoverSchemaException` and check that the Designer host does: implement the recovery strategies (INT-008) for schema-guess failures."
+    },
+    {
+      "id": "INT-008",
+      "name": "DiscoverSchemaException.HandleErrorWith",
+      "category": "INT",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MAY react to EXECUTE_LIFECYCLE/EXECUTE_MOCK_JOB by running the component (Studio-like hosts).",
+      "verify": "run a fixture component/payload that uses `DiscoverSchemaException.HandleErrorWith` and check that the Designer host does: react to EXECUTE_LIFECYCLE/EXECUTE_MOCK_JOB by running the component (Studio-like hosts)."
+    },
+    {
+      "id": "INT-009",
+      "name": "Runtime exception unwrapping (InvocationExceptionWrapper)",
+      "category": "INT",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST expect `ComponentException` (never plugin-specific exception classes) from component calls. SHOULD log `originalType`.",
+      "verify": "Throw a plugin-specific exception from a component: the engine catches a `ComponentException` (with `originalType` logged) and no plugin class leaks."
+    },
+    {
+      "id": "SVC-001",
+      "name": "@Service",
+      "category": "SVC",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "none (services are reached only through actions, see ACT-002).",
+      "verify": "None beyond ACT-002 (no direct check)."
+    },
+    {
+      "id": "SVC-001",
+      "name": "@Service",
+      "category": "SVC",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST scan each plugin for `@Service` classes, instantiate one instance per plugin, inject by type into components and services, and honor the lifecycle in SVC-027.",
+      "verify": "Deploy a plugin with 2 `@Service` classes, one injecting the other: one instance per plugin exists and injection works in components and services."
+    },
+    {
+      "id": "SVC-002",
+      "name": "BaseService",
+      "category": "SVC",
+      "level": 1,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST set the `serializationHelper` on every `BaseService` instance it creates so distributed engines can serialize and re-resolve the service on workers.",
+      "verify": "run a fixture component/payload that uses `BaseService` and check that the Runtime host does: set the `serializationHelper` on every `BaseService` instance it creates so distributed engines can serialize and re-resolve the service on workers."
+    },
+    {
+      "id": "SVC-003",
+      "name": "Serial",
+      "category": "SVC",
+      "level": 1,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST make deserialized service references resolve to the target worker's plugin instance (via `ContainerFinder`, SPI `org.talend.sdk.component.runtime.serialization.ContainerFinder`). MUST NOT ship service state across the wire.",
+      "verify": "run a fixture component/payload that uses `Serial` and check that the Runtime host does: make deserialized service references resolve to the target worker's plugin instance (via `ContainerFinder`, SPI `org.talend.sdk.component.runtime.serialization.ContainerFinder`)."
+    },
+    {
+      "id": "SVC-005",
+      "name": "LocalConfiguration",
+      "category": "SVC",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST NOT resolve `local_configuration:` itself if it talks to a Component Server (values arrive resolved). MAY expose server-side configuration through the server's own `LocalConfiguration` SPI (`VirtualDependenciesService$LocalConfigurationImpl`).",
+      "verify": "Call an action that reads a local configuration value: the value arrives resolved; the host does not resolve `local_configuration:` itself."
+    },
+    {
+      "id": "SVC-005",
+      "name": "LocalConfiguration",
+      "category": "SVC",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST inject a `LocalConfiguration` scoped to the plugin id, honoring the lookup order above. SHOULD NOT rely on it for runtime-critical values because runtime and design-time environments differ.",
+      "verify": "Set a key `<family>.<key>` and `<key>`: the family-prefixed key wins; the injected `LocalConfiguration` is scoped to the plugin id."
+    },
+    {
+      "id": "SVC-006",
+      "name": "@Configuration",
+      "category": "SVC",
+      "level": 1,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST support `@Configuration(\"prefix\") Supplier<X>` on service fields (re-evaluated at each `get()`) and `@Configuration(\"prefix\") X` on constructor parameters.",
+      "verify": "run a fixture component/payload that uses `@Configuration` and check that the Runtime host does: support `@Configuration(\"prefix\") Supplier<X>` on service fields (re-evaluated at each `get()`) and `@Configuration(\"prefix\") X` on constructor parameters."
+    },
+    {
+      "id": "SVC-007",
+      "name": "Injector",
+      "category": "SVC",
+      "level": 1,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST provide an injector that resolves against the plugin's service map.",
+      "verify": "run a fixture component/payload that uses `Injector` and check that the Runtime host does: provide an injector that resolves against the plugin's service map."
+    },
+    {
+      "id": "SVC-008",
+      "name": "LocalCache",
+      "category": "SVC",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST inject a cache per plugin and release it on plugin undeploy (`@PreDestroy release()`). SHOULD keep default unlimited behaviour unless configured.",
+      "verify": "Inject `LocalCache` in two plugins, undeploy one: caches are independent and the removed plugin's cache is released."
+    },
+    {
+      "id": "SVC-009",
+      "name": "@Cached",
+      "category": "SVC",
+      "level": 1,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "if unsupported, the method MUST still execute correctly (uncached). MUST provide `LocalCache` (reference `LocalCacheService`). SHOULD wrap services with interceptors (proxy) so `@Cached` is honored.",
+      "verify": "run a fixture component/payload that uses `@Cached` and check that the Runtime host does: if unsupported, the method still execute correctly (uncached)."
+    },
+    {
+      "id": "SVC-012",
+      "name": "ProducerFinder",
+      "category": "SVC",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "if provided MUST resolve mappers across all deployed plugins and MUST convert emitted objects to `Record`. MAY provide it.",
+      "verify": "run a fixture component/payload that uses `ProducerFinder` and check that the Runtime host does: if provided resolve mappers across all deployed plugins and convert emitted objects to `Record`."
+    },
+    {
+      "id": "SVC-013",
+      "name": "Resolver",
+      "category": "SVC",
+      "level": 1,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST inject a `Resolver` bound to the plugin repository and MUST create an isolated `ConfigurableClassLoader` for `mapDescriptorToClassLoader`.",
+      "verify": "run a fixture component/payload that uses `Resolver` and check that the Runtime host does: inject a `Resolver` bound to the plugin repository and create an isolated `ConfigurableClassLoader` for `mapDescriptorToClassLoader`."
+    },
+    {
+      "id": "SVC-014",
+      "name": "ClassLoaderDefinition",
+      "category": "SVC",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "an implementation that does not MUST throw `UnsupportedOperationException` (the API default). MAY support it.",
+      "verify": "run a fixture component/payload that uses `ClassLoaderDefinition` and check that the Runtime host does: an implementation that does not throw `UnsupportedOperationException` (the API default)."
+    },
+    {
+      "id": "SVC-015",
+      "name": "ObjectFactory",
+      "category": "SVC",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST provide it when hosting components that inject it.",
+      "verify": "run a fixture component/payload that uses `ObjectFactory` and check that the Runtime host does: provide it when hosting components that inject it."
+    },
+    {
+      "id": "SVC-016",
+      "name": "JSON-P services",
+      "category": "SVC",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST inject these six types by exact type. injected instances MUST be `Serializable`.",
+      "verify": "Inject `JsonBuilderFactory`, `JsonProvider`, `JsonReaderFactory`, `JsonWriterFactory`, `JsonGeneratorFactory`, `JsonParserFactory` by exact type and serialize an instance: Java serialization works."
+    },
+    {
+      "id": "SVC-017",
+      "name": "Jsonb",
+      "category": "SVC",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST inject a `Jsonb` per plugin sharing the JSON-P buffers.",
+      "verify": "Inject `Jsonb` and (de)serialize a POJO: it works and shares the JSON-P buffers of the plugin."
+    },
+    {
+      "id": "SVC-018",
+      "name": "ContainerInfo and ProxyGenerator (internal services)",
+      "category": "SVC",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MAY expose them. hosts not built on `component-runtime-manager` can omit them.",
+      "verify": "run a fixture component/payload that uses `ContainerInfo and ProxyGenerator (internal services)` and check that the Runtime host does: expose them."
+    },
+    {
+      "id": "SVC-019",
+      "name": "@RuntimeContext",
+      "category": "SVC",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "A Studio-compatible runtime MUST inject the holder into annotated fields before `start`. other runtimes MAY leave the field null and components MUST tolerate that.",
+      "verify": "run a fixture component/payload that uses `@RuntimeContext` and check that the Runtime host does: A Studio-compatible runtime inject the holder into annotated fields before `start`."
+    },
+    {
+      "id": "SVC-020",
+      "name": "RuntimeContextHolder",
+      "category": "SVC",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "Studio runtime MUST create one per connector instance sharing the global map.",
+      "verify": "run a fixture component/payload that uses `RuntimeContextHolder` and check that the Runtime host does: Studio runtime create one per connector instance sharing the global map."
+    },
+    {
+      "id": "SVC-021",
+      "name": "ComponentExtension",
+      "category": "SVC",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "if supported MUST load via `ServiceLoader` with the manager classloader, sort by `priority()`, call `onComponent` for every scanned component class, and merge `getExtensionServices` into the plugin's services when the extension owns the component. MUST NOT expect extensions to run without `ComponentManager`. MAY support.",
+      "verify": "run a fixture component/payload that uses `ComponentExtension` and check that the Runtime host does: if supported load via `ServiceLoader` with the manager classloader, sort by `priority()`, call `onComponent` for every scanned component class, and merge `getExtensionServices` into the plugin's ...."
+    },
+    {
+      "id": "SVC-022",
+      "name": "ComponentExtension.ComponentContext",
+      "category": "SVC",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST provide a per-component context to each extension.",
+      "verify": "run a fixture component/payload that uses `ComponentExtension.ComponentContext` and check that the Runtime host does: provide a per-component context to each extension."
+    },
+    {
+      "id": "SVC-023",
+      "name": "ComponentExtension.ComponentInstance",
+      "category": "SVC",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST pass the native instance and its coordinates to the extension.",
+      "verify": "run a fixture component/payload that uses `ComponentExtension.ComponentInstance` and check that the Runtime host does: pass the native instance and its coordinates to the extension."
+    },
+    {
+      "id": "SVC-024",
+      "name": "GenericComponentExtension",
+      "category": "SVC",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "if so MUST consult it before standard lookup and enforce the single-implementation rule. MAY support.",
+      "verify": "run a fixture component/payload that uses `GenericComponentExtension` and check that the Runtime host does: if so consult it before standard lookup and enforce the single-implementation rule."
+    },
+    {
+      "id": "SVC-025",
+      "name": "ContainerListenerExtension",
+      "category": "SVC",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MAY support (only relevant if reusing `component-runtime-manager`).",
+      "verify": "run a fixture component/payload that uses `ContainerListenerExtension` and check that the Runtime host does: support (only relevant if reusing `component-runtime-manager`)."
+    },
+    {
+      "id": "SVC-026",
+      "name": "ContainerClasspathContributor and ComponentManager.Customizer",
+      "category": "SVC",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MAY support. WARNING internal. MAY implement a `Customizer` to integrate with a host-specific class/dependency layout.",
+      "verify": "run a fixture component/payload that uses `ContainerClasspathContributor and ComponentManager.Customizer` and check that the Runtime host does: support."
+    },
+    {
+      "id": "SVC-027",
+      "name": "Service instantiation, injection and lifecycle order",
+      "category": "SVC",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST follow this order so `@PostConstruct` sees injected services. MUST call `@PreDestroy` on undeploy. MUST expose the built-in service set when replacing `DefaultServiceProvider`. MUST run `@PostConstruct` of services once per container start.",
+      "verify": "Deploy a service using an injected service inside `@PostConstruct`: it is non-null; on undeploy `@PreDestroy` runs; `@PostConstruct` runs once per container start."
+    },
+    {
+      "id": "HTTP-001",
+      "name": "HttpClientFactory",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST inject a serializable `HttpClientFactory` scoped to the plugin (serialization via `SerializableService`). MUST also auto-create and register a proxy for every `HttpClient` sub-interface that declares `@Request` methods so it can be injected by type (HTTP-002).",
+      "verify": "Inject `HttpClientFactory` and a `HttpClient` sub-interface with `@Request` methods into a component, serialize the component: both work after deserialization."
+    },
+    {
+      "id": "HTTP-002",
+      "name": "HttpClient",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST let components call `client.base(url)` (typically in `@PostConstruct`) and store it in the proxy handler. the base MUST be preserved when the proxy is copied.",
+      "verify": "Call `client.base(url)` in `@PostConstruct` then invoke a request: the URL starts with the base; the base survives copying of the proxy."
+    },
+    {
+      "id": "HTTP-003",
+      "name": "@Request",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST parse each method once (annotations + parameters) and cache the execution plan. MUST fail creation on missing `@Request`.",
+      "verify": "Create a client for an interface with a method lacking `@Request`: creation fails; a valid method is parsed once and reused."
+    },
+    {
+      "id": "HTTP-004",
+      "name": "@Base",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST use it in preference to the proxy base. URL = base + `/` + path (single slash join, empty parts tolerated).",
+      "verify": "Set `@Base` on a method: the request goes to that base + `/` + path with a single slash."
+    },
+    {
+      "id": "HTTP-005",
+      "name": "@Url",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST ignore base and request path when present.",
+      "verify": "Use `@Url` on a parameter: the request goes to exactly that URL, ignoring base and path."
+    },
+    {
+      "id": "HTTP-006",
+      "name": "@HttpMethod",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST honor the override.",
+      "verify": "Use `@HttpMethod(\"PATCH\")` (or another custom verb): the wire method is that verb."
+    },
+    {
+      "id": "HTTP-007",
+      "name": "@Path",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST apply exactly the encoding above.",
+      "verify": "Call a `@Path` method with a value needing encoding (space, `/`): the path segment is encoded as specified."
+    },
+    {
+      "id": "HTTP-008",
+      "name": "@Query",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST preserve declaration order of query parameters.",
+      "verify": "Call a method with 3 `@Query` parameters: the query string keeps declaration order."
+    },
+    {
+      "id": "HTTP-009",
+      "name": "@QueryParams",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST support Map arguments.",
+      "verify": "Pass a `Map` to `@QueryParams`: each entry becomes a query parameter."
+    },
+    {
+      "id": "HTTP-010",
+      "name": "QueryFormat",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST implement both. any other value is an `IllegalArgumentException(\"Unsupported formatting\")`.",
+      "verify": "Use `QueryFormat.MULTI` and `QueryFormat.CSV` on a list argument: the list is arguments are formatted accordingly; another value gives `IllegalArgumentException`."
+    },
+    {
+      "id": "HTTP-011",
+      "name": "@Header",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST set headers with `setRequestProperty` semantics before the configurer runs.",
+      "verify": "Send `@Header(\"X-A\")`: the header reaches the server before the configurer runs."
+    },
+    {
+      "id": "HTTP-012",
+      "name": "@Headers",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST support Map arguments.",
+      "verify": "Pass a `Map` to `@Headers`: all entries are sent as headers."
+    },
+    {
+      "id": "HTTP-013",
+      "name": "@Codec",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST instantiate codecs with service injection and merge them with the defaults of HTTP-017 (user codecs win on identical content type).",
+      "verify": "Declare `@Codec` with a custom encoder: it overrides the default for the same content type."
+    },
+    {
+      "id": "HTTP-014",
+      "name": "Encoder",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST call `encode` only for non-null, non-`byte[]` payloads.",
+      "verify": "Send a null payload and a `byte[]` payload: `encode` is not called for either."
+    },
+    {
+      "id": "HTTP-015",
+      "name": "Decoder",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST pass the generic `Type` (the `Response<T>` argument when wrapped).",
+      "verify": "Return `Response<List<Foo>>`: the decoder receives the generic `List<Foo>` type."
+    },
+    {
+      "id": "HTTP-016",
+      "name": "@ContentType",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST register codecs under this value. two codecs with the same key are an error (`IllegalArgumentException`).",
+      "verify": "Register two codecs with the same `@ContentType`: `IllegalArgumentException`."
+    },
+    {
+      "id": "HTTP-017",
+      "name": "Default codecs and content-type matching",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST implement exactly these defaults and this matching order.",
+      "verify": "Call with `application/json` and `text/plain` responses without custom codecs: the default JSON and text codecs decode them; content-type matching follows the documented order."
+    },
+    {
+      "id": "HTTP-018",
+      "name": "@UseConfigurer",
+      "category": "HTTP",
+      "level": 1,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST call `configure(connection, configuration)` once per invocation.",
+      "verify": "run a fixture component/payload that uses `@UseConfigurer` and check that the Runtime host does: call `configure(connection, configuration)` once per invocation."
+    },
+    {
+      "id": "HTTP-019",
+      "name": "Configurer",
+      "category": "HTTP",
+      "level": 1,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST expose the current `HttpURLConnection` state through `Connection` and apply `postConfigure` (follow-redirect flag) before connecting.",
+      "verify": "run a fixture component/payload that uses `Configurer` and check that the Runtime host does: expose the current `HttpURLConnection` state through `Connection` and apply `postConfigure` (follow-redirect flag) before connecting."
+    },
+    {
+      "id": "HTTP-020",
+      "name": "@ConfigurerOption",
+      "category": "HTTP",
+      "level": 1,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST pass the raw (unconverted) argument object.",
+      "verify": "run a fixture component/payload that uses `@ConfigurerOption` and check that the Runtime host does: pass the raw (unconverted) argument object."
+    },
+    {
+      "id": "HTTP-021",
+      "name": "OAuth1 configurer",
+      "category": "HTTP",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "SHOULD ship an `OAuth1Provider` if it wants to run connectors using it (the manager registers `OAuth1ProviderImpl` through `META-INF/services/org.talend.sdk.component.api.service.http.configurer.oauth1.OAuth1$OAuth1Provider`).",
+      "verify": "run a fixture component/payload that uses `OAuth1 configurer` and check that the Runtime host does: ship an `OAuth1Provider` if it wants to run connectors using it (the manager registers `OAuth1ProviderImpl` through ...."
+    },
+    {
+      "id": "HTTP-022",
+      "name": "OAuth1Provider (SPI)",
+      "category": "HTTP",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MAY provide an alternative implementation via `ServiceLoader`.",
+      "verify": "run a fixture component/payload that uses `OAuth1Provider (SPI)` and check that the Runtime host does: provide an alternative implementation via `ServiceLoader`."
+    },
+    {
+      "id": "HTTP-023",
+      "name": "Response",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST NOT throw for error statuses when the method returns `Response`. MUST expose the error body via `error()`.",
+      "verify": "Call an endpoint returning 404 with a `Response<T>` return type: no exception, `status()==404` and `error(String.class)` returns the body."
+    },
+    {
+      "id": "HTTP-024",
+      "name": "HttpException",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MAY show `getResponse().error(String.class)` for action failures (actions surface as `ComponentException`/HTTP 520 in the server).",
+      "verify": "Trigger an HTTP failure inside an action: the UI shows the error text (server answers 520 / ComponentException)."
+    },
+    {
+      "id": "HTTP-024",
+      "name": "HttpException",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST propagate as a component failure (error propagation, level 0).",
+      "verify": "Trigger an HTTP failure in a component: `HttpException` propagates as a component failure and fails the job."
+    },
+    {
+      "id": "HTTP-025",
+      "name": "Request execution semantics",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST reproduce this order. SHOULD prefer `InputStream` return types for large payloads.",
+      "verify": "Execute a request with query, header and body: order of operations matches the documented execution semantics; large body returned as `InputStream` is streamed."
+    },
+    {
+      "id": "HTTP-026",
+      "name": "Payload parameter",
+      "category": "HTTP",
+      "level": 0,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "MUST enforce at most one payload parameter.",
+      "verify": "Declare a method with two payload parameters: creation fails; one payload is accepted."
+    },
+    {
+      "id": "SRV-001",
+      "name": "Base path and JAX-RS application",
+      "category": "SRV",
+      "level": 0,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST prefix every call with `/api/v1`. SHOULD read `Environment.latestApiVersion` (SRV-014) to detect newer API versions.",
+      "verify": "Call the server: every URL starts with `/api/v1`; `Environment.latestApiVersion` is read and a higher value is reported."
+    },
+    {
+      "id": "SRV-002",
+      "name": "GET /api/v1/component/index",
+      "category": "SRV",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST call it to build the palette. SHOULD pass the user language and cache the answer until `Environment.lastUpdated` changes.",
+      "verify": "Open the palette against a running server: components are listed from `/api/v1/component/index?language=<lang>`; a second open with unchanged `lastUpdated` is served from the client cache."
+    },
+    {
+      "id": "SRV-002",
+      "name": "GET /api/v1/component/index",
+      "category": "SRV",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "none (runtime loads plugins locally).",
+      "verify": "run a fixture component/payload that uses `GET /api/v1/component/index` and check that the Runtime host does: none (runtime loads plugins locally)."
+    },
+    {
+      "id": "SRV-003",
+      "name": "GET /api/v1/component/details",
+      "category": "SRV",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST fetch details before rendering a form or creating a job node. MUST persist `ComponentDetail.version` with the configuration (see SRV-004).",
+      "verify": "Create a node: `/component/details?identifiers=<id>` is called before the form is rendered and `version` is stored with the configuration."
+    },
+    {
+      "id": "SRV-003",
+      "name": "GET /api/v1/component/details",
+      "category": "SRV",
+      "level": 0,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "none. the runtime obtains the same information from `ComponentManager` metadata.",
+      "verify": "run a fixture component/payload that uses `GET /api/v1/component/details` and check that the Runtime host does: none."
+    },
+    {
+      "id": "SRV-004",
+      "name": "POST /api/v1/component/migrate/{id}/{configurationVersion}",
+      "category": "SRV",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST call it on load when the stored version is lower than `ComponentDetail.version`, then persist the returned map with the new version.",
+      "verify": "run a fixture component/payload that uses `POST /api/v1/component/migrate/{id}/{configurationVersion}` and check that the Designer host does: call it on load when the stored version is lower than `ComponentDetail.version`, then persist the returned map with the new version."
+    },
+    {
+      "id": "SRV-004",
+      "name": "POST /api/v1/component/migrate/{id}/{configurationVersion}",
+      "category": "SRV",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MUST perform the same migration through `ComponentManager` when it receives an older version (see RUN/LCM categories).",
+      "verify": "run a fixture component/payload that uses `POST /api/v1/component/migrate/{id}/{configurationVersion}` and check that the Runtime host does: perform the same migration through `ComponentManager` when it receives an older version (see RUN/LCM categories)."
+    },
+    {
+      "id": "SRV-005",
+      "name": "Icon endpoints",
+      "category": "SRV",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST handle 404 with a default icon. SHOULD render icons from these endpoints or from `includeIconContent=true`.",
+      "verify": "run a fixture component/payload that uses `Icon endpoints` and check that the Designer host does: handle 404 with a default icon."
+    },
+    {
+      "id": "SRV-006",
+      "name": "GET /api/v1/component/dependencies",
+      "category": "SRV",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MAY use it to package a job.",
+      "verify": "run a fixture component/payload that uses `GET /api/v1/component/dependencies` and check that the Designer host does: use it to package a job."
+    },
+    {
+      "id": "SRV-006",
+      "name": "GET /api/v1/component/dependencies",
+      "category": "SRV",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "A runtime that does not have plugins locally MAY use it with SRV-007 to download them. otherwise none.",
+      "verify": "run a fixture component/payload that uses `GET /api/v1/component/dependencies` and check that the Runtime host does: A runtime that does not have plugins locally use it with SRV-007 to download them."
+    },
+    {
+      "id": "SRV-007",
+      "name": "GET /api/v1/component/dependency/{id}",
+      "category": "SRV",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MAY proxy it.",
+      "verify": "run a fixture component/payload that uses `GET /api/v1/component/dependency/{id}` and check that the Designer host does: proxy it."
+    },
+    {
+      "id": "SRV-007",
+      "name": "GET /api/v1/component/dependency/{id}",
+      "category": "SRV",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MAY download artifacts with it after SRV-006.",
+      "verify": "run a fixture component/payload that uses `GET /api/v1/component/dependency/{id}` and check that the Runtime host does: download artifacts with it after SRV-006."
+    },
+    {
+      "id": "SRV-008",
+      "name": "GET /api/v1/documentation/component/{id}",
+      "category": "SRV",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "SHOULD display it in a help panel and render asciidoc (or use the returned rendering).",
+      "verify": "run a fixture component/payload that uses `GET /api/v1/documentation/component/{id}` and check that the Designer host does: display it in a help panel and render asciidoc (or use the returned rendering)."
+    },
+    {
+      "id": "SRV-009",
+      "name": "GET /api/v1/configurationtype/index",
+      "category": "SRV",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST use it to offer reusable datastores/datasets and to link them to components.",
+      "verify": "run a fixture component/payload that uses `GET /api/v1/configurationtype/index` and check that the Designer host does: use it to offer reusable datastores/datasets and to link them to components."
+    },
+    {
+      "id": "SRV-010",
+      "name": "GET /api/v1/configurationtype/details",
+      "category": "SRV",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST use it to render dataset/datastore forms.",
+      "verify": "run a fixture component/payload that uses `GET /api/v1/configurationtype/details` and check that the Designer host does: use it to render dataset/datastore forms."
+    },
+    {
+      "id": "SRV-011",
+      "name": "POST /api/v1/configurationtype/migrate/{id}/{configurationVersion}",
+      "category": "SRV",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST migrate stored datasets/datastores whose version is older.",
+      "verify": "run a fixture component/payload that uses `POST /api/v1/configurationtype/migrate/{id}/{configurationVersion}` and check that the Designer host does: migrate stored datasets/datastores whose version is older."
+    },
+    {
+      "id": "SRV-011",
+      "name": "POST /api/v1/configurationtype/migrate/{id}/{configurationVersion}",
+      "category": "SRV",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "SHOULD migrate through `ComponentManager` for nested dataset versions.",
+      "verify": "run a fixture component/payload that uses `POST /api/v1/configurationtype/migrate/{id}/{configurationVersion}` and check that the Runtime host does: migrate through `ComponentManager` for nested dataset versions."
+    },
+    {
+      "id": "SRV-012",
+      "name": "GET /api/v1/action/index",
+      "category": "SRV",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST use the `ActionReference` entries of the component/config detail to resolve triggers. MAY use it for discovery. component details already carry action references. MAY use the index for custom (`user`, ACT-001) actions.",
+      "verify": "run a fixture component/payload that uses `GET /api/v1/action/index` and check that the Designer host does: use the `ActionReference` entries of the component/config detail to resolve triggers."
+    },
+    {
+      "id": "SRV-013",
+      "name": "POST /api/v1/action/execute",
+      "category": "SRV",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST send only the properties the action declares (see the action's `properties` from `ComponentDetail`), with the exact `configuration.<path>` keys. MUST interpret errors by status and `ErrorPayload.code`.",
+      "verify": "run a fixture component/payload that uses `POST /api/v1/action/execute` and check that the Designer host does: send only the properties the action declares (see the action's `properties` from `ComponentDetail`), with the exact `configuration.<path>` keys."
+    },
+    {
+      "id": "SRV-014",
+      "name": "GET /api/v1/environment",
+      "category": "SRV",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST tolerate 404. SHOULD poll it (or call on reconnect) to invalidate its component cache when `lastUpdated`/`connectors.pluginsHash` change.",
+      "verify": "run a fixture component/payload that uses `GET /api/v1/environment` and check that the Designer host does: tolerate 404."
+    },
+    {
+      "id": "SRV-015",
+      "name": "POST /api/v1/bulk",
+      "category": "SRV",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MAY use it to reduce round trips (index + details).",
+      "verify": "run a fixture component/payload that uses `POST /api/v1/bulk` and check that the Designer host does: use it to reduce round trips (index + details)."
+    },
+    {
+      "id": "SRV-016",
+      "name": "GET /api/v1/cache/clear",
+      "category": "SRV",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MAY expose a \"reload components\" action (Studio dev mode does).",
+      "verify": "run a fixture component/payload that uses `GET /api/v1/cache/clear` and check that the Designer host does: expose a \"reload components\" action (Studio dev mode does)."
+    },
+    {
+      "id": "SRV-017",
+      "name": "Response caching and invalidation",
+      "category": "SRV",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST NOT rely on `ETag`/`304`. SHOULD cache responses client-side keyed by URL + language and invalidate when `Environment.lastUpdated`/`connectors.pluginsHash` changes.",
+      "verify": "run a fixture component/payload that uses `Response caching and invalidation` and check that the Designer host does: never rely on `ETag`/`304`."
+    },
+    {
+      "id": "SRV-018",
+      "name": "Internationalization (language parameter and locale mapping)",
+      "category": "SRV",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST send the UI language in `language`/`lang`. SHOULD accept that the returned language may differ (fallback `en`).",
+      "verify": "run a fixture component/payload that uses `Internationalization (language parameter and locale mapping)` and check that the Designer host does: send the UI language in `language`/`lang`."
+    },
+    {
+      "id": "SRV-018",
+      "name": "Internationalization (language parameter and locale mapping)",
+      "category": "SRV",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "none (component messages use `@Internationalized`, category INT/DSG).",
+      "verify": "run a fixture component/payload that uses `Internationalization (language parameter and locale mapping)` and check that the Runtime host does: none (component messages use `@Internationalized`, category INT/DSG)."
+    },
+    {
+      "id": "SRV-019",
+      "name": "Security handlers (connection and command)",
+      "category": "SRV",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST add authentication in front of the server (gateway/handler) in multi-tenant deployments. MAY forward `x-talend-tenant-id` (SRV-020).",
+      "verify": "run a fixture component/payload that uses `Security handlers (connection and command)` and check that the Designer host does: add authentication in front of the server (gateway/handler) in multi-tenant deployments."
+    },
+    {
+      "id": "SRV-020",
+      "name": "Credential decryption (vault)",
+      "category": "SRV",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST send the tenant header when the deployment is multi-tenant. MAY send encrypted (`vault:`-prefixed) credentials to action calls instead of clear text.",
+      "verify": "run a fixture component/payload that uses `Credential decryption (vault)` and check that the Designer host does: send the tenant header when the deployment is multi-tenant."
+    },
+    {
+      "id": "SRV-020",
+      "name": "Credential decryption (vault)",
+      "category": "SRV",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "SHOULD decrypt `vault:` values before instantiating components if it stores them encrypted (unverified: runtime-side handling is host-specific).",
+      "verify": "run a fixture component/payload that uses `Credential decryption (vault)` and check that the Runtime host does: decrypt `vault:` values before instantiating components if it stores them encrypted (unverified: runtime-side handling is host-specific)."
+    },
+    {
+      "id": "SRV-021",
+      "name": "Documentation UI and toggle",
+      "category": "SRV",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Both",
+      "what": "Informative: no host obligation stated in the contract; support it if the host exposes this feature.",
+      "verify": "run a fixture using `Documentation UI and toggle` and check: the feature is exercised without error."
+    },
+    {
+      "id": "SRV-022",
+      "name": "Simple query language (q parameter)",
+      "category": "SRV",
+      "level": 1,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST escape spaces properly in URLs. MAY use it for server-side palette filtering.",
+      "verify": "run a fixture component/payload that uses `Simple query language (q parameter)` and check that the Designer host does: escape spaces properly in URLs."
+    },
+    {
+      "id": "SRV-023",
+      "name": "Server configuration keys (summary)",
+      "category": "SRV",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "none beyond knowing which endpoints may be disabled (`environment`, `documentation`).",
+      "verify": "run a fixture component/payload that uses `Server configuration keys (summary)` and check that the Designer host does: none beyond knowing which endpoints may be disabled (`environment`, `documentation`)."
+    },
+    {
+      "id": "SRV-024",
+      "name": "Error payload (ErrorPayload and ErrorDictionary)",
+      "category": "SRV",
+      "level": 0,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MUST parse `ErrorPayload` on non-2xx and surface `description`. MUST distinguish 4xx user errors, 456 backend errors and 520 unexpected errors from actions.",
+      "verify": "Force a 400, a 456 and a 520 from `/action/execute`: each `ErrorPayload.description` is displayed and the three classes are distinguished (user / backend / unexpected)."
+    },
+    {
+      "id": "SRV-025",
+      "name": "Plugin deployment, registry and reloading",
+      "category": "SRV",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MUST refresh its palette after `lastUpdated` changes (SRV-014).",
+      "verify": "run a fixture component/payload that uses `Plugin deployment, registry and reloading` and check that the Designer host does: refresh its palette after `lastUpdated` changes (SRV-014)."
+    },
+    {
+      "id": "SRV-025",
+      "name": "Plugin deployment, registry and reloading",
+      "category": "SRV",
+      "level": 1,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "none (runtime deploys plugins itself with `ComponentManager`).",
+      "verify": "run a fixture component/payload that uses `Plugin deployment, registry and reloading` and check that the Runtime host does: none (runtime deploys plugins itself with `ComponentManager`)."
+    },
+    {
+      "id": "TST-001",
+      "name": "SimpleComponentRule (JUnit 4)",
+      "category": "TST",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "none (test-only). a runtime host MAY use it as a reference behaviour oracle.",
+      "verify": "run a fixture component/payload that uses `SimpleComponentRule (JUnit 4)` and check that the Runtime host does: none (test-only)."
+    },
+    {
+      "id": "TST-002",
+      "name": "@WithComponents, ComponentExtension and @Injected (JUnit 5)",
+      "category": "TST",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Both",
+      "what": "Informative: no host obligation stated in the contract; support it if the host exposes this feature.",
+      "verify": "run a fixture using `@WithComponents, ComponentExtension and @Injected (JUnit 5)` and check: the feature is exercised without error."
+    },
+    {
+      "id": "TST-003",
+      "name": "ComponentsHandler and BaseComponentsHandler",
+      "category": "TST",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Both",
+      "what": "Informative: no host obligation stated in the contract; support it if the host exposes this feature.",
+      "verify": "run a fixture using `ComponentsHandler and BaseComponentsHandler` and check: the feature is exercised without error."
+    },
+    {
+      "id": "TST-004",
+      "name": "Mock components test://emitter and test://collector",
+      "category": "TST",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Both",
+      "what": "Informative: no host obligation stated in the contract; support it if the host exposes this feature.",
+      "verify": "run a fixture using `Mock components test://emitter and test://collector` and check: the feature is exercised without error."
+    },
+    {
+      "id": "TST-005",
+      "name": "ServiceInjectionRule",
+      "category": "TST",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Both",
+      "what": "Informative: no host obligation stated in the contract; support it if the host exposes this feature.",
+      "verify": "run a fixture using `ServiceInjectionRule` and check: the feature is exercised without error."
+    },
+    {
+      "id": "TST-006",
+      "name": "Input factories and Outputs",
+      "category": "TST",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Both",
+      "what": "Informative: no host obligation stated in the contract; support it if the host exposes this feature.",
+      "verify": "run a fixture using `Input factories and Outputs` and check: the feature is exercised without error."
+    },
+    {
+      "id": "TST-007",
+      "name": "SimpleFactory.configurationByExample",
+      "category": "TST",
+      "level": 2,
+      "tag": "Designer",
+      "audience": "Designer",
+      "what": "MAY use it to cross-check its own form-to-map serialization.",
+      "verify": "run a fixture component/payload that uses `SimpleFactory.configurationByExample` and check that the Designer host does: use it to cross-check its own form-to-map serialization."
+    },
+    {
+      "id": "TST-008",
+      "name": "RecordAsserts and ExceptionVerifier",
+      "category": "TST",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Both",
+      "what": "Informative: no host obligation stated in the contract; support it if the host exposes this feature.",
+      "verify": "run a fixture using `RecordAsserts and ExceptionVerifier` and check: the feature is exercised without error."
+    },
+    {
+      "id": "TST-009",
+      "name": "Multi-environment test framework",
+      "category": "TST",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Both",
+      "what": "Informative: no host obligation stated in the contract; support it if the host exposes this feature.",
+      "verify": "run a fixture using `Multi-environment test framework` and check: the feature is exercised without error."
+    },
+    {
+      "id": "TST-010",
+      "name": "Built-in environments",
+      "category": "TST",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "A Beam-based runtime SHOULD be validated with at least `Direct`.",
+      "verify": "run a fixture component/payload that uses `Built-in environments` and check that the Runtime host does: A Beam-based runtime be validated with at least `Direct`."
+    },
+    {
+      "id": "TST-011",
+      "name": "HTTP mocking with JUnit 4",
+      "category": "TST",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Both",
+      "what": "Informative: no host obligation stated in the contract; support it if the host exposes this feature.",
+      "verify": "run a fixture using `HTTP mocking with JUnit 4` and check: the feature is exercised without error."
+    },
+    {
+      "id": "TST-012",
+      "name": "HTTP mocking with JUnit 5",
+      "category": "TST",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Both",
+      "what": "Informative: no host obligation stated in the contract; support it if the host exposes this feature.",
+      "verify": "run a fixture using `HTTP mocking with JUnit 5` and check: the feature is exercised without error."
+    },
+    {
+      "id": "TST-013",
+      "name": "HTTP capture, passthrough and response location",
+      "category": "TST",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Both",
+      "what": "Informative: no host obligation stated in the contract; support it if the host exposes this feature.",
+      "verify": "run a fixture using `HTTP capture, passthrough and response location` and check: the feature is exercised without error."
+    },
+    {
+      "id": "TST-014",
+      "name": "MavenDecrypter, Server and JUnit helpers",
+      "category": "TST",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Both",
+      "what": "Informative: no host obligation stated in the contract; support it if the host exposes this feature.",
+      "verify": "run a fixture using `MavenDecrypter, Server and JUnit helpers` and check: the feature is exercised without error."
+    },
+    {
+      "id": "TST-015",
+      "name": "Beam JUnit helpers",
+      "category": "TST",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Both",
+      "what": "Informative: no host obligation stated in the contract; support it if the host exposes this feature.",
+      "verify": "run a fixture using `Beam JUnit helpers` and check: the feature is exercised without error."
+    },
+    {
+      "id": "TST-016",
+      "name": "Spark cluster testing",
+      "category": "TST",
+      "level": 2,
+      "tag": "Runtime",
+      "audience": "Runtime",
+      "what": "A Spark-based runtime MAY be verified with it.",
+      "verify": "run a fixture component/payload that uses `Spark cluster testing` and check that the Runtime host does: A Spark-based runtime be verified with it."
+    },
+    {
+      "id": "TST-017",
+      "name": "Temporary folder helpers",
+      "category": "TST",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Both",
+      "what": "Informative: no host obligation stated in the contract; support it if the host exposes this feature.",
+      "verify": "run a fixture using `Temporary folder helpers` and check: the feature is exercised without error."
+    },
+    {
+      "id": "TST-019",
+      "name": "Executable payload fixtures (server and manager tests)",
+      "category": "TST",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Designer",
+      "what": "MAY replay these interactions to test its client.",
+      "verify": "run a fixture component/payload that uses `Executable payload fixtures (server and manager tests)` and check that the Designer host does: replay these interactions to test its client."
+    },
+    {
+      "id": "TST-019",
+      "name": "Executable payload fixtures (server and manager tests)",
+      "category": "TST",
+      "level": 2,
+      "tag": "Both",
+      "audience": "Runtime",
+      "what": "MAY reuse manager tests as conformance examples.",
+      "verify": "run a fixture component/payload that uses `Executable payload fixtures (server and manager tests)` and check that the Runtime host does: reuse manager tests as conformance examples."
+    }
+  ]
+}

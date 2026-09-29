@@ -1,0 +1,128 @@
+[
+  {
+    "id": "DSG-001",
+    "name": "@Components",
+    "category": "DSG",
+    "level": 0,
+    "designer": "MUST group the palette by `family` and `categories` from `ComponentIndex`; SHOULD display `familyDisplayName` and translated category names; MUST use (family, name) as the component identity.",
+    "runtime": "MUST resolve components by plugin id + family + name; family is the key for shared services and actions.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/component/Components.java"
+  },
+  {
+    "id": "DSG-002",
+    "name": "@Icon",
+    "category": "DSG",
+    "level": 1,
+    "designer": "MUST fall back to a default icon when the icon is missing or unknown; SHOULD fetch the image via the icon endpoints (see [03](../03-component-server-api.md)); MAY use the inline icon content when the index is requested with `includeIconContent`.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/component/Icon.java"
+  },
+  {
+    "id": "DSG-003",
+    "name": "Icon key resolution and Icon.IconType",
+    "category": "DSG",
+    "level": 1,
+    "designer": "MUST treat the icon as an opaque key (never assume it is one of `IconType`); MUST support keys that only exist as custom icons on the server.",
+    "runtime": "none.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/reflect/IconFinder.java"
+  },
+  {
+    "id": "DSG-005",
+    "name": "@Metadatas / @Metadatas.Metadata",
+    "category": "DSG",
+    "level": 2,
+    "designer": "MAY read the `metadata` map for host-specific behavior; MUST ignore unknown keys.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/component/Metadatas.java"
+  },
+  {
+    "id": "DSG-006",
+    "name": "ComponentMetadataEnricher SPI",
+    "category": "DSG",
+    "level": 2,
+    "designer": "none (consumes the resulting keys, see `DSG-008`). MUST treat unknown metadata keys as opaque.",
+    "runtime": "SHOULD keep the `ServiceLoader` discovery intact when embedding `component-runtime-manager` so the built-in keys exist.",
+    "source": "component-spi/src/main/java/org/talend/sdk/component/spi/component/ComponentMetadataEnricher.java"
+  },
+  {
+    "id": "DSG-007",
+    "name": "@Documentation",
+    "category": "DSG",
+    "level": 1,
+    "designer": "SHOULD show `documentation::value` as help text (or as `tooltip` when `documentation::tooltip` is `true`); MAY also fetch the rendered component documentation (`/documentation/component/{id}`).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/meta/Documentation.java"
+  },
+  {
+    "id": "DSG-008",
+    "name": "Component metadata map (keys)",
+    "category": "DSG",
+    "level": 1,
+    "designer": "MUST tolerate unknown keys; MAY use `mapper::infinite`/`mapper::optionalRow` to adapt the canvas (streaming source, optional incoming row); SHOULD refresh a fixed schema when a `watch` path changes (uses the action of the same id, see `ACT-007`/`ACT-008`).",
+    "runtime": "MAY use `mapper::infinite` to select streaming execution (details in RUN catalog).",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/reflect/ComponentMetadataService.java"
+  },
+  {
+    "id": "DSG-009",
+    "name": "@Internal",
+    "category": "DSG",
+    "level": 2,
+    "designer": "none.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/meta/Internal.java"
+  },
+  {
+    "id": "DSG-010",
+    "name": "@Partial",
+    "category": "DSG",
+    "level": 2,
+    "designer": "SHOULD NOT assume full support (nested schemas) on features marked partial.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/meta/Partial.java"
+  },
+  {
+    "id": "DSG-011",
+    "name": "@Internationalized",
+    "category": "DSG",
+    "level": 1,
+    "designer": "none.",
+    "runtime": "MUST inject a proxy for `@Internationalized` interfaces (already done by `ComponentManager`); SHOULD supply the current locale (`$lang`).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/internationalization/Internationalized.java"
+  },
+  {
+    "id": "DSG-012",
+    "name": "@Language",
+    "category": "DSG",
+    "level": 2,
+    "designer": "MUST pass `lang` on action calls when it wants localized results.",
+    "runtime": "SHOULD supply `$lang` when it executes actions in-process.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/internationalization/Language.java"
+  },
+  {
+    "id": "DSG-013",
+    "name": "Resource bundle key conventions (Messages.properties)",
+    "category": "DSG",
+    "level": 1,
+    "designer": "MUST pass the requested `language` on index/detail calls and MUST display server-translated strings as is; SHOULD fall back to `name` when `displayName` is absent.",
+    "runtime": "none.",
+    "source": "documentation/src/main/antora/modules/ROOT/pages/component-internationalization.adoc"
+  },
+  {
+    "id": "DSG-014",
+    "name": "@DatabaseMapping",
+    "category": "DSG",
+    "level": 2,
+    "designer": "MAY (Studio-like hosts only) read `tcomp::ui::schema::mapping` / `tcomp::ui::schema::mapper` (see `DSG-008`) to map column types; other hosts MUST ignore.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/component/DatabaseMapping.java"
+  },
+  {
+    "id": "DSG-015",
+    "name": "Custom icon file conventions",
+    "category": "DSG",
+    "level": 1,
+    "designer": "SHOULD request icon content as SVG when it supports it, PNG otherwise; MUST NOT fail when the icon is missing.",
+    "runtime": "none.",
+    "source": "documentation/src/main/antora/modules/ROOT/pages/component-defining-custom-icon.adoc"
+  }
+]

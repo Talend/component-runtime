@@ -1,0 +1,110 @@
+[
+  {
+    "id": "LCM-001",
+    "name": "@Version",
+    "category": "LCM",
+    "level": 0,
+    "designer": "MUST store the component `version` (and each configuration type `version`) with every saved configuration and MUST send it back when calling migrate.",
+    "runtime": "MUST pass the persisted version as the `version` argument of `findMapper`/`findProcessor`/`findDriverRunner`. MUST NOT rewrite the stored version silently.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/component/Version.java"
+  },
+  {
+    "id": "LCM-002",
+    "name": "MigrationHandler",
+    "category": "LCM",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST NOT migrate itself; MUST rely on the manager (`BaseMeta.instantiate`) or the server migrate endpoint.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/component/MigrationHandler.java"
+  },
+  {
+    "id": "LCM-003",
+    "name": "Configuration migration protocol",
+    "category": "LCM",
+    "level": 1,
+    "designer": "MUST record `__version` for each nested configuration type it persists (datastore, dataset) and SHOULD call the migrate endpoints on load when `saved version < ComponentDetail.version`.",
+    "runtime": "MUST call `findMapper/findProcessor` with the saved component version (migration is applied inside) and MUST keep `<path>.__version` entries in the map.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/reflect/MigrationHandlerFactory.java"
+  },
+  {
+    "id": "LCM-004",
+    "name": "Plugin (container) model",
+    "category": "LCM",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST register every plugin before instantiating components; MUST call `removePlugin`/`close()` to release classloaders; SHOULD hold one ComponentManager per JVM.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/ComponentManager.java"
+  },
+  {
+    "id": "LCM-005",
+    "name": "Classloader isolation (ConfigurableClassLoader)",
+    "category": "LCM",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST give each plugin its own classloader whose parent exposes at least the API/SPI/runtime packages above; MUST set the thread context classloader to the plugin loader around every component call (LifecycleImpl does).",
+    "source": "container/container-core/src/main/java/org/talend/sdk/component/classloader/ConfigurableClassLoader.java"
+  },
+  {
+    "id": "LCM-006",
+    "name": "Plugin discovery and registration sources",
+    "category": "LCM",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST decide how plugins are supplied (list, `.car` deployment, classpath) and register them at startup; SHOULD use stable ids (artifactId) so upgrades replace instead of duplicate.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/ComponentManager.java"
+  },
+  {
+    "id": "LCM-007",
+    "name": "Dependency resolution (dependencies.txt)",
+    "category": "LCM",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST provide a Maven-layout repository (or nested repository) containing all `compile`/`runtime` dependencies; MAY replace resolution with a `ContainerClasspathContributor` or `Customizer.ignoreDefaultDependenciesDescriptor()`.",
+    "source": "container/container-core/src/main/java/org/talend/sdk/component/dependencies/maven/MvnDependencyListLocalRepositoryResolver.java"
+  },
+  {
+    "id": "LCM-008",
+    "name": "Maven repository discovery (m2)",
+    "category": "LCM",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST set `talend.component.manager.m2.repository` (or pass the path to the ComponentManager constructor) in production; the default is intentionally not the user's ~/.m2.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/service/MavenRepositoryDefaultResolver.java"
+  },
+  {
+    "id": "LCM-009",
+    "name": "Nested Maven repository and shade transformers",
+    "category": "LCM",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY package the host runtime as an uber jar with these transformers; then the m2 path becomes irrelevant.",
+    "source": "container/nested-maven-repository/src/main/java/org/talend/sdk/component/container/maven/shade/ContainerDependenciesTransformer.java"
+  },
+  {
+    "id": "LCM-010",
+    "name": "Component archive (.car)",
+    "category": "LCM",
+    "level": 2,
+    "designer": "none",
+    "runtime": "SHOULD support deploying `.car` files (unpack repository, register the main GAV) for remote/engine deployment.",
+    "source": "component-tools/src/main/java/org/talend/sdk/component/tools/CarBundler.java"
+  },
+  {
+    "id": "LCM-011",
+    "name": "Component scanning rules",
+    "category": "LCM",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST NOT scan itself; SHOULD provide `scanning.properties` in fat-jar deployments for startup speed.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/xbean/KnownClassesFilter.java"
+  },
+  {
+    "id": "LCM-018",
+    "name": "ContainerListener and JMX exposure",
+    "category": "LCM",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY register listeners for monitoring hooks (checklist level 2).",
+    "source": "container/container-core/src/main/java/org/talend/sdk/component/container/ContainerListener.java"
+  }
+]

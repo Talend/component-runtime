@@ -1,0 +1,119 @@
+[
+  {
+    "id": "VAL-001",
+    "name": "@Required",
+    "category": "VAL",
+    "level": 0,
+    "designer": "MUST refuse to save/run a configuration where an active (`UI-016`) required option is empty/null; MUST mark the field visually as required (`UiSchema.required`, JSON schema `required` array of the parent).",
+    "runtime": "MUST reject a null value for an active required option (the component manager does, see `VAL-012`).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/constraint/Required.java"
+  },
+  {
+    "id": "VAL-002",
+    "name": "@Min",
+    "category": "VAL",
+    "level": 1,
+    "designer": "MUST enforce `min` on numbers, `minItems` on lists and `minLength` on strings.",
+    "runtime": "MUST reject values below the bound (component manager does).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/constraint/Min.java"
+  },
+  {
+    "id": "VAL-003",
+    "name": "@Max",
+    "category": "VAL",
+    "level": 1,
+    "designer": "MUST enforce `max`, `maxItems`, `maxLength`.",
+    "runtime": "MUST reject values above the bound.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/constraint/Max.java"
+  },
+  {
+    "id": "VAL-004",
+    "name": "@Pattern",
+    "category": "VAL",
+    "level": 1,
+    "designer": "MUST validate with a JavaScript regex engine (JSON schema `pattern`).",
+    "runtime": "MUST reject non-matching strings (component manager does).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/constraint/Pattern.java"
+  },
+  {
+    "id": "VAL-005",
+    "name": "@Uniques",
+    "category": "VAL",
+    "level": 1,
+    "designer": "MUST prevent duplicate entries (JSON schema `uniqueItems`).",
+    "runtime": "MUST reject duplicates (component manager compares JSON values).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/constraint/Uniques.java"
+  },
+  {
+    "id": "VAL-006",
+    "name": "@Validation and @Validations (meta-annotations)",
+    "category": "VAL",
+    "level": 2,
+    "designer": "none (only the resulting names matter; unknown `validation` fields SHOULD be ignored).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/constraint/meta/Validation.java"
+  },
+  {
+    "id": "VAL-007",
+    "name": "PropertyValidation payload and JSON-schema mapping",
+    "category": "VAL",
+    "level": 0,
+    "designer": "MUST read constraints from `validation` (not from `metadata`); MUST treat absent fields as unconstrained.",
+    "runtime": "none.",
+    "source": "component-server-parent/component-server-model/src/main/java/org/talend/sdk/component/server/front/model/PropertyValidation.java"
+  },
+  {
+    "id": "VAL-008",
+    "name": "Implicit constraints from Java types",
+    "category": "VAL",
+    "level": 1,
+    "designer": "MUST enforce them like explicit constraints (they arrive in `validation`).",
+    "runtime": "none beyond `VAL-012`.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/reflect/parameterenricher/IntegerConstraintEnricher.java"
+  },
+  {
+    "id": "VAL-009",
+    "name": "Enum value restriction",
+    "category": "VAL",
+    "level": 0,
+    "designer": "MUST restrict the input to `enumValues` (restricted list) and MUST store the constant name, not the label.",
+    "runtime": "MUST reject unknown constants (conversion fails: `Enum.valueOf`).",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/service/PropertiesService.java"
+  },
+  {
+    "id": "VAL-010",
+    "name": "@AsyncValidation",
+    "category": "VAL",
+    "level": 2,
+    "designer": "SHOULD call the action when the validable field changes/loses focus and display `comment` on failure (`status = KO`); MUST NOT block editing while it runs (inferred).",
+    "runtime": "none (design-time only).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/asyncvalidation/AsyncValidation.java"
+  },
+  {
+    "id": "VAL-011",
+    "name": "ValidationResult",
+    "category": "VAL",
+    "level": 2,
+    "designer": "MUST treat `KO` as a validation error on the field and show `comment`.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/asyncvalidation/ValidationResult.java"
+  },
+  {
+    "id": "VAL-012",
+    "name": "Runtime configuration validation",
+    "category": "VAL",
+    "level": 0,
+    "designer": "SHOULD pre-validate so users see errors before execution. MUST validate inputs at design time (see 05-configuration-and-ui.md) so this failure does not reach run time.",
+    "runtime": "MUST surface the validation error to the operator (job fails at start); MAY set the skip property only to bypass legacy configurations. MUST report the message to the user as a configuration (USER) error.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/reflect/ReflectionService.java"
+  },
+  {
+    "id": "VAL-013",
+    "name": "Build-time model validators",
+    "category": "VAL",
+    "level": 2,
+    "designer": "none.",
+    "runtime": "none.",
+    "source": "component-tools/src/main/java/org/talend/sdk/component/tools/validator/Validators.java"
+  }
+]

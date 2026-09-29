@@ -1,0 +1,2842 @@
+[
+  {
+    "id": "DSG-001",
+    "name": "@Components",
+    "category": "DSG",
+    "level": 0,
+    "designer": "MUST group the palette by `family` and `categories` from `ComponentIndex`; SHOULD display `familyDisplayName` and translated category names; MUST use (family, name) as the component identity.",
+    "runtime": "MUST resolve components by plugin id + family + name; family is the key for shared services and actions.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/component/Components.java",
+    "tag": "Both"
+  },
+  {
+    "id": "DSG-002",
+    "name": "@Icon",
+    "category": "DSG",
+    "level": 1,
+    "designer": "MUST fall back to a default icon when the icon is missing or unknown; SHOULD fetch the image via the icon endpoints (see [03](../03-component-server-api.md)); MAY use the inline icon content when the index is requested with `includeIconContent`.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/component/Icon.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "DSG-003",
+    "name": "Icon key resolution and Icon.IconType",
+    "category": "DSG",
+    "level": 1,
+    "designer": "MUST treat the icon as an opaque key (never assume it is one of `IconType`); MUST support keys that only exist as custom icons on the server.",
+    "runtime": "none.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/reflect/IconFinder.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "DSG-005",
+    "name": "@Metadatas / @Metadatas.Metadata",
+    "category": "DSG",
+    "level": 2,
+    "designer": "MAY read the `metadata` map for host-specific behavior; MUST ignore unknown keys.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/component/Metadatas.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "DSG-006",
+    "name": "ComponentMetadataEnricher SPI",
+    "category": "DSG",
+    "level": 2,
+    "designer": "none (consumes the resulting keys, see `DSG-008`). MUST treat unknown metadata keys as opaque.",
+    "runtime": "SHOULD keep the `ServiceLoader` discovery intact when embedding `component-runtime-manager` so the built-in keys exist.",
+    "source": "component-spi/src/main/java/org/talend/sdk/component/spi/component/ComponentMetadataEnricher.java",
+    "tag": "Both"
+  },
+  {
+    "id": "DSG-007",
+    "name": "@Documentation",
+    "category": "DSG",
+    "level": 1,
+    "designer": "SHOULD show `documentation::value` as help text (or as `tooltip` when `documentation::tooltip` is `true`); MAY also fetch the rendered component documentation (`/documentation/component/{id}`).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/meta/Documentation.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "DSG-008",
+    "name": "Component metadata map (keys)",
+    "category": "DSG",
+    "level": 1,
+    "designer": "MUST tolerate unknown keys; MAY use `mapper::infinite`/`mapper::optionalRow` to adapt the canvas (streaming source, optional incoming row); SHOULD refresh a fixed schema when a `watch` path changes (uses the action of the same id, see `ACT-007`/`ACT-008`).",
+    "runtime": "MAY use `mapper::infinite` to select streaming execution (details in RUN catalog).",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/reflect/ComponentMetadataService.java",
+    "tag": "Both"
+  },
+  {
+    "id": "DSG-009",
+    "name": "@Internal",
+    "category": "DSG",
+    "level": 2,
+    "designer": "none.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/meta/Internal.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "DSG-010",
+    "name": "@Partial",
+    "category": "DSG",
+    "level": 2,
+    "designer": "SHOULD NOT assume full support (nested schemas) on features marked partial.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/meta/Partial.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "DSG-011",
+    "name": "@Internationalized",
+    "category": "DSG",
+    "level": 1,
+    "designer": "none.",
+    "runtime": "MUST inject a proxy for `@Internationalized` interfaces (already done by `ComponentManager`); SHOULD supply the current locale (`$lang`).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/internationalization/Internationalized.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "DSG-012",
+    "name": "@Language",
+    "category": "DSG",
+    "level": 2,
+    "designer": "MUST pass `lang` on action calls when it wants localized results.",
+    "runtime": "SHOULD supply `$lang` when it executes actions in-process.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/internationalization/Language.java",
+    "tag": "Both"
+  },
+  {
+    "id": "DSG-013",
+    "name": "Resource bundle key conventions (Messages.properties)",
+    "category": "DSG",
+    "level": 1,
+    "designer": "MUST pass the requested `language` on index/detail calls and MUST display server-translated strings as is; SHOULD fall back to `name` when `displayName` is absent.",
+    "runtime": "none.",
+    "source": "documentation/src/main/antora/modules/ROOT/pages/component-internationalization.adoc",
+    "tag": "Designer"
+  },
+  {
+    "id": "DSG-014",
+    "name": "@DatabaseMapping",
+    "category": "DSG",
+    "level": 2,
+    "designer": "MAY (Studio-like hosts only) read `tcomp::ui::schema::mapping` / `tcomp::ui::schema::mapper` (see `DSG-008`) to map column types; other hosts MUST ignore.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/component/DatabaseMapping.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "DSG-015",
+    "name": "Custom icon file conventions",
+    "category": "DSG",
+    "level": 1,
+    "designer": "SHOULD request icon content as SVG when it supports it, PNG otherwise; MUST NOT fail when the icon is missing.",
+    "runtime": "none.",
+    "source": "documentation/src/main/antora/modules/ROOT/pages/component-defining-custom-icon.adoc",
+    "tag": "Designer"
+  },
+  {
+    "id": "CFG-001",
+    "name": "@Option",
+    "category": "CFG",
+    "level": 0,
+    "designer": "MUST build the form from the server `properties`, never from Java classes; MUST NOT invent option names; MUST treat names starting with `$` as technical (see `CFG-016`).",
+    "runtime": "MUST provide configuration values through the component manager (flat map, see `CFG-002`); `@Option` fields MUST NOT be `final` (`NoFinalOptionValidator`).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/Option.java",
+    "tag": "Both"
+  },
+  {
+    "id": "CFG-002",
+    "name": "Option path and flat configuration map syntax",
+    "category": "CFG",
+    "level": 0,
+    "designer": "MUST serialize user input to this flat form (prefix rules and `[i]` indexes) for `/action/execute` and for saved configuration; MUST use the same paths for `@Suggestable`/`@Updatable`/`@ActiveIf` targets (relative-path syntax in [05](../05-configuration-and-ui.md)).",
+    "runtime": "MUST convert the flat map to the component object graph via the component manager (`ReflectionService`); unknown keys are ignored (inferred), missing values keep field defaults.",
+    "source": "documentation/src/main/antora/modules/ROOT/pages/component-configuration.adoc",
+    "tag": "Both"
+  },
+  {
+    "id": "CFG-003",
+    "name": "Parameter types and type mapping",
+    "category": "CFG",
+    "level": 0,
+    "designer": "MUST support at least `STRING`, `NUMBER`, `BOOLEAN`, `ENUM`, `OBJECT`, `ARRAY`; MUST treat unknown `type` values as `STRING` (inferred).",
+    "runtime": "MUST rely on the component manager conversion (property editors); MUST NOT reimplement type conversion.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/reflect/ParameterModelService.java",
+    "tag": "Both"
+  },
+  {
+    "id": "CFG-004",
+    "name": "@DefaultValue",
+    "category": "CFG",
+    "level": 1,
+    "designer": "MUST pre-fill the field with `ui::defaultvalue::value` when present, else with `defaultValue`; MUST convert per property type.",
+    "runtime": "none (the runtime receives the value the designer stored; the Java field initializer applies if absent).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/DefaultValue.java",
+    "tag": "Both"
+  },
+  {
+    "id": "CFG-005",
+    "name": "@Hidden",
+    "category": "CFG",
+    "level": 1,
+    "designer": "MUST NOT show the field to the user; MUST still keep it in the model and send its value in flat configuration.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/Hidden.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "CFG-006",
+    "name": "@OptionsOrder",
+    "category": "CFG",
+    "level": 1,
+    "designer": "MUST render children in this order when no grid layout applies (one widget per row).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/OptionsOrder.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "CFG-007",
+    "name": "@ConfigurationType (meta-annotation)",
+    "category": "CFG",
+    "level": 1,
+    "designer": "MUST use `configurationtype::type` to recognize reusable configuration nodes inside a component form.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/type/meta/ConfigurationType.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "CFG-008",
+    "name": "@DataStore",
+    "category": "CFG",
+    "level": 1,
+    "designer": "MUST offer datastore reuse (create/edit/pick a saved datastore) and MUST offer a connection test button when a health check of the same name exists.",
+    "runtime": "MUST feed the datastore values as part of the flat configuration of the referencing component.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/type/DataStore.java",
+    "tag": "Both"
+  },
+  {
+    "id": "CFG-009",
+    "name": "@DataSet",
+    "category": "CFG",
+    "level": 1,
+    "designer": "MUST allow selecting/creating a dataset for input/output components and SHOULD pass the dataset configuration to schema discovery.",
+    "runtime": "MUST inject the dataset values as part of the component configuration.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/type/DataSet.java",
+    "tag": "Both"
+  },
+  {
+    "id": "CFG-010",
+    "name": "@DatasetDiscovery",
+    "category": "CFG",
+    "level": 2,
+    "designer": "MAY use it to let the user browse available datasets of a datastore (pairs with `ACT-009`).",
+    "runtime": "MUST honor `retrieveDataset` semantics documented in `CFG-011` if it executes discovery components.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/type/DatasetDiscovery.java",
+    "tag": "Both"
+  },
+  {
+    "id": "CFG-011",
+    "name": "DatasetDiscoveryConfiguration",
+    "category": "CFG",
+    "level": 2,
+    "designer": "MUST render it like any boolean option.",
+    "runtime": "MUST pass its value like any option.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/type/DatasetDiscoveryConfiguration.java",
+    "tag": "Both"
+  },
+  {
+    "id": "CFG-012",
+    "name": "@DynamicDependenciesConfiguration",
+    "category": "CFG",
+    "level": 2,
+    "designer": "MAY call the dynamic dependencies action with this configuration to resolve extra jars before running.",
+    "runtime": "SHOULD resolve the returned GAVs into the component classloader (details: SVC/LCM catalogs).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/type/DynamicDependenciesConfiguration.java",
+    "tag": "Both"
+  },
+  {
+    "id": "CFG-013",
+    "name": "@ConnectorRef and ConnectorReference",
+    "category": "CFG",
+    "level": 2,
+    "designer": "MAY offer a connector picker filling the fields; MUST otherwise render normal strings.",
+    "runtime": "none beyond normal option injection.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/dependency/ConnectorRef.java",
+    "tag": "Both"
+  },
+  {
+    "id": "CFG-014",
+    "name": "Property definition and metadata model (SimplePropertyDefinition)",
+    "category": "CFG",
+    "level": 0,
+    "designer": "MUST build forms and default values from these records; MUST NOT expect `validation::*` keys in `metadata` (they are in `validation`); note the generated documentation pages (`generated_constraints.adoc`) still show `validation::*` web keys (documented as a discrepancy).",
+    "runtime": "none (runtime uses in-JVM `ParameterMeta`).",
+    "source": "component-server-parent/component-server-model/src/main/java/org/talend/sdk/component/server/front/model/SimplePropertyDefinition.java",
+    "tag": "Both"
+  },
+  {
+    "id": "CFG-015",
+    "name": "ParameterExtensionEnricher SPI",
+    "category": "CFG",
+    "level": 2,
+    "designer": "none.",
+    "runtime": "MUST keep `ServiceLoader` discovery of built-in enrichers when embedding `component-runtime-manager`; MAY register custom enrichers (recommended: one key prefix per extension).",
+    "source": "component-spi/src/main/java/org/talend/sdk/component/spi/parameter/ParameterExtensionEnricher.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "CFG-016",
+    "name": "Built-in technical options ($maxBatchSize, $maxRecords, $maxDurationMs, $lang)",
+    "category": "CFG",
+    "level": 1,
+    "designer": "MUST render them like normal options (they appear in `properties`) and MUST send them back in the flat configuration; MUST NOT treat the `$` prefix as an error.",
+    "runtime": "MUST honor `$maxBatchSize` for group sizing, `$maxRecords`/`$maxDurationMs` for stopping infinite sources (Beam reference: `BaseProcessorFn`, `TalendIO`).",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/builtinparams/MaxBatchSizeParamBuilder.java",
+    "tag": "Both"
+  },
+  {
+    "id": "CFG-017",
+    "name": "Configuration type tree (ConfigTypeNode)",
+    "category": "CFG",
+    "level": 1,
+    "designer": "MUST browse the tree to offer reusable datastores/datasets, MUST resolve `parentId`/`edges`; MUST store the node `version` with saved instances and migrate on version change.",
+    "runtime": "none.",
+    "source": "component-runtime-design-extension/src/main/java/org/talend/sdk/component/design/extension/repository/RepositoryModelBuilder.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "CFG-018",
+    "name": "ConfigurationMapper (object to flat map)",
+    "category": "CFG",
+    "level": 2,
+    "designer": "none (browser hosts implement the same rules by hand).",
+    "runtime": "MAY use it to build configuration maps from typed objects (tests, adapters).",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/configuration/ConfigurationMapper.java",
+    "tag": "Both"
+  },
+  {
+    "id": "CFG-019",
+    "name": "Datastore/dataset design rules (build-time)",
+    "category": "CFG",
+    "level": 2,
+    "designer": "MAY rely on these invariants (an input always has a dataset which contains a datastore).",
+    "runtime": "none.",
+    "source": "component-tools/src/main/java/org/talend/sdk/component/tools/validator/DatasetValidator.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "UI-001",
+    "name": "@Ui (meta-annotation)",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST read UI hints only from `metadata` keys starting with `ui::` and MUST ignore unknown ones.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/meta/Ui.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "UI-002",
+    "name": "@GridLayout",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST render one row per `|` segment and one column per `,` item; MUST render tabs as above; SHOULD show an option that is missing from every layout nowhere (validator logs an error for such options).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/layout/GridLayout.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "UI-003",
+    "name": "@GridLayouts",
+    "category": "UI",
+    "level": 1,
+    "designer": "same as `UI-002`.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/layout/GridLayouts.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "UI-004",
+    "name": "@AutoLayout",
+    "category": "UI",
+    "level": 2,
+    "designer": "MAY choose its own layout; SHOULD keep declaration order (inferred).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/layout/AutoLayout.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "UI-005",
+    "name": "@HorizontalLayout",
+    "category": "UI",
+    "level": 2,
+    "designer": "MAY lay children out in one row.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/layout/HorizontalLayout.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "UI-006",
+    "name": "@VerticalLayout",
+    "category": "UI",
+    "level": 2,
+    "designer": "SHOULD stack children vertically (default).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/layout/VerticalLayout.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "UI-007",
+    "name": "@TextArea",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST render a multiline input for `ui::textarea=true`.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/widget/TextArea.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "UI-008",
+    "name": "@Code",
+    "category": "UI",
+    "level": 1,
+    "designer": "SHOULD render a code editor with the given language; MAY fall back to a text area.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/widget/Code.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "UI-009",
+    "name": "@Credential",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST mask the value (password input) and MUST NOT log or display it in clear; SHOULD store it encrypted when the host has a secret store.",
+    "runtime": "SHOULD keep the value out of logs.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/widget/Credential.java",
+    "tag": "Both"
+  },
+  {
+    "id": "UI-010",
+    "name": "@DateTime",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST render a picker and MUST serialize to the string form the runtime converter accepts (ISO-like, per Java type; inferred); SHOULD honor the three options.",
+    "runtime": "MUST parse the string with the xbean converters of the component manager.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/widget/DateTime.java",
+    "tag": "Both"
+  },
+  {
+    "id": "UI-011",
+    "name": "@ModuleList",
+    "category": "UI",
+    "level": 2,
+    "designer": "Studio-like hosts MAY render a module chooser; others MUST render a plain text field.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/widget/ModuleList.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "UI-012",
+    "name": "@Path",
+    "category": "UI",
+    "level": 2,
+    "designer": "Studio-like hosts MAY render a file/directory chooser; others MUST render a text field.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/widget/Path.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "UI-013",
+    "name": "@Structure",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST offer schema discovery (button) for `OUT` structures and MUST write the returned schema entries into the option (inferred from `options.path`/`type`); SHOULD keep IN structures editable.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/widget/Structure.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "UI-014",
+    "name": "@BasedOnSchema",
+    "category": "UI",
+    "level": 2,
+    "designer": "Studio-like hosts MAY auto-fill the column from the schema.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/widget/BasedOnSchema.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "UI-015",
+    "name": "@ReadOnly",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST NOT let the user edit the value; MUST keep sending the value.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/widget/ReadOnly.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "UI-016",
+    "name": "@ActiveIf",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST hide inactive options, re-evaluate on every change of the target, and SHOULD exclude inactive options from validation; MUST keep hidden values consistent (do not fail on them).",
+    "runtime": "MUST skip constraint validation of inactive options (the framework does via `VisibilityService`; hosts validating themselves MUST replicate this).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/condition/ActiveIf.java",
+    "tag": "Both"
+  },
+  {
+    "id": "UI-017",
+    "name": "@ActiveIfs",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST combine the conditions with the operator.",
+    "runtime": "same as `UI-016`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/condition/ActiveIfs.java",
+    "tag": "Both"
+  },
+  {
+    "id": "UI-018",
+    "name": "@Condition (meta-annotation)",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST support at least the types `if` and `ifs`.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/condition/meta/Condition.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "UI-019",
+    "name": "UIScope",
+    "category": "UI",
+    "level": 2,
+    "designer": "MUST declare its scope (Studio-like hosts: `studio*`, web hosts: `cloud`) and show/hide options accordingly; unknown scopes SHOULD be treated as not matching.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/condition/UIScope.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "UI-020",
+    "name": "Type-driven default widgets",
+    "category": "UI",
+    "level": 1,
+    "designer": "MUST offer at least a text control per type and MUST honor `enumValues` restriction; SHOULD implement the priority order above.",
+    "runtime": "none.",
+    "source": "component-form/component-form-core/src/main/java/org/talend/sdk/component/form/internal/converter/impl/UiSchemaConverter.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "UI-021",
+    "name": "UiSchema and JSON Schema generation contract",
+    "category": "UI",
+    "level": 1,
+    "designer": "MAY reuse `component-form` (Java) or MUST reimplement the same mapping; a custom renderer MUST honor `condition`, `triggers`, `titleMap`, `restricted`, `readOnly`, `required` semantics.",
+    "runtime": "none.",
+    "source": "component-form/component-form-core/src/main/java/org/talend/sdk/component/form/api/UiSpecService.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "UI-022",
+    "name": "Layout tab name translation",
+    "category": "UI",
+    "level": 2,
+    "designer": "SHOULD NOT hard-code `Main`/`Advanced` when the server may translate tab names; the Studio does not support this option.",
+    "runtime": "none.",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/service/PropertiesService.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "VAL-001",
+    "name": "@Required",
+    "category": "VAL",
+    "level": 0,
+    "designer": "MUST refuse to save/run a configuration where an active (`UI-016`) required option is empty/null; MUST mark the field visually as required (`UiSchema.required`, JSON schema `required` array of the parent).",
+    "runtime": "MUST reject a null value for an active required option (the component manager does, see `VAL-012`).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/constraint/Required.java",
+    "tag": "Both"
+  },
+  {
+    "id": "VAL-002",
+    "name": "@Min",
+    "category": "VAL",
+    "level": 1,
+    "designer": "MUST enforce `min` on numbers, `minItems` on lists and `minLength` on strings.",
+    "runtime": "MUST reject values below the bound (component manager does).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/constraint/Min.java",
+    "tag": "Both"
+  },
+  {
+    "id": "VAL-003",
+    "name": "@Max",
+    "category": "VAL",
+    "level": 1,
+    "designer": "MUST enforce `max`, `maxItems`, `maxLength`.",
+    "runtime": "MUST reject values above the bound.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/constraint/Max.java",
+    "tag": "Both"
+  },
+  {
+    "id": "VAL-004",
+    "name": "@Pattern",
+    "category": "VAL",
+    "level": 1,
+    "designer": "MUST validate with a JavaScript regex engine (JSON schema `pattern`).",
+    "runtime": "MUST reject non-matching strings (component manager does).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/constraint/Pattern.java",
+    "tag": "Both"
+  },
+  {
+    "id": "VAL-005",
+    "name": "@Uniques",
+    "category": "VAL",
+    "level": 1,
+    "designer": "MUST prevent duplicate entries (JSON schema `uniqueItems`).",
+    "runtime": "MUST reject duplicates (component manager compares JSON values).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/constraint/Uniques.java",
+    "tag": "Both"
+  },
+  {
+    "id": "VAL-006",
+    "name": "@Validation and @Validations (meta-annotations)",
+    "category": "VAL",
+    "level": 2,
+    "designer": "none (only the resulting names matter; unknown `validation` fields SHOULD be ignored).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/constraint/meta/Validation.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "VAL-007",
+    "name": "PropertyValidation payload and JSON-schema mapping",
+    "category": "VAL",
+    "level": 0,
+    "designer": "MUST read constraints from `validation` (not from `metadata`); MUST treat absent fields as unconstrained.",
+    "runtime": "none.",
+    "source": "component-server-parent/component-server-model/src/main/java/org/talend/sdk/component/server/front/model/PropertyValidation.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "VAL-008",
+    "name": "Implicit constraints from Java types",
+    "category": "VAL",
+    "level": 1,
+    "designer": "MUST enforce them like explicit constraints (they arrive in `validation`).",
+    "runtime": "none beyond `VAL-012`.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/reflect/parameterenricher/IntegerConstraintEnricher.java",
+    "tag": "Both"
+  },
+  {
+    "id": "VAL-009",
+    "name": "Enum value restriction",
+    "category": "VAL",
+    "level": 0,
+    "designer": "MUST restrict the input to `enumValues` (restricted list) and MUST store the constant name, not the label.",
+    "runtime": "MUST reject unknown constants (conversion fails: `Enum.valueOf`).",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/service/PropertiesService.java",
+    "tag": "Both"
+  },
+  {
+    "id": "VAL-010",
+    "name": "@AsyncValidation",
+    "category": "VAL",
+    "level": 2,
+    "designer": "SHOULD call the action when the validable field changes/loses focus and display `comment` on failure (`status = KO`); MUST NOT block editing while it runs (inferred).",
+    "runtime": "none (design-time only).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/asyncvalidation/AsyncValidation.java",
+    "tag": "Both"
+  },
+  {
+    "id": "VAL-011",
+    "name": "ValidationResult",
+    "category": "VAL",
+    "level": 2,
+    "designer": "MUST treat `KO` as a validation error on the field and show `comment`.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/asyncvalidation/ValidationResult.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "VAL-012",
+    "name": "Runtime configuration validation",
+    "category": "VAL",
+    "level": 0,
+    "designer": "SHOULD pre-validate so users see errors before execution. MUST validate inputs at design time (see 05-configuration-and-ui.md) so this failure does not reach run time.",
+    "runtime": "MUST surface the validation error to the operator (job fails at start); MAY set the skip property only to bypass legacy configurations. MUST report the message to the user as a configuration (USER) error.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/reflect/ReflectionService.java",
+    "tag": "Both"
+  },
+  {
+    "id": "VAL-013",
+    "name": "Build-time model validators",
+    "category": "VAL",
+    "level": 2,
+    "designer": "none.",
+    "runtime": "none.",
+    "source": "component-tools/src/main/java/org/talend/sdk/component/tools/validator/Validators.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "ACT-001",
+    "name": "@Action (type user)",
+    "category": "ACT",
+    "level": 2,
+    "designer": "MAY expose custom actions via `GET /action/index?type=user`; MUST ignore unknown ones.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/Action.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "ACT-002",
+    "name": "@ActionType (meta-annotation)",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST dispatch response handling on the `type` id (`SRV-013` result table).",
+    "runtime": "MAY ignore actions (they are design-time); an embedded server exposing them MUST run them inside the plugin classloader with services injected.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/ActionType.java",
+    "tag": "Both"
+  },
+  {
+    "id": "ACT-003",
+    "name": "@HealthCheck and HealthCheckStatus",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST offer a test-connection button on datastores having `action::healthcheck` and MUST display `comment` on `KO`; MUST send the datastore values as flat keys (parameter name from the action's first property, typically `datastore`).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/healthcheck/HealthCheck.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "ACT-004",
+    "name": "@Suggestions and SuggestionValues",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST call the action when the field is focused/changed (`ACT-024`), display `label` (or `label (id)` when `labelDisplayMode=LABEL_ID`), store `id`; MUST honor `cacheable`; MUST allow free text (suggestions are not restrictive).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/completion/Suggestions.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "ACT-005",
+    "name": "@DynamicValues and Values",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST call it once when building the form (no parameters), render a restricted list (`titleMap` from `label`, value `id`); SHOULD cache the result per form session; on failure MUST fall back to an empty list (the reference implementation logs and continues).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/completion/DynamicValues.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "ACT-006",
+    "name": "@Update",
+    "category": "ACT",
+    "level": 2,
+    "designer": "MUST render a button (title = action display name or `<name> (update)`), call the action with the parameters of `@Updatable.parameters`, and replace the value at the trigger `options.path` with the JSON response (merge semantics unspecified; the reference `component-form` sets `options=[{path,type}]`).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/update/Update.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "ACT-007",
+    "name": "@DiscoverSchema",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST call the action with the dataset configuration and convert the returned record `Schema` JSON (`entries[]{name,rawName,type,nullable,comment,metadata,errorCapable,valid,props,elementSchema}`, `metadata[]`, `props`, `type`) into the host schema; field semantics in [04](../04-data-model.md).",
+    "runtime": "MAY call it to obtain design-time schemas; MUST NOT require it for execution.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/schema/DiscoverSchema.java",
+    "tag": "Both"
+  },
+  {
+    "id": "ACT-008",
+    "name": "@DiscoverSchemaExtended",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MAY call it to propagate schemas between components (schema propagation, see [07](../07-designer-blueprint.md)); MUST pass the incoming schema JSON serialized as a string. SHOULD call it to propagate schemas through processors; MUST pass the incoming schema and branch when the method declares them.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/schema/DiscoverSchemaExtended.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "ACT-009",
+    "name": "@DiscoverDataset and DiscoverDatasetResult",
+    "category": "ACT",
+    "level": 2,
+    "designer": "MAY offer a \"browse datasets\" step after a datastore is defined and create a dataset per selection (use `metadata` to prefill). MUST parse the `DiscoverDatasetResult` shape when the action is used.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/discovery/DiscoverDataset.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "ACT-010",
+    "name": "@DynamicDependencies",
+    "category": "ACT",
+    "level": 2,
+    "designer": "MAY call it and request the listed artifacts from the dependency endpoints before running. SHOULD call it when the option using it changes, and make the returned GAVs available to the runtime (download via `/component/dependencies`, SRV-006).",
+    "runtime": "SHOULD resolve the returned GAVs into the component classloader (via `Resolver`, SVC catalog). Resolution may use `Resolver` (SVC-013) or `TALEND-INF/dynamic-dependencies.properties` (unverified) before instantiating the component.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/dependency/DynamicDependencies.java",
+    "tag": "Both"
+  },
+  {
+    "id": "ACT-011",
+    "name": "@CreateConnection",
+    "category": "ACT",
+    "level": 1,
+    "designer": "Studio-like hosts SHOULD call it once and hand the connection to components using `@Connection`; other hosts MAY ignore.",
+    "runtime": "Studio-like runtimes MUST inject the created object into `@Connection` fields (`ACT-012`).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/connection/CreateConnection.java",
+    "tag": "Both"
+  },
+  {
+    "id": "ACT-012",
+    "name": "@CloseConnection, CloseConnectionObject, @Connection",
+    "category": "ACT",
+    "level": 1,
+    "designer": "Studio-like hosts MUST call the close object at end of job; other hosts MAY ignore.",
+    "runtime": "Studio-like runtimes MUST inject `@Connection` fields and close via the returned object.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/connection/CloseConnection.java",
+    "tag": "Both"
+  },
+  {
+    "id": "ACT-013",
+    "name": "@DatabaseSchemaMapping",
+    "category": "ACT",
+    "level": 2,
+    "designer": "Studio-like hosts MAY call it to map DB column types; others ignore.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/schema/DatabaseSchemaMapping.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "ACT-014",
+    "name": "@AvailableOutputFlows",
+    "category": "ACT",
+    "level": 2,
+    "designer": "MAY re-query available outputs when the configuration changes and rebuild the output ports; MUST otherwise use static `outputFlows` from `ComponentDetail`.",
+    "runtime": "MUST accept any flow name the action returned as a valid output (branching rules in RUN catalog).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/outputs/AvailableOutputFlows.java",
+    "tag": "Both"
+  },
+  {
+    "id": "ACT-015",
+    "name": "@ActionRef (meta-annotation)",
+    "category": "ACT",
+    "level": 1,
+    "designer": "none (consumes the metadata).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/action/meta/ActionRef.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "ACT-016",
+    "name": "@Suggestable",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST implement `ACT-004` and honor `labelDisplayMode` (unknown values fall back to `LABEL`).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/action/Suggestable.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "ACT-017",
+    "name": "@Proposable",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST implement `ACT-005`.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/action/Proposable.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "ACT-018",
+    "name": "@Updatable",
+    "category": "ACT",
+    "level": 2,
+    "designer": "MUST implement `ACT-006` and the button placement/visibility rules above.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/action/Updatable.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "ACT-019",
+    "name": "@Validable",
+    "category": "ACT",
+    "level": 2,
+    "designer": "MUST implement `VAL-010`; trigger event when `onEvent` is absent is the renderer's choice (typically value change/blur, unverified).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/action/Validable.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "ACT-020",
+    "name": "@Checkable",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST add the connection test button only when `action::healthcheck` is present.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/action/Checkable.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "ACT-021",
+    "name": "@BuiltInSuggestable",
+    "category": "ACT",
+    "level": 2,
+    "designer": "MAY implement `INCOMING_SCHEMA_ENTRY_NAMES` (suggest incoming column names) locally; MUST NOT call the server for it (`remote=false`); MUST degrade to a plain text field when unsupported. Components SHOULD NOT depend on it.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/action/BuiltInSuggestable.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "ACT-024",
+    "name": "Trigger model (UiSchema.Trigger) and wiring semantics",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST build request bodies from `parameters` (`body[key] = value(path)`); MUST fire `focus` triggers on field focus and `change` triggers on value change; MUST treat `remote=false` as client-only.",
+    "runtime": "none.",
+    "source": "component-form/component-form-core/src/main/java/org/talend/sdk/component/form/internal/converter/impl/widget/AbstractWidgetConverter.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "ACT-025",
+    "name": "Action parameter reference syntax",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST implement this resolution identically (Studio counterpart `SettingsCreator.computeTargetPath`).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/action/Suggestable.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "ACT-026",
+    "name": "Action metadata keys on options",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST derive triggers from these keys plus `ActionReference` (`ACT-024`).",
+    "runtime": "none.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/reflect/parameterenricher/ActionParameterEnricher.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "DAT-001",
+    "name": "Record",
+    "category": "DAT",
+    "level": 0,
+    "designer": "MUST NOT implement or instantiate; only handle schemas (DAT-004) exchanged as JSON.",
+    "runtime": "MUST create records via RecordBuilderFactory (DAT-016) and pass them unchanged between components.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Record.java",
+    "tag": "Both"
+  },
+  {
+    "id": "DAT-002",
+    "name": "Record.Builder",
+    "category": "DAT",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST call `build()` once per record; SHOULD provide a schema for predictable output; name collisions are auto-renamed (DAT-013).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Record.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "DAT-003",
+    "name": "Record value access and coercion",
+    "category": "DAT",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST use typed accessors matching `Entry.getType()`; SHOULD use `getOptionalXxx` for nullable entries.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/record/RecordConverters.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "DAT-004",
+    "name": "Schema",
+    "category": "DAT",
+    "level": 0,
+    "designer": "MUST be able to read the Schema JSON returned by schema-discovery actions and MAY store it as design-time schema of a connection.",
+    "runtime": "MUST treat schemas as immutable value objects; MUST create them via RecordBuilderFactory (DAT-016).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Schema.java",
+    "tag": "Both"
+  },
+  {
+    "id": "DAT-005",
+    "name": "Schema.Type",
+    "category": "DAT",
+    "level": 0,
+    "designer": "MUST map each constant to a UI/column type and to the host's internal type system.",
+    "runtime": "MUST support all 11 constants in the host record model (or convert losslessly, see DAT-031 for Avro).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Schema.java",
+    "tag": "Both"
+  },
+  {
+    "id": "DAT-006",
+    "name": "Schema.Entry",
+    "category": "DAT",
+    "level": 0,
+    "designer": "MUST display name, type, nullable and comment; SHOULD show rawName as label when present.",
+    "runtime": "MUST keep name/rawName pairs intact across components.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Schema.java",
+    "tag": "Both"
+  },
+  {
+    "id": "DAT-007",
+    "name": "Schema.Entry.Builder",
+    "category": "DAT",
+    "level": 0,
+    "designer": "none",
+    "runtime": "SHOULD set `nullable` explicitly (builder default is false).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Schema.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "DAT-008",
+    "name": "Schema.Builder",
+    "category": "DAT",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST build RECORD schemas through the factory (DAT-016) so the host-selected implementation (memory or Avro, DAT-034) is used.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Schema.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "DAT-009",
+    "name": "Schema.EntriesOrder",
+    "category": "DAT",
+    "level": 1,
+    "designer": "SHOULD display columns using the order given by `getEntriesOrdered()` / prop `talend.fields.order`.",
+    "runtime": "SHOULD preserve the order property when copying/transforming schemas.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Schema.java",
+    "tag": "Both"
+  },
+  {
+    "id": "DAT-010",
+    "name": "OrderedMap",
+    "category": "DAT",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY reuse when implementing a custom Record/Schema; otherwise none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/OrderedMap.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "DAT-011",
+    "name": "SchemaProperty",
+    "category": "DAT",
+    "level": 1,
+    "designer": "SHOULD honor `field.key`, `field.size`, `field.scale`, `field.pattern`, `field.origin.type` when showing or mapping schemas.",
+    "runtime": "MUST preserve props when copying entries; SHOULD NOT invent semantics for unknown keys.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/SchemaProperty.java",
+    "tag": "Both"
+  },
+  {
+    "id": "DAT-012",
+    "name": "SchemaProperty.LogicalType",
+    "category": "DAT",
+    "level": 1,
+    "designer": "SHOULD render DATE/TIME/TIMESTAMP with the matching widget/format.",
+    "runtime": "MUST keep `field.logical.type` when converting to/from Avro.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/SchemaProperty.java",
+    "tag": "Both"
+  },
+  {
+    "id": "DAT-013",
+    "name": "SchemaCompanionUtil (name sanitization and collisions)",
+    "category": "DAT",
+    "level": 0,
+    "designer": "MUST use `name` (sanitized) as the technical identifier and MAY show `rawName`.",
+    "runtime": "MUST NOT rely on original field names for lookups; use `Entry.getName()`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/SchemaCompanionUtil.java",
+    "tag": "Both"
+  },
+  {
+    "id": "DAT-014",
+    "name": "Entry-level error support",
+    "category": "DAT",
+    "level": 2,
+    "designer": "MAY display invalid cells using the entry props.",
+    "runtime": "MAY set the system property; SHOULD check `entry.isValid()` before reading and MUST NOT treat invalid entries as data.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Record.java",
+    "tag": "Both"
+  },
+  {
+    "id": "DAT-015",
+    "name": "Nullable check switch",
+    "category": "DAT",
+    "level": 2,
+    "designer": "none",
+    "runtime": "SHOULD leave the default; MAY set true for performance in a trusted environment.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Record.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "DAT-016",
+    "name": "RecordBuilderFactory",
+    "category": "DAT",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST provide it as an injectable service to every plugin container (ComponentManager does by default).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/record/RecordBuilderFactory.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "DAT-017",
+    "name": "RecordService",
+    "category": "DAT",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST provide it as a built-in service when hosting TCK plugins with a custom container; SHOULD reuse `RecordServiceImpl`. The injected instance MUST be backed by the plugin's `RecordBuilderFactory` and JSON-B.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/record/RecordService.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "DAT-018",
+    "name": "RecordVisitor",
+    "category": "DAT",
+    "level": 2,
+    "designer": "none",
+    "runtime": "SHOULD implement RecordService.visit to support it; not needed otherwise.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/record/RecordVisitor.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "DAT-019",
+    "name": "RecordPointer",
+    "category": "DAT",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MUST implement with the semantics of DAT-020 if RecordPointerFactory is provided.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/RecordPointer.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "DAT-020",
+    "name": "RecordPointerFactory",
+    "category": "DAT",
+    "level": 1,
+    "designer": "none",
+    "runtime": "SHOULD provide the reference semantics (RFC 6901 adapted to records). MUST inject a factory scoped to the plugin.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/RecordPointerFactory.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "DAT-021",
+    "name": "Deprecated schema API (service.schema.Schema and Type)",
+    "category": "DAT",
+    "level": 2,
+    "designer": "MUST still accept schemas returned by legacy components (same JSON shape).",
+    "runtime": "none",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/schema/Schema.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "DAT-024",
+    "name": "@FixedSchema",
+    "category": "DAT",
+    "level": 1,
+    "designer": "MUST NOT let the user edit the schema of the listed flows; MUST re-call the action when a `watch` path changes.",
+    "runtime": "none",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/schema/FixedSchema.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "DAT-029",
+    "name": "Component data type conversion (Record / JsonObject / POJO)",
+    "category": "DAT",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST convert non-Record values to Record before handing data to the engine (as `InputImpl.next()` and `BeamOutputEmitter` do); SHOULD standardize on `Record`.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/record/RecordConverters.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "DAT-030",
+    "name": "JSON-P / JSON-B mapping of Record",
+    "category": "DAT",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST use a Johnzon-compatible JSON-B/JSON-P provider with the settings above when it produces JSON from records; MUST decode BYTES as Base64.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/record/json/RecordJsonGenerator.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "DAT-031",
+    "name": "Avro mapping (Beam runtime)",
+    "category": "DAT",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY use the Avro implementation; if used, MUST run with `talend.component.record.skip.sanitize=false`; MUST NOT mix implementations inside one plugin.",
+    "source": "component-runtime-beam/src/main/java/org/talend/sdk/component/runtime/beam/spi/record/AvroSchemaBuilder.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "DAT-032",
+    "name": "Schema JSON serialization (SchemaConverter)",
+    "category": "DAT",
+    "level": 1,
+    "designer": "MUST serialize a chosen schema with these keys when a component option is of type `Schema`.",
+    "runtime": "MUST accept this JSON in the option value.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/xbean/converter/SchemaConverter.java",
+    "tag": "Both"
+  },
+  {
+    "id": "DAT-033",
+    "name": "Type conversion rules (MappingUtils.coerce)",
+    "category": "DAT",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST reproduce these rules if the host supplies its own Record implementation; SHOULD reuse `RecordImpl`.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/record/MappingUtils.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "DAT-034",
+    "name": "RecordBuilderFactoryProvider SPI",
+    "category": "DAT",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY provide one implementation per JVM; MUST make it return Serializable factories (they serialize as SerializableService).",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/service/record/RecordBuilderFactoryProvider.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "DAT-035",
+    "name": "Metadata entries",
+    "category": "DAT",
+    "level": 2,
+    "designer": "SHOULD hide metadata entries from the default column list and expose them separately.",
+    "runtime": "MUST NOT drop metadata entries when copying records.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Schema.java",
+    "tag": "Both"
+  },
+  {
+    "id": "DAT-036",
+    "name": "Arrays and nested records",
+    "category": "DAT",
+    "level": 1,
+    "designer": "MUST handle ARRAY/RECORD entries (render nested, or flatten) when propagating schemas.",
+    "runtime": "MUST handle nested types in transport and conversion.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/record/Schema.java",
+    "tag": "Both"
+  },
+  {
+    "id": "RUN-001",
+    "name": "@Emitter",
+    "category": "RUN",
+    "level": 0,
+    "designer": "MUST show it as an input component (no input flow, one `__default__` output flow).",
+    "runtime": "MUST obtain it through `ComponentManager.findMapper(plugin, name, version, config)`, call `create()` on the mapper and drive the `Input` (RUN-024).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/input/Emitter.java",
+    "tag": "Both"
+  },
+  {
+    "id": "RUN-002",
+    "name": "@PartitionMapper",
+    "category": "RUN",
+    "level": 0,
+    "designer": "MUST show it as an input component; if `stoppable`, MUST render the extra options `$maxRecords` and `$maxDurationMs` returned in the component properties (default -1 = unlimited).",
+    "runtime": "MUST call `assess()`, `split(desiredSize)` on the coordinator side and `create()` per split on the worker side; MUST treat `isStream()` as streaming mode.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/input/PartitionMapper.java",
+    "tag": "Both"
+  },
+  {
+    "id": "RUN-003",
+    "name": "@Assessor",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST call `Mapper.assess()` on a started mapper and use the value to compute the split size; the unit is component-defined (bytes by convention).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/input/Assessor.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-004",
+    "name": "@Split",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST call `Mapper.split(desiredSize)` and create one `Input` per returned Mapper (sequentially or in parallel); returned mappers are Serializable and MAY be shipped to workers.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/input/Split.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-005",
+    "name": "@PartitionSize",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST pass the value it wants to `split(long)`; for `int` parameters the runtime narrows with `intValue()`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/input/PartitionSize.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-006",
+    "name": "@Producer",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST loop `Input.next()` until it returns null (batch) or until the stop strategy / external stop (streaming); MUST call `Input.start()` before and `Input.stop()` after.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/input/Producer.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-007",
+    "name": "BufferizedProducerSupport",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/base/BufferizedProducerSupport.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-008",
+    "name": "@Processor",
+    "category": "RUN",
+    "level": 0,
+    "designer": "MUST render one input connection per input flow and one output connection per output flow returned by the server.",
+    "runtime": "MUST create it with `ComponentManager.findProcessor(...)`, call `start()`, then per group `beforeGroup()`, `onNext(...)` per record, `afterGroup(...)`, finally `stop()`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/Processor.java",
+    "tag": "Both"
+  },
+  {
+    "id": "RUN-009",
+    "name": "@ElementListener",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST feed each record through `Processor.onNext(InputFactory, OutputFactory)`; InputFactory.read(name) returns the current record of that input branch (null if none).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/ElementListener.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-010",
+    "name": "@BeforeGroup",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST call `Processor.beforeGroup()` before the first `onNext` of each group.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/BeforeGroup.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-011",
+    "name": "@AfterGroup",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST call `Processor.afterGroup(OutputFactory)` (or `afterGroup(OutputFactory, boolean last)` when `isLastGroupUsed()`) at group end and at end of data (flush); MUST route emitted records like `onNext` outputs.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/AfterGroup.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-012",
+    "name": "@LastGroup",
+    "category": "RUN",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST call `afterGroup(output, last)` when `Processor.isLastGroupUsed()` is true, with `last=true` exactly on the final flush.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/LastGroup.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-013",
+    "name": "@Input",
+    "category": "RUN",
+    "level": 1,
+    "designer": "MUST create one input connection per distinct name (`ComponentDetail.inputFlows`) and label them.",
+    "runtime": "MUST return, in `InputFactory.read(name)`, the record for that branch.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/Input.java",
+    "tag": "Both"
+  },
+  {
+    "id": "RUN-014",
+    "name": "@Output",
+    "category": "RUN",
+    "level": 0,
+    "designer": "MUST create one output connection per branch (`ComponentDetail.outputFlows`); connection named `REJECT` is the reject connection.",
+    "runtime": "MUST provide an `OutputFactory` whose `create(name)` returns an emitter for every name; unknown/unconnected branches MUST NOT fail (discard).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/Output.java",
+    "tag": "Both"
+  },
+  {
+    "id": "RUN-015",
+    "name": "OutputEmitter",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST implement it in `OutputFactory.create(name)`; MUST convert non-Record values.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/OutputEmitter.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-016",
+    "name": "MultiOutputIterator",
+    "category": "RUN",
+    "level": 2,
+    "designer": "SHOULD display all branches listed in `@Output(branches)`.",
+    "runtime": "MAY implement `createMultiOutputIterator()`; if not implemented, components using it fail at runtime (Beam reference does not).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/MultiOutputIterator.java",
+    "tag": "Both"
+  },
+  {
+    "id": "RUN-017",
+    "name": "TaggedOutput",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY interpret `FLOW` as `__default__` if MultiOutputIterator is implemented.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/TaggedOutput.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-018",
+    "name": "Named branches (__default__, REJECT)",
+    "category": "RUN",
+    "level": 1,
+    "designer": "MUST expose one connection per name in `inputFlows`/`outputFlows`; SHOULD style `REJECT` differently.",
+    "runtime": "MUST route by exact branch name; job edges default to `__default__` (`Job.from(id)` / `to(id)`).",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/output/Branches.java",
+    "tag": "Both"
+  },
+  {
+    "id": "RUN-019",
+    "name": "Output component (sink)",
+    "category": "RUN",
+    "level": 0,
+    "designer": "MUST treat a processor with empty `outputFlows` as a terminal component (no outgoing connection allowed).",
+    "runtime": "MUST run it as the last stage; it MUST still get `beforeGroup/afterGroup` calls and a final flush.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/processor/Processor.java",
+    "tag": "Both"
+  },
+  {
+    "id": "RUN-020",
+    "name": "Combiner (not supported)",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "documentation/src/main/antora/modules/ROOT/pages/component-combiner.adoc",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-021",
+    "name": "@DriverRunner",
+    "category": "RUN",
+    "level": 0,
+    "designer": "MUST show it without connections; SHOULD allow it in a job as an independent step/trigger target.",
+    "runtime": "MUST obtain it with `ComponentManager.findDriverRunner(plugin, name, version, config)`, call `start()`, `runAtDriver()`, `stop()` on the coordinator; it MUST NOT handle records.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/standalone/DriverRunner.java",
+    "tag": "Both"
+  },
+  {
+    "id": "RUN-022",
+    "name": "@RunAtDriver",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST invoke `DriverRunner.runAtDriver()` exactly once per execution, inside the plugin classloader (TCCL) - `DriverRunnerImpl` handles it.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/standalone/RunAtDriver.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-023",
+    "name": "Component lifecycle hooks (@PostConstruct / @PreDestroy)",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST call `start()` before use and `stop()` in a finally block, on every component instance including every split Input; MUST NOT reuse a stopped instance.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/base/LifecycleImpl.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-024",
+    "name": "Runtime wrapper interfaces (Lifecycle, Mapper, Input, Processor, DriverRunner)",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST code the host engine against these interfaces (they are the only stable surface with the manager).",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/input/Mapper.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-025",
+    "name": "Component instantiation (ComponentManager.find*)",
+    "category": "RUN",
+    "level": 0,
+    "designer": "MUST persist the component `version` together with each saved configuration (ComponentDetail.version at design time).",
+    "runtime": "MUST pass the persisted version so migration runs; MUST handle empty Optional as 'component missing'.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/ComponentManager.java",
+    "tag": "Both"
+  },
+  {
+    "id": "RUN-026",
+    "name": "Batch grouping and maxBatchSize",
+    "category": "RUN",
+    "level": 1,
+    "designer": "MUST render `$maxBatchSize` (it is delivered as a normal property) and send its value back in the flat configuration.",
+    "runtime": "MUST apply `$maxBatchSize` as an upper bound of the group size (default 1 in the local runner when absent) and MUST always flush at end of data.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/chain/AutoChunkProcessor.java",
+    "tag": "Both"
+  },
+  {
+    "id": "RUN-027",
+    "name": "Streaming input (infinite mapper)",
+    "category": "RUN",
+    "level": 2,
+    "designer": "SHOULD flag `mapper::infinite=true` components as streaming (job never ends unless stop conditions are set).",
+    "runtime": "MUST treat `Mapper.isStream()` as unbounded; MUST provide a way to stop (call `Input.stop()` or set stop conditions).",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/input/StreamingInputImpl.java",
+    "tag": "Both"
+  },
+  {
+    "id": "RUN-028",
+    "name": "Streaming stop conditions ($maxRecords, $maxDurationMs)",
+    "category": "RUN",
+    "level": 2,
+    "designer": "MUST render the two options for stoppable inputs (they are ordinary properties).",
+    "runtime": "MUST honour them by passing the flat properties to `findMapper`; the framework enforces them in `StreamingInputImpl`.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/input/Streaming.java",
+    "tag": "Both"
+  },
+  {
+    "id": "RUN-029",
+    "name": "Streaming retry strategy",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "SHOULD expose these keys through its LocalConfiguration implementation (family-prefixed keys `<family>.<key>` are tried first).",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/input/Streaming.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-030",
+    "name": "@Checkpoint",
+    "category": "RUN",
+    "level": 2,
+    "designer": "SHOULD hide checkpoint properties from the normal form (they are state), or show them in the `CHECKPOINT` form type.",
+    "runtime": "MUST persist the state emitted by RUN-031/RUN-033 and MUST re-inject it as `$checkpoint.*` at restart; only when `talend.checkpoint.enabled=true`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/input/checkpoint/Checkpoint.java",
+    "tag": "Both"
+  },
+  {
+    "id": "RUN-031",
+    "name": "@CheckpointData",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MUST call `Input.getCheckpoint()` only when `isCheckpointReady()` is true (or via the callback) and MUST serialize the state.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/input/checkpoint/CheckpointData.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-032",
+    "name": "@CheckpointAvailable",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MUST poll `Input.isCheckpointReady()` after `next()` (explicit mode) or supply a callback to `Input.start(Consumer<CheckpointState>)` (automatic mode).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/input/checkpoint/CheckpointAvailable.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-033",
+    "name": "Checkpoint runtime protocol ($checkpoint, CheckpointState)",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MUST implement persistence/restore of the JSON above; MUST migrate the state when `__version` is older (the framework's nested migration applies to the checkpoint type).",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/input/CheckpointState.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-034",
+    "name": "@ConditionalOutput",
+    "category": "RUN",
+    "level": 2,
+    "designer": "MAY call `type=available_output` (ACT-014) with the current configuration to filter `outputFlows`.",
+    "runtime": "none",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/meta/ConditionalOutput.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "RUN-036",
+    "name": "@ReturnVariables / @ReturnVariable",
+    "category": "RUN",
+    "level": 2,
+    "designer": "MAY expose the variables to downstream expressions (Studio-like host).",
+    "runtime": "none",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/component/ReturnVariables.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "RUN-037",
+    "name": "@AfterVariables / @AfterVariable / @AfterVariableContainer",
+    "category": "RUN",
+    "level": 2,
+    "designer": "MAY expose the variables.",
+    "runtime": "MAY call the container method after the component finished.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/component/AfterVariables.java",
+    "tag": "Both"
+  },
+  {
+    "id": "RUN-038",
+    "name": "optionalRow",
+    "category": "RUN",
+    "level": 2,
+    "designer": "MAY relax the requirement of an outgoing connection for such inputs.",
+    "runtime": "none",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/input/PartitionMapper.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "RUN-039",
+    "name": "Serialization requirements",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST ship the plugin to every worker and register it before deserializing; MUST set the whitelist in secured deployments; MUST use `ContainerFinder.Instance.set(...)` when the default finder cannot see plugins.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/base/LifecycleImpl.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-040",
+    "name": "Internal configuration keys ($-prefix)",
+    "category": "RUN",
+    "level": 1,
+    "designer": "MUST send them under the same prefix as the other properties of the component configuration root.",
+    "runtime": "MUST forward them unchanged to `findMapper`/`findProcessor`.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/ComponentManager.java",
+    "tag": "Both"
+  },
+  {
+    "id": "RUN-041",
+    "name": "Flat configuration to constructor arguments",
+    "category": "RUN",
+    "level": 0,
+    "designer": "MUST serialize form values into these exact key shapes using each property's `path` from ComponentDetail.",
+    "runtime": "MUST pass the full map (including defaults) to the manager; MUST surface the validation IllegalArgumentException as user error.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/reflect/ReflectionService.java",
+    "tag": "Both"
+  },
+  {
+    "id": "RUN-042",
+    "name": "Job DSL and local runner",
+    "category": "RUN",
+    "level": 1,
+    "designer": "MAY use `family://name?...` URIs as a portable job serialization for tests.",
+    "runtime": "MAY reuse the Job API as a reference or embedded engine; a custom engine MUST reproduce the semantics (levels, branch wiring, flush). SHOULD be compared against for acceptance tests: the same chain must give the same output in the host.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/chain/Job.java",
+    "tag": "Both"
+  },
+  {
+    "id": "RUN-043",
+    "name": "Beam translation of a job",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "Reference for an engine adapter: MUST reproduce branch filtering/mapping, key-based multi-input join and group semantics on the target engine.",
+    "source": "component-runtime-beam/src/main/java/org/talend/sdk/component/runtime/beam/chain/impl/BeamExecutor.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-044",
+    "name": "Beam I/O adapters (TalendIO, TalendFn)",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY reuse these classes; if embedded, MUST have `component-runtime-beam` and Beam on the container parent classloader (see `BeamCustomizer` class index).",
+    "source": "component-runtime-beam/src/main/java/org/talend/sdk/component/runtime/beam/TalendIO.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-045",
+    "name": "Beam coders and schema registry",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "A distributed host MUST guarantee that the schema id resolves on the decoding side.",
+    "source": "component-runtime-beam/src/main/java/org/talend/sdk/component/runtime/beam/coder/registry/SchemaRegistryCoder.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-046",
+    "name": "Component validation at registration (ModelVisitor)",
+    "category": "RUN",
+    "level": 1,
+    "designer": "none",
+    "runtime": "A host registering plugins through ComponentManager gets this for free; a host with its own scanner MUST replicate these rules.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/visitor/ModelVisitor.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-047",
+    "name": "Runtime Mode (UNSAFE)",
+    "category": "RUN",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY set UNSAFE in production once plugins have been validated at build time.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/impl/Mode.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-048",
+    "name": "Input and output flows (FlowsFactory)",
+    "category": "RUN",
+    "level": 0,
+    "designer": "MUST use `inputFlows` / `outputFlows` of ComponentDetail to build connectors.",
+    "runtime": "MUST honour the same names when wiring branches.",
+    "source": "component-runtime-design-extension/src/main/java/org/talend/sdk/component/design/extension/flows/FlowsFactory.java",
+    "tag": "Both"
+  },
+  {
+    "id": "RUN-049",
+    "name": "Processor input conversion and group buffer",
+    "category": "RUN",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST call `beforeGroup()` before the first `onNext` (it initializes reflection state and the buffer) - `onNext` before `beforeGroup` fails with NullPointerException on `parameterBuilderProcess`.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/output/ProcessorImpl.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "RUN-050",
+    "name": "Multi-input record grouping (GroupKeyProvider)",
+    "category": "RUN",
+    "level": 2,
+    "designer": "MAY let users configure the join key per input.",
+    "runtime": "MUST provide a join strategy for multi-input processors.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/chain/GroupKeyProvider.java",
+    "tag": "Both"
+  },
+  {
+    "id": "LCM-001",
+    "name": "@Version",
+    "category": "LCM",
+    "level": 0,
+    "designer": "MUST store the component `version` (and each configuration type `version`) with every saved configuration and MUST send it back when calling migrate.",
+    "runtime": "MUST pass the persisted version as the `version` argument of `findMapper`/`findProcessor`/`findDriverRunner`. MUST NOT rewrite the stored version silently.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/component/Version.java",
+    "tag": "Both"
+  },
+  {
+    "id": "LCM-002",
+    "name": "MigrationHandler",
+    "category": "LCM",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST NOT migrate itself; MUST rely on the manager (`BaseMeta.instantiate`) or the server migrate endpoint.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/component/MigrationHandler.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "LCM-003",
+    "name": "Configuration migration protocol",
+    "category": "LCM",
+    "level": 1,
+    "designer": "MUST record `__version` for each nested configuration type it persists (datastore, dataset) and SHOULD call the migrate endpoints on load when `saved version < ComponentDetail.version`.",
+    "runtime": "MUST call `findMapper/findProcessor` with the saved component version (migration is applied inside) and MUST keep `<path>.__version` entries in the map.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/reflect/MigrationHandlerFactory.java",
+    "tag": "Both"
+  },
+  {
+    "id": "LCM-004",
+    "name": "Plugin (container) model",
+    "category": "LCM",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST register every plugin before instantiating components; MUST call `removePlugin`/`close()` to release classloaders; SHOULD hold one ComponentManager per JVM.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/ComponentManager.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "LCM-005",
+    "name": "Classloader isolation (ConfigurableClassLoader)",
+    "category": "LCM",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST give each plugin its own classloader whose parent exposes at least the API/SPI/runtime packages above; MUST set the thread context classloader to the plugin loader around every component call (LifecycleImpl does).",
+    "source": "container/container-core/src/main/java/org/talend/sdk/component/classloader/ConfigurableClassLoader.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "LCM-006",
+    "name": "Plugin discovery and registration sources",
+    "category": "LCM",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST decide how plugins are supplied (list, `.car` deployment, classpath) and register them at startup; SHOULD use stable ids (artifactId) so upgrades replace instead of duplicate.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/ComponentManager.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "LCM-007",
+    "name": "Dependency resolution (dependencies.txt)",
+    "category": "LCM",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST provide a Maven-layout repository (or nested repository) containing all `compile`/`runtime` dependencies; MAY replace resolution with a `ContainerClasspathContributor` or `Customizer.ignoreDefaultDependenciesDescriptor()`.",
+    "source": "container/container-core/src/main/java/org/talend/sdk/component/dependencies/maven/MvnDependencyListLocalRepositoryResolver.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "LCM-008",
+    "name": "Maven repository discovery (m2)",
+    "category": "LCM",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST set `talend.component.manager.m2.repository` (or pass the path to the ComponentManager constructor) in production; the default is intentionally not the user's ~/.m2.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/service/MavenRepositoryDefaultResolver.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "LCM-009",
+    "name": "Nested Maven repository and shade transformers",
+    "category": "LCM",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY package the host runtime as an uber jar with these transformers; then the m2 path becomes irrelevant.",
+    "source": "container/nested-maven-repository/src/main/java/org/talend/sdk/component/container/maven/shade/ContainerDependenciesTransformer.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "LCM-010",
+    "name": "Component archive (.car)",
+    "category": "LCM",
+    "level": 2,
+    "designer": "none",
+    "runtime": "SHOULD support deploying `.car` files (unpack repository, register the main GAV) for remote/engine deployment.",
+    "source": "component-tools/src/main/java/org/talend/sdk/component/tools/CarBundler.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "LCM-011",
+    "name": "Component scanning rules",
+    "category": "LCM",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST NOT scan itself; SHOULD provide `scanning.properties` in fat-jar deployments for startup speed.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/xbean/KnownClassesFilter.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "LCM-018",
+    "name": "ContainerListener and JMX exposure",
+    "category": "LCM",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY register listeners for monitoring hooks (checklist level 2).",
+    "source": "container/container-core/src/main/java/org/talend/sdk/component/container/ContainerListener.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "INT-001",
+    "name": "@Intercepts",
+    "category": "INT",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MUST apply the chain in INT-003 when hosting services; the ComponentManager does it automatically.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/interceptor/Intercepts.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "INT-002",
+    "name": "InterceptorHandler",
+    "category": "INT",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MUST honor the constructor injection rules if it re-implements the facade.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/interceptor/InterceptorHandler.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "INT-003",
+    "name": "Interceptor chain resolution and service proxies",
+    "category": "INT",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MUST call service methods through the generated proxy so interceptors run; MUST NOT call the underlying instance directly.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/interceptor/InterceptorHandlerFacade.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "INT-005",
+    "name": "ComponentException",
+    "category": "INT",
+    "level": 0,
+    "designer": "MUST map it to a user-facing error: origin USER = fixable by the user (configuration), BACKEND = remote system problem.",
+    "runtime": "MUST let it propagate as failure of the job/step and MUST NOT depend on the original exception classes (classloader isolation).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/exception/ComponentException.java",
+    "tag": "Both"
+  },
+  {
+    "id": "INT-006",
+    "name": "ComponentException.ErrorOrigin",
+    "category": "INT",
+    "level": 1,
+    "designer": "SHOULD present USER errors as validation feedback and BACKEND errors as service unavailability.",
+    "runtime": "SHOULD classify job failure causes with it.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/exception/ComponentException.java",
+    "tag": "Both"
+  },
+  {
+    "id": "INT-007",
+    "name": "DiscoverSchemaException",
+    "category": "INT",
+    "level": 2,
+    "designer": "MAY implement the recovery strategies (INT-008) for schema-guess failures.",
+    "runtime": "none",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/exception/DiscoverSchemaException.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "INT-008",
+    "name": "DiscoverSchemaException.HandleErrorWith",
+    "category": "INT",
+    "level": 2,
+    "designer": "MAY react to EXECUTE_LIFECYCLE/EXECUTE_MOCK_JOB by running the component (Studio-like hosts).",
+    "runtime": "none",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/exception/DiscoverSchemaException.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "INT-009",
+    "name": "Runtime exception unwrapping (InvocationExceptionWrapper)",
+    "category": "INT",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST expect `ComponentException` (never plugin-specific exception classes) from component calls; SHOULD log `originalType`.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/base/lang/exception/InvocationExceptionWrapper.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-001",
+    "name": "@Service",
+    "category": "SVC",
+    "level": 0,
+    "designer": "none (services are reached only through actions, see ACT-002).",
+    "runtime": "MUST scan each plugin for `@Service` classes, instantiate one instance per plugin, inject by type into components and services, and honor the lifecycle in SVC-027.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/Service.java",
+    "tag": "Both"
+  },
+  {
+    "id": "SVC-002",
+    "name": "BaseService",
+    "category": "SVC",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST set the `serializationHelper` on every `BaseService` instance it creates so distributed engines can serialize and re-resolve the service on workers.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/BaseService.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-003",
+    "name": "Serial",
+    "category": "SVC",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST make deserialized service references resolve to the target worker's plugin instance (via `ContainerFinder`, SPI `org.talend.sdk.component.runtime.serialization.ContainerFinder`); MUST NOT ship service state across the wire. A custom container implementation MUST supply an equivalent replacement for non-Serializable services (or make services extend `BaseService`, SVC-002).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/serialization/Serial.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-005",
+    "name": "LocalConfiguration",
+    "category": "SVC",
+    "level": 0,
+    "designer": "MUST NOT resolve `local_configuration:` itself if it talks to a Component Server (values arrive resolved); MAY expose server-side configuration through the server's own `LocalConfiguration` SPI (`VirtualDependenciesService$LocalConfigurationImpl`).",
+    "runtime": "MUST inject a `LocalConfiguration` scoped to the plugin id, honoring the lookup order above; SHOULD NOT rely on it for runtime-critical values because runtime and design-time environments differ. SHOULD provide plugin settings (retry strategy, `_maxBatchSize`, streaming caps, cache eviction) through system properties or environment variables using the documented keys (merged from LCM-020).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/configuration/LocalConfiguration.java",
+    "tag": "Both"
+  },
+  {
+    "id": "SVC-006",
+    "name": "@Configuration",
+    "category": "SVC",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST support `@Configuration(\"prefix\") Supplier<X>` on service fields (re-evaluated at each `get()`) and `@Configuration(\"prefix\") X` on constructor parameters.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/configuration/Configuration.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-007",
+    "name": "Injector",
+    "category": "SVC",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST provide an injector that resolves against the plugin's service map.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/injector/Injector.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-008",
+    "name": "LocalCache",
+    "category": "SVC",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST inject a cache per plugin and release it on plugin undeploy (`@PreDestroy release()`); SHOULD keep default unlimited behaviour unless configured.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/cache/LocalCache.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-009",
+    "name": "@Cached",
+    "category": "SVC",
+    "level": 1,
+    "designer": "none",
+    "runtime": "SHOULD wrap services with interceptors (proxy) so `@Cached` is honored; if unsupported, the method MUST still execute correctly (uncached). MUST provide `LocalCache` (reference `LocalCacheService`).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/cache/Cached.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-012",
+    "name": "ProducerFinder",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY provide it; if provided MUST resolve mappers across all deployed plugins and MUST convert emitted objects to `Record`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/source/ProducerFinder.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-013",
+    "name": "Resolver",
+    "category": "SVC",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST inject a `Resolver` bound to the plugin repository and MUST create an isolated `ConfigurableClassLoader` for `mapDescriptorToClassLoader`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/dependency/Resolver.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-014",
+    "name": "ClassLoaderDefinition",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY support it; an implementation that does not MUST throw `UnsupportedOperationException` (the API default).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/dependency/ClassLoaderDefinition.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-015",
+    "name": "ObjectFactory",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MUST provide it when hosting components that inject it.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/factory/ObjectFactory.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-016",
+    "name": "JSON-P services",
+    "category": "SVC",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST inject these six types by exact type; injected instances MUST be `Serializable`.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/service/DefaultServiceProvider.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-017",
+    "name": "Jsonb",
+    "category": "SVC",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST inject a `Jsonb` per plugin sharing the JSON-P buffers.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/service/DefaultServiceProvider.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-018",
+    "name": "ContainerInfo and ProxyGenerator (internal services)",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY expose them; hosts not built on `component-runtime-manager` can omit them.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/service/ContainerInfo.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-019",
+    "name": "@RuntimeContext",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "A Studio-compatible runtime MUST inject the holder into annotated fields before `start`; other runtimes MAY leave the field null and components MUST tolerate that.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/context/RuntimeContext.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-020",
+    "name": "RuntimeContextHolder",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "Studio runtime MUST create one per connector instance sharing the global map.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/context/RuntimeContextHolder.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-021",
+    "name": "ComponentExtension",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY support; if supported MUST load via `ServiceLoader` with the manager classloader, sort by `priority()`, call `onComponent` for every scanned component class, and merge `getExtensionServices` into the plugin's services when the extension owns the component. MUST NOT expect extensions to run without `ComponentManager`.",
+    "source": "component-spi/src/main/java/org/talend/sdk/component/spi/component/ComponentExtension.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-022",
+    "name": "ComponentExtension.ComponentContext",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MUST provide a per-component context to each extension.",
+    "source": "component-spi/src/main/java/org/talend/sdk/component/spi/component/ComponentExtension.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-023",
+    "name": "ComponentExtension.ComponentInstance",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MUST pass the native instance and its coordinates to the extension.",
+    "source": "component-spi/src/main/java/org/talend/sdk/component/spi/component/ComponentExtension.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-024",
+    "name": "GenericComponentExtension",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY support; if so MUST consult it before standard lookup and enforce the single-implementation rule.",
+    "source": "component-spi/src/main/java/org/talend/sdk/component/spi/component/GenericComponentExtension.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-025",
+    "name": "ContainerListenerExtension",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY support (only relevant if reusing `component-runtime-manager`).",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/spi/ContainerListenerExtension.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-026",
+    "name": "ContainerClasspathContributor and ComponentManager.Customizer",
+    "category": "SVC",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY support; WARNING internal. MAY implement a `Customizer` to integrate with a host-specific class/dependency layout.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/ComponentManager.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SVC-027",
+    "name": "Service instantiation, injection and lifecycle order",
+    "category": "SVC",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST follow this order so `@PostConstruct` sees injected services; MUST call `@PreDestroy` on undeploy. MUST expose the built-in service set when replacing `DefaultServiceProvider`; MUST run `@PostConstruct` of services once per container start.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/ComponentManager.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-001",
+    "name": "HttpClientFactory",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST inject a serializable `HttpClientFactory` scoped to the plugin (serialization via `SerializableService`); MUST also auto-create and register a proxy for every `HttpClient` sub-interface that declares `@Request` methods so it can be injected by type (HTTP-002).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/HttpClientFactory.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-002",
+    "name": "HttpClient",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST let components call `client.base(url)` (typically in `@PostConstruct`) and store it in the proxy handler; the base MUST be preserved when the proxy is copied.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/HttpClient.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-003",
+    "name": "@Request",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST parse each method once (annotations + parameters) and cache the execution plan; MUST fail creation on missing `@Request`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Request.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-004",
+    "name": "@Base",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST use it in preference to the proxy base; URL = base + `/` + path (single slash join, empty parts tolerated).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Base.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-005",
+    "name": "@Url",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST ignore base and request path when present.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Url.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-006",
+    "name": "@HttpMethod",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST honor the override.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/HttpMethod.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-007",
+    "name": "@Path",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST apply exactly the encoding above.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Path.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-008",
+    "name": "@Query",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST preserve declaration order of query parameters.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Query.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-009",
+    "name": "@QueryParams",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST support Map arguments.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/QueryParams.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-010",
+    "name": "QueryFormat",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST implement both; any other value is an `IllegalArgumentException(\"Unsupported formatting\")`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/QueryFormat.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-011",
+    "name": "@Header",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST set headers with `setRequestProperty` semantics before the configurer runs.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Header.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-012",
+    "name": "@Headers",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST support Map arguments.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Headers.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-013",
+    "name": "@Codec",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST instantiate codecs with service injection and merge them with the defaults of HTTP-017 (user codecs win on identical content type).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Codec.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-014",
+    "name": "Encoder",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST call `encode` only for non-null, non-`byte[]` payloads.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Encoder.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-015",
+    "name": "Decoder",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST pass the generic `Type` (the `Response<T>` argument when wrapped).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Decoder.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-016",
+    "name": "@ContentType",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST register codecs under this value; two codecs with the same key are an error (`IllegalArgumentException`).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/ContentType.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-017",
+    "name": "Default codecs and content-type matching",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST implement exactly these defaults and this matching order.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/service/http/RequestParser.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-018",
+    "name": "@UseConfigurer",
+    "category": "HTTP",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST call `configure(connection, configuration)` once per invocation.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/UseConfigurer.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-019",
+    "name": "Configurer",
+    "category": "HTTP",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST expose the current `HttpURLConnection` state through `Connection` and apply `postConfigure` (follow-redirect flag) before connecting.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Configurer.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-020",
+    "name": "@ConfigurerOption",
+    "category": "HTTP",
+    "level": 1,
+    "designer": "none",
+    "runtime": "MUST pass the raw (unconverted) argument object.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/ConfigurerOption.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-021",
+    "name": "OAuth1 configurer",
+    "category": "HTTP",
+    "level": 2,
+    "designer": "none",
+    "runtime": "SHOULD ship an `OAuth1Provider` if it wants to run connectors using it (the manager registers `OAuth1ProviderImpl` through `META-INF/services/org.talend.sdk.component.api.service.http.configurer.oauth1.OAuth1$OAuth1Provider`).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/configurer/oauth1/OAuth1.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-022",
+    "name": "OAuth1Provider (SPI)",
+    "category": "HTTP",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MAY provide an alternative implementation via `ServiceLoader`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/configurer/oauth1/OAuth1.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-023",
+    "name": "Response",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST NOT throw for error statuses when the method returns `Response`; MUST expose the error body via `error()`.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/Response.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-024",
+    "name": "HttpException",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "MAY show `getResponse().error(String.class)` for action failures (actions surface as `ComponentException`/HTTP 520 in the server).",
+    "runtime": "MUST propagate as a component failure (error propagation, level 0).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/http/HttpException.java",
+    "tag": "Both"
+  },
+  {
+    "id": "HTTP-025",
+    "name": "Request execution semantics",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST reproduce this order; SHOULD prefer `InputStream` return types for large payloads.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/service/http/ExecutionContext.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "HTTP-026",
+    "name": "Payload parameter",
+    "category": "HTTP",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST enforce at most one payload parameter.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/service/http/RequestParser.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "SRV-001",
+    "name": "Base path and JAX-RS application",
+    "category": "SRV",
+    "level": 0,
+    "designer": "MUST prefix every call with `/api/v1`; SHOULD read `Environment.latestApiVersion` (SRV-014) to detect newer API versions.",
+    "runtime": "none",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/front/TalendComponentApplication.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "SRV-002",
+    "name": "GET /api/v1/component/index",
+    "category": "SRV",
+    "level": 0,
+    "designer": "MUST call it to build the palette; SHOULD pass the user language and cache the answer until `Environment.lastUpdated` changes.",
+    "runtime": "none (runtime loads plugins locally).",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ComponentResource.java",
+    "tag": "Both"
+  },
+  {
+    "id": "SRV-003",
+    "name": "GET /api/v1/component/details",
+    "category": "SRV",
+    "level": 0,
+    "designer": "MUST fetch details before rendering a form or creating a job node; MUST persist `ComponentDetail.version` with the configuration (see SRV-004).",
+    "runtime": "none; the runtime obtains the same information from `ComponentManager` metadata.",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ComponentResource.java",
+    "tag": "Both"
+  },
+  {
+    "id": "SRV-004",
+    "name": "POST /api/v1/component/migrate/{id}/{configurationVersion}",
+    "category": "SRV",
+    "level": 1,
+    "designer": "MUST call it on load when the stored version is lower than `ComponentDetail.version`, then persist the returned map with the new version.",
+    "runtime": "MUST perform the same migration through `ComponentManager` when it receives an older version (see RUN/LCM categories).",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ComponentResource.java",
+    "tag": "Both"
+  },
+  {
+    "id": "SRV-005",
+    "name": "Icon endpoints",
+    "category": "SRV",
+    "level": 1,
+    "designer": "SHOULD render icons from these endpoints or from `includeIconContent=true`; MUST handle 404 with a default icon.",
+    "runtime": "none",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ComponentResource.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "SRV-006",
+    "name": "GET /api/v1/component/dependencies",
+    "category": "SRV",
+    "level": 2,
+    "designer": "MAY use it to package a job.",
+    "runtime": "A runtime that does not have plugins locally MAY use it with SRV-007 to download them; otherwise none.",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ComponentResource.java",
+    "tag": "Both"
+  },
+  {
+    "id": "SRV-007",
+    "name": "GET /api/v1/component/dependency/{id}",
+    "category": "SRV",
+    "level": 2,
+    "designer": "MAY proxy it.",
+    "runtime": "MAY download artifacts with it after SRV-006.",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ComponentResource.java",
+    "tag": "Both"
+  },
+  {
+    "id": "SRV-008",
+    "name": "GET /api/v1/documentation/component/{id}",
+    "category": "SRV",
+    "level": 1,
+    "designer": "SHOULD display it in a help panel and render asciidoc (or use the returned rendering).",
+    "runtime": "none",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/DocumentationResource.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "SRV-009",
+    "name": "GET /api/v1/configurationtype/index",
+    "category": "SRV",
+    "level": 1,
+    "designer": "MUST use it to offer reusable datastores/datasets and to link them to components.",
+    "runtime": "none",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ConfigurationTypeResource.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "SRV-010",
+    "name": "GET /api/v1/configurationtype/details",
+    "category": "SRV",
+    "level": 1,
+    "designer": "MUST use it to render dataset/datastore forms.",
+    "runtime": "none",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ConfigurationTypeResource.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "SRV-011",
+    "name": "POST /api/v1/configurationtype/migrate/{id}/{configurationVersion}",
+    "category": "SRV",
+    "level": 1,
+    "designer": "MUST migrate stored datasets/datastores whose version is older.",
+    "runtime": "SHOULD migrate through `ComponentManager` for nested dataset versions.",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ConfigurationTypeResource.java",
+    "tag": "Both"
+  },
+  {
+    "id": "SRV-012",
+    "name": "GET /api/v1/action/index",
+    "category": "SRV",
+    "level": 1,
+    "designer": "MAY use it for discovery; component details already carry action references. MUST use the `ActionReference` entries of the component/config detail to resolve triggers; MAY use the index for custom (`user`, ACT-001) actions.",
+    "runtime": "none",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ActionResource.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "SRV-013",
+    "name": "POST /api/v1/action/execute",
+    "category": "SRV",
+    "level": 1,
+    "designer": "MUST send only the properties the action declares (see the action's `properties` from `ComponentDetail`), with the exact `configuration.<path>` keys; MUST interpret errors by status and `ErrorPayload.code`. MUST send only the parameters listed in the trigger `parameters` (key = action parameter path, value = form value at `path`); MUST map HTTP `400`/`456`/`520` to user-visible errors using `ErrorPayload.description` (MAY distinguish user vs backend errors); SHOULD debounce change-triggered calls and drop stale responses (inferred).",
+    "runtime": "none",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ActionResource.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "SRV-014",
+    "name": "GET /api/v1/environment",
+    "category": "SRV",
+    "level": 2,
+    "designer": "SHOULD poll it (or call on reconnect) to invalidate its component cache when `lastUpdated`/`connectors.pluginsHash` change; MUST tolerate 404.",
+    "runtime": "none",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/EnvironmentResource.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "SRV-015",
+    "name": "POST /api/v1/bulk",
+    "category": "SRV",
+    "level": 2,
+    "designer": "MAY use it to reduce round trips (index + details).",
+    "runtime": "none",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/BulkReadResource.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "SRV-016",
+    "name": "GET /api/v1/cache/clear",
+    "category": "SRV",
+    "level": 2,
+    "designer": "MAY expose a \"reload components\" action (Studio dev mode does).",
+    "runtime": "none",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/CacheResource.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "SRV-017",
+    "name": "Response caching and invalidation",
+    "category": "SRV",
+    "level": 1,
+    "designer": "MUST NOT rely on `ETag`/`304`; SHOULD cache responses client-side keyed by URL + language and invalidate when `Environment.lastUpdated`/`connectors.pluginsHash` changes.",
+    "runtime": "none",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/service/jcache/FrontCacheResolver.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "SRV-018",
+    "name": "Internationalization (language parameter and locale mapping)",
+    "category": "SRV",
+    "level": 1,
+    "designer": "MUST send the UI language in `language`/`lang`; SHOULD accept that the returned language may differ (fallback `en`).",
+    "runtime": "none (component messages use `@Internationalized`, category INT/DSG).",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/service/LocaleMapper.java",
+    "tag": "Both"
+  },
+  {
+    "id": "SRV-019",
+    "name": "Security handlers (connection and command)",
+    "category": "SRV",
+    "level": 2,
+    "designer": "MUST add authentication in front of the server (gateway/handler) in multi-tenant deployments; MAY forward `x-talend-tenant-id` (SRV-020).",
+    "runtime": "none",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/service/security/SecurityExtension.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "SRV-020",
+    "name": "Credential decryption (vault)",
+    "category": "SRV",
+    "level": 2,
+    "designer": "MAY send encrypted (`vault:`-prefixed) credentials to action calls instead of clear text; MUST send the tenant header when the deployment is multi-tenant.",
+    "runtime": "SHOULD decrypt `vault:` values before instantiating components if it stores them encrypted (unverified: runtime-side handling is host-specific).",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/front/security/SecurityUtils.java",
+    "tag": "Both"
+  },
+  {
+    "id": "SRV-021",
+    "name": "Documentation UI and toggle",
+    "category": "SRV",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/front/security/web/DocumentationToggle.java",
+    "tag": "Both"
+  },
+  {
+    "id": "SRV-022",
+    "name": "Simple query language (q parameter)",
+    "category": "SRV",
+    "level": 1,
+    "designer": "MAY use it for server-side palette filtering; MUST escape spaces properly in URLs.",
+    "runtime": "none",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/service/SimpleQueryLanguageCompiler.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "SRV-023",
+    "name": "Server configuration keys (summary)",
+    "category": "SRV",
+    "level": 2,
+    "designer": "none beyond knowing which endpoints may be disabled (`environment`, `documentation`).",
+    "runtime": "none",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/configuration/ComponentServerConfiguration.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "SRV-024",
+    "name": "Error payload (ErrorPayload and ErrorDictionary)",
+    "category": "SRV",
+    "level": 0,
+    "designer": "MUST parse `ErrorPayload` on non-2xx and surface `description`; MUST distinguish 4xx user errors, 456 backend errors and 520 unexpected errors from actions.",
+    "runtime": "none",
+    "source": "component-server-parent/component-server-model/src/main/java/org/talend/sdk/component/server/front/model/ErrorDictionary.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "SRV-025",
+    "name": "Plugin deployment, registry and reloading",
+    "category": "SRV",
+    "level": 1,
+    "designer": "MUST refresh its palette after `lastUpdated` changes (SRV-014).",
+    "runtime": "none (runtime deploys plugins itself with `ComponentManager`).",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/service/ComponentManagerService.java",
+    "tag": "Both"
+  },
+  {
+    "id": "TST-001",
+    "name": "SimpleComponentRule (JUnit 4)",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none (test-only); a runtime host MAY use it as a reference behaviour oracle.",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/junit/SimpleComponentRule.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "TST-002",
+    "name": "@WithComponents, ComponentExtension and @Injected (JUnit 5)",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/junit5/WithComponents.java",
+    "tag": "Both"
+  },
+  {
+    "id": "TST-003",
+    "name": "ComponentsHandler and BaseComponentsHandler",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/junit/BaseComponentsHandler.java",
+    "tag": "Both"
+  },
+  {
+    "id": "TST-004",
+    "name": "Mock components test://emitter and test://collector",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/junit/SimpleEmitter.java",
+    "tag": "Both"
+  },
+  {
+    "id": "TST-005",
+    "name": "ServiceInjectionRule",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/junit/ServiceInjectionRule.java",
+    "tag": "Both"
+  },
+  {
+    "id": "TST-006",
+    "name": "Input factories and Outputs",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/junit/ControllableInputFactory.java",
+    "tag": "Both"
+  },
+  {
+    "id": "TST-007",
+    "name": "SimpleFactory.configurationByExample",
+    "category": "TST",
+    "level": 2,
+    "designer": "MAY use it to cross-check its own form-to-map serialization.",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/junit/SimpleFactory.java",
+    "tag": "Designer"
+  },
+  {
+    "id": "TST-008",
+    "name": "RecordAsserts and ExceptionVerifier",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/junit/RecordAsserts.java",
+    "tag": "Both"
+  },
+  {
+    "id": "TST-009",
+    "name": "Multi-environment test framework",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/junit/environment/Environment.java",
+    "tag": "Both"
+  },
+  {
+    "id": "TST-010",
+    "name": "Built-in environments",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "A Beam-based runtime SHOULD be validated with at least `Direct`.",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/junit/environment/builtin/ContextualEnvironment.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "TST-011",
+    "name": "HTTP mocking with JUnit 4",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-http-junit/src/main/java/org/talend/sdk/component/junit/http/junit4/JUnit4HttpApi.java",
+    "tag": "Both"
+  },
+  {
+    "id": "TST-012",
+    "name": "HTTP mocking with JUnit 5",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-http-junit/src/main/java/org/talend/sdk/component/junit/http/junit5/HttpApi.java",
+    "tag": "Both"
+  },
+  {
+    "id": "TST-013",
+    "name": "HTTP capture, passthrough and response location",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-http-junit/src/main/java/org/talend/sdk/component/junit/http/api/ResponseLocator.java",
+    "tag": "Both"
+  },
+  {
+    "id": "TST-014",
+    "name": "MavenDecrypter, Server and JUnit helpers",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/maven/MavenDecrypter.java",
+    "tag": "Both"
+  },
+  {
+    "id": "TST-015",
+    "name": "Beam JUnit helpers",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-beam-junit/src/main/java/org/talend/sdk/component/junit/beam/Data.java",
+    "tag": "Both"
+  },
+  {
+    "id": "TST-016",
+    "name": "Spark cluster testing",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "A Spark-based runtime MAY be verified with it.",
+    "source": "component-runtime-testing/component-runtime-testing-spark/src/main/java/org/talend/sdk/component/runtime/testing/spark/SparkClusterRule.java",
+    "tag": "Runtime"
+  },
+  {
+    "id": "TST-017",
+    "name": "Temporary folder helpers",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-junit-base/src/main/java/org/talend/sdk/component/junit/base/junit5/WithTemporaryFolder.java",
+    "tag": "Both"
+  },
+  {
+    "id": "TST-019",
+    "name": "Executable payload fixtures (server and manager tests)",
+    "category": "TST",
+    "level": 2,
+    "designer": "MAY replay these interactions to test its client.",
+    "runtime": "MAY reuse manager tests as conformance examples.",
+    "source": "component-server-parent/component-server/src/test/java/org/talend/sdk/component/server/front/ActionResourceImplTest.java",
+    "tag": "Both"
+  }
+]

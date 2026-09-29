@@ -1,0 +1,164 @@
+[
+  {
+    "id": "TST-001",
+    "name": "SimpleComponentRule (JUnit 4)",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none (test-only); a runtime host MAY use it as a reference behaviour oracle.",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/junit/SimpleComponentRule.java"
+  },
+  {
+    "id": "TST-002",
+    "name": "@WithComponents, ComponentExtension and @Injected (JUnit 5)",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/junit5/WithComponents.java"
+  },
+  {
+    "id": "TST-003",
+    "name": "ComponentsHandler and BaseComponentsHandler",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/junit/BaseComponentsHandler.java"
+  },
+  {
+    "id": "TST-004",
+    "name": "Mock components test://emitter and test://collector",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/junit/SimpleEmitter.java"
+  },
+  {
+    "id": "TST-005",
+    "name": "ServiceInjectionRule",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/junit/ServiceInjectionRule.java"
+  },
+  {
+    "id": "TST-006",
+    "name": "Input factories and Outputs",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/junit/ControllableInputFactory.java"
+  },
+  {
+    "id": "TST-007",
+    "name": "SimpleFactory.configurationByExample",
+    "category": "TST",
+    "level": 2,
+    "designer": "MAY use it to cross-check its own form-to-map serialization.",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/junit/SimpleFactory.java"
+  },
+  {
+    "id": "TST-008",
+    "name": "RecordAsserts and ExceptionVerifier",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/junit/RecordAsserts.java"
+  },
+  {
+    "id": "TST-009",
+    "name": "Multi-environment test framework",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/junit/environment/Environment.java"
+  },
+  {
+    "id": "TST-010",
+    "name": "Built-in environments",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "A Beam-based runtime SHOULD be validated with at least `Direct`.",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/junit/environment/builtin/ContextualEnvironment.java"
+  },
+  {
+    "id": "TST-011",
+    "name": "HTTP mocking with JUnit 4",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-http-junit/src/main/java/org/talend/sdk/component/junit/http/junit4/JUnit4HttpApi.java"
+  },
+  {
+    "id": "TST-012",
+    "name": "HTTP mocking with JUnit 5",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-http-junit/src/main/java/org/talend/sdk/component/junit/http/junit5/HttpApi.java"
+  },
+  {
+    "id": "TST-013",
+    "name": "HTTP capture, passthrough and response location",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-http-junit/src/main/java/org/talend/sdk/component/junit/http/api/ResponseLocator.java"
+  },
+  {
+    "id": "TST-014",
+    "name": "MavenDecrypter, Server and JUnit helpers",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-junit/src/main/java/org/talend/sdk/component/maven/MavenDecrypter.java"
+  },
+  {
+    "id": "TST-015",
+    "name": "Beam JUnit helpers",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-beam-junit/src/main/java/org/talend/sdk/component/junit/beam/Data.java"
+  },
+  {
+    "id": "TST-016",
+    "name": "Spark cluster testing",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "A Spark-based runtime MAY be verified with it.",
+    "source": "component-runtime-testing/component-runtime-testing-spark/src/main/java/org/talend/sdk/component/runtime/testing/spark/SparkClusterRule.java"
+  },
+  {
+    "id": "TST-017",
+    "name": "Temporary folder helpers",
+    "category": "TST",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-runtime-testing/component-runtime-junit-base/src/main/java/org/talend/sdk/component/junit/base/junit5/WithTemporaryFolder.java"
+  },
+  {
+    "id": "TST-019",
+    "name": "Executable payload fixtures (server and manager tests)",
+    "category": "TST",
+    "level": 2,
+    "designer": "MAY replay these interactions to test its client.",
+    "runtime": "MAY reuse manager tests as conformance examples.",
+    "source": "component-server-parent/component-server/src/test/java/org/talend/sdk/component/server/front/ActionResourceImplTest.java"
+  }
+]

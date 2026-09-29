@@ -1,0 +1,218 @@
+[
+  {
+    "id": "ACT-001",
+    "name": "@Action (type user)",
+    "category": "ACT",
+    "level": 2,
+    "designer": "MAY expose custom actions via `GET /action/index?type=user`; MUST ignore unknown ones.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/Action.java"
+  },
+  {
+    "id": "ACT-002",
+    "name": "@ActionType (meta-annotation)",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST dispatch response handling on the `type` id (`SRV-013` result table).",
+    "runtime": "MAY ignore actions (they are design-time); an embedded server exposing them MUST run them inside the plugin classloader with services injected.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/ActionType.java"
+  },
+  {
+    "id": "ACT-003",
+    "name": "@HealthCheck and HealthCheckStatus",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST offer a test-connection button on datastores having `action::healthcheck` and MUST display `comment` on `KO`; MUST send the datastore values as flat keys (parameter name from the action's first property, typically `datastore`).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/healthcheck/HealthCheck.java"
+  },
+  {
+    "id": "ACT-004",
+    "name": "@Suggestions and SuggestionValues",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST call the action when the field is focused/changed (`ACT-024`), display `label` (or `label (id)` when `labelDisplayMode=LABEL_ID`), store `id`; MUST honor `cacheable`; MUST allow free text (suggestions are not restrictive).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/completion/Suggestions.java"
+  },
+  {
+    "id": "ACT-005",
+    "name": "@DynamicValues and Values",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST call it once when building the form (no parameters), render a restricted list (`titleMap` from `label`, value `id`); SHOULD cache the result per form session; on failure MUST fall back to an empty list (the reference implementation logs and continues).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/completion/DynamicValues.java"
+  },
+  {
+    "id": "ACT-006",
+    "name": "@Update",
+    "category": "ACT",
+    "level": 2,
+    "designer": "MUST render a button (title = action display name or `<name> (update)`), call the action with the parameters of `@Updatable.parameters`, and replace the value at the trigger `options.path` with the JSON response (merge semantics unspecified; the reference `component-form` sets `options=[{path,type}]`).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/update/Update.java"
+  },
+  {
+    "id": "ACT-007",
+    "name": "@DiscoverSchema",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST call the action with the dataset configuration and convert the returned record `Schema` JSON (`entries[]{name,rawName,type,nullable,comment,metadata,errorCapable,valid,props,elementSchema}`, `metadata[]`, `props`, `type`) into the host schema; field semantics in [04](../04-data-model.md).",
+    "runtime": "MAY call it to obtain design-time schemas; MUST NOT require it for execution.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/schema/DiscoverSchema.java"
+  },
+  {
+    "id": "ACT-008",
+    "name": "@DiscoverSchemaExtended",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MAY call it to propagate schemas between components (schema propagation, see [07](../07-designer-blueprint.md)); MUST pass the incoming schema JSON serialized as a string. SHOULD call it to propagate schemas through processors; MUST pass the incoming schema and branch when the method declares them.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/schema/DiscoverSchemaExtended.java"
+  },
+  {
+    "id": "ACT-009",
+    "name": "@DiscoverDataset and DiscoverDatasetResult",
+    "category": "ACT",
+    "level": 2,
+    "designer": "MAY offer a \"browse datasets\" step after a datastore is defined and create a dataset per selection (use `metadata` to prefill). MUST parse the `DiscoverDatasetResult` shape when the action is used.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/discovery/DiscoverDataset.java"
+  },
+  {
+    "id": "ACT-010",
+    "name": "@DynamicDependencies",
+    "category": "ACT",
+    "level": 2,
+    "designer": "MAY call it and request the listed artifacts from the dependency endpoints before running. SHOULD call it when the option using it changes, and make the returned GAVs available to the runtime (download via `/component/dependencies`, SRV-006).",
+    "runtime": "SHOULD resolve the returned GAVs into the component classloader (via `Resolver`, SVC catalog). Resolution may use `Resolver` (SVC-013) or `TALEND-INF/dynamic-dependencies.properties` (unverified) before instantiating the component.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/dependency/DynamicDependencies.java"
+  },
+  {
+    "id": "ACT-011",
+    "name": "@CreateConnection",
+    "category": "ACT",
+    "level": 1,
+    "designer": "Studio-like hosts SHOULD call it once and hand the connection to components using `@Connection`; other hosts MAY ignore.",
+    "runtime": "Studio-like runtimes MUST inject the created object into `@Connection` fields (`ACT-012`).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/connection/CreateConnection.java"
+  },
+  {
+    "id": "ACT-012",
+    "name": "@CloseConnection, CloseConnectionObject, @Connection",
+    "category": "ACT",
+    "level": 1,
+    "designer": "Studio-like hosts MUST call the close object at end of job; other hosts MAY ignore.",
+    "runtime": "Studio-like runtimes MUST inject `@Connection` fields and close via the returned object.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/connection/CloseConnection.java"
+  },
+  {
+    "id": "ACT-013",
+    "name": "@DatabaseSchemaMapping",
+    "category": "ACT",
+    "level": 2,
+    "designer": "Studio-like hosts MAY call it to map DB column types; others ignore.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/schema/DatabaseSchemaMapping.java"
+  },
+  {
+    "id": "ACT-014",
+    "name": "@AvailableOutputFlows",
+    "category": "ACT",
+    "level": 2,
+    "designer": "MAY re-query available outputs when the configuration changes and rebuild the output ports; MUST otherwise use static `outputFlows` from `ComponentDetail`.",
+    "runtime": "MUST accept any flow name the action returned as a valid output (branching rules in RUN catalog).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/outputs/AvailableOutputFlows.java"
+  },
+  {
+    "id": "ACT-015",
+    "name": "@ActionRef (meta-annotation)",
+    "category": "ACT",
+    "level": 1,
+    "designer": "none (consumes the metadata).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/action/meta/ActionRef.java"
+  },
+  {
+    "id": "ACT-016",
+    "name": "@Suggestable",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST implement `ACT-004` and honor `labelDisplayMode` (unknown values fall back to `LABEL`).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/action/Suggestable.java"
+  },
+  {
+    "id": "ACT-017",
+    "name": "@Proposable",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST implement `ACT-005`.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/action/Proposable.java"
+  },
+  {
+    "id": "ACT-018",
+    "name": "@Updatable",
+    "category": "ACT",
+    "level": 2,
+    "designer": "MUST implement `ACT-006` and the button placement/visibility rules above.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/action/Updatable.java"
+  },
+  {
+    "id": "ACT-019",
+    "name": "@Validable",
+    "category": "ACT",
+    "level": 2,
+    "designer": "MUST implement `VAL-010`; trigger event when `onEvent` is absent is the renderer's choice (typically value change/blur, unverified).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/action/Validable.java"
+  },
+  {
+    "id": "ACT-020",
+    "name": "@Checkable",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST add the connection test button only when `action::healthcheck` is present.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/action/Checkable.java"
+  },
+  {
+    "id": "ACT-021",
+    "name": "@BuiltInSuggestable",
+    "category": "ACT",
+    "level": 2,
+    "designer": "MAY implement `INCOMING_SCHEMA_ENTRY_NAMES` (suggest incoming column names) locally; MUST NOT call the server for it (`remote=false`); MUST degrade to a plain text field when unsupported. Components SHOULD NOT depend on it.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/action/BuiltInSuggestable.java"
+  },
+  {
+    "id": "ACT-024",
+    "name": "Trigger model (UiSchema.Trigger) and wiring semantics",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST build request bodies from `parameters` (`body[key] = value(path)`); MUST fire `focus` triggers on field focus and `change` triggers on value change; MUST treat `remote=false` as client-only.",
+    "runtime": "none.",
+    "source": "component-form/component-form-core/src/main/java/org/talend/sdk/component/form/internal/converter/impl/widget/AbstractWidgetConverter.java"
+  },
+  {
+    "id": "ACT-025",
+    "name": "Action parameter reference syntax",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST implement this resolution identically (Studio counterpart `SettingsCreator.computeTargetPath`).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/action/Suggestable.java"
+  },
+  {
+    "id": "ACT-026",
+    "name": "Action metadata keys on options",
+    "category": "ACT",
+    "level": 1,
+    "designer": "MUST derive triggers from these keys plus `ActionReference` (`ACT-024`).",
+    "runtime": "none.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/reflect/parameterenricher/ActionParameterEnricher.java"
+  }
+]

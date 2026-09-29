@@ -1,0 +1,173 @@
+[
+  {
+    "id": "CFG-001",
+    "name": "@Option",
+    "category": "CFG",
+    "level": 0,
+    "designer": "MUST build the form from the server `properties`, never from Java classes; MUST NOT invent option names; MUST treat names starting with `$` as technical (see `CFG-016`).",
+    "runtime": "MUST provide configuration values through the component manager (flat map, see `CFG-002`); `@Option` fields MUST NOT be `final` (`NoFinalOptionValidator`).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/Option.java"
+  },
+  {
+    "id": "CFG-002",
+    "name": "Option path and flat configuration map syntax",
+    "category": "CFG",
+    "level": 0,
+    "designer": "MUST serialize user input to this flat form (prefix rules and `[i]` indexes) for `/action/execute` and for saved configuration; MUST use the same paths for `@Suggestable`/`@Updatable`/`@ActiveIf` targets (relative-path syntax in [05](../05-configuration-and-ui.md)).",
+    "runtime": "MUST convert the flat map to the component object graph via the component manager (`ReflectionService`); unknown keys are ignored (inferred), missing values keep field defaults.",
+    "source": "documentation/src/main/antora/modules/ROOT/pages/component-configuration.adoc"
+  },
+  {
+    "id": "CFG-003",
+    "name": "Parameter types and type mapping",
+    "category": "CFG",
+    "level": 0,
+    "designer": "MUST support at least `STRING`, `NUMBER`, `BOOLEAN`, `ENUM`, `OBJECT`, `ARRAY`; MUST treat unknown `type` values as `STRING` (inferred).",
+    "runtime": "MUST rely on the component manager conversion (property editors); MUST NOT reimplement type conversion.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/reflect/ParameterModelService.java"
+  },
+  {
+    "id": "CFG-004",
+    "name": "@DefaultValue",
+    "category": "CFG",
+    "level": 1,
+    "designer": "MUST pre-fill the field with `ui::defaultvalue::value` when present, else with `defaultValue`; MUST convert per property type.",
+    "runtime": "none (the runtime receives the value the designer stored; the Java field initializer applies if absent).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/DefaultValue.java"
+  },
+  {
+    "id": "CFG-005",
+    "name": "@Hidden",
+    "category": "CFG",
+    "level": 1,
+    "designer": "MUST NOT show the field to the user; MUST still keep it in the model and send its value in flat configuration.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/Hidden.java"
+  },
+  {
+    "id": "CFG-006",
+    "name": "@OptionsOrder",
+    "category": "CFG",
+    "level": 1,
+    "designer": "MUST render children in this order when no grid layout applies (one widget per row).",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/ui/OptionsOrder.java"
+  },
+  {
+    "id": "CFG-007",
+    "name": "@ConfigurationType (meta-annotation)",
+    "category": "CFG",
+    "level": 1,
+    "designer": "MUST use `configurationtype::type` to recognize reusable configuration nodes inside a component form.",
+    "runtime": "none.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/type/meta/ConfigurationType.java"
+  },
+  {
+    "id": "CFG-008",
+    "name": "@DataStore",
+    "category": "CFG",
+    "level": 1,
+    "designer": "MUST offer datastore reuse (create/edit/pick a saved datastore) and MUST offer a connection test button when a health check of the same name exists.",
+    "runtime": "MUST feed the datastore values as part of the flat configuration of the referencing component.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/type/DataStore.java"
+  },
+  {
+    "id": "CFG-009",
+    "name": "@DataSet",
+    "category": "CFG",
+    "level": 1,
+    "designer": "MUST allow selecting/creating a dataset for input/output components and SHOULD pass the dataset configuration to schema discovery.",
+    "runtime": "MUST inject the dataset values as part of the component configuration.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/type/DataSet.java"
+  },
+  {
+    "id": "CFG-010",
+    "name": "@DatasetDiscovery",
+    "category": "CFG",
+    "level": 2,
+    "designer": "MAY use it to let the user browse available datasets of a datastore (pairs with `ACT-009`).",
+    "runtime": "MUST honor `retrieveDataset` semantics documented in `CFG-011` if it executes discovery components.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/type/DatasetDiscovery.java"
+  },
+  {
+    "id": "CFG-011",
+    "name": "DatasetDiscoveryConfiguration",
+    "category": "CFG",
+    "level": 2,
+    "designer": "MUST render it like any boolean option.",
+    "runtime": "MUST pass its value like any option.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/type/DatasetDiscoveryConfiguration.java"
+  },
+  {
+    "id": "CFG-012",
+    "name": "@DynamicDependenciesConfiguration",
+    "category": "CFG",
+    "level": 2,
+    "designer": "MAY call the dynamic dependencies action with this configuration to resolve extra jars before running.",
+    "runtime": "SHOULD resolve the returned GAVs into the component classloader (details: SVC/LCM catalogs).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/type/DynamicDependenciesConfiguration.java"
+  },
+  {
+    "id": "CFG-013",
+    "name": "@ConnectorRef and ConnectorReference",
+    "category": "CFG",
+    "level": 2,
+    "designer": "MAY offer a connector picker filling the fields; MUST otherwise render normal strings.",
+    "runtime": "none beyond normal option injection.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/configuration/dependency/ConnectorRef.java"
+  },
+  {
+    "id": "CFG-014",
+    "name": "Property definition and metadata model (SimplePropertyDefinition)",
+    "category": "CFG",
+    "level": 0,
+    "designer": "MUST build forms and default values from these records; MUST NOT expect `validation::*` keys in `metadata` (they are in `validation`); note the generated documentation pages (`generated_constraints.adoc`) still show `validation::*` web keys (documented as a discrepancy).",
+    "runtime": "none (runtime uses in-JVM `ParameterMeta`).",
+    "source": "component-server-parent/component-server-model/src/main/java/org/talend/sdk/component/server/front/model/SimplePropertyDefinition.java"
+  },
+  {
+    "id": "CFG-015",
+    "name": "ParameterExtensionEnricher SPI",
+    "category": "CFG",
+    "level": 2,
+    "designer": "none.",
+    "runtime": "MUST keep `ServiceLoader` discovery of built-in enrichers when embedding `component-runtime-manager`; MAY register custom enrichers (recommended: one key prefix per extension).",
+    "source": "component-spi/src/main/java/org/talend/sdk/component/spi/parameter/ParameterExtensionEnricher.java"
+  },
+  {
+    "id": "CFG-016",
+    "name": "Built-in technical options ($maxBatchSize, $maxRecords, $maxDurationMs, $lang)",
+    "category": "CFG",
+    "level": 1,
+    "designer": "MUST render them like normal options (they appear in `properties`) and MUST send them back in the flat configuration; MUST NOT treat the `$` prefix as an error.",
+    "runtime": "MUST honor `$maxBatchSize` for group sizing, `$maxRecords`/`$maxDurationMs` for stopping infinite sources (Beam reference: `BaseProcessorFn`, `TalendIO`).",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/builtinparams/MaxBatchSizeParamBuilder.java"
+  },
+  {
+    "id": "CFG-017",
+    "name": "Configuration type tree (ConfigTypeNode)",
+    "category": "CFG",
+    "level": 1,
+    "designer": "MUST browse the tree to offer reusable datastores/datasets, MUST resolve `parentId`/`edges`; MUST store the node `version` with saved instances and migrate on version change.",
+    "runtime": "none.",
+    "source": "component-runtime-design-extension/src/main/java/org/talend/sdk/component/design/extension/repository/RepositoryModelBuilder.java"
+  },
+  {
+    "id": "CFG-018",
+    "name": "ConfigurationMapper (object to flat map)",
+    "category": "CFG",
+    "level": 2,
+    "designer": "none (browser hosts implement the same rules by hand).",
+    "runtime": "MAY use it to build configuration maps from typed objects (tests, adapters).",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/configuration/ConfigurationMapper.java"
+  },
+  {
+    "id": "CFG-019",
+    "name": "Datastore/dataset design rules (build-time)",
+    "category": "CFG",
+    "level": 2,
+    "designer": "MAY rely on these invariants (an input always has a dataset which contains a datastore).",
+    "runtime": "none.",
+    "source": "component-tools/src/main/java/org/talend/sdk/component/tools/validator/DatasetValidator.java"
+  }
+]

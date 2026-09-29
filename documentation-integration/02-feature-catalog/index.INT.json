@@ -1,0 +1,74 @@
+[
+  {
+    "id": "INT-001",
+    "name": "@Intercepts",
+    "category": "INT",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MUST apply the chain in INT-003 when hosting services; the ComponentManager does it automatically.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/interceptor/Intercepts.java"
+  },
+  {
+    "id": "INT-002",
+    "name": "InterceptorHandler",
+    "category": "INT",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MUST honor the constructor injection rules if it re-implements the facade.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/service/interceptor/InterceptorHandler.java"
+  },
+  {
+    "id": "INT-003",
+    "name": "Interceptor chain resolution and service proxies",
+    "category": "INT",
+    "level": 2,
+    "designer": "none",
+    "runtime": "MUST call service methods through the generated proxy so interceptors run; MUST NOT call the underlying instance directly.",
+    "source": "component-runtime-manager/src/main/java/org/talend/sdk/component/runtime/manager/interceptor/InterceptorHandlerFacade.java"
+  },
+  {
+    "id": "INT-005",
+    "name": "ComponentException",
+    "category": "INT",
+    "level": 0,
+    "designer": "MUST map it to a user-facing error: origin USER = fixable by the user (configuration), BACKEND = remote system problem.",
+    "runtime": "MUST let it propagate as failure of the job/step and MUST NOT depend on the original exception classes (classloader isolation).",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/exception/ComponentException.java"
+  },
+  {
+    "id": "INT-006",
+    "name": "ComponentException.ErrorOrigin",
+    "category": "INT",
+    "level": 1,
+    "designer": "SHOULD present USER errors as validation feedback and BACKEND errors as service unavailability.",
+    "runtime": "SHOULD classify job failure causes with it.",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/exception/ComponentException.java"
+  },
+  {
+    "id": "INT-007",
+    "name": "DiscoverSchemaException",
+    "category": "INT",
+    "level": 2,
+    "designer": "MAY implement the recovery strategies (INT-008) for schema-guess failures.",
+    "runtime": "none",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/exception/DiscoverSchemaException.java"
+  },
+  {
+    "id": "INT-008",
+    "name": "DiscoverSchemaException.HandleErrorWith",
+    "category": "INT",
+    "level": 2,
+    "designer": "MAY react to EXECUTE_LIFECYCLE/EXECUTE_MOCK_JOB by running the component (Studio-like hosts).",
+    "runtime": "none",
+    "source": "component-api/src/main/java/org/talend/sdk/component/api/exception/DiscoverSchemaException.java"
+  },
+  {
+    "id": "INT-009",
+    "name": "Runtime exception unwrapping (InvocationExceptionWrapper)",
+    "category": "INT",
+    "level": 0,
+    "designer": "none",
+    "runtime": "MUST expect `ComponentException` (never plugin-specific exception classes) from component calls; SHOULD log `originalType`.",
+    "source": "component-runtime-impl/src/main/java/org/talend/sdk/component/runtime/base/lang/exception/InvocationExceptionWrapper.java"
+  }
+]

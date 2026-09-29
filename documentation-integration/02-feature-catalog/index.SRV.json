@@ -1,0 +1,227 @@
+[
+  {
+    "id": "SRV-001",
+    "name": "Base path and JAX-RS application",
+    "category": "SRV",
+    "level": 0,
+    "designer": "MUST prefix every call with `/api/v1`; SHOULD read `Environment.latestApiVersion` (SRV-014) to detect newer API versions.",
+    "runtime": "none",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/front/TalendComponentApplication.java"
+  },
+  {
+    "id": "SRV-002",
+    "name": "GET /api/v1/component/index",
+    "category": "SRV",
+    "level": 0,
+    "designer": "MUST call it to build the palette; SHOULD pass the user language and cache the answer until `Environment.lastUpdated` changes.",
+    "runtime": "none (runtime loads plugins locally).",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ComponentResource.java"
+  },
+  {
+    "id": "SRV-003",
+    "name": "GET /api/v1/component/details",
+    "category": "SRV",
+    "level": 0,
+    "designer": "MUST fetch details before rendering a form or creating a job node; MUST persist `ComponentDetail.version` with the configuration (see SRV-004).",
+    "runtime": "none; the runtime obtains the same information from `ComponentManager` metadata.",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ComponentResource.java"
+  },
+  {
+    "id": "SRV-004",
+    "name": "POST /api/v1/component/migrate/{id}/{configurationVersion}",
+    "category": "SRV",
+    "level": 1,
+    "designer": "MUST call it on load when the stored version is lower than `ComponentDetail.version`, then persist the returned map with the new version.",
+    "runtime": "MUST perform the same migration through `ComponentManager` when it receives an older version (see RUN/LCM categories).",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ComponentResource.java"
+  },
+  {
+    "id": "SRV-005",
+    "name": "Icon endpoints",
+    "category": "SRV",
+    "level": 1,
+    "designer": "SHOULD render icons from these endpoints or from `includeIconContent=true`; MUST handle 404 with a default icon.",
+    "runtime": "none",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ComponentResource.java"
+  },
+  {
+    "id": "SRV-006",
+    "name": "GET /api/v1/component/dependencies",
+    "category": "SRV",
+    "level": 2,
+    "designer": "MAY use it to package a job.",
+    "runtime": "A runtime that does not have plugins locally MAY use it with SRV-007 to download them; otherwise none.",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ComponentResource.java"
+  },
+  {
+    "id": "SRV-007",
+    "name": "GET /api/v1/component/dependency/{id}",
+    "category": "SRV",
+    "level": 2,
+    "designer": "MAY proxy it.",
+    "runtime": "MAY download artifacts with it after SRV-006.",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ComponentResource.java"
+  },
+  {
+    "id": "SRV-008",
+    "name": "GET /api/v1/documentation/component/{id}",
+    "category": "SRV",
+    "level": 1,
+    "designer": "SHOULD display it in a help panel and render asciidoc (or use the returned rendering).",
+    "runtime": "none",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/DocumentationResource.java"
+  },
+  {
+    "id": "SRV-009",
+    "name": "GET /api/v1/configurationtype/index",
+    "category": "SRV",
+    "level": 1,
+    "designer": "MUST use it to offer reusable datastores/datasets and to link them to components.",
+    "runtime": "none",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ConfigurationTypeResource.java"
+  },
+  {
+    "id": "SRV-010",
+    "name": "GET /api/v1/configurationtype/details",
+    "category": "SRV",
+    "level": 1,
+    "designer": "MUST use it to render dataset/datastore forms.",
+    "runtime": "none",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ConfigurationTypeResource.java"
+  },
+  {
+    "id": "SRV-011",
+    "name": "POST /api/v1/configurationtype/migrate/{id}/{configurationVersion}",
+    "category": "SRV",
+    "level": 1,
+    "designer": "MUST migrate stored datasets/datastores whose version is older.",
+    "runtime": "SHOULD migrate through `ComponentManager` for nested dataset versions.",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ConfigurationTypeResource.java"
+  },
+  {
+    "id": "SRV-012",
+    "name": "GET /api/v1/action/index",
+    "category": "SRV",
+    "level": 1,
+    "designer": "MAY use it for discovery; component details already carry action references. MUST use the `ActionReference` entries of the component/config detail to resolve triggers; MAY use the index for custom (`user`, ACT-001) actions.",
+    "runtime": "none",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ActionResource.java"
+  },
+  {
+    "id": "SRV-013",
+    "name": "POST /api/v1/action/execute",
+    "category": "SRV",
+    "level": 1,
+    "designer": "MUST send only the properties the action declares (see the action's `properties` from `ComponentDetail`), with the exact `configuration.<path>` keys; MUST interpret errors by status and `ErrorPayload.code`. MUST send only the parameters listed in the trigger `parameters` (key = action parameter path, value = form value at `path`); MUST map HTTP `400`/`456`/`520` to user-visible errors using `ErrorPayload.description` (MAY distinguish user vs backend errors); SHOULD debounce change-triggered calls and drop stale responses (inferred).",
+    "runtime": "none",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/ActionResource.java"
+  },
+  {
+    "id": "SRV-014",
+    "name": "GET /api/v1/environment",
+    "category": "SRV",
+    "level": 2,
+    "designer": "SHOULD poll it (or call on reconnect) to invalidate its component cache when `lastUpdated`/`connectors.pluginsHash` change; MUST tolerate 404.",
+    "runtime": "none",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/EnvironmentResource.java"
+  },
+  {
+    "id": "SRV-015",
+    "name": "POST /api/v1/bulk",
+    "category": "SRV",
+    "level": 2,
+    "designer": "MAY use it to reduce round trips (index + details).",
+    "runtime": "none",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/BulkReadResource.java"
+  },
+  {
+    "id": "SRV-016",
+    "name": "GET /api/v1/cache/clear",
+    "category": "SRV",
+    "level": 2,
+    "designer": "MAY expose a \"reload components\" action (Studio dev mode does).",
+    "runtime": "none",
+    "source": "component-server-parent/component-server-api/src/main/java/org/talend/sdk/component/server/api/CacheResource.java"
+  },
+  {
+    "id": "SRV-017",
+    "name": "Response caching and invalidation",
+    "category": "SRV",
+    "level": 1,
+    "designer": "MUST NOT rely on `ETag`/`304`; SHOULD cache responses client-side keyed by URL + language and invalidate when `Environment.lastUpdated`/`connectors.pluginsHash` changes.",
+    "runtime": "none",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/service/jcache/FrontCacheResolver.java"
+  },
+  {
+    "id": "SRV-018",
+    "name": "Internationalization (language parameter and locale mapping)",
+    "category": "SRV",
+    "level": 1,
+    "designer": "MUST send the UI language in `language`/`lang`; SHOULD accept that the returned language may differ (fallback `en`).",
+    "runtime": "none (component messages use `@Internationalized`, category INT/DSG).",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/service/LocaleMapper.java"
+  },
+  {
+    "id": "SRV-019",
+    "name": "Security handlers (connection and command)",
+    "category": "SRV",
+    "level": 2,
+    "designer": "MUST add authentication in front of the server (gateway/handler) in multi-tenant deployments; MAY forward `x-talend-tenant-id` (SRV-020).",
+    "runtime": "none",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/service/security/SecurityExtension.java"
+  },
+  {
+    "id": "SRV-020",
+    "name": "Credential decryption (vault)",
+    "category": "SRV",
+    "level": 2,
+    "designer": "MAY send encrypted (`vault:`-prefixed) credentials to action calls instead of clear text; MUST send the tenant header when the deployment is multi-tenant.",
+    "runtime": "SHOULD decrypt `vault:` values before instantiating components if it stores them encrypted (unverified: runtime-side handling is host-specific).",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/front/security/SecurityUtils.java"
+  },
+  {
+    "id": "SRV-021",
+    "name": "Documentation UI and toggle",
+    "category": "SRV",
+    "level": 2,
+    "designer": "none",
+    "runtime": "none",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/front/security/web/DocumentationToggle.java"
+  },
+  {
+    "id": "SRV-022",
+    "name": "Simple query language (q parameter)",
+    "category": "SRV",
+    "level": 1,
+    "designer": "MAY use it for server-side palette filtering; MUST escape spaces properly in URLs.",
+    "runtime": "none",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/service/SimpleQueryLanguageCompiler.java"
+  },
+  {
+    "id": "SRV-023",
+    "name": "Server configuration keys (summary)",
+    "category": "SRV",
+    "level": 2,
+    "designer": "none beyond knowing which endpoints may be disabled (`environment`, `documentation`).",
+    "runtime": "none",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/configuration/ComponentServerConfiguration.java"
+  },
+  {
+    "id": "SRV-024",
+    "name": "Error payload (ErrorPayload and ErrorDictionary)",
+    "category": "SRV",
+    "level": 0,
+    "designer": "MUST parse `ErrorPayload` on non-2xx and surface `description`; MUST distinguish 4xx user errors, 456 backend errors and 520 unexpected errors from actions.",
+    "runtime": "none",
+    "source": "component-server-parent/component-server-model/src/main/java/org/talend/sdk/component/server/front/model/ErrorDictionary.java"
+  },
+  {
+    "id": "SRV-025",
+    "name": "Plugin deployment, registry and reloading",
+    "category": "SRV",
+    "level": 1,
+    "designer": "MUST refresh its palette after `lastUpdated` changes (SRV-014).",
+    "runtime": "none (runtime deploys plugins itself with `ComponentManager`).",
+    "source": "component-server-parent/component-server/src/main/java/org/talend/sdk/component/server/service/ComponentManagerService.java"
+  }
+]
