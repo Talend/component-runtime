@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import javax.json.Json;
+import jakarta.json.Json;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;

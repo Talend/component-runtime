@@ -22,7 +22,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 import org.talend.sdk.component.api.record.Record;
 

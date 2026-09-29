@@ -17,7 +17,7 @@ package org.talend.sdk.component.runtime.record.json;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import javax.json.bind.Jsonb;
+import jakarta.json.bind.Jsonb;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

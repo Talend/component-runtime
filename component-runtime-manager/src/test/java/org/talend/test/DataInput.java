@@ -22,8 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.json.JsonObject;
-import javax.json.bind.Jsonb;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.Jsonb;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Emitter;

@@ -31,10 +31,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.json.Json;
-import javax.json.JsonValue;
-import javax.json.bind.annotation.JsonbTransient;
-import javax.json.stream.JsonParser;
+import jakarta.json.Json;
+import jakarta.json.JsonValue;
+import jakarta.json.bind.annotation.JsonbTransient;
+import jakarta.json.stream.JsonParser;
 
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -70,11 +70,9 @@ public interface Schema {
      * @return All entries, including data and metadata, of this schema.
      */
     @JsonbTransient
-    @jakarta.json.bind.annotation.JsonbTransient
     Stream<Entry> getAllEntries();
 
     @JsonbTransient
-    @jakarta.json.bind.annotation.JsonbTransient
     default Map<String, Entry> getEntryMap() {
         throw new UnsupportedOperationException("#getEntryMap is not implemented");
     }
@@ -94,7 +92,6 @@ public interface Schema {
      * @return all entries ordered
      */
     @JsonbTransient
-    @jakarta.json.bind.annotation.JsonbTransient
     default List<Entry> getEntriesOrdered() {
         return getEntriesOrdered(naturalOrder());
     }
@@ -107,7 +104,6 @@ public interface Schema {
      * @return all entries ordered with provided comparator
      */
     @JsonbTransient
-    @jakarta.json.bind.annotation.JsonbTransient
     default List<Entry> getEntriesOrdered(final Comparator<Entry> comparator) {
         return getAllEntries().sorted(comparator).collect(Collectors.toList());
     }
@@ -217,7 +213,6 @@ public interface Schema {
          * @return the raw name of this entry if exists, else return name.
          */
         @JsonbTransient
-        @jakarta.json.bind.annotation.JsonbTransient
         String getOriginalFieldName();
 
         /**

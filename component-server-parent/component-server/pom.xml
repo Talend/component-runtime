@@ -37,27 +37,6 @@
     <talend.component.server.tomcat.valve.error.debug>false</talend.component.server.tomcat.valve.error.debug>
   </properties>
 
-  <!-- johnzon still has a separate javax/jakarta version split (see root pom's johnzon.version /
-       johnzon-jakarta.version), unrelated to the tomcat/meecrowave/owb unification (QTDI-3358): johnzon-jsonb
-       (declared below) would otherwise pull its own transitive johnzon-core/johnzon-mapper down to the shared
-       javax ${johnzon.version}, while component-runtime-manager separately brings in johnzon-core at the javax
-       line too - re-pin all three to the jakarta line so the jakarta.json.spi.JsonProvider lookup used by
-       jakarta.json.bind.Jsonb resolves. -->
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.apache.johnzon</groupId>
-        <artifactId>johnzon-core</artifactId>
-        <version>${johnzon-jakarta.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.johnzon</groupId>
-        <artifactId>johnzon-mapper</artifactId>
-        <version>${johnzon-jakarta.version}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <dependencies>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
@@ -105,13 +84,14 @@
     <dependency>
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
-      <version>${johnzon-jakarta.version}</version>
+      <version>${johnzon.version}</version>
     </dependency>
-    <!-- javax.json.spi.JsonProvider/javax.json.bind.spi.JsonbProvider implementations for the out-of-scope
-         javax-only code this module still pulls in (component-runtime-manager, component-form): johnzon-core
-         is pinned to the jakarta line above for our own jakarta CXF/Meecrowave stack, so no javax.json
-         provider is left on the classpath otherwise - see the dependencyManagement comment in the root pom
-         and META-INF/services/javax.json.spi.JsonProvider below (QTDI-3358 notes). -->
+    <!-- QTDI-3497 (experimental, jakarta-only spike): javax.json.spi.JsonProvider/
+         javax.json.bind.spi.JsonbProvider implementations needed to load and run third-party
+         connector jars still compiled against the old javax component-api at runtime - this
+         reactor's own code (component-runtime-manager, component-form, ...) is now jakarta-only,
+         so no javax.json provider is otherwise left on the classpath. See the dependencyManagement
+         comment in the root pom and META-INF/services/javax.json.spi.JsonProvider below. -->
     <dependency>
       <groupId>org.glassfish</groupId>
       <artifactId>javax.json</artifactId>

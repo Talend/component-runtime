@@ -86,22 +86,22 @@ import java.util.logging.Level;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.json.JsonArray;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.JsonReaderFactory;
-import javax.json.JsonString;
-import javax.json.JsonValue;
-import javax.json.JsonWriterFactory;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbConfig;
-import javax.json.bind.config.BinaryDataStrategy;
-import javax.json.bind.spi.JsonbProvider;
-import javax.json.spi.JsonProvider;
-import javax.json.stream.JsonGeneratorFactory;
-import javax.json.stream.JsonParserFactory;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonBuilderFactory;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonReaderFactory;
+import jakarta.json.JsonString;
+import jakarta.json.JsonValue;
+import jakarta.json.JsonWriterFactory;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbConfig;
+import jakarta.json.bind.config.BinaryDataStrategy;
+import jakarta.json.bind.spi.JsonbProvider;
+import jakarta.json.spi.JsonProvider;
+import jakarta.json.stream.JsonGeneratorFactory;
+import jakarta.json.stream.JsonParserFactory;
 
 import org.apache.xbean.asm9.Type;
 import org.apache.xbean.finder.AnnotationFinder;
@@ -205,7 +205,20 @@ public class ComponentManager implements AutoCloseable {
     public static final String PROPERTY_PARENT_RESOURCES =
             "talend.component.manager.classloader.container.parentResources";
 
-    protected static final String[] KNOWN_PARENT_RESOURCES = { "/xmlMappings/" };
+    // QTDI-3497 (experimental, jakarta-only spike): classesFilter already forces "org.apache.johnzon."
+    // and "jakarta.json." classes to always resolve from the parent (manager) classloader, so that a
+    // single Johnzon/JSON-P/JSON-B instance is shared across the manager and every plugin container.
+    // But that class-level delegation alone isn't enough: some Johnzon internals (e.g.
+    // org.apache.johnzon.mapper.MapperBuilder#build) call jakarta.json.spi.JsonProvider.provider() /
+    // jakarta.json.bind.spi.JsonbProvider.provider() themselves as an internal fallback - even when an
+    // explicit JsonProvider was already supplied via JsonbBuilder#withProvider - using whatever
+    // classloader is the current thread's context classloader at that point (e.g. a plugin's isolated
+    // container classloader, see ComponentManager#executeInContainer). Without these resource entries,
+    // that ServiceLoader lookup can't see Johnzon's own META-INF/services/jakarta.json*.spi.*Provider
+    // registration from inside a plugin container, and fails with a JsonException.
+    protected static final String[] KNOWN_PARENT_RESOURCES =
+            { "/xmlMappings/", "META-INF/services/jakarta.json.spi.JsonProvider",
+                    "META-INF/services/jakarta.json.bind.spi.JsonbProvider" };
 
     private static class SingletonHolder {
 
@@ -321,7 +334,7 @@ public class ComponentManager implements AutoCloseable {
     @Getter
     protected final ContainerManager container;
 
-    // tcomp (org.talend + javax.annotation + jsonp) + logging (slf4j) are/can be provided service
+    // tcomp (org.talend + jakarta.annotation + jsonp) + logging (slf4j) are/can be provided service
     // + tcomp "runtime" indeed (invisible from the components but required for the runtime
     private final Filter classesFilter;
 
@@ -429,8 +442,8 @@ public class ComponentManager implements AutoCloseable {
         classesFilter = new FilterList(Stream.concat(
                 Stream.of("org.talend.sdk.component.api.",
                         "org.talend.sdk.component.spi.",
-                        "javax.annotation.",
-                        "javax.json.",
+                        "jakarta.annotation.",
+                        "jakarta.json.",
                         "org.talend.sdk.component.classloader.",
                         "org.talend.sdk.component.runtime.",
                         "org.talend.sdk.component.container.",
@@ -543,16 +556,16 @@ public class ComponentManager implements AutoCloseable {
 
     // Intentionally *not* referencing org.apache.johnzon.jsonb.JohnzonProvider directly: some downstream
     // modules (e.g. component-server) pin johnzon-core/johnzon-jsonb to the jakarta.json.* line, whose
-    // classes no longer implement javax.json.bind.spi.JsonbProvider. A hardcoded "new JohnzonProvider()"
+    // classes no longer implement jakarta.json.bind.spi.JsonbProvider. A hardcoded "new JohnzonProvider()"
     // whose declared return type is the javax interface fails class verification (VerifyError) as soon
     // as this class is loaded, before the try/catch below ever runs. Going through the ServiceLoader-based
     // JsonbProvider.provider() keeps this class link-safe regardless of which johnzon-core is on the
-    // classpath; whichever javax.json.bind.spi.JsonbProvider implementation is actually present wins.
+    // classpath; whichever jakarta.json.bind.spi.JsonbProvider implementation is actually present wins.
     private JsonbProvider loadJsonbProvider() {
         return JsonbProvider.provider();
     }
 
-    // See loadJsonbProvider() above - same rationale applies to javax.json.spi.JsonProvider.
+    // See loadJsonbProvider() above - same rationale applies to jakarta.json.spi.JsonProvider.
     private JsonProvider loadJsonProvider() {
         return JsonProvider.provider();
     }

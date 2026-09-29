@@ -26,10 +26,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.bind.Jsonb;
-import javax.json.spi.JsonProvider;
+import jakarta.json.JsonBuilderFactory;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.spi.JsonProvider;
 
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.coders.MapCoder;

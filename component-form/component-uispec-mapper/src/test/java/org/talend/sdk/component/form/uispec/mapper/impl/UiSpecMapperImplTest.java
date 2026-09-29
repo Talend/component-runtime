@@ -28,10 +28,10 @@ import java.util.Date;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.bind.JsonbConfig;
-import javax.json.bind.config.PropertyOrderStrategy;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
+import jakarta.json.bind.JsonbConfig;
+import jakarta.json.bind.config.PropertyOrderStrategy;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.form.model.Ui;

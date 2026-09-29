@@ -22,9 +22,9 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import javax.annotation.PostConstruct;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
+import jakarta.annotation.PostConstruct;
+import jakarta.json.JsonBuilderFactory;
+import jakarta.json.JsonObject;
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.MigrationHandler;

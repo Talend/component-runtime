@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
-import javax.json.bind.Jsonb;
+import jakarta.json.bind.Jsonb;
 
 import org.talend.sdk.component.api.service.http.HttpClient;
 import org.talend.sdk.component.api.service.http.HttpClientFactory;

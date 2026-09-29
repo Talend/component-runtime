@@ -22,7 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import javax.json.Json;
+import jakarta.json.Json;
 
 import org.junit.jupiter.api.Test;
 

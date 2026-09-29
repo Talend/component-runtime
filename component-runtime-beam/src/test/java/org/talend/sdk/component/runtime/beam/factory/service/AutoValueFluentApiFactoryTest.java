@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 import org.apache.beam.sdk.options.ValueProvider;
 import org.junit.jupiter.api.Test;

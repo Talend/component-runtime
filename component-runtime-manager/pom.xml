@@ -75,9 +75,12 @@
       </exclusions>
     </dependency>
 
+    <!-- QTDI-3497 (experimental, jakarta-only spike): re-pinned to the jakarta line, this
+         module's javax.json.spi.JsonProvider lookup (loadJsonProvider) is now jakarta-only. -->
     <dependency>
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-core</artifactId>
+      <version>${johnzon.version}</version>
     </dependency>
 
     <dependency>

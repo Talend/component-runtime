@@ -18,7 +18,7 @@ package org.talend.sdk.component.sample.feature.loadinganalysis.withDataprepRunA
 import java.io.Serializable;
 import java.util.Iterator;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;

@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.json.JsonValue;
+import jakarta.json.JsonValue;
 
 import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;

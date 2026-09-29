@@ -21,18 +21,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.InputStream;
 import java.util.List;
 
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.JsonValue;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.spi.JsonProvider;
+import jakarta.json.JsonBuilderFactory;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonValue;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
+import jakarta.json.spi.JsonProvider;
 
-import org.apache.johnzon.jsonschema.JsonSchemaValidator;
-import org.apache.johnzon.jsonschema.ValidationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.form.api.UiSpecService;
+import org.talend.sdk.component.form.internal.validation.jsonschema.JsonSchemaValidator;
+import org.talend.sdk.component.form.internal.validation.jsonschema.ValidationResult;
 import org.talend.sdk.component.form.internal.validation.spi.ext.EnumValidationWithDefaultValue;
 import org.talend.sdk.component.form.internal.validation.spi.ext.MaximumValidation;
 import org.talend.sdk.component.form.internal.validation.spi.ext.MinimumValidation;

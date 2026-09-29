@@ -17,7 +17,7 @@ package org.talend.sdk.component.singer.kitap.component;
 
 import java.io.Serializable;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.apache.log4j.Logger;
 import org.apache.logging.log4j.LogManager;

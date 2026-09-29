@@ -15,7 +15,7 @@
  */
 package org.talend.sdk.component.runtime.beam.transform.avro;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 import org.apache.avro.Schema;
 import org.apache.avro.generic.IndexedRecord;

@@ -15,18 +15,18 @@
  */
 package org.talend.sdk.component.singer.kitap;
 
-import static javax.json.stream.JsonCollectors.toJsonObject;
+import static jakarta.json.stream.JsonCollectors.toJsonObject;
 
 import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonValue;
+import jakarta.json.JsonArrayBuilder;
+import jakarta.json.JsonBuilderFactory;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonObjectBuilder;
+import jakarta.json.JsonValue;
 
 import org.talend.sdk.component.api.record.Schema;
 

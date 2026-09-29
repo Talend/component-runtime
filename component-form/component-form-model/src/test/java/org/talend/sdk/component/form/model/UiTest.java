@@ -15,16 +15,16 @@
  */
 package org.talend.sdk.component.form.model;
 
-import static javax.json.bind.config.PropertyOrderStrategy.LEXICOGRAPHICAL;
+import static jakarta.json.bind.config.PropertyOrderStrategy.LEXICOGRAPHICAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.talend.sdk.component.form.model.Ui.ui;
 import static org.talend.sdk.component.form.model.jsonschema.JsonSchema.jsonSchema;
 import static org.talend.sdk.component.form.model.uischema.UiSchema.uiSchema;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.bind.JsonbConfig;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
+import jakarta.json.bind.JsonbConfig;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

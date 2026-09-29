@@ -26,7 +26,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.function.Consumer;
 
-import javax.json.Json;
+import jakarta.json.Json;
 
 import org.junit.jupiter.api.Test;
 

@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import javax.json.bind.annotation.JsonbTransient;
+import jakarta.json.bind.annotation.JsonbTransient;
 
 import org.talend.sdk.component.api.meta.Partial;
 
@@ -123,7 +123,6 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
         }
 
         @JsonbTransient
-        @jakarta.json.bind.annotation.JsonbTransient
         @Override
         public String getOriginalFieldName() {
             return null;

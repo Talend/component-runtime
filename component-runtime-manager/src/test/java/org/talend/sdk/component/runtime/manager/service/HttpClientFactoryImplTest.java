@@ -42,8 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import javax.json.bind.JsonbBuilder;
-
+import jakarta.json.bind.JsonbBuilder;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 import com.sun.net.httpserver.Headers;

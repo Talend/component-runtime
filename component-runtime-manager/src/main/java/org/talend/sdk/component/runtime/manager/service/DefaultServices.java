@@ -19,11 +19,11 @@ import static lombok.AccessLevel.PRIVATE;
 
 import java.util.function.Function;
 
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonReaderFactory;
-import javax.json.JsonWriterFactory;
-import javax.json.stream.JsonGeneratorFactory;
-import javax.json.stream.JsonParserFactory;
+import jakarta.json.JsonBuilderFactory;
+import jakarta.json.JsonReaderFactory;
+import jakarta.json.JsonWriterFactory;
+import jakarta.json.stream.JsonGeneratorFactory;
+import jakarta.json.stream.JsonParserFactory;
 
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
