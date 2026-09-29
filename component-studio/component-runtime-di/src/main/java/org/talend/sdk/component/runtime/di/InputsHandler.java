@@ -17,8 +17,8 @@ package org.talend.sdk.component.runtime.di;
 
 import java.util.Map;
 
-import javax.json.JsonValue;
-import javax.json.bind.Jsonb;
+import jakarta.json.JsonValue;
+import jakarta.json.bind.Jsonb;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.output.InputFactory;
@@ -50,7 +50,7 @@ public class InputsHandler extends BaseIOHandler {
             if (mappingMeta.isLinearMapping()) {
                 return mappingMeta.newRecord(value, recordBuilderMapper);
             } else {
-                if (value instanceof javax.json.JsonValue) {
+                if (value instanceof jakarta.json.JsonValue) {
                     if (JsonValue.NULL == value) { // JsonObject cant take a JsonValue so pass null
                         return null;
                     }

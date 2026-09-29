@@ -52,8 +52,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.spi.JsonbProvider;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.spi.JsonbProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Record.Builder;

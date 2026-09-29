@@ -20,10 +20,10 @@ import static org.talend.runtime.documentation.component.service.http.TableApiCl
 
 import java.io.Serializable;
 
-import javax.annotation.PostConstruct;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
+import jakarta.annotation.PostConstruct;
+import jakarta.json.JsonBuilderFactory;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonObjectBuilder;
 
 import org.talend.runtime.documentation.component.configuration.OutputConfig;
 import org.talend.runtime.documentation.component.service.http.TableApiClient;

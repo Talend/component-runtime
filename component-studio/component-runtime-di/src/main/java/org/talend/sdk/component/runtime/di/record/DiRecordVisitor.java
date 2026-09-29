@@ -47,10 +47,10 @@ import java.util.OptionalLong;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.json.Json;
-import javax.json.bind.JsonbConfig;
-import javax.json.bind.spi.JsonbProvider;
-import javax.json.spi.JsonProvider;
+import jakarta.json.Json;
+import jakarta.json.bind.JsonbConfig;
+import jakarta.json.bind.spi.JsonbProvider;
+import jakarta.json.spi.JsonProvider;
 
 import org.dom4j.DocumentException;
 import org.talend.sdk.component.api.record.Record;

@@ -178,6 +178,18 @@
               <to>org/junit/jupiter/api/extension/TestInstantiationAwareExtension</to>
               <justification>org.junit.jupiter.api.extension.TestInstantiationAwareExtension has been removed by junit5, not by our code</justification>
             </difference>
+            <difference>
+              <!-- QTDI-3497 (experimental, jakarta-only spike): javax.json.bind.Jsonb/javax.json.spi.JsonProvider/
+                   javax.json.JsonBuilderFactory constructor parameters are intentionally renamed to their jakarta
+                   equivalents, this is a breaking change for connectors compiled against the javax line.
+                   Clirr's 7005 (argument type changed) groups all parameter changes on the same method into a
+                   single deferred match, so "to" must be the whole new method signature, not a single type. -->
+              <className>org/talend/sdk/component/junit/BaseComponentsHandler$State</className>
+              <differenceType>7005</differenceType>
+              <method>BaseComponentsHandler$State(org.talend.sdk.component.runtime.manager.ComponentManager, java.util.Collection, java.util.Iterator, javax.json.bind.Jsonb, javax.json.spi.JsonProvider, javax.json.JsonBuilderFactory, org.talend.sdk.component.api.service.record.RecordBuilderFactory)</method>
+              <to>BaseComponentsHandler$State(org.talend.sdk.component.runtime.manager.ComponentManager, java.util.Collection, java.util.Iterator, jakarta.json.bind.Jsonb, jakarta.json.spi.JsonProvider, jakarta.json.JsonBuilderFactory, org.talend.sdk.component.api.service.record.RecordBuilderFactory)</to>
+              <justification>QTDI-3497: State constructor moved to jakarta.json/jakarta.json.bind, breaking on purpose</justification>
+            </difference>
           </ignored>
         </configuration>
         <executions>

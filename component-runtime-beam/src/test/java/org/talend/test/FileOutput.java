@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
 
-import javax.annotation.PreDestroy;
-import javax.json.JsonObject;
+import jakarta.annotation.PreDestroy;
+import jakarta.json.JsonObject;
 
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;

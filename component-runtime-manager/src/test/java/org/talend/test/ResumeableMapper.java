@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
-import javax.json.bind.Jsonb;
+import jakarta.json.bind.Jsonb;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Assessor;

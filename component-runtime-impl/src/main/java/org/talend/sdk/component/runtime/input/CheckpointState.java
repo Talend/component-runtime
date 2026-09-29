@@ -15,11 +15,11 @@
  */
 package org.talend.sdk.component.runtime.input;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.bind.Jsonb;
-import javax.json.bind.annotation.JsonbProperty;
-import javax.json.bind.spi.JsonbProvider;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.spi.JsonbProvider;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -34,10 +34,10 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import javax.json.Json;
-import javax.json.bind.JsonbConfig;
-import javax.json.bind.spi.JsonbProvider;
-import javax.json.spi.JsonProvider;
+import jakarta.json.Json;
+import jakarta.json.bind.JsonbConfig;
+import jakarta.json.bind.spi.JsonbProvider;
+import jakarta.json.spi.JsonProvider;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;

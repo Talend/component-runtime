@@ -24,7 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.stream.Stream;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 import org.talend.runtime.documentation.component.configuration.BasicAuthConfig;
 import org.talend.runtime.documentation.component.configuration.CommonConfig;

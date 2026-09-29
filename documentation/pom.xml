@@ -55,31 +55,6 @@
     <indexation.skip>false</indexation.skip>
   </properties>
 
-  <!-- johnzon still has a separate javax/jakarta version split (see root pom's johnzon.version /
-       johnzon-jakarta.version), unrelated to the tomcat/meecrowave/owb unification (QTDI-3358): johnzon-jsonb
-       (declared below) would otherwise pull its own transitive johnzon-core/johnzon-mapper down to the shared
-       javax ${johnzon.version} - re-pin all three to the jakarta line so the jakarta.json.spi.JsonProvider
-       lookup used by jakarta.json.bind.Jsonb resolves, mirroring component-server/pom.xml. -->
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.apache.johnzon</groupId>
-        <artifactId>johnzon-core</artifactId>
-        <version>${johnzon-jakarta.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.johnzon</groupId>
-        <artifactId>johnzon-mapper</artifactId>
-        <version>${johnzon-jakarta.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.johnzon</groupId>
-        <artifactId>johnzon-jsonb</artifactId>
-        <version>${johnzon-jakarta.version}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <dependencies>
     <dependency>
       <groupId>jakarta.ws.rs</groupId>
@@ -193,7 +168,7 @@
     <dependency>
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
-      <version>${johnzon-jakarta.version}</version>
+      <version>${johnzon.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -257,7 +232,7 @@
           <dependency>
             <groupId>org.apache.johnzon</groupId>
             <artifactId>johnzon-jsonb</artifactId>
-            <version>${johnzon-jakarta.version}</version>
+            <version>${johnzon.version}</version>
           </dependency>
           <dependency>
             <groupId>org.asciidoctor</groupId>
@@ -322,7 +297,7 @@
           <dependency>
             <groupId>org.apache.johnzon</groupId>
             <artifactId>johnzon-jsonb</artifactId>
-            <version>${johnzon-jakarta.version}</version>
+            <version>${johnzon.version}</version>
           </dependency>
           <dependency>
             <groupId>com.github.crawler-commons</groupId>

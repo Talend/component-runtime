@@ -33,8 +33,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.json.JsonObject;
-import javax.json.bind.Jsonb;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.Jsonb;
 
 import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.transforms.Create;
@@ -243,7 +243,7 @@ class DIBatchSimulationTest {
         Object dataMapper;
         while ((dataMapper = inputMapper.next()) != null) {
             final String jsonValueMapper;
-            if (dataMapper instanceof javax.json.JsonValue jsonValue) {
+            if (dataMapper instanceof jakarta.json.JsonValue jsonValue) {
                 jsonValueMapper = jsonValue.toString();
             } else if (dataMapper instanceof org.talend.sdk.component.api.record.Record) {
                 jsonValueMapper = jsonbMapper
