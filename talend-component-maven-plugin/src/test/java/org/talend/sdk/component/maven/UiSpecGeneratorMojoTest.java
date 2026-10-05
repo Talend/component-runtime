@@ -23,7 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
@@ -33,8 +35,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.collection.CollectRequest;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.ArtifactRequest;
+import org.eclipse.aether.resolution.ArtifactResult;
+import org.eclipse.aether.resolution.DependencyRequest;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.resolution.DependencyResult;
 import org.junit.jupiter.api.Test;
 
 class UiSpecGeneratorMojoTest {
@@ -71,10 +83,13 @@ class UiSpecGeneratorMojoTest {
         final Thread thread = Thread.currentThread();
         final ClassLoader before = thread.getContextClassLoader();
 
+        final URL[] classpath = testClasspath();
+        final String generator = FailingGenerator.class.getName();
+        final Map<String, String> setup = new HashMap<>();
+        final Path output = Paths.get("uispec.zip");
+
         final IllegalStateException error = assertThrows(IllegalStateException.class,
-                () -> UiSpecGeneratorMojo
-                        .runIsolated(testClasspath(), FailingGenerator.class.getName(), new HashMap<>(), List.of(),
-                                Paths.get("uispec.zip")));
+                () -> UiSpecGeneratorMojo.runIsolated(classpath, generator, setup, List.of(), output));
 
         assertEquals("generator failure", error.getMessage());
         assertSame(before, thread.getContextClassLoader());
@@ -85,10 +100,12 @@ class UiSpecGeneratorMojoTest {
         final Thread thread = Thread.currentThread();
         final ClassLoader before = thread.getContextClassLoader();
 
+        final URL[] classpath = testClasspath();
+        final Map<String, String> setup = new HashMap<>();
+        final Path output = Paths.get("uispec.zip");
+
         final MojoExecutionException error = assertThrows(MojoExecutionException.class,
-                () -> UiSpecGeneratorMojo
-                        .runIsolated(testClasspath(), "org.talend.Missing", new HashMap<>(), List.of(),
-                                Paths.get("uispec.zip")));
+                () -> UiSpecGeneratorMojo.runIsolated(classpath, "org.talend.Missing", setup, List.of(), output));
 
         assertTrue(error.getCause() instanceof ClassNotFoundException);
         assertSame(before, thread.getContextClassLoader());
@@ -96,23 +113,115 @@ class UiSpecGeneratorMojoTest {
 
     @Test
     void generatorWithoutExpectedConstructorIsWrapped() {
+        final URL[] classpath = testClasspath();
+        final String generator = WrongConstructorGenerator.class.getName();
+        final Map<String, String> setup = new HashMap<>();
+        final Path output = Paths.get("uispec.zip");
+
         final MojoExecutionException error = assertThrows(MojoExecutionException.class,
-                () -> UiSpecGeneratorMojo
-                        .runIsolated(testClasspath(), WrongConstructorGenerator.class.getName(), new HashMap<>(),
-                                List.of(), Paths.get("uispec.zip")));
+                () -> UiSpecGeneratorMojo.runIsolated(classpath, generator, setup, List.of(), output));
 
         assertTrue(error.getCause() instanceof NoSuchMethodException);
     }
 
     @Test
     void generatorInstantiationErrorIsWrapped() {
+        final URL[] classpath = testClasspath();
+        final String generator = BrokenConstructorGenerator.class.getName();
+        final Map<String, String> setup = new HashMap<>();
+        final Path output = Paths.get("uispec.zip");
+
         final MojoExecutionException error = assertThrows(MojoExecutionException.class,
-                () -> UiSpecGeneratorMojo
-                        .runIsolated(testClasspath(), BrokenConstructorGenerator.class.getName(), new HashMap<>(),
-                                List.of(), Paths.get("uispec.zip")));
+                () -> UiSpecGeneratorMojo.runIsolated(classpath, generator, setup, List.of(), output));
 
         assertNotNull(error.getCause());
         assertTrue(error.getCause() instanceof InvocationTargetException);
+    }
+
+    @Test
+    void classpathRequestCarriesRootsScopeAndRepositories() throws MojoExecutionException {
+        final RemoteRepository repository = new RemoteRepository.Builder("central", "default", "http://repo.local")
+                .build();
+        final AtomicReference<DependencyRequest> request = new AtomicReference<>();
+        final RepositorySystem system = repositorySystem((req, session) -> {
+            request.set(req);
+            return new DependencyResult(req);
+        });
+
+        final URL[] classpath =
+                UiSpecGeneratorMojo.resolveClasspath(system, null, List.of(repository), "1.2.3", versions());
+
+        assertEquals(0, classpath.length);
+        final CollectRequest collect = request.get().getCollectRequest();
+        assertEquals(List.of(repository), collect.getRepositories());
+        assertEquals(List.of("org.talend.sdk.component:component-tools-webapp:jar:1.2.3",
+                "org.talend.sdk.component:component-runtime-beam:jar:1.2.3",
+                "org.apache.openwebbeans:openwebbeans-se:jar:9.9.1",
+                "org.apache.beam:beam-sdks-java-core:jar:9.9.2"),
+                collect.getDependencies().stream().map(d -> d.getArtifact().toString()).toList());
+        assertTrue(collect.getDependencies().stream().allMatch(d -> "runtime".equals(d.getScope())));
+    }
+
+    @Test
+    void resolvedArtifactsAreConvertedToUrlsInOrder() throws MojoExecutionException {
+        final File first = new File("first.jar");
+        final File second = new File("second.jar");
+        final RepositorySystem system = repositorySystem((req, session) -> {
+            final DependencyResult result = new DependencyResult(req);
+            result.setArtifactResults(List.of(resolved(first), resolved(second)));
+            return result;
+        });
+
+        final URL[] classpath = UiSpecGeneratorMojo.resolveClasspath(system, null, List.of(), "1.2.3", versions());
+
+        assertEquals(2, classpath.length);
+        assertEquals(first.toURI().toString(), classpath[0].toString());
+        assertEquals(second.toURI().toString(), classpath[1].toString());
+    }
+
+    @Test
+    void resolutionFailureIsWrapped() {
+        final Properties versions = versions();
+        final List<RemoteRepository> repositories = List.of();
+        final RepositorySystem system = repositorySystem((req, session) -> {
+            throw new DependencyResolutionException(new DependencyResult(req), new IllegalStateException("offline"));
+        });
+
+        final MojoExecutionException error = assertThrows(MojoExecutionException.class,
+                () -> UiSpecGeneratorMojo.resolveClasspath(system, null, repositories, "1.2.3", versions));
+
+        assertTrue(error.getMessage().startsWith("Can't resolve the uispec generator classpath"));
+        assertTrue(error.getCause() instanceof DependencyResolutionException);
+    }
+
+    private static Properties versions() {
+        final Properties versions = new Properties();
+        versions.setProperty("openwebbeans.version", "9.9.1");
+        versions.setProperty("beam.version", "9.9.2");
+        return versions;
+    }
+
+    private static ArtifactResult resolved(final File file) {
+        return new ArtifactResult(new ArtifactRequest())
+                .setArtifact(new DefaultArtifact("g", "a", "jar", "1").setFile(file));
+    }
+
+    // only resolveDependencies is used by the mojo, every other method of the resolver is left unsupported
+    private static RepositorySystem repositorySystem(final DependencyResolver resolver) {
+        return (RepositorySystem) Proxy
+                .newProxyInstance(UiSpecGeneratorMojoTest.class.getClassLoader(),
+                        new Class<?>[] { RepositorySystem.class }, (proxy, method, args) -> {
+                            if (!"resolveDependencies".equals(method.getName())) {
+                                throw new UnsupportedOperationException(method.getName());
+                            }
+                            return resolver.resolve((DependencyRequest) args[1], args[0]);
+                        });
+    }
+
+    @FunctionalInterface
+    private interface DependencyResolver {
+
+        DependencyResult resolve(DependencyRequest request, Object session) throws DependencyResolutionException;
     }
 
     // the isolated loader only has the platform loader as parent, so it loads the generators from the test classes

@@ -40,6 +40,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProjectHelper;
 import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.graph.Dependency;
@@ -116,9 +117,14 @@ public class UiSpecGeneratorMojo extends BuildComponentM2RepositoryMojo {
     }
 
     private URL[] isolatedClasspath() throws MojoExecutionException {
-        final Properties versions = loadGeneratorVersions();
-        final String pluginVersion = pluginDescriptor.getVersion();
-        final CollectRequest collect = new CollectRequest().setRepositories(projectRepositories);
+        return resolveClasspath(uiSpecRepositorySystem, repositorySystemSession, projectRepositories,
+                pluginDescriptor.getVersion(), loadGeneratorVersions());
+    }
+
+    static URL[] resolveClasspath(final RepositorySystem repositorySystem, final RepositorySystemSession session,
+            final List<RemoteRepository> repositories, final String pluginVersion, final Properties versions)
+            throws MojoExecutionException {
+        final CollectRequest collect = new CollectRequest().setRepositories(repositories);
         Stream
                 .of(new DefaultArtifact("org.talend.sdk.component", "component-tools-webapp", "jar", pluginVersion),
                         new DefaultArtifact("org.talend.sdk.component", "component-runtime-beam", "jar",
@@ -130,8 +136,8 @@ public class UiSpecGeneratorMojo extends BuildComponentM2RepositoryMojo {
                 .map(artifact -> new Dependency(artifact, "runtime"))
                 .forEach(collect::addDependency);
         try {
-            return uiSpecRepositorySystem
-                    .resolveDependencies(repositorySystemSession, new DependencyRequest(collect, null))
+            return repositorySystem
+                    .resolveDependencies(session, new DependencyRequest(collect, null))
                     .getArtifactResults()
                     .stream()
                     .map(ArtifactResult::getArtifact)
