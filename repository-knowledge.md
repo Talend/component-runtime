@@ -140,11 +140,16 @@ the mojo's own realm: that realm contains the plugin dependencies plus the trans
 every connector CAR declared as plugin dependency, and a CXF 4 (jakarta servlet) there shadows CXF 3.6
 (javax) → `VerifyError`. The design therefore relies on an isolated classloader
 (`UiSpecGeneratorMojo` + `uispec-generator.properties`, versions kept in lock-step with the plugin
-version), guarded by the invoker IT `src/it/uispec`:
+version), guarded by the invoker IT `src/it/uispec`. The invoker configuration lives in the `ci-build`
+profile (also auto-activated when `JENKINS_URL` is set), and the IT must run against the freshly
+packaged plugin (a bare `invoker:run` resolves a stale remote SNAPSHOT instead):
 
 ```bash
-mvn invoker:run -pl talend-component-maven-plugin -Dinvoker.test=uispec
+mvn verify -pl talend-component-maven-plugin -Pci-build -DskipTests -Dinvoker.test=uispec
 ```
+
+The mojo resolves the generator classpath from `${project.remoteProjectRepositories}` (the artifacts are
+regular dependencies, not plugins); `UiSpecGeneratorMojoTest` covers the isolation logic in the default build.
 
 [2026-10-05 | QTDI-3531] Manual validation against real connectors: in
 `connectors/cloud/cloud-components-docker`, run

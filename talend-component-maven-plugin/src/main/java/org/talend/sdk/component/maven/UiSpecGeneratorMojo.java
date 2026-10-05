@@ -67,8 +67,8 @@ public class UiSpecGeneratorMojo extends BuildComponentM2RepositoryMojo {
     @Parameter(defaultValue = "${plugin}", readonly = true)
     private PluginDescriptor pluginDescriptor;
 
-    @Parameter(defaultValue = "${project.remotePluginRepositories}", readonly = true)
-    private List<RemoteRepository> pluginRepositories;
+    @Parameter(defaultValue = "${project.remoteProjectRepositories}", readonly = true)
+    private List<RemoteRepository> projectRepositories;
 
     @Component
     private MavenProjectHelper helper;
@@ -94,15 +94,19 @@ public class UiSpecGeneratorMojo extends BuildComponentM2RepositoryMojo {
      * the webapp graph plus the CDI container and Beam, which the components expect from the runtime.
      */
     private void generate(final Map<String, String> setup) throws MojoExecutionException {
+        runIsolated(isolatedClasspath(), GENERATOR_CLASS, setup, languages, uiSpecZip.toPath());
+    }
+
+    static void runIsolated(final URL[] classpath, final String generatorClass, final Map<String, String> setup,
+            final Collection<String> languages, final Path output) throws MojoExecutionException {
         final Thread thread = Thread.currentThread();
         final ClassLoader contextLoader = thread.getContextClassLoader();
-        try (final URLClassLoader loader =
-                new URLClassLoader(isolatedClasspath(), ClassLoader.getPlatformClassLoader())) {
+        try (final URLClassLoader loader = new URLClassLoader(classpath, ClassLoader.getPlatformClassLoader())) {
             thread.setContextClassLoader(loader);
             final Runnable generator = (Runnable) loader
-                    .loadClass(GENERATOR_CLASS)
+                    .loadClass(generatorClass)
                     .getConstructor(Map.class, Collection.class, Path.class)
-                    .newInstance(setup, languages, uiSpecZip.toPath());
+                    .newInstance(setup, languages, output);
             generator.run();
         } catch (final IOException | ReflectiveOperationException e) {
             throw new MojoExecutionException(e.getMessage(), e);
@@ -114,7 +118,7 @@ public class UiSpecGeneratorMojo extends BuildComponentM2RepositoryMojo {
     private URL[] isolatedClasspath() throws MojoExecutionException {
         final Properties versions = loadGeneratorVersions();
         final String pluginVersion = pluginDescriptor.getVersion();
-        final CollectRequest collect = new CollectRequest().setRepositories(pluginRepositories);
+        final CollectRequest collect = new CollectRequest().setRepositories(projectRepositories);
         Stream
                 .of(new DefaultArtifact("org.talend.sdk.component", "component-tools-webapp", "jar", pluginVersion),
                         new DefaultArtifact("org.talend.sdk.component", "component-runtime-beam", "jar",
@@ -138,7 +142,7 @@ public class UiSpecGeneratorMojo extends BuildComponentM2RepositoryMojo {
         }
     }
 
-    private Properties loadGeneratorVersions() throws MojoExecutionException {
+    static Properties loadGeneratorVersions() throws MojoExecutionException {
         try (final InputStream stream = UiSpecGeneratorMojo.class.getResourceAsStream(VERSIONS_RESOURCE)) {
             if (stream == null) {
                 throw new MojoExecutionException("Missing " + VERSIONS_RESOURCE + " in the plugin");
