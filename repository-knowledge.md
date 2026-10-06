@@ -133,6 +133,29 @@ The repo has **two** JUnit testing modules under `component-runtime-testing/`:
 
 Always depend on `component-runtime-junit` for new test code.
 
+### `uispec` goal — isolated classloader and how to verify it
+
+[2026-10-05 | QTDI-3531] `talend-component:uispec` (`StaticUiSpecGenerator`) starts an embedded server, so it must not run in
+the mojo's own realm: that realm contains the plugin dependencies plus the transitive dependencies of
+every connector CAR declared as plugin dependency, and a CXF 4 (jakarta servlet) there shadows CXF 3.6
+(javax) → `VerifyError`. The design therefore relies on an isolated classloader
+(`UiSpecGeneratorMojo` + `uispec-generator.properties`, versions kept in lock-step with the plugin
+version), guarded by the invoker IT `src/it/uispec`. The invoker configuration lives in the `ci-build`
+profile (also auto-activated when `JENKINS_URL` is set), and the IT must run against the freshly
+packaged plugin (a bare `invoker:run` resolves a stale remote SNAPSHOT instead):
+
+```bash
+mvn verify -pl talend-component-maven-plugin -Pci-build -DskipTests -Dinvoker.test=uispec
+```
+
+The mojo resolves the generator classpath from `${project.remoteProjectRepositories}` (the artifacts are
+regular dependencies, not plugins); `UiSpecGeneratorMojoTest` covers the isolation logic in the default build.
+
+[2026-10-05 | QTDI-3531] Manual validation against real connectors: in
+`connectors/cloud/cloud-components-docker`, run
+`mvn -o talend-component:uispec -PPUSH_DOCKER -Dcomponent-runtime.version=<local SNAPSHOT>`
+(~2 min, produces `target/talend-component-kit/uispec.zip`).
+
 ---
 
 ## CI / Jenkinsfile patterns

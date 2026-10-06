@@ -381,14 +381,15 @@ public class StaticResourceGenerator implements Runnable {
         }
     }
 
-    private static Route route(final String id, final String path, final SortedMap<String, String> queries,
+    // visible for testing
+    static Route route(final String id, final String path, final SortedMap<String, String> queries,
             final Map<String, String> requestHeaders, final Map<String, String> responseHeaders, final String content) {
         return new Route(id, 200, path, queries,
                 responseHeaders.isEmpty()
                         ? singletonMap("Accept", responseHeaders.getOrDefault("Content-Type", "application/json"))
                         : requestHeaders,
                 responseHeaders.isEmpty() ? singletonMap("Content-Type", "application/json") : responseHeaders,
-                content.getBytes(StandardCharsets.UTF_8));
+                content == null ? new byte[0] : content.getBytes(StandardCharsets.UTF_8));
     }
 
     private static Route route(final String id, final String path, final SortedMap<String, String> queries,
