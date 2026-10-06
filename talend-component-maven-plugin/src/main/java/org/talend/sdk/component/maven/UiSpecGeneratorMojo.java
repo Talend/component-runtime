@@ -149,7 +149,11 @@ public class UiSpecGeneratorMojo extends BuildComponentM2RepositoryMojo {
     }
 
     static Properties loadGeneratorVersions() throws MojoExecutionException {
-        try (final InputStream stream = UiSpecGeneratorMojo.class.getResourceAsStream(VERSIONS_RESOURCE)) {
+        return readVersions(UiSpecGeneratorMojo.class.getResourceAsStream(VERSIONS_RESOURCE));
+    }
+
+    static Properties readVersions(final InputStream resource) throws MojoExecutionException {
+        try (final InputStream stream = resource) {
             if (stream == null) {
                 throw new MojoExecutionException("Missing " + VERSIONS_RESOURCE + " in the plugin");
             }

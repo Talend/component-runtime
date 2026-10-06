@@ -24,8 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
@@ -86,10 +90,11 @@ class UiSpecGeneratorMojoTest {
         final URL[] classpath = testClasspath();
         final String generator = FailingGenerator.class.getName();
         final Map<String, String> setup = new HashMap<>();
+        final List<String> languages = List.of();
         final Path output = Paths.get("uispec.zip");
 
         final IllegalStateException error = assertThrows(IllegalStateException.class,
-                () -> UiSpecGeneratorMojo.runIsolated(classpath, generator, setup, List.of(), output));
+                () -> UiSpecGeneratorMojo.runIsolated(classpath, generator, setup, languages, output));
 
         assertEquals("generator failure", error.getMessage());
         assertSame(before, thread.getContextClassLoader());
@@ -102,10 +107,11 @@ class UiSpecGeneratorMojoTest {
 
         final URL[] classpath = testClasspath();
         final Map<String, String> setup = new HashMap<>();
+        final List<String> languages = List.of();
         final Path output = Paths.get("uispec.zip");
 
         final MojoExecutionException error = assertThrows(MojoExecutionException.class,
-                () -> UiSpecGeneratorMojo.runIsolated(classpath, "org.talend.Missing", setup, List.of(), output));
+                () -> UiSpecGeneratorMojo.runIsolated(classpath, "org.talend.Missing", setup, languages, output));
 
         assertTrue(error.getCause() instanceof ClassNotFoundException);
         assertSame(before, thread.getContextClassLoader());
@@ -116,10 +122,11 @@ class UiSpecGeneratorMojoTest {
         final URL[] classpath = testClasspath();
         final String generator = WrongConstructorGenerator.class.getName();
         final Map<String, String> setup = new HashMap<>();
+        final List<String> languages = List.of();
         final Path output = Paths.get("uispec.zip");
 
         final MojoExecutionException error = assertThrows(MojoExecutionException.class,
-                () -> UiSpecGeneratorMojo.runIsolated(classpath, generator, setup, List.of(), output));
+                () -> UiSpecGeneratorMojo.runIsolated(classpath, generator, setup, languages, output));
 
         assertTrue(error.getCause() instanceof NoSuchMethodException);
     }
@@ -129,10 +136,11 @@ class UiSpecGeneratorMojoTest {
         final URL[] classpath = testClasspath();
         final String generator = BrokenConstructorGenerator.class.getName();
         final Map<String, String> setup = new HashMap<>();
+        final List<String> languages = List.of();
         final Path output = Paths.get("uispec.zip");
 
         final MojoExecutionException error = assertThrows(MojoExecutionException.class,
-                () -> UiSpecGeneratorMojo.runIsolated(classpath, generator, setup, List.of(), output));
+                () -> UiSpecGeneratorMojo.runIsolated(classpath, generator, setup, languages, output));
 
         assertNotNull(error.getCause());
         assertTrue(error.getCause() instanceof InvocationTargetException);
@@ -192,6 +200,55 @@ class UiSpecGeneratorMojoTest {
 
         assertTrue(error.getMessage().startsWith("Can't resolve the uispec generator classpath"));
         assertTrue(error.getCause() instanceof DependencyResolutionException);
+    }
+
+    @Test
+    void artifactWithMalformedUrlIsRejected() {
+        final File malformed = new File("malformed.jar") {
+
+            @Override
+            public URI toURI() {
+                return URI.create("unknown-scheme://host/malformed.jar");
+            }
+        };
+        final Properties versions = versions();
+        final List<RemoteRepository> repositories = List.of();
+        final RepositorySystem system = repositorySystem((req, session) -> {
+            final DependencyResult result = new DependencyResult(req);
+            result.setArtifactResults(List.of(resolved(malformed)));
+            return result;
+        });
+
+        final IllegalStateException error = assertThrows(IllegalStateException.class,
+                () -> UiSpecGeneratorMojo.resolveClasspath(system, null, repositories, "1.2.3", versions));
+
+        assertTrue(error.getCause() instanceof MalformedURLException);
+    }
+
+    @Test
+    void missingVersionsResourceIsReported() {
+        final MojoExecutionException error =
+                assertThrows(MojoExecutionException.class, () -> UiSpecGeneratorMojo.readVersions(null));
+
+        assertEquals("Missing uispec-generator.properties in the plugin", error.getMessage());
+    }
+
+    @Test
+    void unreadableVersionsResourceIsWrapped() {
+        final IOException failure = new IOException("disk failure");
+        final InputStream broken = new InputStream() {
+
+            @Override
+            public int read() throws IOException {
+                throw failure;
+            }
+        };
+
+        final MojoExecutionException error =
+                assertThrows(MojoExecutionException.class, () -> UiSpecGeneratorMojo.readVersions(broken));
+
+        assertEquals("Can't read uispec-generator.properties", error.getMessage());
+        assertSame(failure, error.getCause());
     }
 
     private static Properties versions() {
