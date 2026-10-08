@@ -20,7 +20,7 @@ def decryptAndSet(name) {
     def serverId = project.properties.getProperty("talend.${name}.serverId", name)
     def serverIt = session.settings.servers.findAll { it.id == serverId }.iterator()
     if (!serverIt.hasNext()) {
-        log.warn("no server '${serverId}' in your settings.xml, will skip changelog generation")
+        log.warn("no server '${serverId}' in your settings.xml, will skip contributors generation")
         project.properties.setProperty("talend.${name}.username", 'skip')
         project.properties.setProperty("talend.${name}.password", 'skip')
         return
@@ -35,6 +35,5 @@ def decryptAndSet(name) {
 
 }
 
-decryptAndSet('jira')
 decryptAndSet('github')
 
