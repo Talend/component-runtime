@@ -44,22 +44,14 @@ public class InputsHandler extends BaseIOHandler {
             if (value instanceof Record) {
                 return value;
             }
-            final Object convertedValue;
-            final MappingMeta mappingMeta;
-            mappingMeta = registry.find(value.getClass());
+            final MappingMeta mappingMeta = registry.find(value.getClass());
             if (mappingMeta.isLinearMapping()) {
                 return mappingMeta.newRecord(value, recordBuilderMapper);
-            } else {
-                if (value instanceof jakarta.json.JsonValue) {
-                    if (JsonValue.NULL == value) { // JsonObject cant take a JsonValue so pass null
-                        return null;
-                    }
-                    convertedValue = value.toString();
-                } else {
-                    convertedValue = jsonb.toJson(value);
-                }
             }
-
+            if (JsonValue.NULL == value) { // JsonObject cant take a JsonValue so pass null
+                return null;
+            }
+            final Object convertedValue = value instanceof JsonValue ? value.toString() : jsonb.toJson(value);
             return converters.toRecord(registry, convertedValue, () -> jsonb, () -> recordBuilderMapper);
         };
     }

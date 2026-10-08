@@ -91,7 +91,7 @@
          connector jars still compiled against the old javax component-api at runtime - this
          reactor's own code (component-runtime-manager, component-form, ...) is now jakarta-only,
          so no javax.json provider is otherwise left on the classpath. See the dependencyManagement
-         comment in the root pom and META-INF/services/javax.json.spi.JsonProvider below. -->
+         comment in the root pom. -->
     <dependency>
       <groupId>org.glassfish</groupId>
       <artifactId>javax.json</artifactId>

@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import jakarta.json.JsonArray;
@@ -42,7 +43,7 @@ public class UniqueItemsValidation implements ValidationExtension {
     private static class Impl extends BaseValidation {
 
         private Impl(final String pointer,
-                final Function<JsonValue, JsonValue> extractor) {
+                final UnaryOperator<JsonValue> extractor) {
             super(pointer, extractor, JsonValue.ValueType.ARRAY);
         }
 

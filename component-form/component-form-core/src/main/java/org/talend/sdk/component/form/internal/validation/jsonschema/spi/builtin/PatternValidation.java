@@ -18,6 +18,7 @@ package org.talend.sdk.component.form.internal.validation.jsonschema.spi.builtin
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import jakarta.json.JsonString;
@@ -51,7 +52,7 @@ public class PatternValidation implements ValidationExtension {
 
         private final Predicate<CharSequence> matcher;
 
-        private Impl(final String pointer, final Function<JsonValue, JsonValue> valueProvider,
+        private Impl(final String pointer, final UnaryOperator<JsonValue> valueProvider,
                 final Predicate<CharSequence> matcher) {
             super(pointer, valueProvider, JsonValue.ValueType.STRING);
             this.matcher = matcher;

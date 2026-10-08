@@ -17,10 +17,10 @@ package org.talend.sdk.component.form.internal.validation.jsonschema.spi.builtin
 
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import jakarta.json.JsonArray;
-import jakarta.json.JsonNumber;
 import jakarta.json.JsonValue;
 
 import org.talend.sdk.component.form.internal.validation.jsonschema.ValidationResult;
@@ -32,39 +32,18 @@ public class MaxItemsValidation implements ValidationExtension {
     @Override
     public Optional<Function<JsonValue, Stream<ValidationResult.ValidationError>>>
             create(final ValidationContext model) {
-        return Optional.ofNullable(model.getSchema().get("maxItems"))
-                .filter(it -> it.getValueType() == JsonValue.ValueType.NUMBER)
-                .map(it -> JsonNumber.class.cast(it).intValue())
-                .filter(it -> it >= 0)
-                .map(max -> new Impl(model.toPointer(), model.getValueProvider(), max));
+        return BaseSizeValidation.create(model, "maxItems", null, Impl::new);
     }
 
-    private static class Impl extends BaseValidation {
+    private static class Impl extends BaseSizeValidation {
 
-        private final int bound;
-
-        private Impl(final String pointer,
-                final Function<JsonValue, JsonValue> extractor,
-                final int bound) {
-            super(pointer, extractor, JsonValue.ValueType.ARRAY);
-            this.bound = bound;
+        private Impl(final String pointer, final UnaryOperator<JsonValue> extractor, final int bound) {
+            super("MaxItems", pointer, extractor, JsonValue.ValueType.ARRAY, bound);
         }
 
         @Override
         protected Stream<ValidationResult.ValidationError> onArray(final JsonArray array) {
-            if (array.size() > bound) {
-                return Stream.of(
-                        new ValidationResult.ValidationError(pointer, "Too much items in the array (> " + bound + ")"));
-            }
-            return Stream.empty();
-        }
-
-        @Override
-        public String toString() {
-            return "MaxItems{" +
-                    "max=" + bound +
-                    ", pointer='" + pointer + '\'' +
-                    '}';
+            return array.size() > bound ? error("Too much items in the array (> " + bound + ")") : Stream.empty();
         }
     }
 }

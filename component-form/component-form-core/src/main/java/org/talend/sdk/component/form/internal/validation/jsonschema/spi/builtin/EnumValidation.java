@@ -20,6 +20,7 @@ import static java.util.Optional.ofNullable;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import jakarta.json.JsonValue;
@@ -46,7 +47,7 @@ public class EnumValidation implements ValidationExtension {
 
         private final boolean nullable;
 
-        private Impl(final Collection<JsonValue> valid, final Function<JsonValue, JsonValue> extractor,
+        private Impl(final Collection<JsonValue> valid, final UnaryOperator<JsonValue> extractor,
                 final String pointer, final boolean nullable) {
             super(pointer, extractor, JsonValue.ValueType.OBJECT /* ignored */);
             this.valid = valid;
