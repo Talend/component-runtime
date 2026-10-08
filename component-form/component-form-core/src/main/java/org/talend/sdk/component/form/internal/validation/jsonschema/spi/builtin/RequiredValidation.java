@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toSet;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import jakarta.json.JsonObject;
@@ -48,7 +49,7 @@ public class RequiredValidation implements ValidationExtension {
 
         private final Collection<String> required;
 
-        private Impl(final Collection<String> required, final Function<JsonValue, JsonValue> extractor,
+        private Impl(final Collection<String> required, final UnaryOperator<JsonValue> extractor,
                 final String pointer) {
             super(pointer, extractor, JsonValue.ValueType.OBJECT);
             this.required = required;

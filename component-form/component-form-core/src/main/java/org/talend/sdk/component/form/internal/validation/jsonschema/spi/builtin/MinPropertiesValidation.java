@@ -17,9 +17,9 @@ package org.talend.sdk.component.form.internal.validation.jsonschema.spi.builtin
 
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
-import jakarta.json.JsonNumber;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonValue;
 
@@ -32,39 +32,18 @@ public class MinPropertiesValidation implements ValidationExtension {
     @Override
     public Optional<Function<JsonValue, Stream<ValidationResult.ValidationError>>>
             create(final ValidationContext model) {
-        return Optional.ofNullable(model.getSchema().get("minProperties"))
-                .filter(it -> it.getValueType() == JsonValue.ValueType.NUMBER)
-                .map(it -> JsonNumber.class.cast(it).intValue())
-                .filter(it -> it >= 0)
-                .map(max -> new Impl(model.toPointer(), model.getValueProvider(), max));
+        return BaseSizeValidation.create(model, "minProperties", null, Impl::new);
     }
 
-    private static class Impl extends BaseValidation {
+    private static class Impl extends BaseSizeValidation {
 
-        private final int bound;
-
-        private Impl(final String pointer,
-                final Function<JsonValue, JsonValue> extractor,
-                final int bound) {
-            super(pointer, extractor, JsonValue.ValueType.OBJECT);
-            this.bound = bound;
+        private Impl(final String pointer, final UnaryOperator<JsonValue> extractor, final int bound) {
+            super("MinProperties", pointer, extractor, JsonValue.ValueType.OBJECT, bound);
         }
 
         @Override
         protected Stream<ValidationResult.ValidationError> onObject(final JsonObject object) {
-            if (object.size() < bound) {
-                return Stream
-                        .of(new ValidationResult.ValidationError(pointer, "Not enough properties (> " + bound + ")"));
-            }
-            return Stream.empty();
-        }
-
-        @Override
-        public String toString() {
-            return "MinProperties{" +
-                    "min=" + bound +
-                    ", pointer='" + pointer + '\'' +
-                    '}';
+            return object.size() < bound ? error("Not enough properties (> " + bound + ")") : Stream.empty();
         }
     }
 }

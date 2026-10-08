@@ -18,6 +18,7 @@ package org.talend.sdk.component.form.internal.validation.jsonschema.spi.builtin
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import jakarta.json.JsonArray;
@@ -51,7 +52,7 @@ public class ContainsValidation implements ValidationExtension {
         private final JsonSchemaValidator validator;
 
         private ItemsValidator(final String pointer,
-                final Function<JsonValue, JsonValue> extractor,
+                final UnaryOperator<JsonValue> extractor,
                 final JsonSchemaValidator validator) {
             super(pointer, extractor, JsonValue.ValueType.ARRAY);
             this.validator = validator;

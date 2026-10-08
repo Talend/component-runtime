@@ -17,7 +17,6 @@ package org.talend.sdk.component.form.internal.validation.jsonschema;
 
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +26,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -60,6 +60,10 @@ public class JsonSchemaValidatorFactory implements AutoCloseable {
 
     private static final String[] ROOT_PATH = new String[0];
 
+    private static final String PROPERTIES = "properties";
+
+    private static final String PATTERN_PROPERTIES = "patternProperties";
+
     private static final Function<JsonValue, Stream<ValidationResult.ValidationError>> NO_VALIDATION =
             new Function<JsonValue, Stream<ValidationResult.ValidationError>>() {
 
@@ -89,9 +93,8 @@ public class JsonSchemaValidatorFactory implements AutoCloseable {
 
     public JsonSchemaValidatorFactory() {
         extensions.addAll(createDefaultValidations());
-        extensions.addAll(
-                new ArrayList<>(StreamSupport.stream(ServiceLoader.load(ValidationExtension.class).spliterator(), false)
-                        .collect(toList())));
+        extensions.addAll(StreamSupport.stream(ServiceLoader.load(ValidationExtension.class).spliterator(), false)
+                .toList());
     }
 
     // see http://json-schema.org/latest/json-schema-validation.html
@@ -115,10 +118,8 @@ public class JsonSchemaValidatorFactory implements AutoCloseable {
                 new UniqueItemsValidation(),
                 new ContainsValidation(this),
                 new MaxPropertiesValidation(),
-                new MinPropertiesValidation()
-        // TODO: dependencies, propertyNames, if/then/else, allOf/anyOf/oneOf/not,
-        // format validations
-        );
+                new MinPropertiesValidation());
+        // not supported yet: dependencies, propertyNames, if/then/else, allOf/anyOf/oneOf/not, format validations
     }
 
     public JsonSchemaValidatorFactory appendExtensions(final ValidationExtension... extensions) {
@@ -147,9 +148,9 @@ public class JsonSchemaValidatorFactory implements AutoCloseable {
 
     private Function<JsonValue, Stream<ValidationResult.ValidationError>> buildValidator(final String[] path,
             final JsonObject schema,
-            final Function<JsonValue, JsonValue> valueProvider) {
+            final UnaryOperator<JsonValue> valueProvider) {
         final List<Function<JsonValue, Stream<ValidationResult.ValidationError>>> directValidations =
-                buildDirectValidations(path, schema, valueProvider).collect(toList());
+                buildDirectValidations(path, schema, valueProvider).toList();
         final Function<JsonValue, Stream<ValidationResult.ValidationError>> nestedValidations =
                 buildPropertiesValidations(path, schema, valueProvider);
         final Function<JsonValue, Stream<ValidationResult.ValidationError>> dynamicNestedValidations =
@@ -160,13 +161,13 @@ public class JsonSchemaValidatorFactory implements AutoCloseable {
                 Stream.concat(
                         directValidations.stream(),
                         Stream.of(nestedValidations, dynamicNestedValidations, fallbackNestedValidations))
-                        .collect(toList()));
+                        .toList());
     }
 
     private Stream<Function<JsonValue, Stream<ValidationResult.ValidationError>>> buildDirectValidations(
             final String[] path,
             final JsonObject schema,
-            final Function<JsonValue, JsonValue> valueProvider) {
+            final UnaryOperator<JsonValue> valueProvider) {
         final ValidationContext model = new ValidationContext(path, schema, valueProvider);
         return extensions.stream()
                 .map(e -> e.create(model))
@@ -177,8 +178,8 @@ public class JsonSchemaValidatorFactory implements AutoCloseable {
     private Function<JsonValue, Stream<ValidationResult.ValidationError>> buildPropertiesValidations(
             final String[] path,
             final JsonObject schema,
-            final Function<JsonValue, JsonValue> valueProvider) {
-        return ofNullable(schema.get("properties"))
+            final UnaryOperator<JsonValue> valueProvider) {
+        return ofNullable(schema.get(PROPERTIES))
                 .filter(it -> it.getValueType() == JsonValue.ValueType.OBJECT)
                 .map(it -> it.asJsonObject()
                         .entrySet()
@@ -191,7 +192,7 @@ public class JsonSchemaValidatorFactory implements AutoCloseable {
                             return buildValidator(fieldPath, obj.getValue().asJsonObject(),
                                     new ChainedValueAccessor(valueProvider, key));
                         })
-                        .collect(toList()))
+                        .toList())
                 .map(this::toFunction)
                 .orElse(NO_VALIDATION);
     }
@@ -200,8 +201,8 @@ public class JsonSchemaValidatorFactory implements AutoCloseable {
     private Function<JsonValue, Stream<ValidationResult.ValidationError>> buildPatternPropertiesValidations(
             final String[] path,
             final JsonObject schema,
-            final Function<JsonValue, JsonValue> valueProvider) {
-        return ofNullable(schema.get("patternProperties"))
+            final UnaryOperator<JsonValue> valueProvider) {
+        return ofNullable(schema.get(PATTERN_PROPERTIES))
                 .filter(it -> it.getValueType() == JsonValue.ValueType.OBJECT)
                 .map(it -> it.asJsonObject()
                         .entrySet()
@@ -230,7 +231,7 @@ public class JsonSchemaValidatorFactory implements AutoCloseable {
                                                 .apply(validable));
                             };
                         })
-                        .collect(toList()))
+                        .toList())
                 .map(this::toFunction)
                 .orElse(NO_VALIDATION);
     }
@@ -238,21 +239,21 @@ public class JsonSchemaValidatorFactory implements AutoCloseable {
     private Function<JsonValue, Stream<ValidationResult.ValidationError>> buildAdditionalPropertiesValidations(
             final String[] path,
             final JsonObject schema,
-            final Function<JsonValue, JsonValue> valueProvider) {
+            final UnaryOperator<JsonValue> valueProvider) {
         return ofNullable(schema.get("additionalProperties"))
                 .filter(it -> it.getValueType() == JsonValue.ValueType.OBJECT)
                 .map(it -> {
                     Predicate<String> excluded = s -> false;
-                    if (schema.containsKey("properties")) {
-                        final Set<String> properties = schema.getJsonObject("properties").keySet();
+                    if (schema.containsKey(PROPERTIES)) {
+                        final Set<String> properties = schema.getJsonObject(PROPERTIES).keySet();
                         excluded = excluded.and(s -> !properties.contains(s));
                     }
-                    if (schema.containsKey("patternProperties")) {
-                        final List<Predicate<CharSequence>> properties = schema.getJsonObject("patternProperties")
+                    if (schema.containsKey(PATTERN_PROPERTIES)) {
+                        final List<Predicate<CharSequence>> properties = schema.getJsonObject(PATTERN_PROPERTIES)
                                 .keySet()
                                 .stream()
                                 .map(regexFactory.get())
-                                .collect(toList());
+                                .toList();
                         excluded = excluded.and(s -> properties.stream().noneMatch(p -> p.test(s)));
                     }
                     final Predicate<String> excludeAttrRef = excluded;
@@ -287,11 +288,11 @@ public class JsonSchemaValidatorFactory implements AutoCloseable {
                 final List<Function<JsonValue, Stream<ValidationResult.ValidationError>>> validations) {
             // unwrap when possible to simplify the stack and make toString readable (debug)
             this.delegates = validations.stream()
-                    .flatMap(it -> ValidationsFunction.class.isInstance(it)
-                            ? ValidationsFunction.class.cast(it).delegates.stream()
+                    .flatMap(it -> it instanceof ValidationsFunction
+                            ? ((ValidationsFunction) it).delegates.stream()
                             : Stream.of(it))
                     .filter(it -> it != NO_VALIDATION)
-                    .collect(toList());
+                    .toList();
         }
 
         @Override
@@ -305,13 +306,13 @@ public class JsonSchemaValidatorFactory implements AutoCloseable {
         }
     }
 
-    private static class ChainedValueAccessor implements Function<JsonValue, JsonValue> {
+    private static class ChainedValueAccessor implements UnaryOperator<JsonValue> {
 
-        private final Function<JsonValue, JsonValue> parent;
+        private final UnaryOperator<JsonValue> parent;
 
         private final String key;
 
-        private ChainedValueAccessor(final Function<JsonValue, JsonValue> valueProvider, final String key) {
+        private ChainedValueAccessor(final UnaryOperator<JsonValue> valueProvider, final String key) {
             this.parent = valueProvider;
             this.key = key;
         }
