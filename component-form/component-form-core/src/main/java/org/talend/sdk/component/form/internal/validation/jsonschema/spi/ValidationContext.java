@@ -17,7 +17,7 @@ package org.talend.sdk.component.form.internal.validation.jsonschema.spi;
 
 import static java.util.stream.Collectors.joining;
 
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import jakarta.json.JsonObject;
@@ -29,16 +29,16 @@ public class ValidationContext {
 
     private final JsonObject schema;
 
-    private final Function<JsonValue, JsonValue> valueProvider;
+    private final UnaryOperator<JsonValue> valueProvider;
 
     public ValidationContext(final String[] path, final JsonObject schema,
-            final Function<JsonValue, JsonValue> valueProvider) {
+            final UnaryOperator<JsonValue> valueProvider) {
         this.path = path;
         this.schema = schema;
         this.valueProvider = valueProvider;
     }
 
-    public Function<JsonValue, JsonValue> getValueProvider() {
+    public UnaryOperator<JsonValue> getValueProvider() {
         return valueProvider;
     }
 

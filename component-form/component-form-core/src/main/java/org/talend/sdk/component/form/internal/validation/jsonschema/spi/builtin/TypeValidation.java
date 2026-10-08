@@ -16,11 +16,11 @@
 package org.talend.sdk.component.form.internal.validation.jsonschema.spi.builtin;
 
 import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import jakarta.json.JsonArray;
@@ -37,11 +37,11 @@ public class TypeValidation implements ValidationExtension {
     public Optional<Function<JsonValue, Stream<ValidationResult.ValidationError>>>
             create(final ValidationContext model) {
         final JsonValue value = model.getSchema().get("type");
-        if (JsonString.class.isInstance(value)) {
+        if (value instanceof JsonString) {
             return Optional.of(new Impl(model.toPointer(), model.getValueProvider(),
                     mapType(JsonString.class.cast(value)).toArray(JsonValue.ValueType[]::new)));
         }
-        if (JsonArray.class.isInstance(value)) {
+        if (value instanceof JsonArray) {
             return Optional.of(new Impl(model.toPointer(), model.getValueProvider(),
                     value.asJsonArray().stream().flatMap(this::mapType).toArray(JsonValue.ValueType[]::new)));
         }
@@ -54,8 +54,7 @@ public class TypeValidation implements ValidationExtension {
                 return Stream.of(JsonValue.ValueType.NULL);
             case "string":
                 return Stream.of(JsonValue.ValueType.STRING);
-            case "number":
-            case "integer":
+            case "number", "integer":
                 return Stream.of(JsonValue.ValueType.NUMBER);
             case "array":
                 return Stream.of(JsonValue.ValueType.ARRAY);
@@ -71,7 +70,7 @@ public class TypeValidation implements ValidationExtension {
 
         private final Collection<JsonValue.ValueType> types;
 
-        private Impl(final String pointer, final Function<JsonValue, JsonValue> extractor,
+        private Impl(final String pointer, final UnaryOperator<JsonValue> extractor,
                 final JsonValue.ValueType... types) {
             super(pointer, extractor, types[0] /* ignored anyway */);
             // note: should we always add NULL? if not it leads to a very weird behavior for partial objects and
@@ -79,7 +78,7 @@ public class TypeValidation implements ValidationExtension {
             this.types = Stream.concat(Stream.of(types), Stream.of(JsonValue.ValueType.NULL))
                     .distinct()
                     .sorted(comparing(JsonValue.ValueType::name))
-                    .collect(toList());
+                    .toList();
         }
 
         @Override

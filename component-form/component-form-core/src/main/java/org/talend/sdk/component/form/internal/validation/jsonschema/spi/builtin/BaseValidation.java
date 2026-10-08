@@ -16,6 +16,7 @@
 package org.talend.sdk.component.form.internal.validation.jsonschema.spi.builtin;
 
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import jakarta.json.JsonArray;
@@ -30,13 +31,13 @@ public abstract class BaseValidation implements Function<JsonValue, Stream<Valid
 
     protected final String pointer;
 
-    protected final Function<JsonValue, JsonValue> extractor;
+    protected final UnaryOperator<JsonValue> extractor;
 
     private final JsonValue.ValueType validType;
 
     private final boolean rootCanBeNull;
 
-    public BaseValidation(final String pointer, final Function<JsonValue, JsonValue> extractor,
+    protected BaseValidation(final String pointer, final UnaryOperator<JsonValue> extractor,
             final JsonValue.ValueType validType) {
         this.pointer = pointer;
         this.extractor = extractor != null ? extractor : v -> v;
@@ -58,8 +59,7 @@ public abstract class BaseValidation implements Function<JsonValue, Stream<Valid
         switch (value.getValueType()) {
             case STRING:
                 return onString(JsonString.class.cast(value));
-            case TRUE:
-            case FALSE:
+            case TRUE, FALSE:
                 return onBoolean(JsonValue.ValueType.TRUE == value.getValueType());
             case NUMBER:
                 return onNumber(JsonNumber.class.cast(value));
@@ -78,22 +78,28 @@ public abstract class BaseValidation implements Function<JsonValue, Stream<Valid
         return null == obj || obj.getValueType() == JsonValue.ValueType.NULL;
     }
 
+    // optional hooks, the parameters are meant to be used by the overriding implementations
+    @SuppressWarnings("java:S1172")
     protected Stream<ValidationResult.ValidationError> onArray(final JsonArray array) {
         return Stream.empty();
     }
 
+    @SuppressWarnings("java:S1172")
     protected Stream<ValidationResult.ValidationError> onObject(final JsonObject object) {
         return Stream.empty();
     }
 
+    @SuppressWarnings("java:S1172")
     protected Stream<ValidationResult.ValidationError> onNumber(final JsonNumber number) {
         return Stream.empty();
     }
 
+    @SuppressWarnings("java:S1172")
     protected Stream<ValidationResult.ValidationError> onBoolean(final boolean value) {
         return Stream.empty();
     }
 
+    @SuppressWarnings("java:S1172")
     protected Stream<ValidationResult.ValidationError> onString(final JsonString cast) {
         return Stream.empty();
     }

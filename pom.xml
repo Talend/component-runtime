@@ -378,8 +378,7 @@
            needed to load and run third-party connector jars still compiled against the old javax
            component-api at runtime. org.glassfish:javax.json and org.eclipse:yasson are distinct GAs
            (no collision with johnzon-core) providing genuine javax.json/javax.json.bind implementations
-           for that purpose; see component-server/pom.xml and its
-           META-INF/services/javax.json.spi.JsonProvider registration (QTDI-3358 notes). -->
+           for that purpose; see component-server/pom.xml (QTDI-3358 notes). -->
       <dependency>
         <groupId>org.glassfish</groupId>
         <artifactId>javax.json</artifactId>

@@ -16,12 +16,12 @@
 package org.talend.sdk.component.form.internal.validation.jsonschema.spi.builtin;
 
 import static java.util.Collections.singleton;
-import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import jakarta.json.JsonArray;
@@ -57,7 +57,7 @@ public class ItemsValidation implements ValidationExtension {
                                             .stream()
                                             .filter(it -> it.getValueType() == JsonValue.ValueType.OBJECT)
                                             .map(it -> factory.newInstance(it.asJsonObject()))
-                                            .collect(toList()));
+                                            .toList());
                         default:
                             return null;
                     }
@@ -69,7 +69,7 @@ public class ItemsValidation implements ValidationExtension {
         private final Collection<JsonSchemaValidator> objectValidators;
 
         private ItemsValidator(final String pointer,
-                final Function<JsonValue, JsonValue> extractor,
+                final UnaryOperator<JsonValue> extractor,
                 final Collection<JsonSchemaValidator> objectValidators) {
             super(pointer, extractor, JsonValue.ValueType.ARRAY);
             this.objectValidators = objectValidators;
@@ -82,7 +82,7 @@ public class ItemsValidation implements ValidationExtension {
                 final JsonValue value = array.get(i);
                 final Collection<ValidationResult.ValidationError> itemErrors = objectValidators.stream()
                         .flatMap(validator -> validator.apply(value).getErrors().stream())
-                        .collect(toList());
+                        .toList();
                 if (itemErrors != null && !itemErrors.isEmpty()) {
                     if (errors == null) {
                         errors = new ArrayList<>();
@@ -91,7 +91,7 @@ public class ItemsValidation implements ValidationExtension {
                     errors.addAll(itemErrors.stream()
                             .map(e -> new ValidationResult.ValidationError(pointer + e.getField() + suffix,
                                     e.getMessage()))
-                            .collect(toList()));
+                            .toList());
                 }
             }
             return errors == null ? Stream.empty() : errors.stream();

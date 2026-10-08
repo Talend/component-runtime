@@ -16,7 +16,6 @@
 package org.talend.sdk.component.form.internal.validation.jsonschema;
 
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
 import java.util.function.Function;
@@ -36,7 +35,7 @@ public class JsonSchemaValidator implements Function<JsonValue, ValidationResult
 
     @Override
     public ValidationResult apply(final JsonValue object) {
-        final Collection<ValidationResult.ValidationError> errors = validationFunction.apply(object).collect(toList());
+        final Collection<ValidationResult.ValidationError> errors = validationFunction.apply(object).toList();
         if (!errors.isEmpty()) {
             return new ValidationResult(errors);
         }

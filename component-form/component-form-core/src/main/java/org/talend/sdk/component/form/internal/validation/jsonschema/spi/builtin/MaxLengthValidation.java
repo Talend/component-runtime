@@ -17,9 +17,9 @@ package org.talend.sdk.component.form.internal.validation.jsonschema.spi.builtin
 
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
-import jakarta.json.JsonNumber;
 import jakarta.json.JsonString;
 import jakarta.json.JsonValue;
 
@@ -32,39 +32,18 @@ public class MaxLengthValidation implements ValidationExtension {
     @Override
     public Optional<Function<JsonValue, Stream<ValidationResult.ValidationError>>>
             create(final ValidationContext model) {
-        if (model.getSchema().getString("type", "object").equals("string")) {
-            return Optional.ofNullable(model.getSchema().get("maxLength"))
-                    .filter(v -> v.getValueType() == JsonValue.ValueType.NUMBER)
-                    .map(m -> new Impl(model.toPointer(), model.getValueProvider(),
-                            JsonNumber.class.cast(m).intValue()));
-        }
-        return Optional.empty();
+        return BaseSizeValidation.create(model, "maxLength", "string", Impl::new);
     }
 
-    private static class Impl extends BaseValidation {
+    private static class Impl extends BaseSizeValidation {
 
-        private final int bound;
-
-        private Impl(final String pointer, final Function<JsonValue, JsonValue> valueProvider, final int bound) {
-            super(pointer, valueProvider, JsonValue.ValueType.STRING);
-            this.bound = bound;
+        private Impl(final String pointer, final UnaryOperator<JsonValue> valueProvider, final int bound) {
+            super("MaxLength", pointer, valueProvider, JsonValue.ValueType.STRING, bound);
         }
 
         @Override
         protected Stream<ValidationResult.ValidationError> onString(final JsonString val) {
-            if (val.getString().length() > bound) {
-                return Stream
-                        .of(new ValidationResult.ValidationError(pointer, val + " length is more than " + this.bound));
-            }
-            return Stream.empty();
-        }
-
-        @Override
-        public String toString() {
-            return "MaxLength{" +
-                    "factor=" + bound +
-                    ", pointer='" + pointer + '\'' +
-                    '}';
+            return val.getString().length() > bound ? error(val + " length is more than " + bound) : Stream.empty();
         }
     }
 }

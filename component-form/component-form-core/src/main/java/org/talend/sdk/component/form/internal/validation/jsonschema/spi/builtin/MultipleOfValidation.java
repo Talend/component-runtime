@@ -17,9 +17,9 @@ package org.talend.sdk.component.form.internal.validation.jsonschema.spi.builtin
 
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
-import jakarta.json.JsonNumber;
 import jakarta.json.JsonValue;
 
 import org.talend.sdk.component.form.internal.validation.jsonschema.ValidationResult;
@@ -31,19 +31,13 @@ public class MultipleOfValidation implements ValidationExtension {
     @Override
     public Optional<Function<JsonValue, Stream<ValidationResult.ValidationError>>>
             create(final ValidationContext model) {
-        if (model.getSchema().getString("type", "object").equals("number")) {
-            return Optional.ofNullable(model.getSchema().get("multipleOf"))
-                    .filter(v -> v.getValueType() == JsonValue.ValueType.NUMBER)
-                    .map(m -> new Impl(model.toPointer(), model.getValueProvider(),
-                            JsonNumber.class.cast(m).doubleValue()));
-        }
-        return Optional.empty();
+        return BaseNumberValidation.create(model, "multipleOf", Impl::new);
     }
 
     static class Impl extends BaseNumberValidation {
 
-        Impl(final String pointer, final Function<JsonValue, JsonValue> valueProvider, final double multipleOf) {
-            super(pointer, valueProvider, multipleOf);
+        Impl(final String pointer, final UnaryOperator<JsonValue> valueProvider, final double multipleOf) {
+            super("MultipleOf", pointer, valueProvider, multipleOf);
         }
 
         @Override
@@ -55,14 +49,6 @@ public class MultipleOfValidation implements ValidationExtension {
         @Override
         protected Stream<ValidationResult.ValidationError> toError(final double val) {
             return Stream.of(new ValidationResult.ValidationError(pointer, val + " is not a multiple of " + bound));
-        }
-
-        @Override
-        public String toString() {
-            return "MultipleOf{" +
-                    "factor=" + bound +
-                    ", pointer='" + pointer + '\'' +
-                    '}';
         }
     }
 }

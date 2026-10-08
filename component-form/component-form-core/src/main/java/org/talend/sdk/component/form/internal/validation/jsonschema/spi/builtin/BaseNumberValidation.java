@@ -15,21 +15,52 @@
  */
 package org.talend.sdk.component.form.internal.validation.jsonschema.spi.builtin;
 
+import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import jakarta.json.JsonNumber;
 import jakarta.json.JsonValue;
 
 import org.talend.sdk.component.form.internal.validation.jsonschema.ValidationResult;
+import org.talend.sdk.component.form.internal.validation.jsonschema.spi.ValidationContext;
 
 abstract class BaseNumberValidation extends BaseValidation {
 
     protected final double bound;
 
-    BaseNumberValidation(final String pointer, final Function<JsonValue, JsonValue> extractor, final double bound) {
+    private final String name;
+
+    BaseNumberValidation(final String name, final String pointer, final UnaryOperator<JsonValue> extractor,
+            final double bound) {
         super(pointer, extractor, JsonValue.ValueType.NUMBER);
+        this.name = name;
         this.bound = bound;
+    }
+
+    @FunctionalInterface
+    interface Factory {
+
+        BaseNumberValidation create(String pointer, UnaryOperator<JsonValue> extractor, double bound);
+    }
+
+    static Optional<Function<JsonValue, Stream<ValidationResult.ValidationError>>> create(
+            final ValidationContext model, final String keyword, final Factory factory) {
+        if (!"number".equals(model.getSchema().getString("type", "object"))) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(model.getSchema().get(keyword))
+                .filter(v -> v
+                        .getValueType() == JsonValue.ValueType.NUMBER).<Function<JsonValue, Stream<ValidationResult
+                                .ValidationError>>> map(
+                                        m -> factory.create(model.toPointer(), model.getValueProvider(),
+                                                JsonNumber.class.cast(m).doubleValue()));
+    }
+
+    @Override
+    public String toString() {
+        return name + "{bound=" + bound + ", pointer='" + pointer + "'}";
     }
 
     @Override
