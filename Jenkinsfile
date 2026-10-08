@@ -29,10 +29,6 @@ final def jetbrainsCredentials = usernamePassword(
     credentialsId: 'jetbrains-credentials',
     usernameVariable: 'JETBRAINS_USER',
     passwordVariable: 'JETBRAINS_PASS')
-final def jiraCredentials = usernamePassword(
-    credentialsId: 'jira-credentials',
-    usernameVariable: 'JIRA_USER',
-    passwordVariable: 'JIRA_PASS')
 final def gitCredentials = usernamePassword(
     credentialsId: 'github-credentials',
     usernameVariable: 'GITHUB_LOGIN',
@@ -424,7 +420,6 @@ pipeline {
                          dockerCredentials,
                          ossrhCredentials,
                          jetbrainsCredentials,
-                         jiraCredentials,
                          gpgCredentials]) {
           script {
             sh """\
@@ -719,7 +714,7 @@ pipeline {
       }
       steps {
         script {
-          withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials, nexusCredentials]) {
+          withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, gpgCredentials, nexusCredentials]) {
             configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
               sh """
                             bash .jenkins/scripts/release_legacy.sh $branch_name $finalVersion $extraBuildParams

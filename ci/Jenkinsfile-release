@@ -27,10 +27,6 @@ final def jetbrainsCredentials = usernamePassword(
     credentialsId: 'jetbrains-credentials',
     usernameVariable: 'JETBRAINS_USER',
     passwordVariable: 'JETBRAINS_PASS')
-final def jiraCredentials = usernamePassword(
-    credentialsId: 'jira-credentials',
-    usernameVariable: 'JIRA_USER',
-    passwordVariable: 'JIRA_PASS')
 final def gitCredentials = usernamePassword(
     credentialsId: 'github-credentials',
     usernameVariable: 'GITHUB_LOGIN',
@@ -296,7 +292,6 @@ pipeline {
                          dockerCredentials,
                          ossrhCredentials,
                          jetbrainsCredentials,
-                         jiraCredentials,
                          gpgCredentials]) {
           script {
             sh """\
@@ -451,7 +446,6 @@ pipeline {
         withCredentials([nexusCredentials,
                          ossrhCredentials,
                          jetbrainsCredentials,
-                         jiraCredentials,
                          gpgCredentials]) {
 
           script {
@@ -469,7 +463,6 @@ pipeline {
       steps {
         withCredentials([nexusCredentials,
                          ossrhCredentials,
-                         jiraCredentials,
                          gpgCredentials]) {
 
           script {
