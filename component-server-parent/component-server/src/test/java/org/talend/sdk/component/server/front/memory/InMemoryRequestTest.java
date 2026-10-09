@@ -76,6 +76,11 @@ class InMemoryRequestTest {
         assertEquals(8080, request.getServerPort());
         assertSame(context, request.getServletContext());
         assertSame(dispatcher, request.getRequestDispatcher("/p"));
+    }
+
+    @Test
+    void sessionAndSecurityDefaults() {
+        final InMemoryRequest request = request(new HashMap<>(), null, mock(ServletContext.class), null);
         assertNull(request.getAuthType());
         assertEquals(0, request.getCookies().length);
         assertNull(request.getRequestedSessionId());
@@ -92,6 +97,11 @@ class InMemoryRequestTest {
         assertTrue(request.getParts().isEmpty());
         assertNull(request.getPart("p"));
         assertNull(request.upgrade(null));
+    }
+
+    @Test
+    void connectionAndAsyncDefaults() {
+        final InMemoryRequest request = request(new HashMap<>(), null, mock(ServletContext.class), null);
         assertNull(request.getRemoteAddr());
         assertNull(request.getRemoteHost());
         assertEquals(0, request.getRemotePort());
@@ -161,7 +171,7 @@ class InMemoryRequestTest {
         final InMemoryRequest request = request(new HashMap<>(), null, mock(ServletContext.class), null);
         assertNull(request.getParameter("p"));
         assertNull(request.getParameterValues("p"));
-        assertTrue(request.getParameterNames().hasMoreElements() == false);
+        assertFalse(request.getParameterNames().hasMoreElements());
         request.getParameterMap().put("p", new String[] { "1", "2" });
         request.getParameterMap().put("e", new String[0]);
         assertEquals("1", request.getParameter("p"));
