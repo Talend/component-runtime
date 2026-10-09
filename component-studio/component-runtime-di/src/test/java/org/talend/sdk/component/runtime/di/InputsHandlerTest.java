@@ -69,10 +69,10 @@ class InputsHandlerTest {
 
     @Test
     void recordIsPassedThrough() {
-        final Record record = factory.newRecordBuilder().withString("name", "n").build();
+        final Record rec = factory.newRecordBuilder().withString("name", "n").build();
         handler.addConnection("FLOW", Record.class);
-        handler.setInputValue("FLOW", record);
-        assertSame(record, handler.asInputFactory().read("FLOW"));
+        handler.setInputValue("FLOW", rec);
+        assertSame(rec, handler.asInputFactory().read("FLOW"));
     }
 
     @Test
@@ -100,8 +100,8 @@ class InputsHandlerTest {
         row.name = "Alice";
         handler.addConnection("FLOW", RowStruct.class);
         handler.setInputValue("FLOW", row);
-        final Record record = Record.class.cast(handler.asInputFactory().read("FLOW"));
-        assertNotNull(record);
+        final Record rec = Record.class.cast(handler.asInputFactory().read("FLOW"));
+        assertNotNull(rec);
     }
 
     @Test
@@ -110,11 +110,12 @@ class InputsHandlerTest {
         // a json string can't be read as such so it fails the same way as before the refactoring
         handler.addConnection("FLOW", JsonObject.class);
         handler.setInputValue("FLOW", Json.createObjectBuilder().add("name", "Alice").build());
-        assertThrows(ClassCastException.class, () -> handler.asInputFactory().read("FLOW"));
+        final InputFactory input = handler.asInputFactory();
+        assertThrows(ClassCastException.class, () -> input.read("FLOW"));
 
         handler.addConnection("POJO", Pojo.class);
         handler.setInputValue("POJO", new Pojo());
-        assertThrows(ClassCastException.class, () -> handler.asInputFactory().read("POJO"));
+        assertThrows(ClassCastException.class, () -> input.read("POJO"));
     }
 
     public static class RowStruct implements routines.system.IPersistableRow {

@@ -45,6 +45,10 @@
     <!-- QTDI-3497 (experimental, jakarta-only spike): AvroSchema/AvroRecord's @JsonbTransient
          is now jakarta-only (no javax dual-annotation), this is a normal compile dependency. -->
     <dependency>
+      <groupId>jakarta.json</groupId>
+      <artifactId>jakarta.json-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>jakarta.json.bind</groupId>
       <artifactId>jakarta.json.bind-api</artifactId>
     </dependency>
