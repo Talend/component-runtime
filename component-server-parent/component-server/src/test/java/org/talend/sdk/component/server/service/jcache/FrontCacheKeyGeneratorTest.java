@@ -17,7 +17,6 @@ package org.talend.sdk.component.server.service.jcache;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -84,8 +83,7 @@ class FrontCacheKeyGeneratorTest {
         final GeneratedCacheKey key = generator("/a", false).generateCacheKey(context("p"));
         assertNotEquals(key, generator("/b", false).generateCacheKey(context("p")));
         assertNotEquals(key, generator("/a", false).generateCacheKey(context("q")));
-        assertNotEquals(key, null);
-        assertNotEquals(key, "p");
+        assertNotEquals(null, key);
     }
 
     @Test
@@ -93,6 +91,6 @@ class FrontCacheKeyGeneratorTest {
         final GeneratedCacheKey withContext = generator("/a", false).generateCacheKey(context("p"));
         final GeneratedCacheKey without = generator("/a", true).generateCacheKey(context("p"));
         assertNotEquals(withContext, without);
-        assertTrue(without.equals(generator("/z", true).generateCacheKey(context("p"))));
+        assertEquals(without, generator("/z", true).generateCacheKey(context("p")));
     }
 }

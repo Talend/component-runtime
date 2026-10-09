@@ -288,8 +288,8 @@ public class JsonSchemaValidatorFactory implements AutoCloseable {
                 final List<Function<JsonValue, Stream<ValidationResult.ValidationError>>> validations) {
             // unwrap when possible to simplify the stack and make toString readable (debug)
             this.delegates = validations.stream()
-                    .flatMap(it -> it instanceof ValidationsFunction
-                            ? ((ValidationsFunction) it).delegates.stream()
+                    .flatMap(it -> it instanceof ValidationsFunction vf
+                            ? vf.delegates.stream()
                             : Stream.of(it))
                     .filter(it -> it != NO_VALIDATION)
                     .toList();

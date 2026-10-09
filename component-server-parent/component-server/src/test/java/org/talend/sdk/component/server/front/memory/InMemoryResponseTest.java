@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.server.front.memory;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -153,7 +154,8 @@ class InMemoryResponseTest {
 
     @Test
     void flushBufferWithoutWriter() {
-        response("").flushBuffer();
+        assertDoesNotThrow(() -> response("").flushBuffer());
+        assertTrue(written.isEmpty());
     }
 
     @Test

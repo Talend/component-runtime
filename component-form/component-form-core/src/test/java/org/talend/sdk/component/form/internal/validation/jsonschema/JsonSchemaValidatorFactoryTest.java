@@ -170,8 +170,9 @@ class JsonSchemaValidatorFactoryTest {
 
     @Test
     void invalidTypeIsRejected() {
+        final JsonObject schema = object("{\"type\":1}");
         try (final JsonSchemaValidatorFactory factory = new JsonSchemaValidatorFactory()) {
-            assertThrows(RuntimeException.class, () -> factory.newInstance(object("{\"type\":1}")));
+            assertThrows(RuntimeException.class, () -> factory.newInstance(schema));
         }
     }
 
