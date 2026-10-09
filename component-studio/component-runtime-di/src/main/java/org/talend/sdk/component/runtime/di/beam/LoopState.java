@@ -26,8 +26,8 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbConfig;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbConfig;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;

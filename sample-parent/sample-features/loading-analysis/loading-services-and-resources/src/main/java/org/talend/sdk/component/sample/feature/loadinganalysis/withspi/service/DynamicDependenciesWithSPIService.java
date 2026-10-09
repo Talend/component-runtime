@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
+import jakarta.json.JsonBuilderFactory;
+import jakarta.json.JsonObject;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.exception.ComponentException;

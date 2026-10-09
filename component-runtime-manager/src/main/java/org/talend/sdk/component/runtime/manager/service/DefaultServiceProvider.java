@@ -36,17 +36,18 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonReaderFactory;
-import javax.json.JsonWriterFactory;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.bind.JsonbConfig;
-import javax.json.bind.spi.JsonbProvider;
-import javax.json.spi.JsonProvider;
-import javax.json.stream.JsonGeneratorFactory;
-import javax.json.stream.JsonParserFactory;
+import jakarta.json.JsonBuilderFactory;
+import jakarta.json.JsonReaderFactory;
+import jakarta.json.JsonWriterFactory;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
+import jakarta.json.bind.JsonbConfig;
+import jakarta.json.bind.spi.JsonbProvider;
+import jakarta.json.spi.JsonProvider;
+import jakarta.json.stream.JsonGeneratorFactory;
+import jakarta.json.stream.JsonParserFactory;
 
+import org.apache.johnzon.jsonb.JohnzonBuilder;
 import org.apache.johnzon.mapper.MapperBuilder;
 import org.talend.sdk.component.api.record.RecordPointerFactory;
 import org.talend.sdk.component.api.service.cache.LocalCache;
@@ -221,22 +222,38 @@ public class DefaultServiceProvider {
     }
 
     private JsonbBuilder createPojoJsonbBuilder(final String id, final Supplier<Jsonb> jsonb) {
+        // QTDI-3497 (experimental, jakarta-only spike): use the already-resolved jsonbProvider instance
+        // instead of the no-arg JsonbBuilder.newBuilder(), which triggers its own ServiceLoader.load()
+        // lookup using the *current* thread context classloader. When this runs inside a plugin's
+        // isolated container classloader (see ComponentManager#executeInContainer), that fresh lookup
+        // is not reliable: the plugin classloader doesn't reliably expose johnzon's
+        // META-INF/services/jakarta.json.bind.spi.JsonbProvider registration to ServiceLoader, causing
+        // a JsonbException. jsonbProvider was already resolved once, safely, in the ComponentManager
+        // constructor (before any container classloader swap), so reuse it here.
         final JsonbBuilder jsonbBuilder = JsonbBuilder
-                .newBuilder()
+                .newBuilder(jsonbProvider)
                 .withProvider(new PreComputedJsonpProvider(id, jsonpProvider, jsonpParserFactory, jsonpWriterFactory,
                         jsonpBuilderFactory,
                         new RecordJsonGenerator.Factory(Lazy.lazy(() -> recordBuilderFactoryProvider.apply(id)), jsonb,
                                 emptyMap()),
                         jsonpReaderFactory))
                 .withConfig(jsonbConfig);
-        try { // to passthrough the writer, otherwise RecoderJsonGenerator is broken
-            final Field mapper = jsonbBuilder.getClass().getDeclaredField("builder");
-            if (!mapper.isAccessible()) {
-                mapper.setAccessible(true);
+        // to passthrough the writer, otherwise RecoderJsonGenerator is broken - only applies to the
+        // Johnzon JsonbBuilder implementation, other JSON-B providers (e.g. Yasson) don't expose this
+        // internal field and don't need the optimization
+        if (jsonbBuilder instanceof JohnzonBuilder) {
+            try {
+                final Field mapper = jsonbBuilder.getClass().getDeclaredField("builder");
+                if (!mapper.isAccessible()) {
+                    mapper.setAccessible(true);
+                }
+                ((MapperBuilder) mapper.get(jsonbBuilder)).setDoCloseOnStreams(true);
+            } catch (final NoSuchFieldException | IllegalAccessException e) {
+                throw new IllegalStateException(e);
             }
-            ((MapperBuilder) mapper.get(jsonbBuilder)).setDoCloseOnStreams(true);
-        } catch (final Exception e) {
-            throw new IllegalStateException(e);
+        } else {
+            log.debug("JsonbBuilder implementation {} is not Johnzon's, skipping doCloseOnStreams optimization",
+                    jsonbBuilder.getClass().getName());
         }
         return jsonbBuilder;
     }

@@ -15,11 +15,11 @@
  */
 package org.talend.sdk.component.starter.server.service.json;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Disposes;
-import javax.enterprise.inject.Produces;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Disposes;
+import jakarta.enterprise.inject.Produces;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
 
 import lombok.extern.slf4j.Slf4j;
 

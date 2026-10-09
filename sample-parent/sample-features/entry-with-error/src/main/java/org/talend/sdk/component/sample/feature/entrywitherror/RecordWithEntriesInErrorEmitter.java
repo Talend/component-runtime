@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;

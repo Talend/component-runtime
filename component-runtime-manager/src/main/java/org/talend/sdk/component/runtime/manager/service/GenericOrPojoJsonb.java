@@ -25,8 +25,8 @@ import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbException;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbException;
 
 import org.talend.sdk.component.runtime.record.json.PojoJsonbProvider;
 import org.talend.sdk.component.runtime.serialization.SerializableService;

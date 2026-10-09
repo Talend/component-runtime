@@ -30,9 +30,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.bind.Jsonb;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.Jsonb;
 
 import org.junit.Assert;
 import org.junit.ClassRule;

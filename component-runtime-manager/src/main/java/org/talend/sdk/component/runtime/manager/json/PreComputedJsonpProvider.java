@@ -26,28 +26,28 @@ import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
 
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonMergePatch;
-import javax.json.JsonNumber;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonPatch;
-import javax.json.JsonPatchBuilder;
-import javax.json.JsonPointer;
-import javax.json.JsonReader;
-import javax.json.JsonReaderFactory;
-import javax.json.JsonString;
-import javax.json.JsonStructure;
-import javax.json.JsonValue;
-import javax.json.JsonWriter;
-import javax.json.JsonWriterFactory;
-import javax.json.spi.JsonProvider;
-import javax.json.stream.JsonGenerator;
-import javax.json.stream.JsonGeneratorFactory;
-import javax.json.stream.JsonParser;
-import javax.json.stream.JsonParserFactory;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonArrayBuilder;
+import jakarta.json.JsonBuilderFactory;
+import jakarta.json.JsonMergePatch;
+import jakarta.json.JsonNumber;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonObjectBuilder;
+import jakarta.json.JsonPatch;
+import jakarta.json.JsonPatchBuilder;
+import jakarta.json.JsonPointer;
+import jakarta.json.JsonReader;
+import jakarta.json.JsonReaderFactory;
+import jakarta.json.JsonString;
+import jakarta.json.JsonStructure;
+import jakarta.json.JsonValue;
+import jakarta.json.JsonWriter;
+import jakarta.json.JsonWriterFactory;
+import jakarta.json.spi.JsonProvider;
+import jakarta.json.stream.JsonGenerator;
+import jakarta.json.stream.JsonGeneratorFactory;
+import jakarta.json.stream.JsonParser;
+import jakarta.json.stream.JsonParserFactory;
 
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
@@ -86,8 +86,11 @@ public class PreComputedJsonpProvider extends JsonProvider implements Serializab
     }
 
     @Override
-    public JsonObjectBuilder createObjectBuilder(final Map<String, Object> map) {
-        return builderFactory.createObjectBuilder(map);
+    @SuppressWarnings("unchecked")
+    public JsonObjectBuilder createObjectBuilder(final Map<String, ?> map) {
+        // JsonBuilderFactory#createObjectBuilder only accepts Map<String, Object> (jakarta.json-api
+        // 2.1 widened JsonProvider's own signature to Map<String, ?> but not this one)
+        return builderFactory.createObjectBuilder((Map<String, Object>) map);
     }
 
     @Override

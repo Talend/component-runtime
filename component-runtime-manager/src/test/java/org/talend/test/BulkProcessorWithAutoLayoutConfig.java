@@ -17,7 +17,7 @@ package org.talend.test;
 
 import java.io.Serializable;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.layout.AutoLayout;

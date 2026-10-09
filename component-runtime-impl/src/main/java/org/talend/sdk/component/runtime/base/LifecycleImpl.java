@@ -23,8 +23,8 @@ import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 

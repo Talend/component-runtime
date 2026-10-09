@@ -15,8 +15,8 @@
  */
 package org.talend.runtime.documentation;
 
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static java.util.Optional.ofNullable;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.io.UnsupportedEncodingException;
@@ -24,8 +24,8 @@ import java.net.HttpURLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 
 import lombok.Builder;
 import lombok.Data;

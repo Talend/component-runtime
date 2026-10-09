@@ -23,13 +23,13 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import javax.json.JsonObject;
-import javax.json.JsonString;
-import javax.json.JsonValue;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonString;
+import jakarta.json.JsonValue;
 
-import org.apache.johnzon.jsonschema.ValidationResult.ValidationError;
-import org.apache.johnzon.jsonschema.spi.ValidationContext;
-import org.apache.johnzon.jsonschema.spi.ValidationExtension;
+import org.talend.sdk.component.form.internal.validation.jsonschema.ValidationResult.ValidationError;
+import org.talend.sdk.component.form.internal.validation.jsonschema.spi.ValidationContext;
+import org.talend.sdk.component.form.internal.validation.jsonschema.spi.ValidationExtension;
 
 public class RequiredValidation implements ValidationExtension {
 

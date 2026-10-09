@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-import javax.json.bind.annotation.JsonbTransient;
+import jakarta.json.bind.annotation.JsonbTransient;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

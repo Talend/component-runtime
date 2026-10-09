@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 
-import javax.json.bind.Jsonb;
+import jakarta.json.bind.Jsonb;
 
 import org.talend.sdk.component.api.service.http.Encoder;
 

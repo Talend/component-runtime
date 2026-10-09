@@ -44,11 +44,11 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.json.JsonNumber;
-import javax.json.JsonObject;
-import javax.json.JsonValue;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
+import jakarta.json.JsonNumber;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonValue;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
 
 import org.talend.sdk.component.api.exception.ComponentException;
 import org.talend.sdk.component.api.exception.DiscoverSchemaException;

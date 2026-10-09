@@ -36,17 +36,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.JsonValue;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.bind.JsonbConfig;
-import javax.json.bind.config.BinaryDataStrategy;
-import javax.json.bind.config.PropertyOrderStrategy;
-import javax.json.spi.JsonProvider;
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonBuilderFactory;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonValue;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
+import jakarta.json.bind.JsonbConfig;
+import jakarta.json.bind.config.BinaryDataStrategy;
+import jakarta.json.bind.config.PropertyOrderStrategy;
+import jakarta.json.spi.JsonProvider;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;

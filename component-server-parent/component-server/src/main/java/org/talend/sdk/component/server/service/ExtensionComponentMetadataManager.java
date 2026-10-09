@@ -38,13 +38,13 @@ import java.util.function.Consumer;
 import java.util.jar.JarOutputStream;
 import java.util.stream.Stream;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Initialized;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.NotificationOptions;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import javax.ws.rs.core.MediaType;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Initialized;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.NotificationOptions;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.MediaType;
 
 import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;

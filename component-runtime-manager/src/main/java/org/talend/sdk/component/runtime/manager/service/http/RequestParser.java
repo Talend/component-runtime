@@ -47,7 +47,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import javax.json.bind.Jsonb;
+import jakarta.json.bind.Jsonb;
 
 import org.talend.sdk.component.api.service.http.Base;
 import org.talend.sdk.component.api.service.http.Codec;

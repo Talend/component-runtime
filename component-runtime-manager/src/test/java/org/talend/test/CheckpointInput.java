@@ -21,11 +21,11 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.stream.IntStream;
 
-import javax.annotation.PostConstruct;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.bind.Jsonb;
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.annotation.PostConstruct;
+import jakarta.json.JsonBuilderFactory;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;

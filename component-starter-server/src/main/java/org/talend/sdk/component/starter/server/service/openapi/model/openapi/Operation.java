@@ -18,7 +18,7 @@ package org.talend.sdk.component.starter.server.service.openapi.model.openapi;
 import java.util.List;
 import java.util.Map;
 
-import javax.json.JsonValue;
+import jakarta.json.JsonValue;
 
 import org.talend.sdk.component.starter.server.service.openapi.model.common.OperationBase;
 

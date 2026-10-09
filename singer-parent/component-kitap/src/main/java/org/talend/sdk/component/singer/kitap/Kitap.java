@@ -32,15 +32,15 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonNumber;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.json.JsonString;
-import javax.json.JsonValue;
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonArrayBuilder;
+import jakarta.json.JsonBuilderFactory;
+import jakarta.json.JsonNumber;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonReader;
+import jakarta.json.JsonString;
+import jakarta.json.JsonValue;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;

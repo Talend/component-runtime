@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;

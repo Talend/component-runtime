@@ -32,9 +32,9 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import javax.json.JsonObject;
-import javax.json.bind.Jsonb;
-import javax.json.bind.spi.JsonbProvider;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.spi.JsonbProvider;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

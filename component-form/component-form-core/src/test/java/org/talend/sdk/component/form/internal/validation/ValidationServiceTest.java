@@ -24,19 +24,19 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
 
-import org.apache.johnzon.jsonschema.JsonSchemaValidator;
-import org.apache.johnzon.jsonschema.ValidationResult.ValidationError;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.PropertyContext.Configuration;
 import org.talend.sdk.component.form.internal.converter.impl.JsonSchemaConverter;
 import org.talend.sdk.component.form.internal.lang.CompletionStages;
+import org.talend.sdk.component.form.internal.validation.jsonschema.JsonSchemaValidator;
+import org.talend.sdk.component.form.internal.validation.jsonschema.ValidationResult.ValidationError;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;

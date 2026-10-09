@@ -32,24 +32,27 @@
   </properties>
 
   <dependencies>
+    <!-- QTDI-3497 (experimental, jakarta-only spike): replaces the javax geronimo specs with
+         their jakarta equivalents - this module's public surface (lifecycle annotations,
+         Record/Schema JSON-P/JSON-B types) is now jakarta-only, no javax fallback. This is a
+         breaking change for every connector already compiled against the javax line - see the
+         ticket for the downstream impact analysis. -->
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-annotation_1.3_spec</artifactId>
-      <version>${geronimo-annotation.version}</version>
+      <groupId>jakarta.annotation</groupId>
+      <artifactId>jakarta.annotation-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-json_1.1_spec</artifactId>
-      <version>${geronimo-json.version}</version>
+      <groupId>jakarta.json</groupId>
+      <artifactId>jakarta.json-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-jsonb_1.0_spec</artifactId>
-      <version>${geronimo-jsonb.version}</version>
+      <groupId>jakarta.json.bind</groupId>
+      <artifactId>jakarta.json.bind-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
+      <version>${johnzon.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

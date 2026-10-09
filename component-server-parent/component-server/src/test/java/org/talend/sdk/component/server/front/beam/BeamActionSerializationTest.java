@@ -15,18 +15,24 @@
  */
 package org.talend.sdk.component.server.front.beam;
 
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static java.util.Collections.emptyMap;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import javax.inject.Inject;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
 
-import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
+import org.apache.meecrowave.junit5.MeecrowaveConfig;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 
-@MonoMeecrowaveConfig
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+// jsonbPrettify=true restores what InitTestInfra's Meecrowave.ConfigurationCustomizer already sets: any
+// @MeecrowaveConfig-annotated test unconditionally re-applies every annotation attribute - including
+// jsonbPrettify's own "false" default - onto the builder via reflection, silently overriding the
+// customizer once a test stops using @MonoMeecrowaveConfig (which never applies annotation attributes at all).
+@MeecrowaveConfig(scanningExcludes = "smallrye-config", jsonbPrettify = true)
 class BeamActionSerializationTest {
 
     @Inject

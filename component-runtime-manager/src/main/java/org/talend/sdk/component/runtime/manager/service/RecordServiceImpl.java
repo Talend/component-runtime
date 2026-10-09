@@ -30,9 +30,9 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
-import javax.json.JsonBuilderFactory;
-import javax.json.bind.Jsonb;
-import javax.json.spi.JsonProvider;
+import jakarta.json.JsonBuilderFactory;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;

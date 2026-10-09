@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.LongStream;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.talend.runtime.documentation.component.configuration.TableDataSet;
 import org.talend.runtime.documentation.component.messages.Messages;
