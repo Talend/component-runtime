@@ -44,7 +44,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 
 import org.talend.sdk.component.api.processor.OutputEmitter;
@@ -65,6 +64,7 @@ import org.talend.sdk.component.runtime.output.Processor;
 import org.talend.sdk.component.runtime.output.ProcessorImpl;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.record.RecordConverters;
+import org.talend.sdk.component.runtime.record.SharedJsonProviders;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -748,7 +748,11 @@ public class JobImpl implements Job {
                 if (jsonb == null) {
                     synchronized (this) {
                         if (jsonb == null) {
-                            jsonb = JsonbBuilder.create(new JsonbConfig().setProperty("johnzon.cdi.activated", false));
+                            jsonb = SharedJsonProviders
+                                    .jsonbProvider()
+                                    .create()
+                                    .withConfig(new JsonbConfig().setProperty("johnzon.cdi.activated", false))
+                                    .build();
                         }
                     }
                 }
