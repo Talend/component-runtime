@@ -17,6 +17,8 @@ package org.talend.sdk.component.runtime.record;
 
 import static lombok.AccessLevel.PRIVATE;
 
+import java.util.function.Supplier;
+
 import javax.json.bind.spi.JsonbProvider;
 import javax.json.spi.JsonProvider;
 
@@ -47,13 +49,26 @@ public final class SharedJsonProviders {
         return JsonbProviderHolder.INSTANCE;
     }
 
+    // provider() looks up the implementation through the thread context classloader: the first caller must not
+    // bind the global instance to the classloader of an isolated container, so use the framework one.
+    private static <T> T withFrameworkClassLoader(final Supplier<T> lookup) {
+        final Thread thread = Thread.currentThread();
+        final ClassLoader old = thread.getContextClassLoader();
+        thread.setContextClassLoader(SharedJsonProviders.class.getClassLoader());
+        try {
+            return lookup.get();
+        } finally {
+            thread.setContextClassLoader(old);
+        }
+    }
+
     private static final class JsonProviderHolder {
 
-        private static final JsonProvider INSTANCE = JsonProvider.provider();
+        private static final JsonProvider INSTANCE = withFrameworkClassLoader(JsonProvider::provider);
     }
 
     private static final class JsonbProviderHolder {
 
-        private static final JsonbProvider INSTANCE = JsonbProvider.provider();
+        private static final JsonbProvider INSTANCE = withFrameworkClassLoader(JsonbProvider::provider);
     }
 }
