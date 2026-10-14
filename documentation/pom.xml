@@ -447,8 +447,6 @@
               <includePluginDependencies>true</includePluginDependencies>
               <arguments>
                 <argument>${project.basedir}/src/main/antora/modules/ROOT/pages</argument>
-                <argument>${talend.jira.username}</argument>
-                <argument>${talend.jira.password}</argument>
                 <argument>${project.version}</argument>
                 <argument>offline=${settings.offline}</argument>
                 <argument>${talend.github.username}</argument>
