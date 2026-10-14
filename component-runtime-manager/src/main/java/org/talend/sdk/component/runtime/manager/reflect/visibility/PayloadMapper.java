@@ -33,6 +33,7 @@ import javax.json.JsonValue;
 import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
+import org.talend.sdk.component.runtime.record.SharedJsonProviders;
 
 import lombok.RequiredArgsConstructor;
 
@@ -40,9 +41,10 @@ import lombok.RequiredArgsConstructor;
 public class PayloadMapper {
 
     // we don't need the runtime one here
-    private final JsonProvider jsonp = JsonProvider.provider();
+    private final JsonProvider jsonp = SharedJsonProviders.jsonProvider();
 
-    private static final VisibilityService VISIBILITY_SERVICE = new VisibilityService(JsonProvider.provider());
+    private static final VisibilityService VISIBILITY_SERVICE =
+            new VisibilityService(SharedJsonProviders.jsonProvider());
 
     private final JsonBuilderFactory factory = jsonp.createBuilderFactory(emptyMap());
 
