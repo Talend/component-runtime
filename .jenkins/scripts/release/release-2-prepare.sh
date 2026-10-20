@@ -48,7 +48,7 @@ main() {
     --define tag="${tagName}" \
     --define releaseVersion="${releaseVersion}" \
     --define developmentVersion="${nextVersion}" \
-    --define arguments="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip" \
+    --define arguments="-DskipTests -DskipITs -Dinvoker.skip=true -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip" \
     --settings .jenkins/settings.xml \
     --activate-profiles "$release_profiles" \
     "${dryRunParams[@]}" \
