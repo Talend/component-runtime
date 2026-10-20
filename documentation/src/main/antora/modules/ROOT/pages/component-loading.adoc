@@ -310,6 +310,32 @@ Make sure that your component definitions (including services) are in a scanned 
 
 include::{partialsdir}/generated_scanning-exclusions.adoc[leveloffset=+2]
 
+== Classloader JVM properties
+
+By default, the classes and resources loaded by the `ComponentManager` container (the _shared_ area) are limited to the framework API and a built-in list of packages and resources.
+Two JVM system properties let you extend this list, for example when a library must be shared between the application and the plugins instead of being loaded in each plugin classloader:
+
+[options="header",cols="3,1,4"]
+|===
+| Property | Type | Description
+| `talend.component.manager.classloader.container.classesAndPackages` | Comma-separated list | Additional classes or packages loaded from the parent (container) classloader instead of the plugin classloader. A class is matched when its name *starts with* one of the listed values, so `com.acme.shared.` matches the whole package and its sub-packages. The values are added to the built-in defaults, they do not replace them.
+| `talend.component.manager.classloader.container.parentResources` | Comma-separated list | Additional resources resolved from the parent (container) classloader. A resource is matched when its path *contains* one of the listed values. The values are added to the built-in default (`/xmlMappings/`), they do not replace it.
+|===
+
+For example:
+
+[source,bash]
+----
+java \
+  -Dtalend.component.manager.classloader.container.classesAndPackages=com.acme.shared.,com.acme.api.Contract \
+  -Dtalend.component.manager.classloader.container.parentResources=/acme-mappings/ \
+  -jar my-application.jar
+----
+
+CAUTION: Sharing classes with the container weakens the isolation between plugins: a shared class is loaded only once and a conflicting version in a plugin is ignored. Only list the classes or packages that really have to be shared.
+
+The other properties read by the component manager are listed in xref:ref-jvm-properties.adoc[JVM properties].
+
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
 == Related articles

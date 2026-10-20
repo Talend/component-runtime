@@ -1,0 +1,49 @@
+= JVM properties
+:page-partial:
+:page-talend_skipindexation:
+:description: JVM system properties read by the Talend Component Kit runtime.
+:keywords: system property, jvm, configuration, classloader
+
+This page lists the JVM system properties (`-Dname=value`) read by the Talend Component Kit runtime.
+Boolean properties are read with `Boolean.getBoolean`: they are `false` unless set to `true`.
+
+TIP: The properties that extend the shared classloader (`talend.component.manager.classloader.container.classesAndPackages` and `talend.component.manager.classloader.container.parentResources`) are described in xref:component-loading.adoc#_classloader_jvm_properties[Component loading].
+
+== Component manager
+
+[options="header",cols="4,1,1,4"]
+|===
+| Property | Type | Default | Description
+| `talend.component.manager.plugins.parallel` | boolean | `false` | Registers the plugins nested in the container (`TALEND-INF/plugins.properties`) in parallel at startup.
+| `talend.component.manager.classpathcontributor.skip` | boolean | `false` | Does not load the `ContainerClasspathContributor` SPI implementations when the component manager is created.
+| `talend.component.manager.jmx.skip` | boolean | `false` | Does not register the component manager MBeans in JMX.
+| `talend.component.manager.log.info` | boolean | `false` | Logs the component manager start-up messages at `INFO` level instead of the default level.
+| `talend.component.manager.localconfiguration.skip` | boolean | `false` | Does not load the `LocalConfiguration` SPI implementations.
+| `component.manager.callers.skip` | boolean | `false` | Does not register the caller of the component manager as a plugin during plugin auto-discovery. This property has no `talend.` prefix.
+| `component.manager.classpath.skip` | boolean | `false` | Does not scan the classpath for `TALEND-INF/dependencies.txt` markers during plugin auto-discovery. This property has no `talend.` prefix.
+|===
+
+== Maven repository
+
+[options="header",cols="4,1,1,4"]
+|===
+| Property | Type | Default | Description
+| `talend.component.manager.m2.repository` | path | _none_ | Maven repository used to resolve the plugins. When set, it takes precedence over any other discovery mechanism.
+| `talend.component.manager.m2.settings` | path | _none_ | Maven `settings.xml` read to find the `localRepository` when `talend.component.manager.m2.repository` is not set.
+| `talend.component.manager.user.m2.fallback` | boolean | `false` | When no repository was found by the other mechanisms, falls back to `${user.home}/.m2/repository`.
+|===
+
+== Runtime
+
+[options="header",cols="4,1,1,4"]
+|===
+| Property | Type | Default | Description
+| `talend.component.impl.mode` | enum | `DEFAULT` | Runtime mode. `UNSAFE` deactivates validations, which speeds up execution when the environment is already validated.
+| `talend.tccl.cacheable.classes` | comma-separated list | _none_ | Class names (dots are converted to slashes) for which the `ConfigurableClassLoader` caches the resource URL connection.
+| `talend.component.runtime.serialization.java.inputstream.whitelist` | comma-separated list | _none_ | Allowed class name prefixes when deserializing with Java serialization. When not set, a built-in blacklist is used and a warning is logged, which is not considered a secure setup.
+| `talend.component.exit-on-destroy` | boolean | `false` | Calls `System.exit(0)` once the embedded server is destroyed. The Component Server sets it to `true` when it is not already defined.
+|===
+
+== Checkpoint
+
+See xref:component-checkpoint.adoc[Checkpoint] for the `talend.checkpoint.enabled` property.
