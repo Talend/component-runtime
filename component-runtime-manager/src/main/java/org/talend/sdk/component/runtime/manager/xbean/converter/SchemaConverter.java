@@ -35,13 +35,13 @@ import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
 import javax.json.JsonString;
 import javax.json.JsonValue;
-import javax.json.spi.JsonProvider;
 
 import org.apache.xbean.propertyeditor.AbstractConverter;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.manager.service.record.RecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
+import org.talend.sdk.component.runtime.record.SharedJsonProviders;
 
 public class SchemaConverter extends AbstractConverter {
 
@@ -76,7 +76,7 @@ public class SchemaConverter extends AbstractConverter {
     @Override
     public Object toObjectImpl(final String s) {
         if (!s.isEmpty()) {
-            try (final JsonReader reader = JsonProvider.provider().createReader(new StringReader(s))) {
+            try (final JsonReader reader = SharedJsonProviders.jsonProvider().createReader(new StringReader(s))) {
                 return toSchema(reader.readObject());
             }
         }

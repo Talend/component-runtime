@@ -218,3 +218,11 @@ consumers simultaneously; no per-module edit is ever needed for a CXF version bu
 ## Coding rules delta
 
 No known repo-specific exceptions to the shared [coding-rules.md](https://github.com/Talend/di-ai-commons/blob/main/knowledge/rules/coding-rules.md).
+
+---
+
+## JSON-P / JSON-B providers
+
+[2026-10-12 | QTDI-3029] Never initialize a global/shared singleton (JSON-P/JSON-B providers, ServiceLoader-based services) via a TCCL lookup from code that can first run inside an isolated container. Resolve it with the framework classloader as TCCL during init (see `SharedJsonProviders`), otherwise the first caller binds the singleton to that container's implementation.
+
+[2026-10-12 | QTDI-3029] `JsonProvider.provider()`, `JsonbProvider.provider()`, `Json.create*` and `JsonbBuilder.create()` create a new ServiceLoader on every call and cause thread locks under heavy parallel load. In framework-internal code without container context, use `SharedJsonProviders` instead.

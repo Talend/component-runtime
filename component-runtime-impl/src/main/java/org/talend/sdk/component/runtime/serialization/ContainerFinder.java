@@ -35,6 +35,9 @@ public interface ContainerFinder {
 
         private static final AtomicReference<ContainerFinder> FINDER = new AtomicReference<>();
 
+        // true once the ServiceLoader lookup was done, to not re-run it (jar reads + locks) at each call
+        private static volatile boolean lookupDone;
+
         public static boolean isInitialized() {
             return FINDER.get() != null;
         }
@@ -48,15 +51,16 @@ public interface ContainerFinder {
         }
 
         public static ContainerFinder get() {
-            if (!isInitialized()) {
+            if (!isInitialized() && !lookupDone) {
                 synchronized (FINDER) {
-                    if (!isInitialized()) {
+                    if (!isInitialized() && !lookupDone) {
                         final Iterator<ContainerFinder> loader = ServiceLoader
                                 .load(ContainerFinder.class, ContainerFinder.class.getClassLoader())
                                 .iterator();
                         if (loader.hasNext()) {
                             FINDER.set(loader.next());
                         }
+                        lookupDone = true;
                     }
                 }
             }
