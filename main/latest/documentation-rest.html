@@ -15,7 +15,7 @@
     <meta name="description" content="Learn about Talend Component Kit HTTP API and the component server">
     <meta name="keywords" content="REST API, component-server">
     <meta name="generator" content="Antora 3.0.3">
-<meta name="date" content="2026-10-20T13:08:59.807Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<meta name="date" content="2026-10-20T13:53:15.802Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
@@ -86,12 +86,15 @@
         <a class="navbar-single-link" href="https://talend.github.io/component-runtime/main/latest/index.html">Talend Component Kit</a>
         <div class="btn-group navbar-versions">
           <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                1.2611.0 (dev)
+                1.2612.0 (dev)
               <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
                 <li class="navbar-item version">
-                    <a href="documentation-rest.html">1.2611.0</a>
+                    <a href="documentation-rest.html">1.2612.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.2611.0/documentation-rest.html">1.2611.0</a>
                 </li>
                 <li class="navbar-item version">
                     <a href="../1.2610.0/documentation-rest.html">1.2610.0</a>
@@ -188,7 +191,7 @@
     </nav>
 </header>
             <main class="main">
-              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.2611.0">
+              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.2612.0">
   <aside class="navigation" role="navigation">
     <div class="panels">
       <div class="input-group nav-filter-group">
@@ -669,6 +672,10 @@ the configuration is read from system properties, environment variables, &#8230;
 <dt class="hdlist1">talend.component.server.gridlayout.translation.support</dt>
 <dd>
 <p>Default value: <code>false</code>. Should the components using a <code>@GridLayout</code> support tab translation. Studio does not suppot that feature yet so this is not enabled by default.</p>
+</dd>
+<dt class="hdlist1">talend.component.server.health.vault.enabled</dt>
+<dd>
+<p>Default value: <code>false</code>. Whether the Vault connectivity check is included in the readiness probe. Set to true only when this server instance uses Vault for credential decryption.</p>
 </dd>
 <dt class="hdlist1">talend.component.server.icon.paths</dt>
 <dd>
