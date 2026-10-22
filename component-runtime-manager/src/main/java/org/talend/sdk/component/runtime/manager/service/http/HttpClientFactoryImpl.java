@@ -119,8 +119,6 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
 
         private final RequestParser requestParser;
 
-        private volatile Map<Class<?>, Object> jaxbContexts;
-
         private volatile ConcurrentMap<Method, ExecutionContext> invokers;
 
         @Override
@@ -165,7 +163,6 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
                 synchronized (this) {
                     if (invokers == null) {
                         invokers = new ConcurrentHashMap<>();
-                        jaxbContexts = new ConcurrentHashMap<>();
                     }
                 }
             }
