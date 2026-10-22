@@ -16,6 +16,7 @@
 package org.talend.sdk.component.container;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.list;
 import static java.util.Optional.of;
@@ -36,6 +37,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -290,6 +292,14 @@ public class ContainerManager implements Lifecycle {
     }
 
     public static String buildAutoIdFromName(final String module) {
+        final String id = deriveIdFromName(module);
+        final String resolved = LegacyPluginIds.VALUES.getOrDefault(id, id);
+        log.info("[buildAutoIdFromName] module '{}': derived id '{}', resolved id '{}', legacy mapping applied: {}",
+                module, id, resolved, !id.equals(resolved));
+        return resolved;
+    }
+
+    private static String deriveIdFromName(final String module) {
         final String[] segments = module.split(":");
         if (segments.length > 2) { // == 2 can be a windows path so enforce > 2 but then
             // assume it is mvn GAV
@@ -662,6 +672,71 @@ public class ContainerManager implements Lifecycle {
 
         private Stream<Artifact> getBuiltInClasspath(final String moduleLocation) {
             return resolver.resolve(classLoaderConfiguration.getParent(), moduleLocation);
+        }
+    }
+
+    static final class LegacyPluginIds {
+
+        private static final String LEGACY_PLUGIN_IDS_RESOURCE = "TALEND-INF/legacy-plugin-ids.properties";
+
+        private static final String M2_FILE_NAME = "legacy-plugin-ids.properties";
+
+        private static final String M2_REPOSITORY_PROPERTY = "talend.component.manager.m2.repository";
+
+        // Lowercase artifact names (GitHub Packages) mapped to the historical plugin ids, which must not change.
+        private static final Map<String, String> VALUES =
+                loadLegacyPluginIds(ContainerManager.class.getClassLoader());
+
+        static Map<String, String> loadLegacyPluginIds(final ClassLoader loader) {
+            final List<URL> sources = new ArrayList<>();
+            try {
+                sources.addAll(list(loader.getResources(LEGACY_PLUGIN_IDS_RESOURCE)));
+            } catch (final IOException e) {
+                log.warn("Can't read {}: {}", LEGACY_PLUGIN_IDS_RESOURCE, e.getMessage());
+            }
+
+            // plugins (ex: the extensions jar) are not on this classpath, so the m2 root can ship the file too
+            final String m2 = System.getProperty(M2_REPOSITORY_PROPERTY);
+            if (m2 != null && !m2.isBlank()) {
+                final Path file = Paths.get(m2).resolve(M2_FILE_NAME);
+                if (Files.isRegularFile(file)) {
+                    try {
+                        sources.add(file.toUri().toURL());
+                    } catch (final IOException e) {
+                        log.warn("Can't read {}: {}", file, e.getMessage());
+                    }
+                }
+            }
+
+            if (sources.isEmpty()) {
+                log.info("[LegacyPluginIds] no {} found, no legacy mapping", M2_FILE_NAME);
+                return emptyMap();
+            }
+
+            final Map<String, String> values = new HashMap<>();
+            for (final URL source : sources) {
+                final Properties properties = new Properties();
+                try (final InputStream stream = source.openStream()) {
+                    properties.load(stream);
+                } catch (final IOException e) {
+                    log.warn("Can't read {}: {}", source, e.getMessage());
+                    continue;
+                }
+
+                // first source wins when keys conflict
+                for (final String key : properties.stringPropertyNames()) {
+                    final String value = properties.getProperty(key);
+                    final String previous = values.putIfAbsent(key, value);
+                    if (previous != null && !previous.equals(value)) {
+                        log.warn("[LegacyPluginIds] '{}' already mapped to '{}', ignoring '{}' from {}",
+                                key, previous, value, source);
+                    }
+                }
+                log.debug("[LegacyPluginIds] loaded {}", source);
+            }
+
+            log.info("[LegacyPluginIds] {} entries loaded from {} source(s)", values.size(), sources.size());
+            return values;
         }
     }
 }
