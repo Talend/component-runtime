@@ -121,6 +121,22 @@ class ContainerManagerTest {
     }
 
     @Test
+    void legacyContainerId(final TempJars jars) {
+        Stream
+                .of("cosmosdb-1.2.3.jar", "cosmosdb-1.2.3-SNAPSHOT.jar", "cosmosDB-1.2.3.jar")
+                .forEach(jarName -> {
+                    try (final ContainerManager manager = createDefaultManager()) {
+                        final File module = createZiplockJar(jars);
+                        final File jar = new File(module.getParentFile(), jarName);
+                        assertTrue(module.renameTo(jar));
+                        final Container container = manager.builder(jar.getAbsolutePath()).create();
+                        assertEquals("cosmosDB", container.getId());
+                        assertTrue(manager.find("cosmosdb").isPresent());
+                    }
+                });
+    }
+
+    @Test
     void legacyPluginIdsAreRemapped() {
         assertEquals("cosmosDB", ContainerManager.buildAutoIdFromName("/m2/cosmosdb/1.2.3/cosmosdb-1.2.3.jar"));
         assertEquals("cosmosDB", ContainerManager.buildAutoIdFromName("cosmosdb-1.2.3-SNAPSHOT.jar"));
