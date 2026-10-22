@@ -121,6 +121,16 @@ class ContainerManagerTest {
     }
 
     @Test
+    void legacyPluginIdsAreRemapped() {
+        assertEquals("cosmosDB", ContainerManager.buildAutoIdFromName("/m2/cosmosdb/1.2.3/cosmosdb-1.2.3.jar"));
+        assertEquals("cosmosDB", ContainerManager.buildAutoIdFromName("cosmosdb-1.2.3-SNAPSHOT.jar"));
+        assertEquals("cosmosDB", ContainerManager.buildAutoIdFromName("org.talend.components:cosmosdb:1.2.3"));
+        assertEquals("cosmosDB", ContainerManager.buildAutoIdFromName("cosmosDB-1.2.3.jar"));
+        assertEquals("neo4jImport", ContainerManager.buildAutoIdFromName("neo4jimport-1.2.3.jar"));
+        assertEquals("salesforce", ContainerManager.buildAutoIdFromName("salesforce-1.2.3.jar"));
+    }
+
+    @Test
     void listeners(final TempJars jars) {
         final Collection<String> states = new ArrayList<>();
         final ContainerListener listener = new ContainerListener() {
