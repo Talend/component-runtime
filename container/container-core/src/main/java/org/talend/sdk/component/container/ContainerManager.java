@@ -16,6 +16,7 @@
 package org.talend.sdk.component.container;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.list;
 import static java.util.Optional.of;
@@ -86,6 +87,11 @@ public class ContainerManager implements Lifecycle {
 
     private static final Consumer<Container> NOOP_CUSTOMIZER = c -> {
     };
+
+    private static final String LEGACY_PLUGIN_IDS_RESOURCE = "TALEND-INF/legacy-plugin-ids.properties";
+
+    // Lowercase artifact names (GitHub Packages) mapped to the historical plugin ids, which must not change.
+    private static final Map<String, String> LEGACY_PLUGIN_IDS = loadLegacyPluginIds();
 
     private static final Pattern JIRA_TICKET_PATTERN = Pattern.compile("-[A-Z]{2,}-\\d+$");
 
@@ -290,6 +296,29 @@ public class ContainerManager implements Lifecycle {
     }
 
     public static String buildAutoIdFromName(final String module) {
+        final String id = deriveIdFromName(module);
+        return LEGACY_PLUGIN_IDS.getOrDefault(id, id);
+    }
+
+    private static Map<String, String> loadLegacyPluginIds() {
+        try (final InputStream stream =
+                ContainerManager.class.getClassLoader().getResourceAsStream(LEGACY_PLUGIN_IDS_RESOURCE)) {
+            if (stream == null) {
+                return emptyMap();
+            }
+            final Properties properties = new Properties();
+            properties.load(stream);
+            return properties
+                    .stringPropertyNames()
+                    .stream()
+                    .collect(toMap(identity(), properties::getProperty));
+        } catch (final IOException e) {
+            log.warn("Can't read {}: {}", LEGACY_PLUGIN_IDS_RESOURCE, e.getMessage());
+            return emptyMap();
+        }
+    }
+
+    private static String deriveIdFromName(final String module) {
         final String[] segments = module.split(":");
         if (segments.length > 2) { // == 2 can be a windows path so enforce > 2 but then
             // assume it is mvn GAV
