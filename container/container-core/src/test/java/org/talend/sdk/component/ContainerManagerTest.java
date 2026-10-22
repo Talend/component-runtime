@@ -142,6 +142,10 @@ class ContainerManagerTest {
         assertEquals("cosmosDB", ContainerManager.buildAutoIdFromName("cosmosdb-1.2.3-SNAPSHOT.jar"));
         assertEquals("cosmosDB", ContainerManager.buildAutoIdFromName("org.talend.components:cosmosdb:1.2.3"));
         assertEquals("cosmosDB", ContainerManager.buildAutoIdFromName("cosmosDB-1.2.3.jar"));
+        assertEquals("dataqualityRule", ContainerManager.buildAutoIdFromName("dataqualityrule-1.2.3.jar"));
+        assertEquals("jsonValidator", ContainerManager.buildAutoIdFromName("jsonvalidator-1.2.3.jar"));
+        assertEquals("embeddingAI", ContainerManager.buildAutoIdFromName("embeddingai-1.2.3.jar"));
+        assertEquals("semanticMatch", ContainerManager.buildAutoIdFromName("semanticmatch-1.2.3.jar"));
         assertEquals("neo4jImport", ContainerManager.buildAutoIdFromName("neo4jimport-1.2.3.jar"));
         assertEquals("salesforce", ContainerManager.buildAutoIdFromName("salesforce-1.2.3.jar"));
     }
