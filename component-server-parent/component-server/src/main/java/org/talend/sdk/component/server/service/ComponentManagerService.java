@@ -309,6 +309,7 @@ public class ComponentManagerService {
                             .stringPropertyNames()
                             .stream()
                             .map(properties::getProperty)
+                            .distinct() // legacy plugin ids register the same GAV under several keys
                             .filter(gav -> !coords.contains(gav))
                             .forEach(this::deploy);
                 });
