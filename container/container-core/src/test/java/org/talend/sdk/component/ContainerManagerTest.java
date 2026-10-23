@@ -121,6 +121,35 @@ class ContainerManagerTest {
     }
 
     @Test
+    void legacyContainerId(final TempJars jars) {
+        Stream.of("cosmos-db-1.2.3.jar", "cosmos-db-1.2.3-SNAPSHOT.jar", "cosmosDB-1.2.3.jar")
+                .forEach(jarName -> {
+                    try (final ContainerManager manager = createDefaultManager()) {
+                        final File module = createZiplockJar(jars);
+                        final File jar = new File(module.getParentFile(), jarName);
+                        assertTrue(module.renameTo(jar));
+                        final Container container = manager.builder(jar.getAbsolutePath()).create();
+                        assertEquals("cosmosDB", container.getId());
+                        assertTrue(manager.find("cosmos-db").isPresent());
+                    }
+                });
+    }
+
+    @Test
+    void legacyPluginIdsAreRemapped() {
+        assertEquals("cosmosDB", ContainerManager.buildAutoIdFromName("/m2/cosmos-db/1.2.3/cosmos-db-1.2.3.jar"));
+        assertEquals("cosmosDB", ContainerManager.buildAutoIdFromName("cosmos-db-1.2.3-SNAPSHOT.jar"));
+        assertEquals("cosmosDB", ContainerManager.buildAutoIdFromName("org.talend.components:cosmos-db:1.2.3"));
+        assertEquals("cosmosDB", ContainerManager.buildAutoIdFromName("cosmosDB-1.2.3.jar"));
+        assertEquals("dataqualityRule", ContainerManager.buildAutoIdFromName("dataquality-rule-1.2.3.jar"));
+        assertEquals("jsonValidator", ContainerManager.buildAutoIdFromName("json-validator-1.2.3.jar"));
+        assertEquals("embeddingAI", ContainerManager.buildAutoIdFromName("embedding-ai-1.2.3.jar"));
+        assertEquals("semanticMatch", ContainerManager.buildAutoIdFromName("semantic-match-1.2.3.jar"));
+        assertEquals("neo4jImport", ContainerManager.buildAutoIdFromName("neo4j-import-1.2.3.jar"));
+        assertEquals("salesforce", ContainerManager.buildAutoIdFromName("salesforce-1.2.3.jar"));
+    }
+
+    @Test
     void listeners(final TempJars jars) {
         final Collection<String> states = new ArrayList<>();
         final ContainerListener listener = new ContainerListener() {
