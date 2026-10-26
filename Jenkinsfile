@@ -159,6 +159,12 @@ pipeline {
             INFO: master/maintenance branch deploys artefacts on <oss.sonatype.org>
                   dev branches deploy artefacts on <artifacts-zl.talend.com>''')
     booleanParam(
+        name: 'GITHUB_PACKAGES_DEV_DEPLOY',
+        defaultValue: false,
+        description: '''
+            Also publish the qualified snapshot of a development branch to GitHub Packages (Nexus replacement).
+            Needs MAVEN_DEPLOY. No effect on master and maintenance, which are always published.''')
+    booleanParam(
         name: 'DOCKER_PUSH',
         defaultValue: false,
         description: '''
@@ -479,7 +485,7 @@ pipeline {
       // Temporary extra copy of what goes to Nexus (Nexus license ends Nov 2026, QTDI-3640).
       // Sonatype-only deploys are not concerned. Non-blocking: failures only make the build UNSTABLE.
       when {
-        expression { stdBranch_buildOnly || (devBranch_mavenDeploy && needQualify) }
+        expression { stdBranch_buildOnly || (devBranch_mavenDeploy && needQualify && params.GITHUB_PACKAGES_DEV_DEPLOY) }
       }
       steps {
         script {
