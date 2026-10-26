@@ -18,9 +18,9 @@ package org.talend.sdk.component.server.front;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 
 import org.talend.sdk.component.server.api.ReadinessResource;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
