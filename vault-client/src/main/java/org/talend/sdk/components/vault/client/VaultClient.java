@@ -222,7 +222,7 @@ public class VaultClient {
                 .request()
                 .get()) {
             return response.getStatus() == Response.Status.OK.getStatusCode();
-        } catch (final javax.ws.rs.ProcessingException e) {
+        } catch (final jakarta.ws.rs.ProcessingException e) {
             log.warn("Vault ping failed: {}", e.getMessage());
             return false;
         }
