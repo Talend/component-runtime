@@ -45,9 +45,9 @@ class JobImplDataInputFactoryTest {
     void pojoIsConvertedToRecord() throws Exception {
         final InputFactory factory = newFactory("__default__", new Person("Ada", 36));
         final Object read = factory.read("__default__");
-        final Record record = (Record) read;
-        assertEquals("Ada", record.getString("name"));
-        assertEquals(36, record.getInt("age"));
+        final Record recordRead = (Record) read;
+        assertEquals("Ada", recordRead.getString("name"));
+        assertEquals(36, recordRead.getInt("age"));
         assertNull(factory.read("__default__"));
     }
 
