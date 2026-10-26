@@ -17,6 +17,7 @@ package org.talend.sdk.components.vault.client;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -42,6 +43,7 @@ import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.components.vault.client.vault.VaultHealthMock;
 import org.talend.sdk.components.vault.server.error.ErrorPayload;
 
 @MonoMeecrowaveConfig
@@ -75,6 +77,7 @@ class VaultClientTest {
         vault.setSecret(() -> "Test-Secret");
         vault.getAuthToken().set(null);
         vault.getCache().clear();
+        VaultHealthMock.reset();
     }
 
     public static final HashMap<String, String> DEMO_MAP = new HashMap<String, String>() {
@@ -124,6 +127,41 @@ class VaultClientTest {
         final Map<String, String> result = vault.decrypt(config, null);
         assertEquals("username0", result.get("configuration.username"));
         assertEquals("test", result.get("configuration.password"));
+    }
+
+    @Test
+    void pingReturnsTrueForNoVault() {
+        final String originalUrl = setup.getVaultUrl();
+        setup.setVaultUrl("no-vault");
+        try {
+            assertTrue(vault.ping());
+        } finally {
+            setup.setVaultUrl(originalUrl);
+        }
+    }
+
+    @Test
+    void pingReturnsTrueWhenVaultRespondsWithHttp200() {
+        VaultHealthMock.setStatus(200);
+        assertTrue(vault.ping());
+    }
+
+    @Test
+    void pingReturnsFalseWhenVaultRespondsWithNonHttp200() {
+        // e.g. 503 = Vault is sealed/not initialized
+        VaultHealthMock.setStatus(503);
+        assertFalse(vault.ping());
+    }
+
+    @Test
+    void pingReturnsFalseOnProcessingException() {
+        final WebTarget original = vault.getVault();
+        vault.setVault(client.target("http://localhost:1"));
+        try {
+            assertFalse(vault.ping());
+        } finally {
+            vault.setVault(original);
+        }
     }
 
     @Test

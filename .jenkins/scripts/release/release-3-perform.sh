@@ -29,7 +29,7 @@ main() {
   mvn release:perform \
     --batch-mode \
     --errors \
-    --define arguments="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip" \
+    --define arguments="-DskipTests -DskipITs -Dinvoker.skip=true -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip" \
     --settings .jenkins/settings.xml \
     --activate-profiles "$release_profiles" \
     "${extraBuildParams[@]}"
