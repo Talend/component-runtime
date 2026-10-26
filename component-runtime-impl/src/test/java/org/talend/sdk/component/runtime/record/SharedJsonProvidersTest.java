@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.record;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -64,7 +65,7 @@ class SharedJsonProvidersTest {
                 future.get(30, TimeUnit.SECONDS);
             }
             // one JsonProvider + one JsonbProvider
-            assertTrue(providers.size() == 2, () -> "unexpected providers: " + providers);
+            assertEquals(2, providers.size(), () -> "unexpected providers: " + providers);
         } finally {
             pool.shutdownNow();
         }
