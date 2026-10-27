@@ -29,8 +29,8 @@ TIP: The properties that extend the shared classloader (`talend.component.manage
 |===
 | Property | Type | Default | Description
 | `talend.component.manager.m2.repository` | path | _none_ | Maven repository used to resolve the plugins. When set, it takes precedence over any other discovery mechanism.
-| `talend.component.manager.m2.settings` | path | _none_ | Maven `settings.xml` read to find the `localRepository` when `talend.component.manager.m2.repository` is not set.
-| `talend.component.manager.user.m2.fallback` | boolean | `false` | When no repository was found by the other mechanisms, falls back to `${user.home}/.m2/repository`.
+| `talend.component.manager.m2.settings` | path | _none_ | Maven `settings.xml` read to find the `localRepository` when `talend.component.manager.m2.repository` is not set and `talend.component.manager.user.m2.fallback` is `true`.
+| `talend.component.manager.user.m2.fallback` | boolean | `false` | Enables Maven settings/environment discovery and, when no repository is found, falls back to `${user.home}/.m2/repository`.
 |===
 
 == Runtime
