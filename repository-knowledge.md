@@ -199,6 +199,19 @@ _Discovered: QTDI-3123, 2026-07-10_
 
 _Discovered: QTDI-3123, 2026-07-10_
 
+### JDK sources — build JDK vs. runtime JDK
+
+Two independent JDKs are in play; a JDK CVE must be assessed against each:
+
+| JDK | Pinned in | Used for |
+|---|---|---|
+| Build / CI JDK | `.tool-versions` (`java <asdf-version>`), applied by `Jenkinsfile` / `ci/Jenkinsfile-release` via `JenkinsPodConfig.asdfSetVersion` | Compiling and testing only |
+| Runtime JDK of the Docker images (`component-server-image`, `component-starter-server-image`, `remote-engine-customizer-image`) | TSBI base image `java17-base`, version `docker.tsbi.version.release` / `docker.tsbi.version.date` in `images/pom.xml` | What actually runs in production |
+
+The libraries themselves run on the consumer's JDK (Studio, Remote Engine, cloud), which this repo does not control. Bumping `.tool-versions` alone does **not** remediate a runtime JDK CVE (e.g. a TLS trust-store / CA-distrust issue): the TSBI base image must also be bumped to a version embedding the fixed JDK. Before bumping, verify the target build really contains the fix — a vendor's "affected versions" list names the **last vulnerable** version, and out-of-band fixes ship as `x.y.z.0.N` releases (e.g. 17.0.21.0.2).
+
+_Discovered: QTDI-3656, 2026-10-27_
+
 ---
 
 ## Dependency version bumps
