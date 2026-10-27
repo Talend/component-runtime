@@ -90,9 +90,6 @@ public class ContainerManager implements Lifecycle {
 
     private static final String LEGACY_PLUGIN_IDS_RESOURCE = "TALEND-INF/legacy-plugin-ids.properties";
 
-    // Lowercase artifact names (GitHub Packages) mapped to the historical plugin ids, which must not change.
-    private static final Map<String, String> LEGACY_PLUGIN_IDS = loadLegacyPluginIds();
-
     private static final Pattern JIRA_TICKET_PATTERN = Pattern.compile("-[A-Z]{2,}-\\d+$");
 
     private static final Pattern MILESTONE_PATTERN = Pattern.compile("M\\d+$");
@@ -297,7 +294,7 @@ public class ContainerManager implements Lifecycle {
 
     public static String buildAutoIdFromName(final String module) {
         final String id = deriveIdFromName(module);
-        return LEGACY_PLUGIN_IDS.getOrDefault(id, id);
+        return LegacyPluginIds.VALUES.getOrDefault(id, id);
     }
 
     private static Map<String, String> loadLegacyPluginIds() {
@@ -692,5 +689,11 @@ public class ContainerManager implements Lifecycle {
         private Stream<Artifact> getBuiltInClasspath(final String moduleLocation) {
             return resolver.resolve(classLoaderConfiguration.getParent(), moduleLocation);
         }
+    }
+
+    private static final class LegacyPluginIds {
+
+        // Lowercase artifact names (GitHub Packages) mapped to the historical plugin ids, which must not change.
+        private static final Map<String, String> VALUES = loadLegacyPluginIds();
     }
 }
