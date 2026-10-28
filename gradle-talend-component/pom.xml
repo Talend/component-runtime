@@ -58,6 +58,12 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>org.gradle</groupId>
+      <artifactId>gradle-base-services-groovy</artifactId>
+      <version>${gradle.version}</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>
