@@ -88,8 +88,6 @@ public class ContainerManager implements Lifecycle {
     private static final Consumer<Container> NOOP_CUSTOMIZER = c -> {
     };
 
-    private static final String LEGACY_PLUGIN_IDS_RESOURCE = "TALEND-INF/legacy-plugin-ids.properties";
-
     private static final Pattern JIRA_TICKET_PATTERN = Pattern.compile("-[A-Z]{2,}-\\d+$");
 
     private static final Pattern MILESTONE_PATTERN = Pattern.compile("M\\d+$");
@@ -295,24 +293,6 @@ public class ContainerManager implements Lifecycle {
     public static String buildAutoIdFromName(final String module) {
         final String id = deriveIdFromName(module);
         return LegacyPluginIds.VALUES.getOrDefault(id, id);
-    }
-
-    private static Map<String, String> loadLegacyPluginIds() {
-        try (final InputStream stream =
-                ContainerManager.class.getClassLoader().getResourceAsStream(LEGACY_PLUGIN_IDS_RESOURCE)) {
-            if (stream == null) {
-                return emptyMap();
-            }
-            final Properties properties = new Properties();
-            properties.load(stream);
-            return properties
-                    .stringPropertyNames()
-                    .stream()
-                    .collect(toMap(identity(), properties::getProperty));
-        } catch (final IOException e) {
-            log.warn("Can't read {}: {}", LEGACY_PLUGIN_IDS_RESOURCE, e.getMessage());
-            return emptyMap();
-        }
     }
 
     private static String deriveIdFromName(final String module) {
@@ -693,7 +673,27 @@ public class ContainerManager implements Lifecycle {
 
     private static final class LegacyPluginIds {
 
+        private static final String LEGACY_PLUGIN_IDS_RESOURCE = "TALEND-INF/legacy-plugin-ids.properties";
+
         // Lowercase artifact names (GitHub Packages) mapped to the historical plugin ids, which must not change.
         private static final Map<String, String> VALUES = loadLegacyPluginIds();
+
+        private static Map<String, String> loadLegacyPluginIds() {
+            try (final InputStream stream =
+                    ContainerManager.class.getClassLoader().getResourceAsStream(LEGACY_PLUGIN_IDS_RESOURCE)) {
+                if (stream == null) {
+                    return emptyMap();
+                }
+                final Properties properties = new Properties();
+                properties.load(stream);
+                return properties
+                        .stringPropertyNames()
+                        .stream()
+                        .collect(toMap(identity(), properties::getProperty));
+            } catch (final IOException e) {
+                log.warn("Can't read {}: {}", LEGACY_PLUGIN_IDS_RESOURCE, e.getMessage());
+                return emptyMap();
+            }
+        }
     }
 }
