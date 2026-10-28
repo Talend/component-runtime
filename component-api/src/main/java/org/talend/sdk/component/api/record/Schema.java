@@ -74,6 +74,7 @@ public interface Schema {
      */
     Stream<Entry> getAllEntries();
 
+    @JsonbTransient
     default Map<String, Entry> getEntryMap() {
         throw new UnsupportedOperationException("#getEntryMap is not implemented");
     }
