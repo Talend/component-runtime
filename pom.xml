@@ -28,7 +28,7 @@
     <license>
       <name>Apache License, Version 2.0</name>
       <url>https://github.com/talend/component-runtime/blob/master/LICENSE</url>
-      <distribution>may be downloaded from the Maven  repository</distribution>
+      <distribution>may be downloaded from the Maven repository</distribution>
     </license>
   </licenses>
 
@@ -891,7 +891,7 @@
         <enabled>false</enabled>
       </snapshots>
       <id>gradle-libs-releases-local</id>
-      <url>https://repo.gradle.org/gradle/libs-releases/</url>
+      <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
     </repository>
     <repository>
       <releases>
