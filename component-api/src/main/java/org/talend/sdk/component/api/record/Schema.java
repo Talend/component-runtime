@@ -92,6 +92,7 @@ public interface Schema {
      *
      * @return all entries ordered
      */
+    @JsonbTransient
     default List<Entry> getEntriesOrdered() {
         return getEntriesOrdered(naturalOrder());
     }
