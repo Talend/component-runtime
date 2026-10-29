@@ -1280,24 +1280,6 @@
         </executions>
       </plugin>
       <plugin>
-        <!--  mvn ossindex:audit -->
-        <groupId>org.sonatype.ossindex.maven</groupId>
-        <artifactId>ossindex-maven-plugin</artifactId>
-        <version>3.1.0</version>
-        <configuration>
-          <scope>compile,runtime</scope>
-        </configuration>
-        <executions>
-          <execution>
-            <id>audit-dependencies</id>
-            <goals>
-              <goal>audit</goal>
-            </goals>
-            <phase/>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>com.github.rmannibucau</groupId>
         <artifactId>common-maven-plugin</artifactId>
         <version>${common-plugin.version}</version>
