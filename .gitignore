@@ -67,11 +67,6 @@ documentation/rebuildpdf.bat
 .env
 *.versionsBackup
 
-# ai-commons knowledge base (managed by ai-commons/setup.sh)
-.ai-commons/
-.ai-commons/sessions/
-.ai-commons/skills/manage-zephyr-test-cases/references/.env
 .claude/CLAUDE.md
 .github/copilot-instructions.md
 .claude/settings.json
-.ai-commons/skills/manage-zephyr-test-cases/scripts/.env
