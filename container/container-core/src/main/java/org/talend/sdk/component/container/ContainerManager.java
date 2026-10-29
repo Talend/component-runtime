@@ -16,6 +16,7 @@
 package org.talend.sdk.component.container;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.list;
 import static java.util.Optional.of;
@@ -290,6 +291,14 @@ public class ContainerManager implements Lifecycle {
     }
 
     public static String buildAutoIdFromName(final String module) {
+        final String id = deriveIdFromName(module);
+        final String resolved = LegacyPluginIds.VALUES.getOrDefault(id, id);
+        log.debug("[buildAutoIdFromName] module '{}': derived id '{}', resolved id '{}', legacy mapping applied: {}",
+                module, id, resolved, !id.equals(resolved));
+        return resolved;
+    }
+
+    private static String deriveIdFromName(final String module) {
         final String[] segments = module.split(":");
         if (segments.length > 2) { // == 2 can be a windows path so enforce > 2 but then
             // assume it is mvn GAV
@@ -662,6 +671,36 @@ public class ContainerManager implements Lifecycle {
 
         private Stream<Artifact> getBuiltInClasspath(final String moduleLocation) {
             return resolver.resolve(classLoaderConfiguration.getParent(), moduleLocation);
+        }
+    }
+
+    private static final class LegacyPluginIds {
+
+        private static final String LEGACY_PLUGIN_IDS_RESOURCE = "TALEND-INF/legacy-plugin-ids.properties";
+
+        // Lowercase artifact names (GitHub Packages) mapped to the historical plugin ids, which must not change.
+        private static final Map<String, String> VALUES = loadLegacyPluginIds();
+
+        private static Map<String, String> loadLegacyPluginIds() {
+            final ClassLoader loader = ContainerManager.class.getClassLoader();
+            try (final InputStream stream = loader.getResourceAsStream(LEGACY_PLUGIN_IDS_RESOURCE)) {
+                if (stream == null) {
+                    log.warn("[LegacyPluginIds] resource {} not found, no legacy mapping", LEGACY_PLUGIN_IDS_RESOURCE);
+                    return emptyMap();
+                }
+                final Properties properties = new Properties();
+                properties.load(stream);
+                final Map<String, String> values = properties
+                        .stringPropertyNames()
+                        .stream()
+                        .collect(toMap(identity(), properties::getProperty));
+                log.info("[LegacyPluginIds] resource {} loaded from {}, {} entries: {}", LEGACY_PLUGIN_IDS_RESOURCE,
+                        loader.getResource(LEGACY_PLUGIN_IDS_RESOURCE), values.size(), values);
+                return values;
+            } catch (final IOException e) {
+                log.warn("Can't read {}: {}", LEGACY_PLUGIN_IDS_RESOURCE, e.getMessage());
+                return emptyMap();
+            }
         }
     }
 }
