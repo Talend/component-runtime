@@ -201,10 +201,6 @@ pipeline {
         defaultValue: false,
         description: 'Cancel the Sonar analysis stage execution')
     booleanParam(
-        name: 'FORCE_SECURITY_ANALYSIS',
-        defaultValue: false,
-        description: 'Force OSS security analysis stage for branches.')
-    booleanParam(
         name: 'FORCE_DEPS_REPORT',
         defaultValue: false,
         description: 'Force dependencies report stage for branches.')
@@ -617,36 +613,6 @@ pipeline {
                                 $skipOptions \
                                 $extraBuildParams 
             """.stripIndent()
-        }
-      }
-    }
-    stage('OSS security analysis') {
-      when {
-        anyOf {
-          expression { params.ACTION != 'RELEASE' && branch_name == 'master' }
-          expression { params.FORCE_SECURITY_ANALYSIS == true }
-        }
-      }
-      steps {
-        withCredentials([ossrhCredentials]) {
-          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-            sh """
-               bash .jenkins/scripts/mvn-ossindex-audit.sh
-               """
-          }
-        }
-      }
-      post {
-        always {
-          publishHTML(
-              target: [
-                  allowMissing         : true,
-                  alwaysLinkToLastBuild: false,
-                  keepAll              : true,
-                  reportDir            : 'target/',
-                  reportFiles          : 'audit.txt',
-                  reportName           : "security::audit"
-              ])
         }
       }
     }
