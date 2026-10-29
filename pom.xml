@@ -986,7 +986,7 @@
         <enabled>true</enabled>
       </releases>
       <snapshots>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
       </snapshots>
       <id>github_package_releases</id>
       <url>https://maven.pkg.github.com/Talend/global-artifacts</url>
@@ -1040,7 +1040,7 @@
         <enabled>true</enabled>
       </releases>
       <snapshots>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
       </snapshots>
       <id>github_package_releases</id>
       <url>https://maven.pkg.github.com/Talend/global-artifacts</url>
