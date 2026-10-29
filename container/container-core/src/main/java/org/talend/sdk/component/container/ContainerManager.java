@@ -34,6 +34,7 @@ import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -292,7 +293,10 @@ public class ContainerManager implements Lifecycle {
 
     public static String buildAutoIdFromName(final String module) {
         final String id = deriveIdFromName(module);
-        return LegacyPluginIds.VALUES.getOrDefault(id, id);
+        final String resolved = LegacyPluginIds.VALUES.getOrDefault(id, id);
+        log.info("[buildAutoIdFromName] module '{}': derived id '{}', resolved id '{}', legacy mapping applied: {}",
+                module, id, resolved, !id.equals(resolved));
+        return resolved;
     }
 
     private static String deriveIdFromName(final String module) {
@@ -678,18 +682,37 @@ public class ContainerManager implements Lifecycle {
         // Lowercase artifact names (GitHub Packages) mapped to the historical plugin ids, which must not change.
         private static final Map<String, String> VALUES = loadLegacyPluginIds();
 
+        private static void logClassLoaderJars(final ClassLoader loader) {
+            if (loader instanceof URLClassLoader) {
+                final List<String> urls = Stream
+                        .of(((URLClassLoader) loader).getURLs())
+                        .map(URL::toExternalForm)
+                        .sorted()
+                        .collect(toList());
+                log.info("[LegacyPluginIds] classloader {} is URL based, {} classpath entries: {}", loader,
+                        urls.size(), urls);
+            } else {
+                log.info("[LegacyPluginIds] classloader {} is not URL based, can't list its jars", loader);
+            }
+        }
+
         private static Map<String, String> loadLegacyPluginIds() {
-            try (final InputStream stream =
-                    ContainerManager.class.getClassLoader().getResourceAsStream(LEGACY_PLUGIN_IDS_RESOURCE)) {
+            final ClassLoader loader = ContainerManager.class.getClassLoader();
+            logClassLoaderJars(loader);
+            try (final InputStream stream = loader.getResourceAsStream(LEGACY_PLUGIN_IDS_RESOURCE)) {
                 if (stream == null) {
+                    log.info("[LegacyPluginIds] resource {} not found, no legacy mapping", LEGACY_PLUGIN_IDS_RESOURCE);
                     return emptyMap();
                 }
                 final Properties properties = new Properties();
                 properties.load(stream);
-                return properties
+                final Map<String, String> values = properties
                         .stringPropertyNames()
                         .stream()
                         .collect(toMap(identity(), properties::getProperty));
+                log.info("[LegacyPluginIds] resource {} loaded from {}, {} entries: {}", LEGACY_PLUGIN_IDS_RESOURCE,
+                        loader.getResource(LEGACY_PLUGIN_IDS_RESOURCE), values.size(), values);
+                return values;
             } catch (final IOException e) {
                 log.warn("Can't read {}: {}", LEGACY_PLUGIN_IDS_RESOURCE, e.getMessage());
                 return emptyMap();
