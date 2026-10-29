@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
-  <version>1.64.9-SNAPSHOT</version>
+  <version>1.64.9</version>
   <packaging>pom</packaging>
 
   <name>Component Runtime</name>
@@ -132,7 +132,7 @@
   <scm>
     <connection>scm:git:git://github.com/talend/component-runtime.git</connection>
     <developerConnection>scm:git:git@github.com:talend/component-runtime.git</developerConnection>
-    <tag>component-runtime-1.64.8</tag>
+    <tag>component-runtime-1.64.9</tag>
     <url>https://github.com/talend/component-runtime</url>
   </scm>
   <distributionManagement>
@@ -1293,7 +1293,8 @@
           </execution>
         </executions>
       </plugin>
-      <plugin><!--  mvn ossindex:audit -->
+      <plugin>
+        <!--  mvn ossindex:audit -->
         <groupId>org.sonatype.ossindex.maven</groupId>
         <artifactId>ossindex-maven-plugin</artifactId>
         <version>3.1.0</version>

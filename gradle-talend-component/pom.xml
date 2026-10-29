@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.64.9-SNAPSHOT</version>
+    <version>1.64.9</version>
   </parent>
 
   <artifactId>gradle-talend-component</artifactId>
@@ -97,14 +97,14 @@
   <repositories>
     <!-- declared first so gradle-core resolves with its transitive dependencies (the oss.releases one is a stub without any) -->
     <repository>
-      <id>gradle-libs-releases-local</id>
-      <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
       <releases>
         <enabled>true</enabled>
       </releases>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
+      <id>gradle-libs-releases-local</id>
+      <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
     </repository>
   </repositories>
 
