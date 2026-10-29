@@ -58,7 +58,55 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <!--
+      Declared explicitly: a gradle-core pom cached from a repository serving a stub (no dependencies, e.g. central)
+      is reused whatever the repositories order, so its transitive modules would be missing.
+    -->
+    <dependency>
+      <groupId>org.gradle</groupId>
+      <artifactId>gradle-base-services</artifactId>
+      <version>${gradle.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.gradle</groupId>
+      <artifactId>gradle-base-services-groovy</artifactId>
+      <version>${gradle.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.gradle</groupId>
+      <artifactId>gradle-logging</artifactId>
+      <version>${gradle.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.gradle</groupId>
+      <artifactId>gradle-messaging</artifactId>
+      <version>${gradle.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.gradle</groupId>
+      <artifactId>gradle-resources</artifactId>
+      <version>${gradle.version}</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
+
+  <repositories>
+    <!-- declared first so gradle-core resolves with its transitive dependencies (the oss.releases one is a stub without any) -->
+    <repository>
+      <id>gradle-libs-releases-local</id>
+      <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
   <build>
     <plugins>
