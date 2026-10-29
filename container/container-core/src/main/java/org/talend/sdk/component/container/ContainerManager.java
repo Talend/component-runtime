@@ -34,7 +34,6 @@ import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -682,23 +681,8 @@ public class ContainerManager implements Lifecycle {
         // Lowercase artifact names (GitHub Packages) mapped to the historical plugin ids, which must not change.
         private static final Map<String, String> VALUES = loadLegacyPluginIds();
 
-        private static void logClassLoaderJars(final ClassLoader loader) {
-            if (loader instanceof URLClassLoader) {
-                final List<String> urls = Stream
-                        .of(((URLClassLoader) loader).getURLs())
-                        .map(URL::toExternalForm)
-                        .sorted()
-                        .collect(toList());
-                log.info("[LegacyPluginIds] classloader {} is URL based, {} classpath entries: {}", loader,
-                        urls.size(), urls);
-            } else {
-                log.info("[LegacyPluginIds] classloader {} is not URL based, can't list its jars", loader);
-            }
-        }
-
         private static Map<String, String> loadLegacyPluginIds() {
             final ClassLoader loader = ContainerManager.class.getClassLoader();
-            logClassLoaderJars(loader);
             try (final InputStream stream = loader.getResourceAsStream(LEGACY_PLUGIN_IDS_RESOURCE)) {
                 if (stream == null) {
                     log.info("[LegacyPluginIds] resource {} not found, no legacy mapping", LEGACY_PLUGIN_IDS_RESOURCE);
