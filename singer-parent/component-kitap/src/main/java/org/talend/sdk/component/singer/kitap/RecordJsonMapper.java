@@ -37,6 +37,7 @@ import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.bind.JsonbConfig;
+import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
@@ -56,17 +57,18 @@ public class RecordJsonMapper implements Function<Record, JsonObject> {
 
     private final Singer singer;
 
-    private final RecordService service =
-            (RecordService) new DefaultServiceProvider(null, SharedJsonProviders.jsonProvider(),
-                    SharedJsonProviders.jsonProvider().createGeneratorFactory(emptyMap()),
-                    SharedJsonProviders.jsonProvider().createReaderFactory(emptyMap()),
-                    SharedJsonProviders.jsonProvider().createBuilderFactory(emptyMap()),
-                    SharedJsonProviders.jsonProvider().createParserFactory(emptyMap()),
-                    SharedJsonProviders.jsonProvider().createWriterFactory(emptyMap()), new JsonbConfig(),
-                    SharedJsonProviders.jsonbProvider(), null, null, emptyList(),
-                    t -> new RecordBuilderFactoryImpl("kitap"), null)
-                    .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
-                            RecordService.class, null, null);
+    private final RecordService service = createRecordService();
+
+    private static RecordService createRecordService() {
+        final JsonProvider json = SharedJsonProviders.jsonProvider();
+        return (RecordService) new DefaultServiceProvider(null, json, json.createGeneratorFactory(emptyMap()),
+                json.createReaderFactory(emptyMap()), json.createBuilderFactory(emptyMap()),
+                json.createParserFactory(emptyMap()), json.createWriterFactory(emptyMap()), new JsonbConfig(),
+                SharedJsonProviders.jsonbProvider(), null, null, emptyList(),
+                t -> new RecordBuilderFactoryImpl("kitap"), null)
+                .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
+                        RecordService.class, null, null);
+    }
 
     @Override
     public JsonObject apply(final Record record) {

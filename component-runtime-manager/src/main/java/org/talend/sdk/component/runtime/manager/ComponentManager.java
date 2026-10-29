@@ -546,6 +546,7 @@ public class ComponentManager implements AutoCloseable {
         try {
             return new org.apache.johnzon.jsonb.JohnzonProvider();
         } catch (final RuntimeException re) {
+            log.debug("Johnzon JSON-B provider not usable, using the shared one", re);
             return SharedJsonProviders.jsonbProvider();
         }
     }
@@ -554,6 +555,7 @@ public class ComponentManager implements AutoCloseable {
         try {
             return new org.apache.johnzon.core.JsonProviderImpl();
         } catch (final RuntimeException re) {
+            log.debug("Johnzon JSON-P provider not usable, using the shared one", re);
             return SharedJsonProviders.jsonProvider();
         }
     }

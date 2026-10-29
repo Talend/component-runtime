@@ -16,63 +16,44 @@
 package org.talend.sdk.component.runtime.serialization;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.lang.reflect.Field;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
 
+// ContainerFinder.Instance is a JVM global
+@ResourceLock("ContainerFinder.Instance")
 class ContainerFinderInstanceTest {
 
-    private AtomicReference<ContainerFinder> finder;
-
-    private Field lookupDone;
-
-    private ContainerFinder initialFinder;
-
-    private boolean initialLookupDone;
-
     @BeforeEach
-    @SuppressWarnings("unchecked")
-    void save() throws Exception {
-        final Field finderField = ContainerFinder.Instance.class.getDeclaredField("FINDER");
-        finderField.setAccessible(true);
-        finder = (AtomicReference<ContainerFinder>) finderField.get(null);
-        lookupDone = ContainerFinder.Instance.class.getDeclaredField("lookupDone");
-        lookupDone.setAccessible(true);
-        initialFinder = finder.get();
-        initialLookupDone = lookupDone.getBoolean(null);
-    }
-
     @AfterEach
-    void restore() throws Exception {
-        finder.set(initialFinder);
-        lookupDone.setBoolean(null, initialLookupDone);
+    void reset() {
+        ContainerFinder.Instance.reset();
     }
 
     @Test
-    void lookupDoneAfterFirstCall() throws Exception {
-        finder.set(null);
-        lookupDone.setBoolean(null, false);
-
-        assertNotNull(ContainerFinder.Instance.get());
-        assertTrue(lookupDone.getBoolean(null));
-        assertTrue(ContainerFinder.Instance.isInitialized()); // test classpath provides a ContainerFinder service
+    void lookupResultIsCached() {
+        final ContainerFinder first = ContainerFinder.Instance.get();
+        assertNotNull(first);
+        assertSame(first, ContainerFinder.Instance.get());
     }
 
     @Test
-    void noServiceLoaderLookupOnceAlreadyDone() throws Exception {
-        // lookup was done and no service was found
-        finder.set(null);
-        lookupDone.setBoolean(null, true);
+    void explicitFinderWinsOverLookup() {
+        final ContainerFinder explicit = plugin -> null;
+        ContainerFinder.Instance.set(() -> explicit);
+        assertTrue(ContainerFinder.Instance.isInitialized());
+        assertSame(explicit, ContainerFinder.Instance.get());
+    }
 
-        // a service is available on the classpath, but must not be looked up again
-        assertInstanceOf(TCCLContainerFinder.class, ContainerFinder.Instance.get());
+    @Test
+    void resetForgetsFinderAndLookup() {
+        ContainerFinder.Instance.set(() -> plugin -> null);
+        ContainerFinder.Instance.reset();
         assertFalse(ContainerFinder.Instance.isInitialized());
     }
 }

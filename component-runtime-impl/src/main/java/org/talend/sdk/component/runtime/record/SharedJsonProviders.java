@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.record;
 
 import static lombok.AccessLevel.PRIVATE;
 
+import java.util.ServiceConfigurationError;
 import java.util.function.Supplier;
 
 import javax.json.bind.spi.JsonbProvider;
@@ -25,50 +26,90 @@ import javax.json.spi.JsonProvider;
 import lombok.NoArgsConstructor;
 
 /**
- * Holds one {@link JsonProvider} and one {@link JsonbProvider} per classloader of the framework.
+ * <b>Internal</b>, not a public API: may change or disappear without notice.
  * <p>
+ * Holds one JVM wide {@link JsonProvider} and one {@link JsonbProvider}.
  * {@link JsonProvider#provider()} and {@link JsonbProvider#provider()} create a new
  * {@link java.util.ServiceLoader} at each call, which reads jars and takes locks: under heavy parallel load
  * this makes threads block each other. Both providers are thread safe so a single instance is enough.
  * <p>
- * Scope: this holder is a global (framework classloader) singleton, resolved lazily on first use. It is only
- * meant for framework internal call sites which have no container context and used to call
- * {@code provider()} directly. It must <b>not</b> be used to serve component code living in an isolated
- * container: those keep using the per container providers (see {@code ComponentManager} and the
- * {@code DefaultServiceProvider}), so a container embedding its own JSON-P implementation is never given the
- * framework one.
+ * The instances are resolved lazily on first use, with the classloader of the framework (falling back on the
+ * caller context classloader if that lookup fails). If both lookups fail the failure is propagated as is and
+ * the next call tries again. They are meant for framework internal call sites which have no container context
+ * and used to call {@code provider()} directly. They must <b>not</b> be used to serve component code living in
+ * an isolated container: those keep using the per container providers (see {@code ComponentManager}), so a
+ * container embedding its own JSON-P implementation is never given the framework one.
  */
 @NoArgsConstructor(access = PRIVATE)
 public final class SharedJsonProviders {
 
+    private static final Lazy<JsonProvider> JSON_PROVIDER =
+            new Lazy<>(JsonProvider::provider, SharedJsonProviders.class.getClassLoader());
+
+    private static final Lazy<JsonbProvider> JSONB_PROVIDER =
+            new Lazy<>(JsonbProvider::provider, SharedJsonProviders.class.getClassLoader());
+
     public static JsonProvider jsonProvider() {
-        return JsonProviderHolder.INSTANCE;
+        return JSON_PROVIDER.get();
     }
 
     public static JsonbProvider jsonbProvider() {
-        return JsonbProviderHolder.INSTANCE;
+        return JSONB_PROVIDER.get();
     }
 
     // provider() looks up the implementation through the thread context classloader: the first caller must not
-    // bind the global instance to the classloader of an isolated container, so use the framework one.
-    private static <T> T withFrameworkClassLoader(final Supplier<T> lookup) {
+    // bind the global instance to the classloader of an isolated container, so use the framework one first.
+    // If it does not provide an implementation, fallback on the context classloader of the caller.
+    static <T> T withFrameworkClassLoader(final Supplier<T> lookup, final ClassLoader framework) {
         final Thread thread = Thread.currentThread();
-        final ClassLoader old = thread.getContextClassLoader();
-        thread.setContextClassLoader(SharedJsonProviders.class.getClassLoader());
+        final ClassLoader caller = thread.getContextClassLoader();
         try {
+            thread.setContextClassLoader(framework);
             return lookup.get();
+        } catch (final RuntimeException | ServiceConfigurationError frameworkFailure) {
+            if (caller == null || caller == framework) {
+                throw frameworkFailure;
+            }
+            thread.setContextClassLoader(caller);
+            try {
+                return lookup.get();
+            } catch (final RuntimeException | ServiceConfigurationError callerFailure) {
+                frameworkFailure.addSuppressed(callerFailure);
+                throw frameworkFailure;
+            }
         } finally {
-            thread.setContextClassLoader(old);
+            thread.setContextClassLoader(caller);
         }
     }
 
-    private static final class JsonProviderHolder {
+    // not a static holder idiom on purpose: a failing initializer would surface as an
+    // ExceptionInInitializerError then a NoClassDefFoundError, bypassing the callers fallbacks
+    // (catch RuntimeException) and never allowing a retry.
+    static final class Lazy<T> {
 
-        private static final JsonProvider INSTANCE = withFrameworkClassLoader(JsonProvider::provider);
-    }
+        private final Supplier<T> factory;
 
-    private static final class JsonbProviderHolder {
+        private final ClassLoader framework;
 
-        private static final JsonbProvider INSTANCE = withFrameworkClassLoader(JsonbProvider::provider);
+        private volatile T value;
+
+        Lazy(final Supplier<T> factory, final ClassLoader framework) {
+            this.factory = factory;
+            this.framework = framework;
+        }
+
+        T get() {
+            T instance = value;
+            if (instance == null) {
+                synchronized (this) {
+                    instance = value;
+                    if (instance == null) {
+                        instance = withFrameworkClassLoader(factory, framework);
+                        value = instance;
+                    }
+                }
+            }
+            return instance;
+        }
     }
 }

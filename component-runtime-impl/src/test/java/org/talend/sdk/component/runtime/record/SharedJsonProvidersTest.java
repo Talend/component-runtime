@@ -17,26 +17,25 @@ package org.talend.sdk.component.runtime.record;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.CodeSource;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.json.JsonException;
 import javax.json.JsonObject;
+import javax.json.bind.Jsonb;
 import javax.json.bind.spi.JsonbProvider;
 import javax.json.spi.JsonProvider;
 
@@ -55,25 +54,24 @@ class SharedJsonProvidersTest {
     @Test
     void sameInstanceAcrossThreads() throws Exception {
         final int threads = 16;
+        final JsonProvider expectedJson = SharedJsonProviders.jsonProvider();
+        final JsonbProvider expectedJsonb = SharedJsonProviders.jsonbProvider();
         final ExecutorService pool = Executors.newFixedThreadPool(threads);
         try {
             final CountDownLatch start = new CountDownLatch(1);
-            final Set<Object> providers = ConcurrentHashMap.newKeySet();
-            final List<Future<?>> futures = new ArrayList<>();
+            final List<Future<Object[]>> futures = new ArrayList<>();
             for (int i = 0; i < threads; i++) {
                 futures.add(pool.submit(() -> {
                     start.await();
-                    providers.add(SharedJsonProviders.jsonProvider());
-                    providers.add(SharedJsonProviders.jsonbProvider());
-                    return null;
+                    return new Object[] { SharedJsonProviders.jsonProvider(), SharedJsonProviders.jsonbProvider() };
                 }));
             }
             start.countDown();
-            for (final Future<?> future : futures) {
-                future.get(30, TimeUnit.SECONDS);
+            for (final Future<Object[]> future : futures) {
+                final Object[] providers = future.get(30, TimeUnit.SECONDS);
+                assertSame(expectedJson, providers[0]);
+                assertSame(expectedJsonb, providers[1]);
             }
-            // one JsonProvider + one JsonbProvider
-            assertEquals(2, providers.size(), () -> "unexpected providers: " + providers);
         } finally {
             pool.shutdownNow();
         }
@@ -82,55 +80,103 @@ class SharedJsonProvidersTest {
     @Test
     void providersAreUsable() throws Exception {
         final JsonObject object = SharedJsonProviders.jsonProvider().createObjectBuilder().add("a", "b").build();
-        try (final javax.json.bind.Jsonb jsonb = SharedJsonProviders.jsonbProvider().create().build()) {
+        try (final Jsonb jsonb = SharedJsonProviders.jsonbProvider().create().build()) {
             assertTrue(jsonb.toJson(object).contains("\"a\""));
         }
     }
 
     @Test
-    void initializationIgnoresIsolatedContextClassLoader() throws Exception {
-        final URL[] classpath = frameworkClasspath();
+    void lookupUsesFrameworkClassLoaderAndRestoresCaller() throws Exception {
         final Thread thread = Thread.currentThread();
         final ClassLoader caller = thread.getContextClassLoader();
-        // fresh holder class (own static state) in a loader which does not delegate SharedJsonProviders
-        try (final URLClassLoader framework = new URLClassLoader(classpath, ClassLoader.getPlatformClassLoader());
-                final URLClassLoader isolated = new URLClassLoader(new URL[0], null)) {
+        try (final URLClassLoader isolated = new URLClassLoader(new URL[0], null);
+                final URLClassLoader framework = new URLClassLoader(new URL[0], null)) {
             thread.setContextClassLoader(isolated);
-            final Object provider = framework
-                    .loadClass(SharedJsonProviders.class.getName())
-                    .getMethod("jsonProvider")
-                    .invoke(null);
-            assertNotNull(provider);
-            // bound to the framework classloader, not to the isolated container one
-            assertSame(framework, provider.getClass().getClassLoader());
+            final ClassLoader seen = SharedJsonProviders
+                    .withFrameworkClassLoader(() -> Thread.currentThread().getContextClassLoader(), framework);
+            assertSame(framework, seen);
             assertSame(isolated, thread.getContextClassLoader());
         } finally {
             thread.setContextClassLoader(caller);
         }
     }
 
-    // surefire may use an isolated classloader (manifest-only jar), so java.class.path alone is not enough:
-    // also use the active test classloader and the code sources of the classes the holder needs
-    private static URL[] frameworkClasspath() throws Exception {
-        final Set<URL> urls = new LinkedHashSet<>();
-        final ClassLoader testLoader = SharedJsonProvidersTest.class.getClassLoader();
-        if (testLoader instanceof URLClassLoader) {
-            urls.addAll(Arrays.asList(((URLClassLoader) testLoader).getURLs()));
+    @Test
+    void realProvidersAreNotBoundToIsolatedContextClassLoader() throws Exception {
+        final Thread thread = Thread.currentThread();
+        final ClassLoader caller = thread.getContextClassLoader();
+        final ClassLoader framework = SharedJsonProviders.class.getClassLoader();
+        try (final URLClassLoader isolated = new URLClassLoader(new URL[0], null)) {
+            thread.setContextClassLoader(isolated);
+            final JsonProvider json = SharedJsonProviders.withFrameworkClassLoader(JsonProvider::provider, framework);
+            final JsonbProvider jsonb =
+                    SharedJsonProviders.withFrameworkClassLoader(JsonbProvider::provider, framework);
+            assertNotNull(json);
+            assertNotNull(jsonb);
+            assertNotSame(isolated, json.getClass().getClassLoader());
+            assertNotSame(isolated, jsonb.getClass().getClassLoader());
+        } finally {
+            thread.setContextClassLoader(caller);
         }
-        for (final String entry : System.getProperty("java.class.path").split(File.pathSeparator)) {
-            if (!entry.isEmpty()) {
-                urls.add(new File(entry).toURI().toURL());
+    }
+
+    @Test
+    void fallbackOnCallerClassLoaderWhenFrameworkLookupFails() throws Exception {
+        final Thread thread = Thread.currentThread();
+        final ClassLoader caller = thread.getContextClassLoader();
+        try (final URLClassLoader framework = new URLClassLoader(new URL[0], null);
+                final URLClassLoader custom = new URLClassLoader(new URL[0], null)) {
+            thread.setContextClassLoader(custom);
+            final String result = SharedJsonProviders.withFrameworkClassLoader(() -> {
+                if (Thread.currentThread().getContextClassLoader() == framework) {
+                    throw new JsonException("not found in the framework classloader");
+                }
+                return "from-caller";
+            }, framework);
+            assertEquals("from-caller", result);
+            assertSame(custom, thread.getContextClassLoader());
+        } finally {
+            thread.setContextClassLoader(caller);
+        }
+    }
+
+    @Test
+    void originalFailureIsPropagatedWithCallerFailureSuppressed() throws Exception {
+        final Thread thread = Thread.currentThread();
+        final ClassLoader caller = thread.getContextClassLoader();
+        try (final URLClassLoader framework = new URLClassLoader(new URL[0], null);
+                final URLClassLoader custom = new URLClassLoader(new URL[0], null)) {
+            thread.setContextClassLoader(custom);
+            final AtomicInteger calls = new AtomicInteger();
+            final JsonException error = assertThrows(JsonException.class,
+                    () -> SharedJsonProviders.withFrameworkClassLoader(() -> {
+                        throw new JsonException("failure #" + calls.incrementAndGet());
+                    }, framework));
+            assertEquals("failure #1", error.getMessage());
+            assertEquals(1, error.getSuppressed().length);
+            assertEquals("failure #2", error.getSuppressed()[0].getMessage());
+            assertSame(custom, thread.getContextClassLoader());
+        } finally {
+            thread.setContextClassLoader(caller);
+        }
+    }
+
+    @Test
+    void initializationFailureIsRethrownAsIsAndRetried() {
+        final ClassLoader framework = SharedJsonProviders.class.getClassLoader();
+        final AtomicInteger calls = new AtomicInteger();
+        final SharedJsonProviders.Lazy<String> lazy = new SharedJsonProviders.Lazy<>(() -> {
+            if (calls.incrementAndGet() == 1) {
+                throw new JsonException("not ready");
             }
-        }
-        for (final Class<?> clazz : Arrays
-                .<Class<?>> asList(SharedJsonProviders.class, JsonProvider.class,
-                        SharedJsonProviders.jsonProvider().getClass(), JsonbProvider.class,
-                        SharedJsonProviders.jsonbProvider().getClass())) {
-            final CodeSource source = clazz.getProtectionDomain().getCodeSource();
-            if (source != null && source.getLocation() != null) {
-                urls.add(source.getLocation());
-            }
-        }
-        return urls.toArray(new URL[0]);
+            return "ok";
+        }, framework);
+
+        // a RuntimeException (not an ExceptionInInitializerError) so callers fallbacks can catch it
+        assertThrows(JsonException.class, lazy::get);
+        // not cached: next call retries and then stays resolved
+        assertEquals("ok", lazy.get());
+        assertSame(lazy.get(), lazy.get());
+        assertEquals(2, calls.get());
     }
 }

@@ -93,14 +93,8 @@ public final class RecordImpl implements Record {
 
     @Override // for debug purposes, don't use it for anything else
     public String toString() {
-        try (final Jsonb jsonb = SharedJsonProviders
-                .jsonbProvider()
-                .create()
-                .withConfig(new JsonbConfig()
-                        .withFormatting(true)
-                        .withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL)
-                        .setProperty("johnzon.cdi.activated", false))
-                .build()) {
+        try {
+            final Jsonb jsonb = toStringJsonb();
             return new RecordConverters()
                     .toType(new RecordConverters.MappingMetaRegistry(), this, JsonObject.class,
                             () -> SharedJsonProviders.jsonProvider().createBuilderFactory(emptyMap()),
@@ -110,6 +104,33 @@ public final class RecordImpl implements Record {
         } catch (final Exception e) {
             return super.toString();
         }
+    }
+
+    // lazy and shared: building a Jsonb is expensive and toString can be called often (logs)
+    private static Jsonb toStringJsonb() {
+        Jsonb jsonb = ToStringJsonb.value;
+        if (jsonb == null) {
+            synchronized (ToStringJsonb.class) {
+                jsonb = ToStringJsonb.value;
+                if (jsonb == null) {
+                    jsonb = SharedJsonProviders
+                            .jsonbProvider()
+                            .create()
+                            .withConfig(new JsonbConfig()
+                                    .withFormatting(true)
+                                    .withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL)
+                                    .setProperty("johnzon.cdi.activated", false))
+                            .build();
+                    ToStringJsonb.value = jsonb;
+                }
+            }
+        }
+        return jsonb;
+    }
+
+    private static final class ToStringJsonb {
+
+        private static volatile Jsonb value;
     }
 
     @Override

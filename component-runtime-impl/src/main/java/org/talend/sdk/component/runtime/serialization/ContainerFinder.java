@@ -35,6 +35,9 @@ public interface ContainerFinder {
 
         private static final AtomicReference<ContainerFinder> FINDER = new AtomicReference<>();
 
+        // stateless fallback, cached to not allocate one at each call when no service is found
+        private static final ContainerFinder DEFAULT = new TCCLContainerFinder();
+
         // true once the ServiceLoader lookup was done, to not re-run it (jar reads + locks) at each call
         private static volatile boolean lookupDone;
 
@@ -48,6 +51,14 @@ public interface ContainerFinder {
             // todo: do we want some safety here or not? normally shouldnt be needed, then
             // Supplier would be needed
             FINDER.set(provider.get());
+        }
+
+        // for tests only: forget the current finder and the lookup state
+        static void reset() {
+            synchronized (FINDER) {
+                FINDER.set(null);
+                lookupDone = false;
+            }
         }
 
         public static ContainerFinder get() {
@@ -67,7 +78,7 @@ public interface ContainerFinder {
 
             // fallback on TCCL, depending the packaging it can work or not safer to not
             // return null here
-            return ofNullable(FINDER.get()).orElseGet(TCCLContainerFinder::new);
+            return ofNullable(FINDER.get()).orElse(DEFAULT);
         }
     }
 }
