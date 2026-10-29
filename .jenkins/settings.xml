@@ -24,6 +24,7 @@
       <username>${env.JETBRAINS_USER}</username>
       <password>${env.JETBRAINS_PASS}</password>
     </server>
+    <!-- QTDI-3642: Nexus pull credentials disabled to verify GitHub Packages, restore if needed
     <server>
       <id>TalendOpenSourceRelease</id>
       <username>${env.NEXUS_USER}</username>
@@ -56,6 +57,7 @@
         <timeout>30000</timeout>
       </configuration>
     </server>
+    -->
     <server>
       <id>github_package_snapshots</id>
       <username>${env.GITHUB_PACKAGES_LOGIN}</username>
@@ -97,6 +99,7 @@
     </server>
   </servers>
 
+  <!-- QTDI-3642: Nexus Maven Central mirror disabled to verify GitHub Packages, restore if needed
   <mirrors>
     <mirror>
       <id>maven_central_proxy</id>
@@ -105,6 +108,7 @@
       <mirrorOf>central</mirrorOf>
     </mirror>
   </mirrors>
+  -->
 
   <profiles>
     <profile>
