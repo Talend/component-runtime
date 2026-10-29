@@ -15,8 +15,8 @@
  */
 package org.talend.sdk.component.test.connectors.service;
 
-import javax.json.Json;
-import javax.json.JsonObject;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 
 import org.talend.sdk.component.api.service.Action;
 import org.talend.sdk.component.api.service.Service;

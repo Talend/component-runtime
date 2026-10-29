@@ -17,10 +17,10 @@ package org.talend.sdk.component.runtime.manager;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.bind.JsonbConfig;
-import javax.json.bind.annotation.JsonbPropertyOrder;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
+import jakarta.json.bind.JsonbConfig;
+import jakarta.json.bind.annotation.JsonbPropertyOrder;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.runtime.manager.json.TalendAccessMode;

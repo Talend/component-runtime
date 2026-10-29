@@ -33,10 +33,10 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.WriteListener;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class InMemoryResponse implements HttpServletResponse {
 
@@ -93,11 +93,6 @@ public class InMemoryResponse implements HttpServletResponse {
     }
 
     @Override
-    public void setStatus(final int i, final String s) {
-        setCode(i);
-    }
-
-    @Override
     public void addCookie(final Cookie cookie) {
         setHeader(cookie.getName(), cookie.getValue());
     }
@@ -137,16 +132,6 @@ public class InMemoryResponse implements HttpServletResponse {
         return toEncoded(s);
     }
 
-    @Override
-    public String encodeUrl(final String s) {
-        return toEncoded(s);
-    }
-
-    @Override
-    public String encodeRedirectUrl(final String s) {
-        return encodeRedirectURL(s);
-    }
-
     public String getHeader(final String name) {
         final Collection<String> strings = headers.get(name);
         return strings == null ? null : strings.iterator().next();
@@ -179,13 +164,20 @@ public class InMemoryResponse implements HttpServletResponse {
 
     @Override
     public void sendRedirect(final String path) throws IOException {
+        sendRedirect(path, SC_FOUND, true);
+    }
+
+    @Override
+    public void sendRedirect(final String path, final int sc, final boolean clearBuffer) throws IOException {
         if (commited) {
             throw new IllegalStateException("response already committed");
         }
-        resetBuffer();
+        if (clearBuffer) {
+            resetBuffer();
+        }
 
         try {
-            setStatus(SC_FOUND);
+            setStatus(sc);
 
             setHeader("Location", toEncoded(path));
         } catch (final IllegalArgumentException e) {

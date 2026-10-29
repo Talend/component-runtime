@@ -17,9 +17,9 @@ package org.talend.sdk.component.runtime.beam.transform.avro;
 
 import java.io.StringReader;
 
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.json.JsonReaderFactory;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonReader;
+import jakarta.json.JsonReaderFactory;
 
 import org.apache.avro.generic.IndexedRecord;
 import org.apache.beam.sdk.coders.Coder;

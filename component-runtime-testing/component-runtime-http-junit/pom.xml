@@ -38,21 +38,22 @@
       <artifactId>slf4j-api</artifactId>
     </dependency>
 
+    <!-- QTDI-3497 (experimental, jakarta-only spike): replaces the javax geronimo specs with
+         their jakarta equivalents. -->
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-jsonb_1.0_spec</artifactId>
-      <version>${geronimo-jsonb.version}</version>
+      <groupId>jakarta.json.bind</groupId>
+      <artifactId>jakarta.json.bind-api</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-json_1.1_spec</artifactId>
-      <version>${geronimo-json.version}</version>
+      <groupId>jakarta.json</groupId>
+      <artifactId>jakarta.json-api</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
+      <version>${johnzon.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -175,7 +176,8 @@
               <artifactSet>
                 <includes>
                   <include>io.netty:*</include>
-                  <include>org.apache.geronimo.specs:*</include>
+                  <include>jakarta.json:*</include>
+                  <include>jakarta.json.bind:*</include>
                   <include>org.apache.johnzon:*</include>
                 </includes>
               </artifactSet>
@@ -189,8 +191,8 @@
                   <shadedPattern>org.talend.__shade__.org.apache.johnzon</shadedPattern>
                 </relocation>
                 <relocation>
-                  <pattern>javax.json</pattern>
-                  <shadedPattern>org.talend.__shade__.javax.json</shadedPattern>
+                  <pattern>jakarta.json</pattern>
+                  <shadedPattern>org.talend.__shade__.jakarta.json</shadedPattern>
                 </relocation>
               </relocations>
               <filters>

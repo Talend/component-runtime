@@ -18,7 +18,7 @@ package org.talend.sdk.component.starter.server.service.openapi.model.swagger;
 import java.util.List;
 import java.util.Map;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 import org.talend.sdk.component.starter.server.service.openapi.model.common.OperationBase;
 import org.talend.sdk.component.starter.server.service.openapi.model.openapi.Parameter;

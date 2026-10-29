@@ -77,8 +77,8 @@ import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.io.Serializable;
 
 import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;
@@ -148,9 +148,9 @@ import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.json.bind.Jsonb;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.json.bind.Jsonb;
 import java.io.Serializable;
 
 import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;
@@ -214,9 +214,9 @@ import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.json.bind.Jsonb;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.json.bind.Jsonb;
 import java.io.Serializable;
 
 import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;
@@ -274,9 +274,9 @@ import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.json.bind.Jsonb;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.json.bind.Jsonb;
 import java.io.Serializable;
 
 import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;

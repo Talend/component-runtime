@@ -31,10 +31,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.json.Json;
-import javax.json.JsonValue;
-import javax.json.bind.annotation.JsonbTransient;
-import javax.json.stream.JsonParser;
+import jakarta.json.Json;
+import jakarta.json.JsonValue;
+import jakarta.json.bind.annotation.JsonbTransient;
+import jakarta.json.stream.JsonParser;
 
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -69,6 +69,7 @@ public interface Schema {
     /**
      * @return All entries, including data and metadata, of this schema.
      */
+    @JsonbTransient
     Stream<Entry> getAllEntries();
 
     @JsonbTransient
@@ -211,6 +212,7 @@ public interface Schema {
         /**
          * @return the raw name of this entry if exists, else return name.
          */
+        @JsonbTransient
         String getOriginalFieldName();
 
         /**

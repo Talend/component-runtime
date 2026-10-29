@@ -17,7 +17,7 @@ package org.talend.sdk.component.runtime.manager.extension.test.mappings.mysql;
 
 import java.io.Serializable;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 import org.talend.sdk.component.api.component.DatabaseMapping;
 import org.talend.sdk.component.api.configuration.Option;

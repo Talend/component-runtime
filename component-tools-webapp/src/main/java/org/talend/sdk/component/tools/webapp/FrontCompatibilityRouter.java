@@ -17,8 +17,8 @@ package org.talend.sdk.component.tools.webapp;
 
 import java.util.Set;
 
-import javax.servlet.ServletContainerInitializer;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContainerInitializer;
+import jakarta.servlet.ServletContext;
 
 public class FrontCompatibilityRouter implements ServletContainerInitializer {
 

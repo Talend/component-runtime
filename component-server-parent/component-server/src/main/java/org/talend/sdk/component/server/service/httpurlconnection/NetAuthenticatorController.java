@@ -17,7 +17,7 @@ package org.talend.sdk.component.server.service.httpurlconnection;
 
 import java.util.concurrent.Callable;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 // @RequestScoped would request we can guarantee we are always called under a request context
 @ApplicationScoped

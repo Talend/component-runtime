@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.StreamSupport;
 
-import javax.json.Json;
+import jakarta.json.Json;
 
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.testing.PAssert;

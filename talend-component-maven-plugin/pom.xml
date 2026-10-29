@@ -90,18 +90,22 @@
       <version>${maven-shared-utils.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-jsonb_1.0_spec</artifactId>
-      <version>${geronimo-jsonb.version}</version>
+      <!-- ComponentMetadataMojo uses jakarta.json.bind.Jsonb - matches WebMojo's embedded Meecrowave/CXF
+           instance below (org.apache.meecrowave.cxf.ConfigurableBus also needs a jakarta.json.spi.JsonProvider
+           and a jakarta-namespaced johnzon-jsonb JAX-RS provider on this classpath), so both consumers now
+           agree on the jakarta line - no dependencyManagement re-pin conflict like other javax/jakarta split
+           modules in this reactor. -->
+      <groupId>jakarta.json.bind</groupId>
+      <artifactId>jakarta.json.bind-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-json_1.1_spec</artifactId>
-      <version>${geronimo-json.version}</version>
+      <groupId>jakarta.json</groupId>
+      <artifactId>jakarta.json-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
+      <version>${johnzon.version}</version>
     </dependency>
 
     <dependency>
@@ -137,6 +141,17 @@
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-tools-webapp</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <!-- QTDI-3497: component-tools-webapp declares openwebbeans-se as "provided" and relies on its consumer to
+           supply a CDI-SE runtime; StaticResourceGenerator/StaticUiSpecGenerator (used by WebMojo/UiSpecGeneratorMojo)
+           boot a jakarta.enterprise.inject.se.SeContainer directly, so this plugin's own classpath must carry a
+           jakarta-namespaced openwebbeans-se rather than relying on whatever (possibly javax-based, pre-jakarta)
+           dependency graph the consuming project happens to resolve - otherwise SeContainerInitializer.newInstance()
+           fails with "No valid CDI implementation found" when run against non-migrated downstream projects. -->
+      <groupId>org.apache.openwebbeans</groupId>
+      <artifactId>openwebbeans-se</artifactId>
+      <version>${owb.version}</version>
     </dependency>
 
     <dependency>

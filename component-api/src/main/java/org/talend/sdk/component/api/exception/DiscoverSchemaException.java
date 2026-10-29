@@ -15,8 +15,8 @@
  */
 package org.talend.sdk.component.api.exception;
 
-import javax.json.bind.annotation.JsonbCreator;
-import javax.json.bind.annotation.JsonbPropertyOrder;
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbPropertyOrder;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
