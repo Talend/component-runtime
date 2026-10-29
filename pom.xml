@@ -266,7 +266,6 @@
     <maven-site-plugin.version>3.21.0</maven-site-plugin.version>
     <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
     <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
-    <ossindex-maven-plugin.version>3.2.0</ossindex-maven-plugin.version>
     <sonar-maven-plugin.version>5.7.0.6970</sonar-maven-plugin.version>
     <plexus-utils.version>4.0.3</plexus-utils.version>
 
@@ -1322,12 +1321,6 @@
           <version>${jib-maven-plugin.version}</version>
         </plugin>
         <plugin>
-          <!--  mvn ossindex:audit -->
-          <groupId>org.sonatype.ossindex.maven</groupId>
-          <artifactId>ossindex-maven-plugin</artifactId>
-          <version>${ossindex-maven-plugin.version}</version>
-        </plugin>
-        <plugin>
           <groupId>com.diffplug.spotless</groupId>
           <artifactId>spotless-maven-plugin</artifactId>
           <version>${spotless-maven-plugin.version}</version>
@@ -1385,23 +1378,6 @@
       </plugins>
     </pluginManagement>
     <plugins>
-      <plugin>
-        <!--  mvn ossindex:audit -->
-        <groupId>org.sonatype.ossindex.maven</groupId>
-        <artifactId>ossindex-maven-plugin</artifactId>
-        <configuration>
-          <scope>compile,runtime</scope>
-        </configuration>
-        <executions>
-          <execution>
-            <id>audit-dependencies</id>
-            <goals>
-              <goal>audit</goal>
-            </goals>
-            <phase />
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
