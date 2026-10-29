@@ -42,7 +42,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbConfig;
@@ -239,7 +238,7 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
                         ContainerFinder.Instance.get().find(plugin()).findService(JsonBuilderFactory.class);
             }
             if (jsonBuilderFactory == null) {
-                jsonBuilderFactory = Json.createBuilderFactory(emptyMap());
+                jsonBuilderFactory = SharedJsonProviders.jsonProvider().createBuilderFactory(emptyMap());
             }
         }
         return jsonBuilderFactory;
