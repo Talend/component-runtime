@@ -23,8 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,6 +37,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import javax.json.JsonObject;
+import javax.json.bind.spi.JsonbProvider;
+import javax.json.spi.JsonProvider;
 
 import org.junit.jupiter.api.Test;
 
@@ -85,16 +89,7 @@ class SharedJsonProvidersTest {
 
     @Test
     void initializationIgnoresIsolatedContextClassLoader() throws Exception {
-        final URL[] classpath = Arrays
-                .stream(System.getProperty("java.class.path").split(File.pathSeparator))
-                .map(entry -> {
-                    try {
-                        return new File(entry).toURI().toURL();
-                    } catch (final Exception e) {
-                        throw new IllegalStateException(e);
-                    }
-                })
-                .toArray(URL[]::new);
+        final URL[] classpath = frameworkClasspath();
         final Thread thread = Thread.currentThread();
         final ClassLoader caller = thread.getContextClassLoader();
         // fresh holder class (own static state) in a loader which does not delegate SharedJsonProviders
@@ -112,5 +107,30 @@ class SharedJsonProvidersTest {
         } finally {
             thread.setContextClassLoader(caller);
         }
+    }
+
+    // surefire may use an isolated classloader (manifest-only jar), so java.class.path alone is not enough:
+    // also use the active test classloader and the code sources of the classes the holder needs
+    private static URL[] frameworkClasspath() throws Exception {
+        final Set<URL> urls = new LinkedHashSet<>();
+        final ClassLoader testLoader = SharedJsonProvidersTest.class.getClassLoader();
+        if (testLoader instanceof URLClassLoader) {
+            urls.addAll(Arrays.asList(((URLClassLoader) testLoader).getURLs()));
+        }
+        for (final String entry : System.getProperty("java.class.path").split(File.pathSeparator)) {
+            if (!entry.isEmpty()) {
+                urls.add(new File(entry).toURI().toURL());
+            }
+        }
+        for (final Class<?> clazz : Arrays
+                .<Class<?>> asList(SharedJsonProviders.class, JsonProvider.class,
+                        SharedJsonProviders.jsonProvider().getClass(), JsonbProvider.class,
+                        SharedJsonProviders.jsonbProvider().getClass())) {
+            final CodeSource source = clazz.getProtectionDomain().getCodeSource();
+            if (source != null && source.getLocation() != null) {
+                urls.add(source.getLocation());
+            }
+        }
+        return urls.toArray(new URL[0]);
     }
 }
