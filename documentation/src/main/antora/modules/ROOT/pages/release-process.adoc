@@ -35,11 +35,6 @@ Add the required credentials to your Maven `settings.xml` file for the release. 
       <password>${env.TLND_GITHUB_PASSWORD}</password>
     </server>
     <server>
-      <id>jira</id>
-      <username>${env.TLND_JIRA_USER}</username>
-      <password>${env.TLND_JIRA_PASS}</password>
-    </server>
-    <server>
       <id>jetbrains</id>
       <username>${env.JETBRAINS_USER}</username>
       <password>${env.JETBRAINS_PASS}</password>
@@ -83,15 +78,8 @@ NOTE: All the environment variables should be either set in your environment or 
 1. The OSSH variables are your Sonatype OSS repository credentials with the permissions to deploy on org.talend.
 If you don't have them already, you can ask for them at https://issues.sonatype.org/projects/OSSRH using your Talend address.
 2. The GitHub variables are your GitHub account credentials. they are mainly used to update the documentation.
-3. The JIRA variables are your Talend account credentials with read permissions on https://jira.talendforge.org/projects/TCOMP/.
-4. The Blackduck configuration is used for security scans.
-5. The GPG variables reference the key mentioned in <<generate-gpg-key>>.
-
-== Cleaning up JIRA
-
-The release connects to JIRA to retrieve and create the release notes. It uses all `TCOMP` issues which have the `changelog` label.
-
-Before any release, go through all the issues of the version to release and add or remove the `changelog` label depending on the issues that need to appear in the release notes.
+3. The Blackduck configuration is used for security scans.
+4. The GPG variables reference the key mentioned in <<generate-gpg-key>>.
 
 == Releasing
 
