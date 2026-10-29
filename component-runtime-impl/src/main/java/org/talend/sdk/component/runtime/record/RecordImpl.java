@@ -47,7 +47,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
@@ -102,7 +101,8 @@ public final class RecordImpl implements Record {
                         .setProperty("johnzon.cdi.activated", false))) {
             return new RecordConverters()
                     .toType(new RecordConverters.MappingMetaRegistry(), this, JsonObject.class,
-                            () -> Json.createBuilderFactory(emptyMap()), SharedJsonProviders::jsonProvider, () -> jsonb,
+                            () -> SharedJsonProviders.jsonProvider().createBuilderFactory(emptyMap()),
+                            SharedJsonProviders::jsonProvider, () -> jsonb,
                             () -> new RecordBuilderFactoryImpl("tostring"))
                     .toString();
         } catch (final Exception e) {

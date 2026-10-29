@@ -47,7 +47,6 @@ import java.util.OptionalLong;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.json.Json;
 import javax.json.bind.JsonbConfig;
 
 import org.dom4j.DocumentException;
@@ -108,9 +107,11 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
     private static final RecordService RECORD_SERVICE =
             new DefaultServiceProvider(null, SharedJsonProviders.jsonProvider(),
-                    Json.createGeneratorFactory(emptyMap()),
-                    Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
-                    Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
+                    SharedJsonProviders.jsonProvider().createGeneratorFactory(emptyMap()),
+                    SharedJsonProviders.jsonProvider().createReaderFactory(emptyMap()),
+                    SharedJsonProviders.jsonProvider().createBuilderFactory(emptyMap()),
+                    SharedJsonProviders.jsonProvider().createParserFactory(emptyMap()),
+                    SharedJsonProviders.jsonProvider().createWriterFactory(emptyMap()), new JsonbConfig(),
                     SharedJsonProviders.jsonbProvider(), null, null, emptyList(),
                     t -> new RecordBuilderFactoryImpl("di"), null)
                     .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,

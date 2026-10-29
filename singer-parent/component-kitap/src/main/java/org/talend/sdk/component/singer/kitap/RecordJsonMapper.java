@@ -32,7 +32,6 @@ import java.util.OptionalLong;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
@@ -59,9 +58,11 @@ public class RecordJsonMapper implements Function<Record, JsonObject> {
 
     private final RecordService service =
             (RecordService) new DefaultServiceProvider(null, SharedJsonProviders.jsonProvider(),
-                    Json.createGeneratorFactory(emptyMap()),
-                    Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
-                    Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
+                    SharedJsonProviders.jsonProvider().createGeneratorFactory(emptyMap()),
+                    SharedJsonProviders.jsonProvider().createReaderFactory(emptyMap()),
+                    SharedJsonProviders.jsonProvider().createBuilderFactory(emptyMap()),
+                    SharedJsonProviders.jsonProvider().createParserFactory(emptyMap()),
+                    SharedJsonProviders.jsonProvider().createWriterFactory(emptyMap()), new JsonbConfig(),
                     SharedJsonProviders.jsonbProvider(), null, null, emptyList(),
                     t -> new RecordBuilderFactoryImpl("kitap"), null)
                     .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,

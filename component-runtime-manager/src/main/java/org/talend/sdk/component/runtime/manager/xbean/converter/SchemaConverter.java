@@ -26,7 +26,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonNumber;
@@ -192,7 +191,7 @@ public class SchemaConverter extends AbstractConverter {
         if (schema == null) {
             return null;
         }
-        final JsonObjectBuilder builder = Json.createObjectBuilder();
+        final JsonObjectBuilder builder = SharedJsonProviders.jsonProvider().createObjectBuilder();
         builder.add(TYPE, schema.getType().name());
         if (schema.getType() == Schema.Type.RECORD) {
             this.addEntries(builder, ENTRIES, schema.getAllEntries());
@@ -220,14 +219,14 @@ public class SchemaConverter extends AbstractConverter {
         if (entries == null) {
             return;
         }
-        final JsonArrayBuilder jsonEntries = Json.createArrayBuilder();
+        final JsonArrayBuilder jsonEntries = SharedJsonProviders.jsonProvider().createArrayBuilder();
         objectBuilder.add(name, jsonEntries);
         entries.map(this::entryToJson)
                 .forEach(jsonEntries::add);
     }
 
     private JsonObjectBuilder entryToJson(final Schema.Entry entry) {
-        final JsonObjectBuilder entryBuilder = Json.createObjectBuilder();
+        final JsonObjectBuilder entryBuilder = SharedJsonProviders.jsonProvider().createObjectBuilder();
         entryBuilder.add("name", entry.getName());
         entryBuilder.add(TYPE, entry.getType().name());
         entryBuilder.add("nullable", entry.isNullable());
@@ -267,7 +266,7 @@ public class SchemaConverter extends AbstractConverter {
         if (properties == null || properties.isEmpty()) {
             return;
         }
-        final JsonObjectBuilder jsonProps = Json.createObjectBuilder();
+        final JsonObjectBuilder jsonProps = SharedJsonProviders.jsonProvider().createObjectBuilder();
         properties.entrySet()
                 .forEach(
                         (Map.Entry<String, String> e) -> jsonProps.add(e.getKey(), e.getValue()));
@@ -279,16 +278,16 @@ public class SchemaConverter extends AbstractConverter {
             return JsonValue.NULL;
         }
         if (object instanceof Integer casted) {
-            return Json.createValue(casted);
+            return SharedJsonProviders.jsonProvider().createValue(casted);
         }
         if (object instanceof Long casted) {
-            return Json.createValue(casted);
+            return SharedJsonProviders.jsonProvider().createValue(casted);
         }
         if (object instanceof BigInteger casted) {
-            return Json.createValue(casted);
+            return SharedJsonProviders.jsonProvider().createValue(casted);
         }
         if (object instanceof BigDecimal casted) {
-            return Json.createValue(casted);
+            return SharedJsonProviders.jsonProvider().createValue(casted);
         }
         if (object instanceof Boolean) {
             if (object == Boolean.TRUE) {
@@ -297,17 +296,17 @@ public class SchemaConverter extends AbstractConverter {
             return JsonValue.FALSE;
         }
         if (object instanceof String casted) {
-            return Json.createValue(casted);
+            return SharedJsonProviders.jsonProvider().createValue(casted);
         }
         // Floating-point fallback: Float/Double via doubleValue().
         if (object instanceof Double || object instanceof Float) {
-            return Json.createValue(((Number) object).doubleValue());
+            return SharedJsonProviders.jsonProvider().createValue(((Number) object).doubleValue());
         }
         // Integral fallback for remaining Number types (Short, Byte, AtomicInteger, AtomicLong, ...).
         // Must stay after BigInteger/BigDecimal to preserve their precision, and uses longValue()
         // to avoid both precision loss and unwanted decimal representation (e.g. 7 -> 7.0).
         if (object instanceof Number casted) {
-            return Json.createValue(casted.longValue());
+            return SharedJsonProviders.jsonProvider().createValue(casted.longValue());
         }
 
         return null;

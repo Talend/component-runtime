@@ -20,7 +20,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -76,6 +80,37 @@ class SharedJsonProvidersTest {
         final JsonObject object = SharedJsonProviders.jsonProvider().createObjectBuilder().add("a", "b").build();
         try (final javax.json.bind.Jsonb jsonb = SharedJsonProviders.jsonbProvider().create().build()) {
             assertTrue(jsonb.toJson(object).contains("\"a\""));
+        }
+    }
+
+    @Test
+    void initializationIgnoresIsolatedContextClassLoader() throws Exception {
+        final URL[] classpath = Arrays
+                .stream(System.getProperty("java.class.path").split(File.pathSeparator))
+                .map(entry -> {
+                    try {
+                        return new File(entry).toURI().toURL();
+                    } catch (final Exception e) {
+                        throw new IllegalStateException(e);
+                    }
+                })
+                .toArray(URL[]::new);
+        final Thread thread = Thread.currentThread();
+        final ClassLoader caller = thread.getContextClassLoader();
+        // fresh holder class (own static state) in a loader which does not delegate SharedJsonProviders
+        try (final URLClassLoader framework = new URLClassLoader(classpath, ClassLoader.getPlatformClassLoader());
+                final URLClassLoader isolated = new URLClassLoader(new URL[0], null)) {
+            thread.setContextClassLoader(isolated);
+            final Object provider = framework
+                    .loadClass(SharedJsonProviders.class.getName())
+                    .getMethod("jsonProvider")
+                    .invoke(null);
+            assertNotNull(provider);
+            // bound to the framework classloader, not to the isolated container one
+            assertSame(framework, provider.getClass().getClassLoader());
+            assertSame(isolated, thread.getContextClassLoader());
+        } finally {
+            thread.setContextClassLoader(caller);
         }
     }
 }

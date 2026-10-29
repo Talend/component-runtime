@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.runtime.input;
 
-import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.annotation.JsonbProperty;
@@ -41,10 +40,13 @@ public class CheckpointState {
     private Object state;
 
     public JsonObject toJson() {
-        return Json.createObjectBuilder()
-                .add(CHECKPOINT_KEY, Json.createObjectBuilder(JSONB.fromJson(JSONB.toJson(state), JsonObject.class))
-                        .add(VERSION_KEY, version)
-                        .build())
+        return SharedJsonProviders.jsonProvider()
+                .createObjectBuilder()
+                .add(CHECKPOINT_KEY,
+                        SharedJsonProviders.jsonProvider()
+                                .createObjectBuilder(JSONB.fromJson(JSONB.toJson(state), JsonObject.class))
+                                .add(VERSION_KEY, version)
+                                .build())
                 .build();
     }
 }
