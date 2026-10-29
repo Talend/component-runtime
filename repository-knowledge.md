@@ -133,6 +133,29 @@ The repo has **two** JUnit testing modules under `component-runtime-testing/`:
 
 Always depend on `component-runtime-junit` for new test code.
 
+### `uispec` goal — isolated classloader and how to verify it
+
+[2026-10-05 | QTDI-3531] `talend-component:uispec` (`StaticUiSpecGenerator`) starts an embedded server, so it must not run in
+the mojo's own realm: that realm contains the plugin dependencies plus the transitive dependencies of
+every connector CAR declared as plugin dependency, and a CXF 4 (jakarta servlet) there shadows CXF 3.6
+(javax) → `VerifyError`. The design therefore relies on an isolated classloader
+(`UiSpecGeneratorMojo` + `uispec-generator.properties`, versions kept in lock-step with the plugin
+version), guarded by the invoker IT `src/it/uispec`. The invoker configuration lives in the `ci-build`
+profile (also auto-activated when `JENKINS_URL` is set), and the IT must run against the freshly
+packaged plugin (a bare `invoker:run` resolves a stale remote SNAPSHOT instead):
+
+```bash
+mvn verify -pl talend-component-maven-plugin -Pci-build -DskipTests -Dinvoker.test=uispec
+```
+
+The mojo resolves the generator classpath from `${project.remoteProjectRepositories}` (the artifacts are
+regular dependencies, not plugins); `UiSpecGeneratorMojoTest` covers the isolation logic in the default build.
+
+[2026-10-05 | QTDI-3531] Manual validation against real connectors: in
+`connectors/cloud/cloud-components-docker`, run
+`mvn -o talend-component:uispec -PPUSH_DOCKER -Dcomponent-runtime.version=<local SNAPSHOT>`
+(~2 min, produces `target/talend-component-kit/uispec.zip`).
+
 ---
 
 ## CI / Jenkinsfile patterns
@@ -175,6 +198,19 @@ _Discovered: QTDI-3123, 2026-07-10_
 `.jenkins/settings.xml` already has a `talend.snapshots` server entry. The credentials binding ID is `nexusCredentials`, which injects `NEXUS_USERNAME` and `NEXUS_PASSWORD`. **No `settings.xml` edits are needed** when adding a new deploy step targeting the internal Nexus — only add the `withCredentials` block in `Jenkinsfile`.
 
 _Discovered: QTDI-3123, 2026-07-10_
+
+### JDK sources — build JDK vs. runtime JDK
+
+Two independent JDKs are in play; a JDK CVE must be assessed against each:
+
+| JDK | Pinned in | Used for |
+|---|---|---|
+| Build / CI JDK | `.tool-versions` (`java <asdf-version>`), applied by `Jenkinsfile` / `ci/Jenkinsfile-release` via `JenkinsPodConfig.asdfSetVersion` | Compiling and testing only |
+| Runtime JDK of the Docker images (`component-server-image`, `component-starter-server-image`, `remote-engine-customizer-image`) | TSBI base image `java17-base`, version `docker.tsbi.version.release` / `docker.tsbi.version.date` in `images/pom.xml` | What actually runs in production |
+
+The libraries themselves run on the consumer's JDK (Studio, Remote Engine, cloud), which this repo does not control. Bumping `.tool-versions` alone does **not** remediate a runtime JDK CVE (e.g. a TLS trust-store / CA-distrust issue): the TSBI base image must also be bumped to a version embedding the fixed JDK. Before bumping, verify the target build really contains the fix — a vendor's "affected versions" list names the **last vulnerable** version, and out-of-band fixes ship as `x.y.z.0.N` releases (e.g. 17.0.21.0.2).
+
+_Discovered: QTDI-3656, 2026-10-27_
 
 ---
 

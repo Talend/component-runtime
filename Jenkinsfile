@@ -37,6 +37,10 @@ final def gitCredentials = usernamePassword(
     credentialsId: 'github-credentials',
     usernameVariable: 'GITHUB_LOGIN',
     passwordVariable: 'GITHUB_TOKEN')
+final def githubPackagesCredentials = usernamePassword(
+    credentialsId: 'github-packages-ci-runner-connectors-pat',
+    usernameVariable: 'GITHUB_PACKAGES_LOGIN',
+    passwordVariable: 'GITHUB_PACKAGES_TOKEN')
 final def dockerCredentials = usernamePassword(
     credentialsId: 'artifactory-datapwn-credentials',
     usernameVariable: 'DOCKER_USER',
@@ -155,6 +159,12 @@ pipeline {
             INFO: master/maintenance branch deploys artefacts on <oss.sonatype.org>
                   dev branches deploy artefacts on <artifacts-zl.talend.com>''')
     booleanParam(
+        name: 'GITHUB_PACKAGES_DEV_DEPLOY',
+        defaultValue: false,
+        description: '''
+            Also publish the qualified snapshot of a development branch to GitHub Packages (Nexus replacement).
+            Needs MAVEN_DEPLOY. No effect on master and maintenance, which are always published.''')
+    booleanParam(
         name: 'DOCKER_PUSH',
         defaultValue: false,
         description: '''
@@ -200,10 +210,6 @@ pipeline {
         name: 'DISABLE_SONAR',
         defaultValue: false,
         description: 'Cancel the Sonar analysis stage execution')
-    booleanParam(
-        name: 'FORCE_SECURITY_ANALYSIS',
-        defaultValue: false,
-        description: 'Force OSS security analysis stage for branches.')
     booleanParam(
         name: 'FORCE_DEPS_REPORT',
         defaultValue: false,
@@ -471,6 +477,30 @@ pipeline {
         }
       }
     }
+    stage('Maven deploy - GitHub Packages') {
+      // Temporary extra copy of what goes to Nexus (Nexus license ends Nov 2026, QTDI-3640).
+      // Sonatype-only deploys are not concerned. Non-blocking: failures only make the build UNSTABLE.
+      when {
+        expression { stdBranch_buildOnly || (devBranch_mavenDeploy && needQualify && params.GITHUB_PACKAGES_DEV_DEPLOY) }
+      }
+      steps {
+        script {
+          catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+            withCredentials([githubPackagesCredentials]) {
+              sh """\
+                #!/usr/bin/env bash
+                set -xe
+                mvn deploy ${nexusDeployOptions} \
+                            --fail-at-end \
+                            -DaltDeploymentRepository=github_package_snapshots::default::https://maven.pkg.github.com/Talend/global-artifacts \
+                            ${extraBuildParams} \
+                            --settings .jenkins/settings.xml
+                """.stripIndent()
+            }
+          }
+        }
+      }
+    }
     stage('Maven deploy - Nexus') {
       // Deploy to internal Nexus first on master/maintenance builds so that
       // connectors-se Jenkins agents (which cannot reach central.sonatype.com)
@@ -617,36 +647,6 @@ pipeline {
                                 $skipOptions \
                                 $extraBuildParams 
             """.stripIndent()
-        }
-      }
-    }
-    stage('OSS security analysis') {
-      when {
-        anyOf {
-          expression { params.ACTION != 'RELEASE' && branch_name == 'master' }
-          expression { params.FORCE_SECURITY_ANALYSIS == true }
-        }
-      }
-      steps {
-        withCredentials([ossrhCredentials]) {
-          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-            sh """
-               bash .jenkins/scripts/mvn-ossindex-audit.sh
-               """
-          }
-        }
-      }
-      post {
-        always {
-          publishHTML(
-              target: [
-                  allowMissing         : true,
-                  alwaysLinkToLastBuild: false,
-                  keepAll              : true,
-                  reportDir            : 'target/',
-                  reportFiles          : 'audit.txt',
-                  reportName           : "security::audit"
-              ])
         }
       }
     }
