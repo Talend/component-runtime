@@ -411,6 +411,7 @@ pipeline {
     stage('Maven release prepare') {
       steps {
         withCredentials([nexusCredentials,
+                         githubPackagesCredentials,
                          ossrhCredentials,
                          gpgCredentials]) {
           script {
@@ -453,6 +454,7 @@ pipeline {
       }
       steps {
         withCredentials([nexusCredentials,
+                         githubPackagesCredentials,
                          ossrhCredentials,
                          jetbrainsCredentials,
                          jiraCredentials,
@@ -494,6 +496,7 @@ pipeline {
       steps {
         withCredentials([gitCredentials,
                          nexusCredentials,
+                         githubPackagesCredentials,
                          ossrhCredentials,
                          dockerCredentials]) {
           script {
@@ -512,6 +515,7 @@ pipeline {
       steps {
         withCredentials([gitCredentials,
                          nexusCredentials,
+                         githubPackagesCredentials,
                          ossrhCredentials]) {
           script {
             echo "Prepare next iteration on $branchName"
@@ -531,6 +535,7 @@ pipeline {
       steps {
         withCredentials([gitCredentials,
                          nexusCredentials,
+                         githubPackagesCredentials,
                          ossrhCredentials]) {
           script {
             echo "Creating a new branch named $maintenanceBranch with version $maintenanceVersion"
