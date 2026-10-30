@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.record;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.util.ServiceConfigurationError;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 import javax.json.bind.spi.JsonbProvider;
@@ -33,10 +34,13 @@ import lombok.NoArgsConstructor;
  * {@link java.util.ServiceLoader} at each call, which reads jars and takes locks: under heavy parallel load
  * this makes threads block each other. Both providers are thread safe so a single instance is enough.
  * <p>
- * The instances are resolved lazily on first use, with the classloader of the framework (falling back on the
- * caller context classloader if that lookup fails). If both lookups fail the failure is propagated as is and
- * the next call tries again. They are meant for framework internal call sites which have no container context
- * and used to call {@code provider()} directly. They must <b>not</b> be used to serve component code living in
+ * The instances are resolved lazily on first use, with the classloader of the framework. If that lookup fails,
+ * the call falls back on the caller context classloader <b>without caching the result</b>, so a provider coming
+ * from an isolated container is never shared nor retained, and the next call tries the framework again. If
+ * both lookups fail the framework failure is propagated (the other one is suppressed).
+ * <p>
+ * They are meant for framework internal call sites which have no container context and used to call
+ * {@code provider()} directly. They must <b>not</b> be used to serve component code living in
  * an isolated container: those keep using the per container providers (see {@code ComponentManager}), so a
  * container embedding its own JSON-P implementation is never given the framework one.
  */
@@ -58,27 +62,15 @@ public final class SharedJsonProviders {
     }
 
     // provider() looks up the implementation through the thread context classloader: the first caller must not
-    // bind the global instance to the classloader of an isolated container, so use the framework one first.
-    // If it does not provide an implementation, fallback on the context classloader of the caller.
-    static <T> T withFrameworkClassLoader(final Supplier<T> lookup, final ClassLoader framework) {
+    // bind the global instance to the classloader of an isolated container, so use the framework one.
+    static <T> T withClassLoader(final Supplier<T> lookup, final ClassLoader classLoader) {
         final Thread thread = Thread.currentThread();
-        final ClassLoader caller = thread.getContextClassLoader();
+        final ClassLoader previous = thread.getContextClassLoader();
         try {
-            thread.setContextClassLoader(framework);
+            thread.setContextClassLoader(classLoader);
             return lookup.get();
-        } catch (final RuntimeException | ServiceConfigurationError frameworkFailure) {
-            if (caller == null || caller == framework) {
-                throw frameworkFailure;
-            }
-            thread.setContextClassLoader(caller);
-            try {
-                return lookup.get();
-            } catch (final RuntimeException | ServiceConfigurationError callerFailure) {
-                frameworkFailure.addSuppressed(callerFailure);
-                throw frameworkFailure;
-            }
         } finally {
-            thread.setContextClassLoader(caller);
+            thread.setContextClassLoader(previous);
         }
     }
 
@@ -91,7 +83,7 @@ public final class SharedJsonProviders {
 
         private final ClassLoader framework;
 
-        private volatile T value;
+        private final AtomicReference<T> value = new AtomicReference<>();
 
         Lazy(final Supplier<T> factory, final ClassLoader framework) {
             this.factory = factory;
@@ -99,17 +91,36 @@ public final class SharedJsonProviders {
         }
 
         T get() {
-            T instance = value;
-            if (instance == null) {
+            final T instance = value.get();
+            return instance != null ? instance : resolve();
+        }
+
+        private T resolve() {
+            try {
                 synchronized (this) {
-                    instance = value;
+                    T instance = value.get();
                     if (instance == null) {
-                        instance = withFrameworkClassLoader(factory, framework);
-                        value = instance;
+                        instance = withClassLoader(factory, framework);
+                        value.set(instance);
                     }
+                    return instance;
+                }
+            } catch (final RuntimeException | ServiceConfigurationError frameworkFailure) {
+                // The framework classloader does not provide an implementation: serve this call from the caller
+                // context classloader, but never cache that result. It may belong to an isolated container, and
+                // a global instance would then leak the container classloader and hand its implementation to
+                // every other caller. The next call retries the framework lookup.
+                final ClassLoader caller = Thread.currentThread().getContextClassLoader();
+                if (caller == null || caller == framework) {
+                    throw frameworkFailure;
+                }
+                try {
+                    return withClassLoader(factory, caller);
+                } catch (final RuntimeException | ServiceConfigurationError callerFailure) {
+                    frameworkFailure.addSuppressed(callerFailure);
+                    throw frameworkFailure;
                 }
             }
-            return instance;
         }
     }
 }

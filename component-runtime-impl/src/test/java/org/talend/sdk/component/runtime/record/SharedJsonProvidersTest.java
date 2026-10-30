@@ -31,6 +31,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.json.JsonException;
@@ -92,9 +93,9 @@ class SharedJsonProvidersTest {
         try (final URLClassLoader isolated = new URLClassLoader(new URL[0], null);
                 final URLClassLoader framework = new URLClassLoader(new URL[0], null)) {
             thread.setContextClassLoader(isolated);
-            final ClassLoader seen = SharedJsonProviders
-                    .withFrameworkClassLoader(() -> Thread.currentThread().getContextClassLoader(), framework);
-            assertSame(framework, seen);
+            final SharedJsonProviders.Lazy<ClassLoader> lazy =
+                    new SharedJsonProviders.Lazy<>(() -> Thread.currentThread().getContextClassLoader(), framework);
+            assertSame(framework, lazy.get());
             assertSame(isolated, thread.getContextClassLoader());
         } finally {
             thread.setContextClassLoader(caller);
@@ -108,9 +109,8 @@ class SharedJsonProvidersTest {
         final ClassLoader framework = SharedJsonProviders.class.getClassLoader();
         try (final URLClassLoader isolated = new URLClassLoader(new URL[0], null)) {
             thread.setContextClassLoader(isolated);
-            final JsonProvider json = SharedJsonProviders.withFrameworkClassLoader(JsonProvider::provider, framework);
-            final JsonbProvider jsonb =
-                    SharedJsonProviders.withFrameworkClassLoader(JsonbProvider::provider, framework);
+            final JsonProvider json = new SharedJsonProviders.Lazy<>(JsonProvider::provider, framework).get();
+            final JsonbProvider jsonb = new SharedJsonProviders.Lazy<>(JsonbProvider::provider, framework).get();
             assertNotNull(json);
             assertNotNull(jsonb);
             assertNotSame(isolated, json.getClass().getClassLoader());
@@ -121,20 +121,32 @@ class SharedJsonProvidersTest {
     }
 
     @Test
-    void fallbackOnCallerClassLoaderWhenFrameworkLookupFails() throws Exception {
+    void callerClassLoaderFallbackIsNeverCached() throws Exception {
         final Thread thread = Thread.currentThread();
         final ClassLoader caller = thread.getContextClassLoader();
         try (final URLClassLoader framework = new URLClassLoader(new URL[0], null);
-                final URLClassLoader custom = new URLClassLoader(new URL[0], null)) {
-            thread.setContextClassLoader(custom);
-            final String result = SharedJsonProviders.withFrameworkClassLoader(() -> {
-                if (Thread.currentThread().getContextClassLoader() == framework) {
+                final URLClassLoader container = new URLClassLoader(new URL[0], null)) {
+            final AtomicBoolean frameworkAvailable = new AtomicBoolean();
+            final SharedJsonProviders.Lazy<String> lazy = new SharedJsonProviders.Lazy<>(() -> {
+                final ClassLoader current = Thread.currentThread().getContextClassLoader();
+                if (current == framework && !frameworkAvailable.get()) {
                     throw new JsonException("not found in the framework classloader");
                 }
-                return "from-caller";
+                return current == framework ? "from-framework" : "from-container";
             }, framework);
-            assertEquals("from-caller", result);
-            assertSame(custom, thread.getContextClassLoader());
+
+            thread.setContextClassLoader(container);
+            // served from the caller, as provider() did, and the caller loader is put back
+            assertEquals("from-container", lazy.get());
+            assertSame(container, thread.getContextClassLoader());
+            // not retained: still resolved again, from the caller
+            assertEquals("from-container", lazy.get());
+
+            // once the framework loader provides an implementation it wins and is the one cached
+            frameworkAvailable.set(true);
+            assertEquals("from-framework", lazy.get());
+            assertEquals("from-framework", lazy.get());
+            assertSame(container, thread.getContextClassLoader());
         } finally {
             thread.setContextClassLoader(caller);
         }
@@ -148,10 +160,10 @@ class SharedJsonProvidersTest {
                 final URLClassLoader custom = new URLClassLoader(new URL[0], null)) {
             thread.setContextClassLoader(custom);
             final AtomicInteger calls = new AtomicInteger();
-            final JsonException error = assertThrows(JsonException.class,
-                    () -> SharedJsonProviders.withFrameworkClassLoader(() -> {
-                        throw new JsonException("failure #" + calls.incrementAndGet());
-                    }, framework));
+            final SharedJsonProviders.Lazy<String> lazy = new SharedJsonProviders.Lazy<>(() -> {
+                throw new JsonException("failure #" + calls.incrementAndGet());
+            }, framework);
+            final JsonException error = assertThrows(JsonException.class, lazy::get);
             assertEquals("failure #1", error.getMessage());
             assertEquals(1, error.getSuppressed().length);
             assertEquals("failure #2", error.getSuppressed()[0].getMessage());

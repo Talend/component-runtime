@@ -15,10 +15,19 @@
  */
 package org.talend.sdk.component.runtime.serialization;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,5 +64,68 @@ class ContainerFinderInstanceTest {
         ContainerFinder.Instance.set(() -> plugin -> null);
         ContainerFinder.Instance.reset();
         assertFalse(ContainerFinder.Instance.isInitialized());
+    }
+
+    @Test
+    void unsuccessfulLookupIsDoneOnceAndFallbackIsReused() throws Exception {
+        // a private copy of ContainerFinder (so of its static state) which does not see any service descriptor
+        final URL classes = ContainerFinder.class.getProtectionDomain().getCodeSource().getLocation();
+        try (final HiddenDescriptorClassLoader loader =
+                new HiddenDescriptorClassLoader(classes, ContainerFinder.class.getClassLoader())) {
+            final Class<?> instance = loader.loadClass(ContainerFinder.Instance.class.getName());
+            assertSame(loader, instance.getClassLoader());
+            final Method get = instance.getMethod("get");
+
+            final Object first = get.invoke(null);
+            assertEquals(TCCLContainerFinder.class.getName(), first.getClass().getName());
+            assertSame(loader, first.getClass().getClassLoader());
+            assertSame(first, get.invoke(null));
+            assertSame(first, get.invoke(null));
+
+            assertEquals(1, loader.descriptorLookups.get());
+        }
+    }
+
+    private static class HiddenDescriptorClassLoader extends URLClassLoader {
+
+        private static final String PACKAGE = ContainerFinder.class.getPackage().getName() + '.';
+
+        private static final String DESCRIPTOR = "META-INF/services/" + ContainerFinder.class.getName();
+
+        private final AtomicInteger descriptorLookups = new AtomicInteger();
+
+        private HiddenDescriptorClassLoader(final URL classes, final ClassLoader parent) {
+            super(new URL[] { classes }, parent);
+        }
+
+        @Override
+        protected Class<?> loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
+            if (!name.startsWith(PACKAGE)) {
+                return super.loadClass(name, resolve);
+            }
+            synchronized (getClassLoadingLock(name)) {
+                Class<?> loaded = findLoadedClass(name);
+                if (loaded == null) {
+                    try {
+                        loaded = findClass(name); // child first
+                    } catch (final ClassNotFoundException cnfe) {
+                        return super.loadClass(name, resolve);
+                    }
+                }
+                if (resolve) {
+                    resolveClass(loaded);
+                }
+                return loaded;
+            }
+        }
+
+        @Override
+        public Enumeration<URL> getResources(final String name) throws IOException {
+            if (DESCRIPTOR.equals(name)) {
+                descriptorLookups.incrementAndGet();
+                return Collections.emptyEnumeration();
+            }
+            return super.getResources(name);
+        }
     }
 }
