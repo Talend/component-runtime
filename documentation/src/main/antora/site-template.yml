@@ -22,7 +22,19 @@ urls:
   redirect_facility: static
 content:
   sources:
+  # Current state of this checkout (the version being built). The url is a local path and the branch is the one
+  # currently checked out, so Antora reads the worktree: uncommitted changes and the partials freshly written by
+  # the Generator are rendered. In CI this is the exact commit that is being built.
+  - url: ../../../..
+    branches: HEAD
+    start_path: documentation/src/main/antora
+  # Already released versions: frozen snapshots read from the tags of the remote repository.
+  # branches: ~ disables Antora's default branches (HEAD, v*), otherwise the remote default branch would be rendered a
+  # second time as the current version. worktrees: false so that this source never contributes a worktree either,
+  # even if the url is changed to a local clone.
   - url: https://github.com/Talend/component-runtime.git
+    branches: ~
+    worktrees: false
     tags:
       # we will keep only latest revision, past revisions will still be present. May speed a bit antora process...
       - component-runtime-*
@@ -198,8 +210,6 @@ content:
       - '!component-runtime-1.81.0'
       - '!component-runtime-1.82.0'
 #      - '!component-runtime-1.83.0'
-    branches:
-      - HEAD
     start_path: documentation/src/main/antora
 ui:
   bundle:
