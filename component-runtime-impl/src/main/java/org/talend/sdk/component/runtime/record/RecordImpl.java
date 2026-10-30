@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -108,10 +109,10 @@ public final class RecordImpl implements Record {
 
     // lazy and shared: building a Jsonb is expensive and toString can be called often (logs)
     private static Jsonb toStringJsonb() {
-        Jsonb jsonb = ToStringJsonb.value;
+        Jsonb jsonb = ToStringJsonb.VALUE.get();
         if (jsonb == null) {
             synchronized (ToStringJsonb.class) {
-                jsonb = ToStringJsonb.value;
+                jsonb = ToStringJsonb.VALUE.get();
                 if (jsonb == null) {
                     jsonb = SharedJsonProviders
                             .jsonbProvider()
@@ -121,7 +122,7 @@ public final class RecordImpl implements Record {
                                     .withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL)
                                     .setProperty("johnzon.cdi.activated", false))
                             .build();
-                    ToStringJsonb.value = jsonb;
+                    ToStringJsonb.VALUE.set(jsonb);
                 }
             }
         }
@@ -130,7 +131,7 @@ public final class RecordImpl implements Record {
 
     private static final class ToStringJsonb {
 
-        private static volatile Jsonb value;
+        private static final AtomicReference<Jsonb> VALUE = new AtomicReference<>();
     }
 
     @Override

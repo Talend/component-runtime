@@ -61,19 +61,6 @@ public final class SharedJsonProviders {
         return JSONB_PROVIDER.get();
     }
 
-    // provider() looks up the implementation through the thread context classloader: the first caller must not
-    // bind the global instance to the classloader of an isolated container, so use the framework one.
-    static <T> T withClassLoader(final Supplier<T> lookup, final ClassLoader classLoader) {
-        final Thread thread = Thread.currentThread();
-        final ClassLoader previous = thread.getContextClassLoader();
-        try {
-            thread.setContextClassLoader(classLoader);
-            return lookup.get();
-        } finally {
-            thread.setContextClassLoader(previous);
-        }
-    }
-
     // not a static holder idiom on purpose: a failing initializer would surface as an
     // ExceptionInInitializerError then a NoClassDefFoundError, bypassing the callers fallbacks
     // (catch RuntimeException) and never allowing a retry.
@@ -123,4 +110,18 @@ public final class SharedJsonProviders {
             }
         }
     }
+
+    // provider() looks up the implementation through the thread context classloader: the first caller must not
+    // bind the global instance to the classloader of an isolated container, so use the framework one.
+    static <T> T withClassLoader(final Supplier<T> lookup, final ClassLoader classLoader) {
+        final Thread thread = Thread.currentThread();
+        final ClassLoader previous = thread.getContextClassLoader();
+        try {
+            thread.setContextClassLoader(classLoader);
+            return lookup.get();
+        } finally {
+            thread.setContextClassLoader(previous);
+        }
+    }
+
 }
