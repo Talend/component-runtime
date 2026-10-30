@@ -47,9 +47,7 @@ import java.util.OptionalLong;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.json.Json;
 import javax.json.bind.JsonbConfig;
-import javax.json.bind.spi.JsonbProvider;
 import javax.json.spi.JsonProvider;
 
 import org.dom4j.DocumentException;
@@ -63,6 +61,7 @@ import org.talend.sdk.component.runtime.di.schema.StudioTypes;
 import org.talend.sdk.component.runtime.manager.service.DefaultServiceProvider;
 import org.talend.sdk.component.runtime.record.MappingUtils;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
+import org.talend.sdk.component.runtime.record.SharedJsonProviders;
 
 import routines.system.Dynamic;
 import routines.system.ParserUtils;
@@ -107,13 +106,18 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     // tck entry name to index in dynamic metadata
     private Map<String, Integer> nameToIndex;
 
-    private static final RecordService RECORD_SERVICE =
-            new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
-                    Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
-                    Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
-                    JsonbProvider.provider(), null, null, emptyList(), t -> new RecordBuilderFactoryImpl("di"), null)
-                    .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
-                            RecordService.class, null, null);
+    private static final RecordService RECORD_SERVICE = createRecordService();
+
+    private static RecordService createRecordService() {
+        final JsonProvider json = SharedJsonProviders.jsonProvider();
+        return new DefaultServiceProvider(null, json, json.createGeneratorFactory(emptyMap()),
+                json.createReaderFactory(emptyMap()), json.createBuilderFactory(emptyMap()),
+                json.createParserFactory(emptyMap()), json.createWriterFactory(emptyMap()), new JsonbConfig(),
+                SharedJsonProviders.jsonbProvider(), null, null, emptyList(),
+                t -> new RecordBuilderFactoryImpl("di"), null)
+                .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
+                        RecordService.class, null, null);
+    }
 
     DiRecordVisitor(final Class<?> clzz, final java.util.Map<String, String> metadata) {
         clazz = clzz;
