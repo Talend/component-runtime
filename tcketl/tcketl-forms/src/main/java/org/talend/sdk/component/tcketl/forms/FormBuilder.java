@@ -248,7 +248,7 @@ final class FormBuilder {
             content.getChildren().add(help);
         }
         content.getChildren().add(rows(group.rows(), context.inside(path), scope));
-        if (node.parent().isEmpty()) {
+        if (node.parent().isEmpty() || !node.definition().configurationType().isPresent()) {
             return content;
         }
         final TitledPane pane = new TitledPane(Texts.title(node, context.index()), content);
