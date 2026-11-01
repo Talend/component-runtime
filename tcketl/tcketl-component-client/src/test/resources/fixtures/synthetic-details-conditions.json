@@ -1,0 +1,120 @@
+{
+  "details": [
+    {
+      "actions": [],
+      "displayName": "Conditions",
+      "id": {
+        "family": "synthetic",
+        "familyId": "c3ludGhldGlj",
+        "id": "c3ludGhldGljI0NvbmRpdGlvbnM",
+        "name": "Conditions",
+        "plugin": "synthetic-plugin",
+        "pluginLocation": "org.talend.sdk.component:synthetic-plugin:1.0.0"
+      },
+      "inputFlows": [],
+      "links": [],
+      "metadata": {},
+      "outputFlows": [
+        "__default__"
+      ],
+      "properties": [
+        {
+          "displayName": "conf",
+          "metadata": {
+            "definition::parameter::index": "0",
+            "ui::gridlayout::Main::value": "str,flag|activeIfBool|activeIfNegate|activeIfLength|activeIfAnd|activeIfOr"
+          },
+          "name": "conf",
+          "path": "conf",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "activeIfAnd",
+          "metadata": {
+            "condition::ifs::operator": "AND",
+            "condition::if::value::0": "value",
+            "condition::if::value::1": "true",
+            "condition::if::target::0": "str",
+            "condition::if::target::1": "flag",
+            "condition::if::negate::1": "false",
+            "condition::if::negate::0": "false",
+            "condition::if::evaluationStrategy::0": "DEFAULT",
+            "condition::if::evaluationStrategy::1": "DEFAULT"
+          },
+          "name": "activeIfAnd",
+          "path": "conf.activeIfAnd",
+          "type": "STRING"
+        },
+        {
+          "displayName": "activeIfBool",
+          "metadata": {
+            "condition::if::target": "flag",
+            "condition::if::evaluationStrategy": "DEFAULT",
+            "condition::if::negate": "false",
+            "condition::if::value": "true"
+          },
+          "name": "activeIfBool",
+          "path": "conf.activeIfBool",
+          "type": "STRING"
+        },
+        {
+          "displayName": "activeIfLength",
+          "metadata": {
+            "condition::if::target": "strLength",
+            "condition::if::evaluationStrategy": "LENGTH",
+            "condition::if::negate": "false",
+            "condition::if::value": "7"
+          },
+          "name": "activeIfLength",
+          "path": "conf.activeIfLength",
+          "type": "STRING"
+        },
+        {
+          "displayName": "activeIfNegate",
+          "metadata": {
+            "condition::if::target": "strNegate",
+            "condition::if::evaluationStrategy": "DEFAULT",
+            "condition::if::negate": "true",
+            "condition::if::value": "value"
+          },
+          "name": "activeIfNegate",
+          "path": "conf.activeIfNegate",
+          "type": "STRING"
+        },
+        {
+          "displayName": "activeIfOr",
+          "metadata": {
+            "condition::ifs::operator": "OR",
+            "condition::if::value::0": "a,b",
+            "condition::if::value::1": "true",
+            "condition::if::target::0": "../str",
+            "condition::if::target::1": "flag",
+            "condition::if::negate::1": "true",
+            "condition::if::negate::0": "false",
+            "condition::if::evaluationStrategy::0": "CONTAINS(lowercase=true)",
+            "condition::if::evaluationStrategy::1": "DEFAULT"
+          },
+          "name": "activeIfOr",
+          "path": "conf.activeIfOr",
+          "type": "STRING"
+        },
+        {
+          "displayName": "flag",
+          "metadata": {},
+          "name": "flag",
+          "path": "conf.flag",
+          "type": "BOOLEAN"
+        },
+        {
+          "displayName": "str",
+          "metadata": {},
+          "name": "str",
+          "path": "conf.str",
+          "type": "STRING"
+        }
+      ],
+      "type": "input",
+      "version": 1
+    }
+  ]
+}

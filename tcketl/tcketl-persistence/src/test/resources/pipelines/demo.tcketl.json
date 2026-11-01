@@ -1,0 +1,84 @@
+{
+  "format-version": "1.0",
+  "name": "demo",
+  "nodes": [
+    {
+      "id": "n-1",
+      "label": "Customers",
+      "component": {
+        "id": "Y29uZmlndXJhdGlvbkZvcm1TYW1wbGUjc2FtcGxlRm9ybSNJbnB1dA",
+        "family": "sampleForm",
+        "name": "Input",
+        "plugin": "configurationFormSample",
+        "version": 1
+      },
+      "position": {
+        "x": 120.0,
+        "y": 80.0
+      },
+      "configuration": {
+        "$maxRecords": "100",
+        "config.dataset.datastore.login": "john",
+        "config.dataset.datastore.password": "changeit",
+        "config.dataset.queries[0]": "select * from customers",
+        "config.dataset.queries[1]": "select 1"
+      }
+    },
+    {
+      "id": "n-2",
+      "label": "Enrich",
+      "component": {
+        "id": "aHR0cC1zdHVkaW8jSFRUUCNDbGllbnQ",
+        "family": "HTTP",
+        "name": "Client",
+        "plugin": "http-studio",
+        "version": 5
+      },
+      "position": {
+        "x": 400.0,
+        "y": 80.0
+      },
+      "configuration": {}
+    },
+    {
+      "id": "n-3",
+      "label": "Données",
+      "component": {
+        "id": "YXp1cmUtZGxzLWdlbjIjQXp1cmUjQWRsc0dlbjJPdXRwdXQ",
+        "family": "Azure",
+        "name": "AdlsGen2Output",
+        "plugin": "azure-dls-gen2",
+        "version": 3
+      },
+      "position": {
+        "x": 700.0,
+        "y": 80.5
+      },
+      "configuration": {
+        "configuration.dataset.container": "café"
+      }
+    }
+  ],
+  "links": [
+    {
+      "from": {
+        "node": "n-1",
+        "flow": "__default__"
+      },
+      "to": {
+        "node": "n-2",
+        "flow": "__default__"
+      }
+    },
+    {
+      "from": {
+        "node": "n-2",
+        "flow": "__default__"
+      },
+      "to": {
+        "node": "n-3",
+        "flow": "__default__"
+      }
+    }
+  ]
+}

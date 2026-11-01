@@ -1,0 +1,4 @@
+{
+  "source": "== Input\n\nRetrieves a secret from CyberArk Vault using the REST-based Central Credential Provider.\n\n//configuration_start\n\n=== Configuration\n\n[cols=\"d,d,m,a,e,d\",options=\"header\"]\n|===\n|Display Name|Description|Default Value|Enabled If|   [*** TRUNCATED DOCUMENTATION  ***]  Always enabled|configuration.reason|-\n|===\n\n//configuration_end",
+  "type": "asciidoc"
+}

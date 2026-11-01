@@ -1,0 +1,16 @@
+{
+  "commit": "9f4c5c7aa816d02307f2e79575f683c6d5a05192",
+  "connectors": {
+    "pluginsHash": "7cf20448ce8a28c134da7f65e35fc73020ff4988b119bf7c4fb47df17d7b67a3",
+    "pluginsList": [
+      "configurationFormSample",
+      "fixedschema",
+      "sample-connector"
+    ],
+    "version": "unknown"
+  },
+  "lastUpdated": "2026-10-31T19:47:18.201Z[UTC]",
+  "latestApiVersion": 1,
+  "time": "2026-10-19T11:45:02+02:00",
+  "version": "1.2611.0-SNAPSHOT"
+}

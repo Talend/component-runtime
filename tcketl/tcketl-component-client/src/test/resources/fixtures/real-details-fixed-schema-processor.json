@@ -1,0 +1,103 @@
+{
+  "details": [
+    {
+      "actions": [],
+      "displayName": "Fixed Schema Processor",
+      "icon": "icon",
+      "id": {
+        "family": "sampleFixedSchema",
+        "familyId": "Zml4ZWRzY2hlbWEjc2FtcGxlRml4ZWRTY2hlbWE",
+        "id": "Zml4ZWRzY2hlbWEjc2FtcGxlRml4ZWRTY2hlbWEjUHJvY2Vzc29y",
+        "name": "Processor",
+        "plugin": "fixedschema",
+        "pluginLocation": "org.talend.sdk.component:fixedschema:1.91.0-SNAPSHOT"
+      },
+      "inputFlows": [
+        "__default__"
+      ],
+      "links": [],
+      "metadata": {
+        "documentation::value": "Fixed schema sample processor connector.",
+        "tcomp::ui::schema::fixed": "fixedschemaextended",
+        "tcomp::ui::schema::flows::fixed": "__default__,second"
+      },
+      "outputFlows": [
+        "__default__",
+        "second",
+        "third"
+      ],
+      "properties": [
+        {
+          "displayName": "config",
+          "metadata": {
+            "definition::parameter::index": "0",
+            "ui::gridlayout::Main::value": "dse|aBoolean"
+          },
+          "name": "config",
+          "path": "config",
+          "placeholder": "config",
+          "type": "OBJECT"
+        },
+        {
+          "defaultValue": "false",
+          "displayName": "A boolean",
+          "metadata": {
+            "documentation::value": "A boolean."
+          },
+          "name": "aBoolean",
+          "path": "config.aBoolean",
+          "placeholder": "aBoolean",
+          "type": "BOOLEAN"
+        },
+        {
+          "displayName": "",
+          "metadata": {
+            "configurationtype::name": "fixedschemadse",
+            "configurationtype::type": "dataset",
+            "documentation::value": "The dataset configuration.",
+            "ui::gridlayout::Main::value": "dso|anotherInput"
+          },
+          "name": "dse",
+          "path": "config.dse",
+          "placeholder": "dse",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Another input",
+          "metadata": {
+            "documentation::value": "Another string input."
+          },
+          "name": "anotherInput",
+          "path": "config.dse.anotherInput",
+          "placeholder": "",
+          "type": "STRING"
+        },
+        {
+          "displayName": "",
+          "metadata": {
+            "configurationtype::name": "fixedschemadso",
+            "configurationtype::type": "datastore",
+            "documentation::value": "A datastore.",
+            "ui::gridlayout::Main::value": "input"
+          },
+          "name": "dso",
+          "path": "config.dse.dso",
+          "placeholder": "dso",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Input",
+          "metadata": {
+            "documentation::value": "A string input."
+          },
+          "name": "input",
+          "path": "config.dse.dso.input",
+          "placeholder": "",
+          "type": "STRING"
+        }
+      ],
+      "type": "processor",
+      "version": 1
+    }
+  ]
+}

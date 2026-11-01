@@ -1,0 +1,184 @@
+{
+  "details": [
+    {
+      "actions": [
+        {
+          "displayName": "Check the connection",
+          "family": "synthetic",
+          "name": "checkConnection",
+          "properties": [
+            {
+              "displayName": "datastore",
+              "metadata": {
+                "definition::parameter::index": "0"
+              },
+              "name": "datastore",
+              "path": "datastore",
+              "type": "OBJECT"
+            },
+            {
+              "displayName": "url",
+              "metadata": {},
+              "name": "url",
+              "path": "datastore.url",
+              "type": "STRING"
+            }
+          ],
+          "type": "healthcheck"
+        },
+        {
+          "displayName": "Guess me",
+          "family": "synthetic",
+          "name": "guessMe",
+          "properties": [
+            {
+              "displayName": "arg0",
+              "metadata": {
+                "definition::parameter::index": "0"
+              },
+              "name": "arg0",
+              "path": "arg0",
+              "type": "STRING"
+            }
+          ],
+          "type": "update"
+        },
+        {
+          "displayName": "listTables",
+          "family": "synthetic",
+          "name": "listTables",
+          "properties": [],
+          "type": "dynamic_values"
+        },
+        {
+          "displayName": "discover",
+          "family": "synthetic",
+          "name": "discover",
+          "properties": [
+            {
+              "displayName": "dataset",
+              "metadata": {
+                "definition::parameter::index": "0"
+              },
+              "name": "dataset",
+              "path": "dataset",
+              "type": "OBJECT"
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "displayName": "an action without a name",
+          "family": "synthetic",
+          "properties": [],
+          "type": "user"
+        }
+      ],
+      "displayName": "Actions",
+      "id": {
+        "family": "synthetic",
+        "familyId": "c3ludGhldGlj",
+        "id": "c3ludGhldGljI0FjdGlvbnM",
+        "name": "Actions",
+        "plugin": "synthetic-plugin",
+        "pluginLocation": "org.talend.sdk.component:synthetic-plugin:1.0.0"
+      },
+      "inputFlows": [],
+      "links": [],
+      "metadata": {
+        "mapper::infinite": "true",
+        "mapper::optionalRow": "true"
+      },
+      "outputFlows": [
+        "__default__"
+      ],
+      "properties": [
+        {
+          "displayName": "root",
+          "metadata": {
+            "definition::parameter::index": "0",
+            "action::schema": "discover",
+            "ui::gridlayout::Main::value": "datastore|updatable|columns"
+          },
+          "name": "root",
+          "path": "root",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "columns",
+          "metadata": {
+            "ui::structure::value": "root.columns",
+            "ui::structure::type": "OUT",
+            "ui::structure::discoverSchema": "discover"
+          },
+          "name": "columns",
+          "path": "root.columns",
+          "type": "ARRAY"
+        },
+        {
+          "displayName": "datastore",
+          "metadata": {
+            "action::healthcheck": "checkConnection",
+            "configurationtype::type": "datastore",
+            "configurationtype::name": "synthetic",
+            "ui::gridlayout::Main::value": "driver,url"
+          },
+          "name": "datastore",
+          "path": "root.datastore",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "driver",
+          "metadata": {
+            "action::dynamic_values": "listTables",
+            "action::validation": "checkDriver",
+            "action::validation::parameters": "."
+          },
+          "name": "driver",
+          "path": "root.datastore.driver",
+          "type": "STRING"
+        },
+        {
+          "displayName": "url",
+          "metadata": {
+            "action::suggestions": "suggestUrls",
+            "action::suggestions::parameters": "../driver,.",
+            "action::suggestions::cacheable": "true"
+          },
+          "name": "url",
+          "path": "root.datastore.url",
+          "type": "STRING"
+        },
+        {
+          "displayName": "updatable",
+          "metadata": {
+            "ui::gridlayout::Main::value": "id|name",
+            "action::update": "guessMe",
+            "action::update::after": "id",
+            "action::update::parameters": ".",
+            "action::update::activeIf": "target = setBoolean, value = { true }"
+          },
+          "name": "updatable",
+          "path": "root.updatable",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "id",
+          "metadata": {},
+          "name": "id",
+          "path": "root.updatable.id",
+          "type": "STRING"
+        },
+        {
+          "displayName": "name",
+          "metadata": {},
+          "name": "name",
+          "path": "root.updatable.name",
+          "type": "STRING"
+        }
+      ],
+      "type": "input",
+      "version": 2
+    }
+  ]
+}

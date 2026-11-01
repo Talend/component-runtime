@@ -1,0 +1,217 @@
+{
+  "details": [
+    {
+      "actions": [],
+      "displayName": "Widgets",
+      "id": {
+        "family": "synthetic",
+        "familyId": "c3ludGhldGlj",
+        "id": "c3ludGhldGljI1dpZGdldHM",
+        "name": "Widgets",
+        "plugin": "synthetic-plugin",
+        "pluginLocation": "org.talend.sdk.component:synthetic-plugin:1.0.0"
+      },
+      "inputFlows": [
+        "__default__"
+      ],
+      "links": [],
+      "metadata": {
+        "documentation::value": "Exercises every kind of widget."
+      },
+      "outputFlows": [
+        "__default__",
+        "REJECT"
+      ],
+      "properties": [
+        {
+          "displayName": "Configuration",
+          "metadata": {
+            "definition::parameter::index": "0",
+            "ui::gridlayout::Main::value": "mode|login,password|script|tags|fields|startDate|file",
+            "ui::gridlayout::Advanced::value": "timeout|$maxRecords",
+            "ui::optionsorder::value": "mode,login,password,script,tags,fields,startDate,file,timeout"
+          },
+          "name": "configuration",
+          "path": "configuration",
+          "placeholder": "configuration",
+          "type": "OBJECT"
+        },
+        {
+          "defaultValue": "-1",
+          "displayName": "$maxRecords",
+          "metadata": {},
+          "name": "$maxRecords",
+          "path": "configuration.$maxRecords",
+          "placeholder": "$maxRecords",
+          "type": "NUMBER"
+        },
+        {
+          "displayName": "Fields",
+          "metadata": {
+            "ui::gridlayout::Main::value": "name,kind"
+          },
+          "name": "fields",
+          "path": "configuration.fields",
+          "placeholder": "fields",
+          "type": "ARRAY",
+          "validation": {
+            "maxItems": 10
+          }
+        },
+        {
+          "displayName": "Kind",
+          "metadata": {},
+          "name": "kind",
+          "path": "configuration.fields[].kind",
+          "placeholder": "Kind...",
+          "proposalDisplayNames": {
+            "TEXT": "Text",
+            "NUMBER": "Number"
+          },
+          "type": "ENUM",
+          "validation": {
+            "enumValues": [
+              "TEXT",
+              "NUMBER"
+            ]
+          }
+        },
+        {
+          "displayName": "Name",
+          "metadata": {},
+          "name": "name",
+          "path": "configuration.fields[].name",
+          "placeholder": "Name...",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "displayName": "File",
+          "metadata": {
+            "ui::path::value": "FILE"
+          },
+          "name": "file",
+          "path": "configuration.file",
+          "placeholder": "file",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Login",
+          "metadata": {
+            "documentation::value": "Who connects."
+          },
+          "name": "login",
+          "path": "configuration.login",
+          "placeholder": "login",
+          "type": "STRING",
+          "validation": {
+            "maxLength": 20,
+            "minLength": 3,
+            "pattern": "^[a-z]+$",
+            "required": true
+          }
+        },
+        {
+          "defaultValue": "FAST",
+          "displayName": "Mode",
+          "metadata": {},
+          "name": "mode",
+          "path": "configuration.mode",
+          "placeholder": "mode",
+          "proposalDisplayNames": {
+            "FAST": "Fast",
+            "SLOW": "Slow"
+          },
+          "type": "ENUM",
+          "validation": {
+            "enumValues": [
+              "FAST",
+              "SLOW"
+            ]
+          }
+        },
+        {
+          "displayName": "Password",
+          "metadata": {
+            "ui::credential": "true"
+          },
+          "name": "password",
+          "path": "configuration.password",
+          "placeholder": "password",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Script",
+          "metadata": {
+            "ui::code::value": "sql"
+          },
+          "name": "script",
+          "path": "configuration.script",
+          "placeholder": "script",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Start date",
+          "metadata": {
+            "ui::datetime": "zoneddatetime",
+            "ui::datetime::dateFormat": "yyyy-MM-dd",
+            "ui::datetime::useSeconds": "false"
+          },
+          "name": "startDate",
+          "path": "configuration.startDate",
+          "placeholder": "startDate",
+          "type": "STRING"
+        },
+        {
+          "defaultValue": "[\"a\",\"b\"]",
+          "displayName": "Tags",
+          "metadata": {},
+          "name": "tags",
+          "path": "configuration.tags",
+          "placeholder": "tags",
+          "type": "ARRAY",
+          "validation": {
+            "minItems": 1,
+            "uniqueItems": true
+          }
+        },
+        {
+          "displayName": "Tag ${index}",
+          "metadata": {},
+          "name": "tags[]",
+          "path": "configuration.tags[]",
+          "placeholder": "Tag ${index}",
+          "type": "STRING"
+        },
+        {
+          "defaultValue": "30",
+          "displayName": "Timeout",
+          "metadata": {
+            "ui::readonly": "true"
+          },
+          "name": "timeout",
+          "path": "configuration.timeout",
+          "placeholder": "timeout",
+          "type": "NUMBER",
+          "validation": {
+            "max": 600,
+            "min": 0
+          }
+        },
+        {
+          "displayName": "Added by a newer server",
+          "metadata": {
+            "ui::somethingnew::value": "ignored"
+          },
+          "name": "future",
+          "path": "configuration.future",
+          "type": "FUTURE_TYPE"
+        }
+      ],
+      "type": "processor",
+      "version": 3
+    }
+  ]
+}

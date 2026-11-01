@@ -1,0 +1,239 @@
+{
+  "components": [
+    {
+      "categories": [
+        "the_category_1/the_family"
+      ],
+      "displayName": "Simple Input",
+      "familyDisplayName": "Name: The family -en",
+      "icon": {
+        "customIconType": "image/svg+xml",
+        "icon": "mapper",
+        "theme": "light"
+      },
+      "iconFamily": {
+        "customIconType": "image/svg+xml",
+        "icon": "family",
+        "theme": "light"
+      },
+      "id": {
+        "family": "the_family",
+        "familyId": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+        "id": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I3NpbXBsZS1pbnB1dA",
+        "name": "simple-input",
+        "plugin": "sample-connector",
+        "pluginLocation": "org.talend.sdk.component:sample-connector:1.89.0-SNAPSHOT"
+      },
+      "links": [
+        {
+          "contentType": "application/json",
+          "name": "Detail",
+          "path": "/component/details?identifiers=c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I3NpbXBsZS1pbnB1dA"
+        }
+      ],
+      "metadata": {
+        "documentation::value": "A simple emitter that doesn't expect dynamic dependencies and generated few records.",
+        "mapper::infinite": "false",
+        "mapper::optionalRow": "false"
+      },
+      "type": "input",
+      "version": 1
+    },
+    {
+      "categories": [
+        "the_category_1/the_family"
+      ],
+      "displayName": "Name: The Mapper 1 -en",
+      "familyDisplayName": "Name: The family -en",
+      "icon": {
+        "customIconType": "image/svg+xml",
+        "icon": "mapper",
+        "theme": "light"
+      },
+      "iconFamily": {
+        "customIconType": "image/svg+xml",
+        "icon": "family",
+        "theme": "light"
+      },
+      "id": {
+        "family": "the_family",
+        "familyId": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+        "id": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
+        "name": "TheMapper1",
+        "plugin": "sample-connector",
+        "pluginLocation": "org.talend.sdk.component:sample-connector:1.89.0-SNAPSHOT"
+      },
+      "links": [
+        {
+          "contentType": "application/json",
+          "name": "Detail",
+          "path": "/component/details?identifiers=c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE"
+        }
+      ],
+      "metadata": {
+        "documentation::value": "Doc: This is a sample mapper. -en.",
+        "mapper::infinite": "false",
+        "mapper::optionalRow": "false",
+        "variables::return::value": "MAPPER_FLOW1\\:java.lang.String\\:FLOW\\:Mapper flow variable"
+      },
+      "type": "input",
+      "version": 3
+    },
+    {
+      "categories": [
+        "the_category_1/the_family"
+      ],
+      "displayName": "Name: The Output 1 -en",
+      "familyDisplayName": "Name: The family -en",
+      "icon": {
+        "customIconType": "image/svg+xml",
+        "icon": "output",
+        "theme": "light"
+      },
+      "iconFamily": {
+        "customIconType": "image/svg+xml",
+        "icon": "family",
+        "theme": "light"
+      },
+      "id": {
+        "family": "the_family",
+        "familyId": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+        "id": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
+        "name": "TheOutput1",
+        "plugin": "sample-connector",
+        "pluginLocation": "org.talend.sdk.component:sample-connector:1.89.0-SNAPSHOT"
+      },
+      "links": [
+        {
+          "contentType": "application/json",
+          "name": "Detail",
+          "path": "/component/details?identifiers=c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE"
+        }
+      ],
+      "metadata": {
+        "documentation::value": "Doc: This is a sample output. -en."
+      },
+      "type": "processor",
+      "version": 2
+    },
+    {
+      "categories": [
+        "sample/sampleForm"
+      ],
+      "displayName": "Input",
+      "familyDisplayName": "sampleForm",
+      "icon": {
+        "customIconType": "image/svg+xml",
+        "icon": "icon",
+        "theme": "light"
+      },
+      "iconFamily": {
+        "customIconType": "image/svg+xml",
+        "icon": "icon",
+        "theme": "light"
+      },
+      "id": {
+        "family": "sampleForm",
+        "familyId": "Y29uZmlndXJhdGlvbkZvcm1TYW1wbGUjc2FtcGxlRm9ybQ",
+        "id": "Y29uZmlndXJhdGlvbkZvcm1TYW1wbGUjc2FtcGxlRm9ybSNJbnB1dA",
+        "name": "Input",
+        "plugin": "configurationFormSample",
+        "pluginLocation": "org.talend.sdk.component:configurationFormSample:1.2611.0-SNAPSHOT"
+      },
+      "links": [
+        {
+          "contentType": "application/json",
+          "name": "Detail",
+          "path": "/component/details?identifiers=Y29uZmlndXJhdGlvbkZvcm1TYW1wbGUjc2FtcGxlRm9ybSNJbnB1dA"
+        }
+      ],
+      "metadata": {
+        "documentation::value": "A connector that returns only 1 record reflecting the configuration.",
+        "mapper::infinite": "false",
+        "mapper::optionalRow": "false"
+      },
+      "type": "input",
+      "version": 1
+    },
+    {
+      "categories": [
+        "sample/sampleFixedSchema"
+      ],
+      "displayName": "Fixed Schema Input",
+      "familyDisplayName": "sampleFixedSchema",
+      "icon": {
+        "customIconType": "image/svg+xml",
+        "icon": "icon",
+        "theme": "light"
+      },
+      "iconFamily": {
+        "customIconType": "image/svg+xml",
+        "icon": "icon",
+        "theme": "light"
+      },
+      "id": {
+        "family": "sampleFixedSchema",
+        "familyId": "Zml4ZWRzY2hlbWEjc2FtcGxlRml4ZWRTY2hlbWE",
+        "id": "Zml4ZWRzY2hlbWEjc2FtcGxlRml4ZWRTY2hlbWEjSW5wdXQ",
+        "name": "Input",
+        "plugin": "fixedschema",
+        "pluginLocation": "org.talend.sdk.component:fixedschema:1.91.0-SNAPSHOT"
+      },
+      "links": [
+        {
+          "contentType": "application/json",
+          "name": "Detail",
+          "path": "/component/details?identifiers=Zml4ZWRzY2hlbWEjc2FtcGxlRml4ZWRTY2hlbWEjSW5wdXQ"
+        }
+      ],
+      "metadata": {
+        "documentation::value": "Fixed schema sample input connector.",
+        "mapper::infinite": "false",
+        "mapper::optionalRow": "false",
+        "tcomp::ui::schema::fixed": "fixedschemadse",
+        "tcomp::ui::schema::flows::fixed": "__default__"
+      },
+      "type": "input",
+      "version": 1
+    },
+    {
+      "categories": [
+        "sample/sampleFixedSchema"
+      ],
+      "displayName": "Fixed Schema Processor",
+      "familyDisplayName": "sampleFixedSchema",
+      "icon": {
+        "customIconType": "image/svg+xml",
+        "icon": "icon",
+        "theme": "light"
+      },
+      "iconFamily": {
+        "customIconType": "image/svg+xml",
+        "icon": "icon",
+        "theme": "light"
+      },
+      "id": {
+        "family": "sampleFixedSchema",
+        "familyId": "Zml4ZWRzY2hlbWEjc2FtcGxlRml4ZWRTY2hlbWE",
+        "id": "Zml4ZWRzY2hlbWEjc2FtcGxlRml4ZWRTY2hlbWEjUHJvY2Vzc29y",
+        "name": "Processor",
+        "plugin": "fixedschema",
+        "pluginLocation": "org.talend.sdk.component:fixedschema:1.91.0-SNAPSHOT"
+      },
+      "links": [
+        {
+          "contentType": "application/json",
+          "name": "Detail",
+          "path": "/component/details?identifiers=Zml4ZWRzY2hlbWEjc2FtcGxlRml4ZWRTY2hlbWEjUHJvY2Vzc29y"
+        }
+      ],
+      "metadata": {
+        "documentation::value": "Fixed schema sample processor connector.",
+        "tcomp::ui::schema::fixed": "fixedschemaextended",
+        "tcomp::ui::schema::flows::fixed": "__default__,second"
+      },
+      "type": "processor",
+      "version": 1
+    }
+  ]
+}

@@ -1,0 +1,292 @@
+{
+  "details": [
+    {
+      "actions": [
+        {
+          "displayName": "Name: LIST ENTITIES -en",
+          "family": "the_family",
+          "name": "action_LIST_ENTITIES",
+          "properties": [],
+          "type": "suggestions"
+        },
+        {
+          "displayName": "Name: Update the nested config elements -en",
+          "family": "the_family",
+          "name": "action_UPDATE",
+          "properties": [
+            {
+              "displayName": "configuration",
+              "metadata": {
+                "definition::parameter::index": "0",
+                "ui::gridlayout::Main::value": "stringOption1|stringOption2"
+              },
+              "name": "configuration",
+              "path": "configuration",
+              "placeholder": "configuration",
+              "type": "OBJECT"
+            },
+            {
+              "displayName": "Name: Source for string option 1 -en",
+              "metadata": {
+                "documentation::value": "Doc: string option 2 -en."
+              },
+              "name": "stringOption1",
+              "path": "configuration.stringOption1",
+              "placeholder": "Placeholder: source of string option 1 -en",
+              "type": "STRING"
+            },
+            {
+              "displayName": "Name: Source for string option 2 -en",
+              "metadata": {
+                "documentation::value": "Doc: string option 2 -en."
+              },
+              "name": "stringOption2",
+              "path": "configuration.stringOption2",
+              "placeholder": "Placeholder: source of string option 2 -en",
+              "type": "STRING"
+            }
+          ],
+          "type": "update"
+        }
+      ],
+      "displayName": "Name: The Output 1 -en",
+      "icon": "output",
+      "id": {
+        "family": "the_family",
+        "familyId": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+        "id": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
+        "name": "TheOutput1",
+        "plugin": "sample-connector",
+        "pluginLocation": "org.talend.sdk.component:sample-connector:1.89.0-SNAPSHOT"
+      },
+      "inputFlows": [
+        "__default__"
+      ],
+      "links": [],
+      "metadata": {
+        "documentation::value": "Doc: This is a sample output. -en."
+      },
+      "outputFlows": [],
+      "properties": [
+        {
+          "displayName": "configout",
+          "metadata": {
+            "definition::parameter::index": "0",
+            "ui::gridlayout::Advanced::value": "dataset",
+            "ui::gridlayout::Main::value": "message|dataset"
+          },
+          "name": "configout",
+          "path": "configout",
+          "placeholder": "configout",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Name: Dataset -en",
+          "metadata": {
+            "configurationtype::name": "TheDataset",
+            "configurationtype::type": "dataset",
+            "documentation::value": "Doc: The dataset. -en.",
+            "ui::gridlayout::Advanced::value": "readAll|datastore",
+            "ui::gridlayout::Main::value": "entity|nestedConfigSrc|nestedConfigDest|datastore"
+          },
+          "name": "dataset",
+          "path": "configout.dataset",
+          "placeholder": "dataset",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Name: Datastore -en",
+          "metadata": {
+            "configurationtype::name": "TheConnection",
+            "configurationtype::type": "datastore",
+            "documentation::value": "Doc: The connection configuration (datastore). -en.",
+            "ui::gridlayout::Advanced::value": "timeout|auth",
+            "ui::gridlayout::Main::value": "url|auth"
+          },
+          "name": "datastore",
+          "path": "configout.dataset.datastore",
+          "placeholder": "datastore",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Name: Auth -en",
+          "metadata": {
+            "documentation::value": "Doc: The authentication part. -en.",
+            "ui::gridlayout::Advanced::value": "nbAuthRetry",
+            "ui::gridlayout::Main::value": "login|password"
+          },
+          "name": "auth",
+          "path": "configout.dataset.datastore.auth",
+          "placeholder": "auth",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Name: Login -en",
+          "metadata": {
+            "documentation::value": "Doc: The credential's login. -en."
+          },
+          "name": "login",
+          "path": "configout.dataset.datastore.auth.login",
+          "placeholder": "Placeholder: Login -en",
+          "type": "STRING"
+        },
+        {
+          "defaultValue": "0",
+          "displayName": "Name: Number of authentication retry -en",
+          "metadata": {
+            "documentation::value": "Doc: Number of authentication retry. -en."
+          },
+          "name": "nbAuthRetry",
+          "path": "configout.dataset.datastore.auth.nbAuthRetry",
+          "placeholder": "",
+          "type": "NUMBER",
+          "validation": {
+            "max": 2147483647,
+            "min": -2147483648
+          }
+        },
+        {
+          "displayName": "Name: Password -en",
+          "metadata": {
+            "documentation::value": "Doc: The credential's password. -en.",
+            "ui::credential": "true"
+          },
+          "name": "password",
+          "path": "configout.dataset.datastore.auth.password",
+          "placeholder": "Placeholder: Password -en",
+          "type": "STRING"
+        },
+        {
+          "defaultValue": "0",
+          "displayName": "Name: Timeout (ms) -en",
+          "metadata": {
+            "documentation::value": "Doc: Connection's timeout. -en."
+          },
+          "name": "timeout",
+          "path": "configout.dataset.datastore.timeout",
+          "placeholder": "",
+          "type": "NUMBER",
+          "validation": {
+            "max": 2147483647,
+            "min": -2147483648
+          }
+        },
+        {
+          "displayName": "Name: URL -en",
+          "metadata": {
+            "documentation::value": "Doc: The url connection. -en."
+          },
+          "name": "url",
+          "path": "configout.dataset.datastore.url",
+          "placeholder": "Placeholder: URL -en",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "displayName": "Name: Entity -en",
+          "metadata": {
+            "action::suggestions": "action_LIST_ENTITIES",
+            "action::suggestions::labelDisplayMode": "LABEL",
+            "action::suggestions::parameters": ".",
+            "documentation::value": "Doc: Entity list. -en."
+          },
+          "name": "entity",
+          "path": "configout.dataset.entity",
+          "placeholder": "Placeholder: Entity -en",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Name: Destination nested config -en",
+          "metadata": {
+            "action::update": "action_UPDATE",
+            "action::update::activeIf": "",
+            "action::update::after": "nestedConfigDest",
+            "action::update::parameters": "nestedConfigSrc",
+            "documentation::value": "Doc: Updatable sub-object that should retrieve its values from nestedConfigSrc -en.",
+            "ui::gridlayout::Main::value": "stringOption1|stringOption2"
+          },
+          "name": "nestedConfigDest",
+          "path": "configout.dataset.nestedConfigDest",
+          "placeholder": "nestedConfigDest",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Name: Source for string option 1 -en",
+          "metadata": {
+            "documentation::value": "Doc: string option 2 -en."
+          },
+          "name": "stringOption1",
+          "path": "configout.dataset.nestedConfigDest.stringOption1",
+          "placeholder": "Placeholder: source of string option 1 -en",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Name: Source for string option 2 -en",
+          "metadata": {
+            "documentation::value": "Doc: string option 2 -en."
+          },
+          "name": "stringOption2",
+          "path": "configout.dataset.nestedConfigDest.stringOption2",
+          "placeholder": "Placeholder: source of string option 2 -en",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Name: Source nested config -en",
+          "metadata": {
+            "documentation::value": "Doc: Original value for the updatable. -en.",
+            "ui::gridlayout::Main::value": "stringOption1|stringOption2"
+          },
+          "name": "nestedConfigSrc",
+          "path": "configout.dataset.nestedConfigSrc",
+          "placeholder": "nestedConfigSrc",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Name: Source for string option 1 -en",
+          "metadata": {
+            "documentation::value": "Doc: string option 2 -en."
+          },
+          "name": "stringOption1",
+          "path": "configout.dataset.nestedConfigSrc.stringOption1",
+          "placeholder": "Placeholder: source of string option 1 -en",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Name: Source for string option 2 -en",
+          "metadata": {
+            "documentation::value": "Doc: string option 2 -en."
+          },
+          "name": "stringOption2",
+          "path": "configout.dataset.nestedConfigSrc.stringOption2",
+          "placeholder": "Placeholder: source of string option 2 -en",
+          "type": "STRING"
+        },
+        {
+          "defaultValue": "false",
+          "displayName": "Name: Read all data -en",
+          "metadata": {
+            "documentation::value": "Doc: Read all the data. -en."
+          },
+          "name": "readAll",
+          "path": "configout.dataset.readAll",
+          "placeholder": "readAll",
+          "type": "BOOLEAN"
+        },
+        {
+          "displayName": "Name: Message -en",
+          "metadata": {
+            "documentation::value": "Doc: The message. -en."
+          },
+          "name": "message",
+          "path": "configout.message",
+          "placeholder": "Placeholder: Message -en",
+          "type": "STRING"
+        }
+      ],
+      "type": "processor",
+      "version": 2
+    }
+  ]
+}

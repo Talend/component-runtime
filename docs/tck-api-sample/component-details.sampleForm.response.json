@@ -1,0 +1,103 @@
+﻿{
+ "details":  [
+     {
+      "actions":  [
+          {
+           "displayName":  "Updatable",
+           "family":  "sampleForm",
+           "name":  "UPDATABLE",
+           "properties":  [
+                  {
+                   "displayName":  "singleString",
+                   "metadata":  {
+                     "definition::parameter::index":  "0"
+                    },
+                   "name":  "singleString",
+                   "path":  "singleString",
+                   "placeholder":  "singleString",
+                   "type":  "STRING"
+                  },
+                  {
+                   "displayName":  "suggestedElement",
+                   "metadata":  {
+                     "definition::parameter::index":  "1"
+                    },
+                   "name":  "suggestedElement",
+                   "path":  "suggestedElement",
+                   "placeholder":  "suggestedElement",
+                   "type":  "STRING"
+                  }
+                 ],
+           "type":  "update"
+          },
+            ...
+         ],
+      "displayName":  "Input",
+      "icon":  "icon",
+      "id":  {
+           "family":  "sampleForm",
+           "familyId":  "Y29uZmlndXJhdGlvbkZvcm1TYW1wbGUjc2FtcGxlRm9ybQ",
+           "id":  "Y29uZmlndXJhdGlvbkZvcm1TYW1wbGUjc2FtcGxlRm9ybSNJbnB1dA",
+           "name":  "Input",
+           "plugin":  "configurationFormSample",
+           "pluginLocation":  "org.talend.sdk.component:configurationFormSample:1.94.0-SNAPSHOT"
+          },
+      "inputFlows":  [
+
+            ],
+      "links":  [
+
+          ],
+      "metadata":  {
+           "mapper::infinite":  "false",
+           "mapper::optionalRow":  "false",
+           "documentation::value":  "A connector that returns only 1 record reflecting the configuration."
+          },
+      "outputFlows":  [
+           "__default__"
+          ],
+      "properties":  [
+             {
+              "displayName":  "config",
+              "metadata":  {
+                "ui::gridlayout::Advanced::value":  "dataset",
+                "ui::gridlayout::Main::value":  "dataset|displayAllSupportedTypes|allSupportedTypes|displayConfiguredWidget|configuredWidgets|displaySomeLists|someLists|displayElementsWithConstraints|elementsWithConstraints|displayConditionalDisplay|conditionalDisplay|displayDynamicElements|dynamicElements",
+                "definition::parameter::index":  "0"
+               },
+              "name":  "config",
+              "path":  "config",
+              "placeholder":  "config",
+              "type":  "OBJECT"
+             },
+             {
+              "displayName":  "All supported types",
+              "metadata":  {
+                "ui::gridlayout::Main::value":  "aString|aBoolean|aBigDecimal|aFloat|aBigInteger|anInteger|aFile|aInetAddress|aURI|aURL|aLocalDateTime|aZonedDateTime",
+                "condition::if::target":  "displayAllSupportedTypes",
+                "documentation::value":  "A complex configuration with all supported types.",
+                "condition::if::evaluationStrategy":  "DEFAULT",
+                "condition::if::negate":  "false",
+                "condition::if::value":  "true"
+               },
+              "name":  "allSupportedTypes",
+              "path":  "config.allSupportedTypes",
+              "placeholder":  "allSupportedTypes",
+              "type":  "OBJECT"
+             },
+             {
+              "displayName":  "A BigDecimal",
+              "metadata":  {
+                "documentation::value":  "A BigDecimal value."
+               },
+              "name":  "aBigDecimal",
+              "path":  "config.allSupportedTypes.aBigDecimal",
+              "placeholder":  "aBigDecimal",
+              "type":  "STRING"
+             },
+             ...
+            ],
+      "type":  "input",
+      "version":  1
+     }
+    ]
+}

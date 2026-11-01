@@ -1,0 +1,118 @@
+{
+  "components": [
+    {
+      "categories": [
+        "Internet/HTTP"
+      ],
+      "displayName": "HTTP Client connector",
+      "familyDisplayName": "HTTP",
+      "icon": {
+        "customIconType": "image/svg+xml",
+        "icon": "http-connector",
+        "theme": "dark"
+      },
+      "iconFamily": {
+        "customIconType": "image/svg+xml",
+        "icon": "http-family",
+        "theme": "dark"
+      },
+      "id": {
+        "family": "HTTP",
+        "familyId": "aHR0cC1zdHVkaW8jSFRUUA",
+        "id": "aHR0cC1zdHVkaW8jSFRUUCNDbGllbnQ",
+        "name": "Client",
+        "plugin": "http-studio",
+        "pluginLocation": "org.talend.components:http-studio:1.2606.0"
+      },
+      "links": [
+        {
+          "contentType": "application/json",
+          "name": "Detail",
+          "path": "/component/details?identifiers=aHR0cC1zdHVkaW8jSFRUUCNDbGllbnQ"
+        }
+      ],
+      "metadata": {
+        "variables::return::value": "HTTP_INPUT_STREAM\\:java.lang.Object\\:FLOW\\:Input Stream",
+        "documentation::value": "Calls a REST API endpoint per record and forwards the HTTP response downstream."
+      },
+      "type": "processor",
+      "version": 5
+    },
+    {
+      "categories": [
+        "sample/sampleForm"
+      ],
+      "displayName": "Input",
+      "familyDisplayName": "sampleForm",
+      "icon": {
+        "customIconType": "image/svg+xml",
+        "icon": "icon",
+        "theme": "dark"
+      },
+      "iconFamily": {
+        "customIconType": "image/svg+xml",
+        "icon": "icon",
+        "theme": "dark"
+      },
+      "id": {
+        "family": "sampleForm",
+        "familyId": "Y29uZmlndXJhdGlvbkZvcm1TYW1wbGUjc2FtcGxlRm9ybQ",
+        "id": "Y29uZmlndXJhdGlvbkZvcm1TYW1wbGUjc2FtcGxlRm9ybSNJbnB1dA",
+        "name": "Input",
+        "plugin": "configurationFormSample",
+        "pluginLocation": "org.talend.sdk.component:configurationFormSample:1.94.0-SNAPSHOT"
+      },
+      "links": [
+        {
+          "contentType": "application/json",
+          "name": "Detail",
+          "path": "/component/details?identifiers=Y29uZmlndXJhdGlvbkZvcm1TYW1wbGUjc2FtcGxlRm9ybSNJbnB1dA"
+        }
+      ],
+      "metadata": {
+        "mapper::infinite": "false",
+        "mapper::optionalRow": "false",
+        "documentation::value": "A connector that returns only 1 record reflecting the configuration."
+      },
+      "type": "input",
+      "version": 1
+    },
+    {
+      "categories": [
+        "Cloud/Azure"
+      ],
+      "displayName": "Azure Data Lake Storage Gen2 output",
+      "familyDisplayName": "Azure",
+      "icon": {
+        "customIconType": "image/svg+xml",
+        "icon": "AdlsGen2-output",
+        "theme": "dark"
+      },
+      "iconFamily": {
+        "customIconType": "image/svg+xml",
+        "icon": "AdlsGen2-family",
+        "theme": "dark"
+      },
+      "id": {
+        "family": "Azure",
+        "familyId": "YXp1cmUtZGxzLWdlbjIjQXp1cmU",
+        "id": "YXp1cmUtZGxzLWdlbjIjQXp1cmUjQWRsc0dlbjJPdXRwdXQ",
+        "name": "AdlsGen2Output",
+        "plugin": "azure-dls-gen2",
+        "pluginLocation": "org.talend.components:azure-dls-gen2:1.2606.0"
+      },
+      "links": [
+        {
+          "contentType": "application/json",
+          "name": "Detail",
+          "path": "/component/details?identifiers=YXp1cmUtZGxzLWdlbjIjQXp1cmUjQWRsc0dlbjJPdXRwdXQ"
+        }
+      ],
+      "metadata": {
+        "documentation::value": "Writes records as files to Azure Data Lake Storage Gen2."
+      },
+      "type": "processor",
+      "version": 3
+    }
+  ]
+}

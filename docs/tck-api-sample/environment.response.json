@@ -1,0 +1,18 @@
+{
+  "commit": "8d69f1361af1c412d5e5c9984668e94dbc74d250",
+  "connectors": {
+ "pluginsHash": "cdc10526e43f4fc208f0ad4252290c724c070ffdfbf2d8a81e24a331e6bca003",
+ "pluginsList": [
+   "apache-kudu-connector",
+   "aws-bedrock",
+   "aws-documentdb",
+   "aws-s3",
+   ...
+ ],
+ "version": "unknown"
+  },
+  "lastUpdated": "2026-07-17T21:37:06.859Z[UTC]",
+  "latestApiVersion": 1,
+  "time": "2026-04-24T06:42:38Z",
+  "version": "1.91.0"
+}
