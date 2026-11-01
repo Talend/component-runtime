@@ -49,6 +49,22 @@ class FormViewModelTest {
             string("cfg.tags[]"));
 
     @Test
+    void aServiceAnswerReplacesTheObjectItIsAppliedTo() {
+        final FormViewModel model = FormViewModel.of(
+                definitions(object("cfg"), object("cfg.upd"), string("cfg.upd.a"), object("cfg.upd.sub"),
+                        string("cfg.upd.sub.b"), array("cfg.upd.items"), string("cfg.upd.items[]")),
+                map("cfg.upd.a", "old"));
+
+        model.replaceSubtree("cfg.upd", map(".a", "x", ".sub.b", "y", ".items[0]", "i0", ".items[1]", "i1"));
+
+        assertEquals("x", model.get("cfg.upd.a"));
+        assertEquals("y", model.get("cfg.upd.sub.b"));
+        assertEquals(2, model.count("cfg.upd.items"));
+        assertEquals("i1", model.get("cfg.upd.items[1]"));
+        assertEquals("x", model.values().toConfiguration().get("cfg.upd.a"));
+    }
+
+    @Test
     void aHiddenFieldIsNotValidatedAndComesBackWithItsCondition() {
         final FormViewModel model = FormViewModel.of(definitions(object("cfg"), string("cfg.mode"),
                 string("cfg.secret").constraints(Constraints.NONE.withRequired(true))

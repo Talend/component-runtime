@@ -182,6 +182,16 @@ final class FormBuilder {
         return node;
     }
 
+    /** A button is laid out inside its owner, so the context already points at the owner's concrete path. */
+    private static String buttonPath(final ButtonCell cell, final Context context) {
+        final PropertyNode owner = cell.owner();
+        final PropertyNode target = cell.target();
+        if (context.parent() == null || !target.path().startsWith(owner.path())) {
+            return pathOf(target, context);
+        }
+        return context.parent() + target.path().substring(owner.path().length());
+    }
+
     private static String pathOf(final PropertyNode node, final Context context) {
         final String parent = context.parent() != null ? context.parent()
                 : node.parent().map(PropertyNode::path).orElse(null);
@@ -270,7 +280,7 @@ final class FormBuilder {
             button.setTooltip(new Tooltip("The server has no such service for this connector"));
             return box;
         }
-        final String path = pathOf(cell.target(), context);
+        final String path = buttonPath(cell, context);
         final String key = path + '#' + cell.binding().type();
         button.setOnAction(event -> service.request(cell.binding(), path).ifPresent(request -> {
             button.setDisable(true);
@@ -292,9 +302,23 @@ final class FormBuilder {
                     : "\u2717 " + (checked.comment().isEmpty() ? "Failed" : checked.comment()));
             result.getStyleClass().add(checked.ok() ? "form-ok" : "form-ko");
         } else if (outcome instanceof ActionOutcome.Replacement replacement) {
-            model.replaceSubtree(path, replacement.values());
-            result.setText("Updated");
-            result.getStyleClass().add("form-ok");
+            final long known = replacement.values()
+                    .keySet()
+                    .stream()
+                    .filter(suffix -> model.tree().find(path + suffix).isPresent())
+                    .count();
+            if (replacement.values().isEmpty()) {
+                result.setText("\u2717 The service returned no value, nothing was changed");
+                result.getStyleClass().add("form-ko");
+            } else if (known == 0) {
+                result.setText("\u2717 None of the returned values is a field of this form: "
+                        + replacement.values().keySet().stream().limit(5).toList());
+                result.getStyleClass().add("form-ko");
+            } else {
+                model.replaceSubtree(path, replacement.values());
+                result.setText("Updated (" + known + " values)");
+                result.getStyleClass().add("form-ok");
+            }
         } else if (outcome instanceof ActionOutcome.Columns columns) {
             final Map<String, String> entries = new LinkedHashMap<>();
             for (int i = 0; i < columns.names().size(); i++) {

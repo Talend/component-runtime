@@ -19,6 +19,7 @@ import java.util.Optional;
 
 import org.talend.sdk.component.tcketl.app.session.ServerConnection;
 import org.talend.sdk.component.tcketl.domain.connector.ConnectorId;
+import org.talend.sdk.component.tcketl.domain.server.ActionInvoker;
 import org.talend.sdk.component.tcketl.domain.server.ComponentCatalog;
 import org.talend.sdk.component.tcketl.domain.server.ConfigurationMigrator;
 import org.talend.sdk.component.tcketl.domain.server.DocumentationSource;
@@ -50,6 +51,21 @@ public final class FakeConnection implements ServerConnection {
     private int invalidations;
 
     private ConfigurationMigrator migrator = (id, from, configuration) -> configuration;
+
+    private ActionInvoker actions = request -> {
+        throw new UnsupportedOperationException("No service");
+    };
+
+    /** The services the connection offers. */
+    public FakeConnection withActions(final ActionInvoker newActions) {
+        this.actions = newActions;
+        return this;
+    }
+
+    @Override
+    public ActionInvoker actions() {
+        return actions;
+    }
 
     /** The migration the connection offers; by default the configuration comes back unchanged. */
     public FakeConnection withMigrator(final ConfigurationMigrator newMigrator) {
