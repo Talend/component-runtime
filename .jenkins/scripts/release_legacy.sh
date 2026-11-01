@@ -63,7 +63,7 @@ main() {
     --define tag="${tag}" \
     --define releaseVersion="${release}" \
     --define developmentVersion="${dev_version}" \
-    --define arguments="-DskipTests -DskipITs" \
+    --define arguments="-DskipTests -DskipITs -Dinvoker.skip=true" \
     --activate-profiles ossrh,release,gpg2 \
     ${extraBuildParams} \
     --settings .jenkins/settings.xml
@@ -71,7 +71,7 @@ main() {
   mvn release:perform \
     --batch-mode \
     --errors \
-    --define arguments="-DskipTests -DskipITs" \
+    --define arguments="-DskipTests -DskipITs -Dinvoker.skip=true" \
     --activate-profiles ossrh,release,gpg2 \
     ${extraBuildParams} \
     --settings .jenkins/settings.xml

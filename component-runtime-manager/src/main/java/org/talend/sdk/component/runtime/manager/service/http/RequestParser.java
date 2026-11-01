@@ -120,7 +120,7 @@ public class RequestParser {
 
     private final JAXBManager jaxb = JAXB.ACTIVE ? new JAXBManager() : null;
 
-    private volatile CodecMatcher<Encoder> codecMatcher = new CodecMatcher<>();
+    private final CodecMatcher<Encoder> codecMatcher = new CodecMatcher<>();
 
     public RequestParser(final ReflectionService reflections, final Jsonb jsonb, final Map<Class<?>, Object> services) {
         this(new ReflectionInstanceCreator(reflections, services), jsonb);
