@@ -39,6 +39,8 @@ final class Fields {
 
     private static final Duration TOOLTIP_DURATION = Duration.seconds(30);
 
+    private static final Duration TOOLTIP_DELAY = Duration.millis(500);
+
     private Fields() {
         // static factory
     }
@@ -84,22 +86,24 @@ final class Fields {
             box.getChildren().add(row);
         }
         final String documentation = Texts.numbered(definition.documentation(), spec.index());
-        if (!documentation.isEmpty()) {
-            if (definition.tooltip()) {
-                final Tooltip tooltip = new Tooltip(documentation);
-                tooltip.setWrapText(true);
-                tooltip.setMaxWidth(TOOLTIP_WIDTH);
-                tooltip.setShowDuration(TOOLTIP_DURATION);
-                Tooltip.install(editor.node(), tooltip);
-            } else {
-                final Label help = new Label(documentation);
-                help.getStyleClass().add("form-help");
-                help.setWrapText(true);
-                help.setMinHeight(Label.USE_PREF_SIZE);
-                box.getChildren().add(help);
-            }
+        documentation(box, documentation);
+        if (checkBox) {
+            documentation(editor.node(), documentation);
         }
         box.getChildren().add(withMessage(editor, spec, model, scope));
         return box;
+    }
+
+    /** Shows the documentation as a tooltip once the pointer rests half a second on the node. */
+    static void documentation(final Node node, final String documentation) {
+        if (documentation.isEmpty()) {
+            return;
+        }
+        final Tooltip tooltip = new Tooltip(documentation);
+        tooltip.setWrapText(true);
+        tooltip.setMaxWidth(TOOLTIP_WIDTH);
+        tooltip.setShowDelay(TOOLTIP_DELAY);
+        tooltip.setShowDuration(TOOLTIP_DURATION);
+        Tooltip.install(node, tooltip);
     }
 }

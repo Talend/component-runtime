@@ -239,14 +239,6 @@ final class FormBuilder {
         final PropertyNode node = group.node();
         final String path = pathOf(node, context);
         final VBox content = new VBox(ROW_SPACING);
-        final String documentation = Texts.numbered(node.definition().documentation(), context.index());
-        if (!documentation.isEmpty()) {
-            final Label help = new Label(documentation);
-            help.getStyleClass().add("form-help");
-            help.setWrapText(true);
-            help.setMinHeight(Label.USE_PREF_SIZE);
-            content.getChildren().add(help);
-        }
         content.getChildren().add(rows(group.rows(), context.inside(path), scope));
         if (node.parent().isEmpty() || !node.definition().configurationType().isPresent()) {
             return content;
@@ -351,14 +343,7 @@ final class FormBuilder {
         message.getStyleClass().add("form-error");
         message.setWrapText(true);
         final VBox box = new VBox(4, title);
-        final String documentation = Texts.numbered(node.definition().documentation(), context.index());
-        if (!documentation.isEmpty()) {
-            final Label help = new Label(documentation);
-            help.getStyleClass().add("form-help");
-            help.setWrapText(true);
-            help.setMinHeight(Label.USE_PREF_SIZE);
-            box.getChildren().add(help);
-        }
+        Fields.documentation(title, Texts.numbered(node.definition().documentation(), context.index()));
         box.getChildren().addAll(entries, add, message);
 
         final int[] shown = { -1 };
