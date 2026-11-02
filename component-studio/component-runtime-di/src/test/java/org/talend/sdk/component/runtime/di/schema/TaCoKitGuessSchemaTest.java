@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
@@ -75,6 +76,8 @@ import lombok.extern.slf4j.Slf4j;
 class TaCoKitGuessSchemaTest {
 
     private static final String EXPECTED_ERROR_MESSAGE = "Should not be invoked";
+
+    private static final String LIFECYCLE_ERROR_MESSAGE = "lifecycle failure";
 
     private final Pattern errorPattern =
             Pattern.compile("(\\{\"localizedMessage\":\".*?\"possibleHandleErrorWith\":\"\\w+\"})");
@@ -173,6 +176,23 @@ class TaCoKitGuessSchemaTest {
             assertFalse(errorPattern.matcher(flattened).find());
             assertTrue(schemaMatcher.find());
             assertEquals(expected, schemaMatcher.group());
+        }
+    }
+
+    @Test
+    void guessProcessorSchemaByLifecycleFailure() throws Exception {
+        try (final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                final PrintStream out = newPrintStream(byteArrayOutputStream)) {
+            final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(out, new HashMap<>(), "test-classes",
+                    "TaCoKitGuessSchemaTest", "failingOutputDi", "1");
+            final DiscoverSchemaException exception =
+                    assertThrows(DiscoverSchemaException.class, guessSchema::guessComponentSchemaByLifecycle);
+            guessSchema.close();
+            assertEquals(HandleErrorWith.EXCEPTION, exception.getPossibleHandleErrorWith());
+            assertTrue(exception.getMessage().contains(LIFECYCLE_ERROR_MESSAGE));
+            final Matcher errorMatcher = errorPattern.matcher(flatten(byteArrayOutputStream));
+            assertTrue(errorMatcher.find());
+            assertTrue(errorMatcher.group().contains(LIFECYCLE_ERROR_MESSAGE));
         }
     }
 
@@ -315,6 +335,15 @@ class TaCoKitGuessSchemaTest {
         @ElementListener
         public Record next(Record in) {
             return factory.newRecordBuilder().withString("entry", "test").build();
+        }
+    }
+
+    @Processor(name = "failingOutputDi", family = "TaCoKitGuessSchemaTest")
+    public static class FailingStudioProcessor implements Serializable {
+
+        @ElementListener
+        public Record next(final Record in) {
+            throw new IllegalStateException(LIFECYCLE_ERROR_MESSAGE);
         }
     }
 

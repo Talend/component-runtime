@@ -212,9 +212,7 @@ public class ActionResourceImpl implements ActionResource {
 
     private Response onError(final Throwable re) {
         log.warn(re.getMessage(), re);
-        if (re instanceof final WebApplicationException webException) {
-            return webException.getResponse();
-        } else if (re.getCause() instanceof final WebApplicationException webException) {
+        if (re.getCause() instanceof final WebApplicationException webException) {
             return webException.getResponse();
         }
 

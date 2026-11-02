@@ -183,7 +183,8 @@ public class TaCoKitGuessSchema {
     }
 
     /**
-     * When a processor is the start of a studio job and dev explicitly set the handleError to Lifecycle exec
+     * Guesses the schema by running the processor lifecycle. The caller decides when to use it, typically when a
+     * processor is the start of a studio job and the component asked to handle the error with a lifecycle execution.
      */
     public void guessComponentSchemaByLifecycle() throws Exception {
         try {
