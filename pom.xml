@@ -873,13 +873,6 @@
       <releases>
         <enabled>true</enabled>
       </releases>
-      <id>oss.releases</id>
-      <url>https://oss.sonatype.org/content/repositories/releases</url>
-    </repository>
-    <repository>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -918,13 +911,6 @@
       <id>central.portal</id>
       <name>Central Portal Snapshots</name>
       <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-    </pluginRepository>
-    <pluginRepository>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <id>oss.releases</id>
-      <url>https://oss.sonatype.org/content/repositories/releases</url>
     </pluginRepository>
     <pluginRepository>
       <releases>
