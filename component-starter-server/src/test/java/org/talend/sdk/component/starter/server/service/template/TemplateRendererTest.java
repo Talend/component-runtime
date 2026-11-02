@@ -24,7 +24,9 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
@@ -32,20 +34,21 @@ class TemplateRendererTest {
 
     private static final String TEMPLATE = "TemplateRendererTest/entries.mustache";
 
-    private static final String EXPECTED = "<trimStackTrace>false</trimStackTrace><runOrder>alphabetical</runOrder>";
+    private static final String EXPECTED =
+            "<trimStackTrace>false</trimStackTrace><runOrder>alphabetical</runOrder>(a)(b)";
 
     @Test
-    void renderMapEntries() {
-        assertEquals(EXPECTED, new TemplateRenderer().render(TEMPLATE, new Model(entries())));
+    void renderJdkInternalCollections() {
+        assertEquals(EXPECTED, new TemplateRenderer().render(TEMPLATE, new Model(entries(), items())));
     }
 
     /**
      * The test JVM is started with {@code --add-opens java.base/java.util=ALL-UNNAMED} so reflection on JDK internal
      * entries (HashMap$Node) works in-process even without the fix. Run the rendering in a JVM without any
-     * {@code --add-opens} to ensure map entries are resolved through the public {@link Map.Entry} interface.
+     * {@code --add-opens} to ensure JDK internal map entries and immutable lists are resolved through their public API.
      */
     @Test
-    void renderMapEntriesWithoutAddOpens() throws Exception {
+    void renderJdkInternalCollectionsWithoutAddOpens() throws Exception {
         final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
         final Process process = new ProcessBuilder(javaBin, "-cp", System.getProperty("java.class.path"),
                 RenderMain.class.getName()).redirectErrorStream(true).start();
@@ -64,12 +67,24 @@ class TemplateRendererTest {
         return configuration.entrySet();
     }
 
+    private static List<String> items() {
+        // immutable JDK internal implementation (ImmutableCollections$ListN)
+        return Stream.of("a", "b").toList();
+    }
+
     public static class Model {
 
         private final Collection<Map.Entry<String, String>> configuration;
 
-        public Model(final Collection<Map.Entry<String, String>> configuration) {
+        private final List<String> items;
+
+        public Model(final Collection<Map.Entry<String, String>> configuration, final List<String> items) {
             this.configuration = configuration;
+            this.items = items;
+        }
+
+        public List<String> getItems() {
+            return items;
         }
 
         public Collection<Map.Entry<String, String>> getConfiguration() {
@@ -80,7 +95,7 @@ class TemplateRendererTest {
     public static class RenderMain {
 
         public static void main(final String[] args) {
-            System.out.print(new TemplateRenderer().render(TEMPLATE, new Model(entries())));
+            System.out.print(new TemplateRenderer().render(TEMPLATE, new Model(entries(), items())));
         }
     }
 }

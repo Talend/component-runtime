@@ -15,14 +15,19 @@
  */
 package org.talend.sdk.component.starter.server.service.template;
 
+import static java.util.Arrays.asList;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Modifier;
+import java.util.ArrayDeque;
 import java.util.Collection;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -61,12 +66,38 @@ public class TemplateRenderer {
                     if (sClass == String.class && "value".equals(name)) {
                         return null;
                     }
-                    // JDK internal entries (HashMap$Node, LinkedHashMap$Entry...) are not accessible by reflection
-                    // on java 17+, use the public interface instead
-                    if (Map.Entry.class.isAssignableFrom(sClass) && !Modifier.isPublic(sClass.getModifiers())) {
-                        return super.findMember(Map.Entry.class, name);
+                    // JDK internal implementations (HashMap$Node, ImmutableCollections$ListN...) are not accessible
+                    // by reflection on java 17+, use their public API (Map.Entry, List...) instead
+                    if (sClass.getModule().isNamed() && !Modifier.isPublic(sClass.getModifiers())) {
+                        final AccessibleObject member = findPublicMember(sClass, name);
+                        if (member != null) {
+                            return member;
+                        }
                     }
                     return super.findMember(sClass, name);
+                }
+
+                private AccessibleObject findPublicMember(final Class<?> type, final String name) {
+                    final Deque<Class<?>> types = new ArrayDeque<>();
+                    types.add(type);
+                    final Set<Class<?>> visited = new HashSet<>();
+                    while (!types.isEmpty()) {
+                        final Class<?> current = types.poll();
+                        if (!visited.add(current)) {
+                            continue;
+                        }
+                        if (current != type && Modifier.isPublic(current.getModifiers())) {
+                            final AccessibleObject member = super.findMember(current, name);
+                            if (member != null) {
+                                return member;
+                            }
+                        }
+                        if (current.getSuperclass() != null) {
+                            types.add(current.getSuperclass());
+                        }
+                        types.addAll(asList(current.getInterfaces()));
+                    }
+                    return null;
                 }
             });
         }
