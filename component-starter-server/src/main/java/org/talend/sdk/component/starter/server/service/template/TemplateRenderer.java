@@ -19,8 +19,10 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -58,6 +60,11 @@ public class TemplateRenderer {
                 protected AccessibleObject findMember(final Class sClass, final String name) {
                     if (sClass == String.class && "value".equals(name)) {
                         return null;
+                    }
+                    // JDK internal entries (HashMap$Node, LinkedHashMap$Entry...) are not accessible by reflection
+                    // on java 17+, use the public interface instead
+                    if (Map.Entry.class.isAssignableFrom(sClass) && !Modifier.isPublic(sClass.getModifiers())) {
+                        return super.findMember(Map.Entry.class, name);
                     }
                     return super.findMember(sClass, name);
                 }
