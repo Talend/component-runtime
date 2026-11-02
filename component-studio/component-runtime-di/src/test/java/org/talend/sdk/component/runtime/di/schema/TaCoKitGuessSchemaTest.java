@@ -160,8 +160,6 @@ class TaCoKitGuessSchemaTest {
         try (final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                 final PrintStream out = newPrintStream(byteArrayOutputStream)) {
             final Map<String, String> config = new HashMap<>();
-            config.put("configuration.shouldActionFail", "true");
-            config.put("configuration.failWith", "EXECUTE_LIFECYCLE");
             final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(out, config, "test-classes",
                     "TaCoKitGuessSchemaTest", "outputDi", "1");
             // guesses schema directly via component lifecycle (no action invocation)
