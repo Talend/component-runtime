@@ -96,6 +96,7 @@ $(document).ready(function () {
       }
       listingblockParent.html('<ul class="nav nav-tabs">'+
         '<li class="active"><a data-toggle="tab" href="#__generated_code_tab_maven_' + codeCounter + '">Maven</a></li>' +
+        '<li><a data-toggle="tab" href="#__generated_code_tab_gradle_' + codeCounter + '">Gradle</a></li>' +
         '<li><a data-toggle="tab" href="#__generated_code_tab_sbt_' + codeCounter + '">SBT</a></li>' +
         '<li><a data-toggle="tab" href="#__generated_code_tab_ivy_' + codeCounter + '">Ivy</a></li>' +
         '<li><a data-toggle="tab" href="#__generated_code_tab_grapes_' + codeCounter + '">Grapes</a></li>' +
@@ -104,7 +105,10 @@ $(document).ready(function () {
         '<div id="__generated_code_tab_maven_' + codeCounter + '" class="tab-pane fade in active">' +
           toADocCode($('<div/>').text(content).html(), 'xml') +
         '</div>' +
-       '<div id="__generated_code_tab_sbt_' + codeCounter + '" class="tab-pane fade">' +
+        '<div id="__generated_code_tab_gradle_' + codeCounter + '" class="tab-pane fade">' +
+          toADocCode(gav.scope + ' ' + '"' + gav.groupId + ':' + gav.artifactId + ':' + gav.version + '"', 'java') +
+        '</div>' +
+        '<div id="__generated_code_tab_sbt_' + codeCounter + '" class="tab-pane fade">' +
           toADocCode('libraryDependencies += "' + gav.groupId + '" % "' + gav.artifactId + '" % "' + gav.version + '" % ' + gav.scope, 'text') +
         '</div>' +
         '<div id="__generated_code_tab_ivy_' + codeCounter + '" class="tab-pane fade">' +
