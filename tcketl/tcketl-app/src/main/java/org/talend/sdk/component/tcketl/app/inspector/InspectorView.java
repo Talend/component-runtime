@@ -25,6 +25,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -33,6 +34,7 @@ import javafx.stage.Stage;
 import org.talend.sdk.component.tcketl.app.async.AsyncRunner;
 import org.talend.sdk.component.tcketl.app.canvas.CanvasViewModel;
 import org.talend.sdk.component.tcketl.app.canvas.Selection;
+import org.talend.sdk.component.tcketl.app.icon.IconService;
 import org.talend.sdk.component.tcketl.app.session.ServerConnection;
 import org.talend.sdk.component.tcketl.app.session.ServerSession;
 import org.talend.sdk.component.tcketl.domain.Preconditions;
@@ -58,6 +60,8 @@ import org.talend.sdk.component.tcketl.forms.FormViewModel;
  */
 public final class InspectorView extends BorderPane {
 
+    private static final double HEADER_ICON_SIZE = IconService.DISPLAY_SIZE * 3;
+
     private final PipelineEditor editor;
 
     private final CanvasViewModel canvas;
@@ -65,6 +69,8 @@ public final class InspectorView extends BorderPane {
     private final ServerSession session;
 
     private final AsyncRunner async;
+
+    private final IconService icons;
 
     private final Label title = new Label();
 
@@ -80,9 +86,16 @@ public final class InspectorView extends BorderPane {
 
     /** With a session and a runner, the forms can call the services of the connectors on the server. */
     public InspectorView(final CanvasViewModel canvas, final ServerSession session, final AsyncRunner async) {
+        this(canvas, session, async, null);
+    }
+
+    /** With an icon service, the icon of the connector is shown next to its name. */
+    public InspectorView(final CanvasViewModel canvas, final ServerSession session, final AsyncRunner async,
+            final IconService icons) {
         this.canvas = Preconditions.requireNonNull(canvas, "canvas");
         this.session = session;
         this.async = async;
+        this.icons = icons;
         this.editor = canvas.editor();
         getStyleClass().add("inspector");
         title.getStyleClass().add("inspector-title");
@@ -135,6 +148,15 @@ public final class InspectorView extends BorderPane {
         docs.setDisable(session == null || async == null);
         docs.setOnAction(event -> showDocumentation(node, docs));
         final HBox header = new HBox(8, title, docs);
+        if (icons != null) {
+            final ImageView icon = new ImageView();
+            icon.setFitWidth(HEADER_ICON_SIZE);
+            icon.setFitHeight(HEADER_ICON_SIZE);
+            icon.setPreserveRatio(true);
+            icon.setSmooth(true);
+            icon.imageProperty().bind(icons.component(node.connector().id()));
+            header.getChildren().add(0, icon);
+        }
         header.setAlignment(Pos.CENTER_LEFT);
         setTop(header);
         final Resolution resolution = editor.resolution(node.id());

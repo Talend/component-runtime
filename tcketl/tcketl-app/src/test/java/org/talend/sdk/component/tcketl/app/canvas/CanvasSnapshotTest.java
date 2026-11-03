@@ -53,7 +53,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.tcketl.app.CompositionRoot;
-import org.talend.sdk.component.tcketl.app.async.AsyncRunner;
+import org.talend.sdk.component.tcketl.app.async.FxAsync;
 import org.talend.sdk.component.tcketl.app.icon.IconService;
 import org.talend.sdk.component.tcketl.app.palette.PaletteTransfer;
 import org.talend.sdk.component.tcketl.app.session.ServerSession;
@@ -581,7 +581,7 @@ class CanvasSnapshotTest {
     @Test
     @EnabledIfSystemProperty(named = LIVE_CONFIG, matches = ".+")
     void aPipelineIsDrawnWithTheConnectorsOfTheLiveServer() throws Exception {
-        show(CompositionRoot.create(List.of("--config", System.getProperty(LIVE_CONFIG))));
+        show(CompositionRoot.create(List.of("--config", System.getProperty(LIVE_CONFIG)), FxAsync.production()));
         assertTrue(FxHarness.await(PATIENCE, () -> !root.session().connectors().get().isEmpty()));
         read = drop("Fixed Schema Input", 40, 80);
         transform = drop("Fixed Schema Processor", 320, 60);
@@ -614,7 +614,7 @@ class CanvasSnapshotTest {
 
     private void show(final FakeCatalog catalog) throws Exception {
         show(new CompositionRoot(new FileConfigStore(temp.resolve("config.json")),
-                ConfigLoadResult.loaded(ApplicationConfig.defaults()), AsyncRunner.production(),
+                ConfigLoadResult.loaded(ApplicationConfig.defaults()), FxAsync.production(),
                 settings -> FakeConnection.onPort(9001, catalog), new FileSystemPipelineRepository()));
     }
 

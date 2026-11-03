@@ -36,7 +36,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
-import org.talend.sdk.component.tcketl.app.async.AsyncRunner;
+import org.talend.sdk.component.tcketl.app.async.FxAsync;
 import org.talend.sdk.component.tcketl.app.testing.Connectors;
 import org.talend.sdk.component.tcketl.app.testing.FakeCatalog;
 import org.talend.sdk.component.tcketl.app.testing.FakeConnection;
@@ -151,7 +151,7 @@ class UpdateButtonSnapshotTest {
         final ConnectorDefinition definition = definition();
         final FakeCatalog catalog = new FakeCatalog().withConnectors(List.of(summary)).define(definition);
         root = new CompositionRoot(new FileConfigStore(directory.resolve("unused-config.json")),
-                ConfigLoadResult.loaded(ApplicationConfig.defaults()), AsyncRunner.production(),
+                ConfigLoadResult.loaded(ApplicationConfig.defaults()), FxAsync.production(),
                 settings -> FakeConnection.onPort(9001, catalog).withActions(request -> answer));
         scene = FxHarness.call(() -> {
             final Stage stage = new Stage();

@@ -39,7 +39,7 @@ public final class FormView {
         this.model = model;
         this.bindings = new FormBindings(model);
         this.service = new ActionService(model, actions);
-        this.node = new FormBuilder(model, bindings, service).build();
+        this.node = (Region) new FormAssembler<>(model, bindings, service, new FxFormToolkit(model, service)).build();
         node.getStyleClass().add("form-view");
         node.getStylesheets().add(FormView.class.getResource(STYLESHEET).toExternalForm());
     }

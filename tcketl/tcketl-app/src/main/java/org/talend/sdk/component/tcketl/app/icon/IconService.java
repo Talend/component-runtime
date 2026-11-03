@@ -48,8 +48,8 @@ public final class IconService {
 
     private static final Logger LOGGER = System.getLogger(IconService.class.getName());
 
-    // the images are twice as big as they are shown, to stay sharp on scaled screens
-    private static final int RENDER_SIZE = DISPLAY_SIZE * 2;
+    // the images are much bigger than they are shown, to stay sharp when enlarged or on scaled screens
+    private static final int RENDER_SIZE = DISPLAY_SIZE * 8;
 
     private static final String SVG_MEDIA_TYPE = "image/svg+xml";
 

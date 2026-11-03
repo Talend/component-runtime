@@ -1,0 +1,10 @@
+node_modules/
+target/
+package.json
+package-lock.json
+vite.config.ts
+vite.generated.ts
+tsconfig.json
+types.d.ts
+src/main/frontend/generated/
+src/main/frontend/index.html

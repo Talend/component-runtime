@@ -21,6 +21,8 @@ import java.lang.System.Logger;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+import org.talend.sdk.component.tcketl.app.async.FxAsync;
+
 public class TcketlApp extends Application {
 
     private static final Logger LOGGER = System.getLogger(TcketlApp.class.getName());
@@ -29,7 +31,7 @@ public class TcketlApp extends Application {
 
     @Override
     public void start(final Stage stage) throws IOException {
-        root = CompositionRoot.create(getParameters().getRaw());
+        root = CompositionRoot.create(getParameters().getRaw(), FxAsync.production());
         stage.setScene(MainWindow.createScene(root, stage));
         stage.show();
         root.start();

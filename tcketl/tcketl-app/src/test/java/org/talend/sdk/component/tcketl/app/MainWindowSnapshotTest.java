@@ -41,7 +41,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.api.io.TempDir;
-import org.talend.sdk.component.tcketl.app.async.AsyncRunner;
+import org.talend.sdk.component.tcketl.app.async.FxAsync;
 import org.talend.sdk.component.tcketl.app.session.ServerSession.State;
 import org.talend.sdk.component.tcketl.app.testing.Connectors;
 import org.talend.sdk.component.tcketl.app.testing.FakeCatalog;
@@ -206,7 +206,7 @@ class MainWindowSnapshotTest {
     @Test
     @EnabledIfSystemProperty(named = LIVE_CONFIG, matches = ".+")
     void paletteOfTheServerOfTheSettings() throws Exception {
-        show(CompositionRoot.create(List.of("--config", System.getProperty(LIVE_CONFIG))));
+        show(CompositionRoot.create(List.of("--config", System.getProperty(LIVE_CONFIG)), FxAsync.production()));
         assertTrue(FxHarness.await(PATIENCE, () -> root.session().state().get() == State.CONNECTED
                 && !root.palette().visible().get().families().isEmpty()));
         // the window is never shown, so only laying the scene out creates the cells, which then ask for their icons
@@ -283,7 +283,7 @@ class MainWindowSnapshotTest {
 
     private CompositionRoot fakeRoot(final FakeCatalog catalog) {
         return new CompositionRoot(new FileConfigStore(directory.resolve("unused-config.json")),
-                ConfigLoadResult.loaded(ApplicationConfig.defaults()), AsyncRunner.production(),
+                ConfigLoadResult.loaded(ApplicationConfig.defaults()), FxAsync.production(),
                 settings -> FakeConnection.onPort(9001, catalog));
     }
 

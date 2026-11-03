@@ -39,8 +39,12 @@
     <module>tcketl-persistence</module>
     <module>tcketl-config</module>
     <module>tcketl-component-client</module>
+    <module>tcketl-forms-core</module>
     <module>tcketl-forms</module>
+    <module>tcketl-forms-vaadin</module>
+    <module>tcketl-app-core</module>
     <module>tcketl-app</module>
+    <module>tcketl-web</module>
   </modules>
 
   <properties>
@@ -51,6 +55,13 @@
     <javafx-maven-plugin.version>0.0.8</javafx-maven-plugin.version>
     <!-- SVG rasterizer for the component icons: Java 8 bytecode, no transitive dependency -->
     <jsvg.version>2.0.0</jsvg.version>
+
+    <!-- the web application: Spring Boot 3.5 and Vaadin 24 LTS need JDK 17 -->
+    <spring-boot.version>3.5.16</spring-boot.version>
+    <!-- 24.10.8+ requires a commercial license (extended maintenance): stay on the last freely usable patch -->
+    <vaadin.version>24.10.7</vaadin.version>
+    <tcketl.slf4j.version>2.0.17</tcketl.slf4j.version>
+    <tcketl.logback.version>1.5.19</tcketl.logback.version>
   </properties>
 
   <dependencyManagement>
@@ -80,7 +91,27 @@
         <artifactId>tcketl-forms</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>tcketl-forms-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>tcketl-forms-vaadin</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>tcketl-app-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
 
+      <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-base</artifactId>
+        <version>${openjfx.version}</version>
+      </dependency>
       <dependency>
         <groupId>org.openjfx</groupId>
         <artifactId>javafx-controls</artifactId>

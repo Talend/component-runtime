@@ -39,6 +39,10 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>tcketl-app-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>tcketl-domain</artifactId>
     </dependency>
     <dependency>

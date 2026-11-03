@@ -131,3 +131,8 @@ local server (`real-*`) and hand-built ones (`synthetic-*`), because `docs/` is 
 - **P6**: flat immutable `ConfigurationValues`/`FormValues` instead of a nested tree; tabs = union of pane names (Main first); each leaf placed once; root `$` options in Advanced; buttons once per object; object with no rows shows nothing; update button with unknown `::after` appended; guess-schema offered for every OUT structure (P9 hides it if no action); encode rules (keep empty STRING with non-empty default, drop other empties, `p[length]=0` for an emptied array with a non-empty default); `pattern` uses JS find semantics; `Validator` skips non-displayed properties; only array and map defaults expanded; no `ConfigurationCodec.decode`.
 - **P7**: widget strategy = `WidgetKind` + selector + grouped `Editors` (not one class per widget); no 200 ms debounce; `${index}` shown 1-based; datetime = text + hint; suggestion/dynamic = editable combos until P9; node validity badge in P8; programmatic pulls never write.
 
+
+## 9. Web version
+
+The UI-free parts of the desktop application moved to `tcketl-app-core` and the form engine was split into a neutral `tcketl-forms-core` (`FormAssembler<N>` over a `FormToolkit<N>`) with two renderers, `tcketl-forms` (JavaFX) and `tcketl-forms-vaadin`. `tcketl-web` is the Vaadin application. See [web.md](web.md).
+

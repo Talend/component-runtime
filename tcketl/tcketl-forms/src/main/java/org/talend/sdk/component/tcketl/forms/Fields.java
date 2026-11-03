@@ -28,7 +28,6 @@ import javafx.util.Duration;
 import org.talend.sdk.component.tcketl.domain.form.PropertyKind;
 import org.talend.sdk.component.tcketl.domain.property.PropertyDefinition;
 import org.talend.sdk.component.tcketl.forms.Editors.Editor;
-import org.talend.sdk.component.tcketl.forms.Editors.Spec;
 
 /** Wraps a control with what surrounds it: its title, its documentation and the message about its value. */
 final class Fields {
@@ -46,7 +45,7 @@ final class Fields {
     }
 
     /** A control with the message about its value below it and the touch of the field when it is left. */
-    static Node withMessage(final Editor editor, final Spec spec, final FormViewModel model,
+    static Node withMessage(final Editor editor, final FieldSpec spec, final FormViewModel model,
             final FormBindings.Scope scope) {
         final Label message = new Label();
         message.getStyleClass().add("form-error");
@@ -68,7 +67,8 @@ final class Fields {
     }
 
     /** A titled field: title, required mark, documentation, control and message. */
-    static Node full(final Editor editor, final Spec spec, final FormViewModel model, final FormBindings.Scope scope) {
+    static Node full(final Editor editor, final FieldSpec spec, final FormViewModel model,
+            final FormBindings.Scope scope) {
         final PropertyDefinition definition = spec.node().definition();
         final VBox box = new VBox(3);
         box.getStyleClass().add("form-field");

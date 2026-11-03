@@ -38,7 +38,7 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>tcketl-domain</artifactId>
+      <artifactId>tcketl-forms-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.openjfx</groupId>

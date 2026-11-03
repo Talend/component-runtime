@@ -37,12 +37,9 @@ import javafx.stage.Window;
 import javafx.util.StringConverter;
 
 import org.talend.sdk.component.tcketl.domain.action.ActionOutcome;
-import org.talend.sdk.component.tcketl.domain.form.PropertyNode;
 import org.talend.sdk.component.tcketl.domain.property.ActionBinding;
 import org.talend.sdk.component.tcketl.domain.property.ActionTypes;
 import org.talend.sdk.component.tcketl.domain.property.PropertyDefinition;
-import org.talend.sdk.component.tcketl.domain.property.UiHints;
-import org.talend.sdk.component.tcketl.domain.property.UiHints.DateTimeKind;
 import org.talend.sdk.component.tcketl.domain.property.UiHints.PathKind;
 
 /**
@@ -50,8 +47,6 @@ import org.talend.sdk.component.tcketl.domain.property.UiHints.PathKind;
  * model back whenever its revision changes; reading never writes, so that opening a form does not edit anything.
  */
 final class Editors {
-
-    private static final String DEFAULT_DATE_FORMAT = "YYYY/MM/DD";
 
     private static final int CODE_ROWS = 6;
 
@@ -65,22 +60,7 @@ final class Editors {
     record Editor(Node node, Node focusOwner) {
     }
 
-    /**
-     * What a control edits.
-     *
-     * @param node the property.
-     * @param path its concrete path.
-     * @param index the position of the entry when it is in a list, else -1.
-     * @param prompt the text shown in an empty control.
-     */
-    record Spec(PropertyNode node, String path, int index, String prompt) {
-
-        boolean readOnly() {
-            return node.definition().ui().readOnly();
-        }
-    }
-
-    static Editor create(final WidgetKind kind, final Spec spec, final FormViewModel model,
+    static Editor create(final WidgetKind kind, final FieldSpec spec, final FormViewModel model,
             final FormBindings.Scope scope, final ActionService service) {
         return switch (kind) {
             case CHECKBOX -> checkBox(spec, model, scope);
@@ -96,28 +76,7 @@ final class Editors {
         };
     }
 
-    /** The hint shown in an empty date or time field. */
-    static String dateHint(final UiHints ui) {
-        final String date = ui.dateFormat().isEmpty() ? DEFAULT_DATE_FORMAT : ui.dateFormat();
-        final String time = ui.useSeconds() ? "HH:mm:ss" : "HH:mm";
-        return switch (ui.dateTime()) {
-            case DATE -> date;
-            case TIME -> time;
-            case DATE_TIME, ZONED_DATE_TIME -> date + ' ' + time;
-            default -> "";
-        };
-    }
-
-    static String promptOf(final PropertyNode node, final int index) {
-        final String placeholder = Texts.placeholder(node, index);
-        if (!placeholder.isEmpty()) {
-            return placeholder;
-        }
-        final UiHints ui = node.definition().ui();
-        return ui.dateTime() == DateTimeKind.NONE ? "" : dateHint(ui);
-    }
-
-    private static Editor text(final TextInputControl field, final Spec spec, final FormViewModel model,
+    private static Editor text(final TextInputControl field, final FieldSpec spec, final FormViewModel model,
             final FormBindings.Scope scope) {
         final Guard guard = new Guard();
         field.setPromptText(spec.prompt());
@@ -127,7 +86,7 @@ final class Editors {
         return new Editor(field, field);
     }
 
-    private static Editor area(final Spec spec, final FormViewModel model, final FormBindings.Scope scope,
+    private static Editor area(final FieldSpec spec, final FormViewModel model, final FormBindings.Scope scope,
             final int rows, final boolean wrap, final String style) {
         final TextArea area = new TextArea();
         area.setPrefRowCount(rows);
@@ -142,7 +101,7 @@ final class Editors {
         }
     }
 
-    private static Editor checkBox(final Spec spec, final FormViewModel model, final FormBindings.Scope scope) {
+    private static Editor checkBox(final FieldSpec spec, final FormViewModel model, final FormBindings.Scope scope) {
         final Guard guard = new Guard();
         final CheckBox box = new CheckBox(Texts.title(spec.node(), spec.index()));
         box.setDisable(spec.readOnly());
@@ -157,7 +116,7 @@ final class Editors {
         return new Editor(box, box);
     }
 
-    private static Editor choice(final Spec spec, final FormViewModel model, final FormBindings.Scope scope) {
+    private static Editor choice(final FieldSpec spec, final FormViewModel model, final FormBindings.Scope scope) {
         final Guard guard = new Guard();
         final PropertyDefinition definition = spec.node().definition();
         final Map<String, String> labels = definition.proposalLabels();
@@ -196,7 +155,7 @@ final class Editors {
     }
 
     /** An editable combo: what the user types is stored, a suggestion stores its id and shows its label. */
-    private static Editor editableCombo(final Spec spec, final FormViewModel model, final FormBindings.Scope scope,
+    private static Editor editableCombo(final FieldSpec spec, final FormViewModel model, final FormBindings.Scope scope,
             final ActionService service) {
         final Guard guard = new Guard();
         final Map<String, String> ids = new HashMap<>();
@@ -245,7 +204,7 @@ final class Editors {
     }
 
     /** A restricted combo whose options the server gives once, when the form is built; the stored value is the id. */
-    private static Editor dynamicCombo(final Spec spec, final FormViewModel model, final FormBindings.Scope scope,
+    private static Editor dynamicCombo(final FieldSpec spec, final FormViewModel model, final FormBindings.Scope scope,
             final ActionService service) {
         final Guard guard = new Guard();
         final Map<String, String> labels = new HashMap<>();
@@ -290,7 +249,7 @@ final class Editors {
         return new Editor(combo, combo);
     }
 
-    private static Editor path(final Spec spec, final FormViewModel model, final FormBindings.Scope scope) {
+    private static Editor path(final FieldSpec spec, final FormViewModel model, final FormBindings.Scope scope) {
         final Editor inner = text(new TextField(), spec, model, scope);
         final TextField field = (TextField) inner.node();
         final Button browse = new Button("\u2026");

@@ -109,7 +109,7 @@ public final class MainController {
         canvasHost.setCenter(canvas);
         canvasHost.setBottom(new ProblemsView(root.canvas()));
         palette.setOnActivate(canvas::addConnectorInView);
-        inspectorHost.getChildren().add(new InspectorView(root.canvas(), root.session(), root.async()));
+        inspectorHost.getChildren().add(new InspectorView(root.canvas(), root.session(), root.async(), icons));
 
         project = new ProjectActions(root.project(), new FxProjectDialogs(stage));
         stage.titleProperty().bind(root.project().title());

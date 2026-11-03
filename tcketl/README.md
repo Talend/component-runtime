@@ -90,7 +90,11 @@ version check), so both kinds of file share one reading and writing behaviour.
 | `tcketl-persistence` | Pipeline files (`*.tcketl.json`, versioned, atomically written) and the shared JSON file primitives. |
 | `tcketl-component-client` | The only module that talks to the component-server: HTTP transport (gzip, timeouts, error mapping), wire DTOs, the metadata parser and mapper to the domain, and a caching catalog invalidated by the environment stamp. Its entry point is `ComponentServerClient`. |
 | `tcketl-forms` | JavaFX renderer of the generated forms. |
+| `tcketl-forms-core` | Neutral form engine (view model, bindings, service calls, assembler) shared by the renderers. |
+| `tcketl-forms-vaadin` | Vaadin renderer of the generated forms. |
+| `tcketl-app-core` | UI-free view models and services shared by both applications. |
 | `tcketl-app` | JavaFX application: composition root, connection, palette, canvas, inspector. |
+| `tcketl-web` | Vaadin web application, see [docs/web.md](docs/web.md): `mvn -f tcketl/pom.xml -pl tcketl-web spring-boot:run`, then <http://localhost:8080>. |
 
 Packages are `org.talend.sdk.component.tcketl.<domain|config|persistence|client|forms|app>`. Modules are on the
 classpath (no `module-info.java`), like the rest of the repository.
@@ -171,3 +175,4 @@ classpath mode and is test code only.
 | P9 | Service calls: healthcheck, suggestions, dynamic values, validation, update, schema discovery | **M5** | done |
 | P10 | Migration, environment refresh, documentation, error UX | | partly done: migration on load and 30 s environment polling; documentation window done; **deferred**: node validity badge, undo/redo, credential masking |
 | P11 | Packaging and hardening | | docs written (`docs/`); `jpackage` image not produced |
+| W1-W8 | Web version: 	cketl-app-core, neutral form engine, 	cketl-forms-vaadin, 	cketl-web (canvas, inspector, upload/download, SSRF settings) | see [docs/web.md](docs/web.md) | done; production bundle and image not produced |
