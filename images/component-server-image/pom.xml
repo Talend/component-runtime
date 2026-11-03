@@ -107,13 +107,6 @@
       <artifactId>geronimo-metrics-sigar</artifactId>
       <version>${geronimo-metrics.version}</version>
     </dependency>
-
-    <!-- ecs logging layout -->
-    <dependency>
-      <groupId>org.talend.daikon</groupId>
-      <artifactId>logging-event-layout</artifactId>
-      <version>6.3.0</version>
-    </dependency>
   </dependencies>
 
   <build>
@@ -246,4 +239,24 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>ci-build</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>env.JENKINS_URL</name>
+        </property>
+      </activation>
+      <dependencies>
+        <!-- ecs logging layout -->
+        <dependency>
+          <groupId>org.talend.daikon</groupId>
+          <artifactId>logging-event-layout</artifactId>
+          <version>6.3.0</version>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 </project>
