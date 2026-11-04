@@ -384,7 +384,7 @@ pipeline {
             // Maven documentation about maven_version:
             // https://docs.oracle.com/middleware/1212/core/MAVEN/maven_version.htm
             println "Edit version on dev branches, new version is ${finalVersion}"
-            withCredentials([githubPackagesCredentials]) {
+            withCredentials([githubPackagesCredentials, dockerCredentials]) {
               sh """\
                           #!/usr/bin/env bash
                           mvn versions:set --define newVersion=${finalVersion} \
@@ -456,7 +456,8 @@ pipeline {
       steps {
         withCredentials([ossrhCredentials,
                          nexusCredentials,
-                         githubPackagesCredentials]) {
+                         githubPackagesCredentials,
+                         dockerCredentials]) {
           sh """\
             #!/usr/bin/env bash
             set -xe
@@ -490,7 +491,7 @@ pipeline {
       steps {
         script {
           catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-            withCredentials([githubPackagesCredentials]) {
+            withCredentials([githubPackagesCredentials, dockerCredentials]) {
               sh """\
                 #!/usr/bin/env bash
                 set -xe
@@ -514,7 +515,7 @@ pipeline {
         expression { stdBranch_buildOnly }
       }
       steps {
-        withCredentials([nexusCredentials]) {
+        withCredentials([nexusCredentials, dockerCredentials]) {
           sh """\
             #!/usr/bin/env bash
             set -xe
@@ -546,7 +547,8 @@ pipeline {
               withCredentials([ossrhCredentials,
                                gpgCredentials,
                                nexusCredentials,
-                               githubPackagesCredentials]) {
+                               githubPackagesCredentials,
+                               dockerCredentials]) {
                 sh """\
                   #!/usr/bin/env bash
                   set -xe
@@ -624,7 +626,7 @@ pipeline {
             }
 
             // Build and push specific image
-            withCredentials([githubPackagesCredentials]) {
+            withCredentials([githubPackagesCredentials, dockerCredentials]) {
               sh """
                   bash .jenkins/scripts/docker_build.sh \
                     ${finalVersion}${buildTimestamp} \
@@ -643,7 +645,7 @@ pipeline {
         }
       }
       steps {
-        withCredentials([ossrhCredentials, gitCredentials, githubPackagesCredentials]) {
+        withCredentials([ossrhCredentials, gitCredentials, githubPackagesCredentials, dockerCredentials]) {
           sh """\
             #!/usr/bin/env bash 
             set -xe                       
@@ -667,7 +669,8 @@ pipeline {
       steps {
         withCredentials([ossrhCredentials,
                          nexusCredentials,
-                         githubPackagesCredentials]) {
+                         githubPackagesCredentials,
+                         dockerCredentials]) {
           catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
             sh """
                            bash .jenkins/scripts/mvn_dependency_updates_report.sh
@@ -707,7 +710,8 @@ pipeline {
           withCredentials([nexusCredentials,
                            githubPackagesCredentials,
                            sonarToken,
-                           gitCredentials]) {
+                           gitCredentials,
+                           dockerCredentials]) {
 
             SonarController.runSonar(branch_name,
                                      env.CHANGE_TARGET,

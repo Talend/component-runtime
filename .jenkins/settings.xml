@@ -99,16 +99,16 @@
     </server>
   </servers>
 
-  <!-- QTDI-3642: Nexus Maven Central mirror disabled to verify GitHub Packages, restore if needed
+  <!-- QTDI-3641: Maven Central goes through the internal Artifactory cache (the Nexus central proxy ends on 2026-11-23);
+       the artifactory.datapwn.com server above takes its credentials from the artifactory-datapwn-credentials binding -->
   <mirrors>
     <mirror>
-      <id>maven_central_proxy</id>
-      <name>Maven Central Proxy</name>
-      <url>https://artifacts-zl.talend.com/nexus/content/repositories/central/</url>
+      <id>artifactory.datapwn.com</id>
+      <name>Internal Artifactory Maven Central cache</name>
+      <url>https://artifactory.datapwn.com/artifactory/maven-central-remote</url>
       <mirrorOf>central</mirrorOf>
     </mirror>
   </mirrors>
-  -->
 
   <profiles>
     <profile>
