@@ -66,7 +66,7 @@ public class TemplateRenderer {
                     if (sClass == String.class && "value".equals(name)) {
                         return null;
                     }
-                    // JDK internal implementations (HashMap$Node, ImmutableCollections$ListN...) are not accessible
+                    // JDK internal implementations (HashMap$Node, ImmutableCollections$ListN...) are not accessible.
                     // by reflection on java 17+, use their public API (Map.Entry, List...) instead
                     if (sClass.getModule().isNamed() && !Modifier.isPublic(sClass.getModifiers())) {
                         final AccessibleObject member = findPublicMember(sClass, name);
