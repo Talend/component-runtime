@@ -62,6 +62,9 @@ String _API_TEST_FILES_PATTERN = '**/src/it/web/test/**/*.json'
 String runtimeVersion = "default"
 String apiTesterEnv = "component_runtime_ci"
 String tenantInstance = "eu"
+// QTDI-3757: the API tests are skipped unless requested (RUN_API_TESTS) or running on master.
+// Computed in the "Prepare" stage.
+boolean runApiTests = false
 
 /**
  * The pipeline
@@ -93,6 +96,12 @@ pipeline {
       defaultValue: 'default',
       description: 'Choose the component-runtime.version to be used from Nexus. Keep default to use the pom version (1.45.0 minimum) or an other ex: 1.45.0-SNAPSHOT'
     )
+    booleanParam(
+      name: 'RUN_API_TESTS',
+      defaultValue: false,
+      description: '''
+        QTDI-3757: the API tests are skipped by default (API Tester /license endpoint change, QAPI-3138),
+        except on the master branch where they always run. Tick to force the execution on any other branch.''')
     booleanParam(
       name: 'JENKINS_DEBUG',
       defaultValue: false,
@@ -156,6 +165,11 @@ pipeline {
             runtimeVersion = "default"
           }
 
+          runApiTests = params.RUN_API_TESTS || env.BRANCH_NAME == 'master'
+          if (!runApiTests) {
+            println "API tests skipped - QTDI-3757, run with RUN_API_TESTS=true or on master\n"
+          }
+
           println "Requested tcompVersion is ${runtimeVersion}\n"
 
           if (runtimeVersion == "default") {
@@ -215,6 +229,9 @@ pipeline {
       }
     }
     stage('Prepare component-runtime server') {
+      when {
+        expression { runApiTests }
+      }
       steps {
         withCredentials([_NEXUS_CREDENTIALS]) {
           script {
@@ -240,6 +257,9 @@ pipeline {
       }
     }
     stage('Start component-runtime server') {
+      when {
+        expression { runApiTests }
+      }
       steps {
         withCredentials([_NEXUS_CREDENTIALS]) {
           script {
@@ -253,6 +273,9 @@ pipeline {
       }
     }
     stage('Check component-runtime server') {
+      when {
+        expression { runApiTests }
+      }
       steps {
         withCredentials([_NEXUS_CREDENTIALS]) {
           script {
@@ -262,6 +285,9 @@ pipeline {
       }
     }
     stage('Execute Test') {
+      when {
+        expression { runApiTests }
+      }
       steps {
         withCredentials([_NEXUS_CREDENTIALS, _TENANT_ID_RD]) {
           sh """
@@ -290,70 +316,73 @@ pipeline {
     always {
 
       script {
-        withCredentials([_NEXUS_CREDENTIALS]) {
-          sh """
-            printf "======== Stop server\n"
-            bash ${_SCRIPTS_PATH}/server-registry-stop.sh ${_INSTALL_DIR}
-            printf "======== Generate jacoco report \n"
-            bash ${_SCRIPTS_PATH}/jacoco-report.sh ${_INSTALL_DIR} ${_COVERAGE_DIR}
-            printf "======== Generate Html reports\n"
-            bash ${_SCRIPTS_PATH}/jacoco-html.sh ${_TESTS_PATH} ${MAVEN_SETTINGS}
-          """
-          archiveJenkinsLog()
+        if (!runApiTests) {
+          println "API tests skipped - QTDI-3757, nothing to publish"
         }
-      }
+        else {
+          withCredentials([_NEXUS_CREDENTIALS]) {
+            sh """
+              printf "======== Stop server\n"
+              bash ${_SCRIPTS_PATH}/server-registry-stop.sh ${_INSTALL_DIR}
+              printf "======== Generate jacoco report \n"
+              bash ${_SCRIPTS_PATH}/jacoco-report.sh ${_INSTALL_DIR} ${_COVERAGE_DIR}
+              printf "======== Generate Html reports\n"
+              bash ${_SCRIPTS_PATH}/jacoco-html.sh ${_TESTS_PATH} ${MAVEN_SETTINGS}
+            """
+            archiveJenkinsLog()
+          }
 
-      // recordIssues is a multi result file publisher allowing to have the same publish format on multiples analysis.
-      recordIssues (
-        // By default, static analysis results are only recorded for stable or unstable builds,
-        // but not for failed builds: analysis results might be inaccurate if the build failed.
-        enabledForFailure: true,
-        // If there are errors while scanning the console log or files for issues (e.g., file pattern matches no files,
-        // source files could not be copied, etc.) then the warning plugin will show these errors in a separate
-        // view but does not alter the build state.
-        failOnError: false,
-        tools: [
-          // Scan and publish to do and fix me in api test files
-          taskScanner(
-            id: 'todo-tck-api-test',
-            name: 'api-test Todo(low)/Fixme(high)',
-            includePattern: _API_TEST_FILES_PATTERN,
-            ignoreCase: true,
-            highTags: 'FIX_ME, FIXME',
-            lowTags: 'TO_DO, TODO'
-          ),
-          // Publish api tests as junit
-          junitParser(
-            id: 'unit-test',
-            name: 'tcomp API Test',
-            pattern: _API_TEST_RESULT_PATTERN
+          // recordIssues is a multi result file publisher allowing to have the same publish format on multiples analysis.
+          recordIssues (
+            // By default, static analysis results are only recorded for stable or unstable builds,
+            // but not for failed builds: analysis results might be inaccurate if the build failed.
+            enabledForFailure: true,
+            // If there are errors while scanning the console log or files for issues (e.g., file pattern matches no files,
+            // source files could not be copied, etc.) then the warning plugin will show these errors in a separate
+            // view but does not alter the build state.
+            failOnError: false,
+            tools: [
+              // Scan and publish to do and fix me in api test files
+              taskScanner(
+                id: 'todo-tck-api-test',
+                name: 'api-test Todo(low)/Fixme(high)',
+                includePattern: _API_TEST_FILES_PATTERN,
+                ignoreCase: true,
+                highTags: 'FIX_ME, FIXME',
+                lowTags: 'TO_DO, TODO'
+              ),
+              // Publish api tests as junit
+              junitParser(
+                id: 'unit-test',
+                name: 'tcomp API Test',
+                pattern: _API_TEST_RESULT_PATTERN
+              )
+            ]
           )
-        ]
-      )
 
-      // Talend Test Orchestrator only work with the basic junit plugin
-      // TODO: TTO-562 - Implement recordIssues in TTO to stop using junit
-      junit(
-        checksName: 'tcomp API Test for tto',
-        keepLongStdio: true, // Standard output/error will be retained in the test results after the build completes.
-        testResults: _API_TEST_RESULT_PATTERN,
-        skipMarkingBuildUnstable: false,  // junitParser already publish job status.
-        allowEmptyResults: true, // Do not fail a build on missing test result files or empty test results.
-      )
+          // Talend Test Orchestrator only work with the basic junit plugin
+          // TODO: TTO-562 - Implement recordIssues in TTO to stop using junit
+          junit(
+            checksName: 'tcomp API Test for tto',
+            keepLongStdio: true, // Standard output/error will be retained in the test results after the build completes.
+            testResults: _API_TEST_RESULT_PATTERN,
+            skipMarkingBuildUnstable: false,  // junitParser already publish job status.
+            allowEmptyResults: true, // Do not fail a build on missing test result files or empty test results.
+          )
 
-      script {
-        println "====== Publish API Coverage"
-        publishCoverage adapters: [jacocoAdapter("**/coverage/report.xml")]
-        println "====== Publish HTML API Coverage"
-        publishHTML([
-          allowMissing         : true,
-          alwaysLinkToLastBuild: false,
-          keepAll              : true,
-          reportDir            : "${_COVERAGE_DIR}/html",
-          reportFiles          : 'index.html',
-          reportName           : 'API Coverage',
-          reportTitles         : 'API Coverage'
-        ])
+          println "====== Publish API Coverage"
+          publishCoverage adapters: [jacocoAdapter("**/coverage/report.xml")]
+          println "====== Publish HTML API Coverage"
+          publishHTML([
+            allowMissing         : true,
+            alwaysLinkToLastBuild: false,
+            keepAll              : true,
+            reportDir            : "${_COVERAGE_DIR}/html",
+            reportFiles          : 'index.html',
+            reportName           : 'API Coverage',
+            reportTitles         : 'API Coverage'
+          ])
+        }
       }
 
       // FIXME: TCOMP-2244	Meecrowave stop doesn't work so the artifact cmd is failing (file nos accessible)
