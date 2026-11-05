@@ -33,6 +33,9 @@
     <talend.build.name>${talend.build.name.base}.impl</talend.build.name>
   </properties>
 
+  <!-- QTDI-3497 (experimental, jakarta-only spike): johnzon-jsonb re-pinned to the jakarta
+       line - this module's JSON-P/JSON-B usage (Record/Schema, jsonb marshalling) is now
+       jakarta-only, no javax fallback. -->
   <dependencies>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
@@ -46,6 +49,7 @@
     <dependency>
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
+      <version>${johnzon.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>

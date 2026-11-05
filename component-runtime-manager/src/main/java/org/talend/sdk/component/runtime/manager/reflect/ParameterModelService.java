@@ -108,7 +108,9 @@ public class ParameterModelService {
                 || type.isAnnotationPresent(Internationalized.class)
                 || Stream.of(type.getMethods()).anyMatch(m -> m.isAnnotationPresent(Request.class))
                 || (type.getName().startsWith("org.talend.sdk.component.") && type.getName().contains(".service."))
-                || type.getName().startsWith("javax."));
+                // QTDI-3497 (experimental, jakarta-only spike): javax.* JDK/JSON-P/JSON-B service types are
+                // renamed to jakarta.* in this spike, keep recognizing them as framework-injected services.
+                || type.getName().startsWith("javax.") || type.getName().startsWith("jakarta."));
     }
 
     public List<ParameterMeta> buildParameterMetas(final Stream<Param> parameters, final Class<?> declaringClass,

@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
 
-import javax.json.bind.Jsonb;
+import jakarta.json.bind.Jsonb;
 
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.record.RecordConverters;

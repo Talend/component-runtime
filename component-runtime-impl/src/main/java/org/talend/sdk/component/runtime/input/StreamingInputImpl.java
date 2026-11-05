@@ -33,7 +33,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.runtime.input.Streaming.RetryConfiguration;

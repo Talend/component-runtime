@@ -2,13 +2,13 @@
 <jsonArray>[
   {
     "commits":2548,
-    "description":"OSS addict I had bee involved in several ASF projects, Yupiik OSS.\r\nDoing Java/js/.. and C# for OrangeLogic.\n\nBlog: https://rmannibucau.metawerx.net",
+    "description":"OSS addict I had bee involved in several ASF projects, Yupiik OSS.\r\nDoing Java/js/k8s..\n\nBlog: https://rmannibucau.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/1249546?v=4",
     "id":"rmannibucau",
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":854,
+    "commits":864,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -43,7 +43,7 @@
     "name":"Christophe Le Saec"
   },
   {
-    "commits":68,
+    "commits":69,
     "description":"QA Automation @ Qlik Talend Nantes",
     "gravatar":"https://avatars.githubusercontent.com/u/1255625?v=4",
     "id":"acatoire",
@@ -57,7 +57,7 @@
     "name":"Jean-Michel FRANCOIS"
   },
   {
-    "commits":54,
+    "commits":57,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/66320870?v=4",
     "id":"ozhelezniak-talend",
@@ -71,7 +71,7 @@
     "name":"ypiel"
   },
   {
-    "commits":30,
+    "commits":32,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7802267?v=4",
     "id":"wwang-talend",
@@ -85,14 +85,14 @@
     "name":"Chao MENG"
   },
   {
-    "commits":16,
+    "commits":18,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/19920586?v=4",
     "id":"lxia-talend",
     "name":"lxia"
   },
   {
-    "commits":15,
+    "commits":16,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/52663885?v=4",
     "id":"fdesiles",
@@ -127,7 +127,7 @@
     "name":"Jimmy Somsanith"
   },
   {
-    "commits":7,
+    "commits":8,
     "description":"\n\nBlog: https://restlet.com",
     "gravatar":"https://avatars.githubusercontent.com/u/1122782?v=4",
     "id":"thboileau",
@@ -146,6 +146,13 @@
     "gravatar":"https://avatars.githubusercontent.com/u/79476?v=4",
     "id":"iemejia",
     "name":"Ismaël Mejía"
+  },
+  {
+    "commits":3,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/7733973?v=4",
+    "id":"jzhao-talend",
+    "name":"Jin Zhao"
   },
   {
     "commits":3,
@@ -184,17 +191,17 @@
   },
   {
     "commits":2,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/7733973?v=4",
-    "id":"jzhao-talend",
-    "name":"Jin Zhao"
-  },
-  {
-    "commits":2,
     "description":"\n\nBlog: https://zoltantakacs.dev/",
     "gravatar":"https://avatars.githubusercontent.com/u/2045409?v=4",
     "id":"ZoltanTakacs",
     "name":"Zoltán Takács"
+  },
+  {
+    "commits":2,
+    "description":"Drums, Java, Rock'n'Roll",
+    "gravatar":"https://avatars.githubusercontent.com/u/25642427?v=4",
+    "id":"dmytro-sylaiev",
+    "name":"Dmytro Sylaiev"
   },
   {
     "commits":1,
@@ -254,6 +261,13 @@
   },
   {
     "commits":1,
+    "description":"Templar",
+    "gravatar":"https://avatars.githubusercontent.com/u/22737013?v=4",
+    "id":"pyzhou-talend",
+    "name":"pyzhou"
+  },
+  {
+    "commits":1,
     "description":"\n\nBlog: www.talend.com",
     "gravatar":"https://avatars.githubusercontent.com/u/588681?v=4",
     "id":"pteyssier",
@@ -268,13 +282,6 @@
   },
   {
     "commits":1,
-    "description":"Drums, Java, Rock'n'Roll",
-    "gravatar":"https://avatars.githubusercontent.com/u/25642427?v=4",
-    "id":"dmytro-sylaiev",
-    "name":"Dmytro Sylaiev"
-  },
-  {
-    "commits":1,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/in/29110?v=4",
     "id":"dependabot[bot]",
@@ -282,17 +289,17 @@
   },
   {
     "commits":1,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/20939820?v=4",
-    "id":"Voievidko",
-    "name":"Roman"
-  },
-  {
-    "commits":1,
     "description":"Senior Software engineer at @komodohealth.\r\n\r\nPh.D. in large-scale storage systems.\r\n\r\nPrevious competitive programmer.",
     "gravatar":"https://avatars.githubusercontent.com/u/10938011?v=4",
     "id":"jad-darrous",
     "name":"Jad Darrous"
+  },
+  {
+    "commits":1,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/20939820?v=4",
+    "id":"Voievidko",
+    "name":"Roman"
   }
 ]</jsonArray>
 ++++

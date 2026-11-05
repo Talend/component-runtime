@@ -16,7 +16,7 @@
 
 
 import java.lang.reflect.ParameterizedType
-import javax.json.bind.annotation.JsonbTransient
+import jakarta.json.bind.annotation.JsonbTransient
 
 import static java.util.Locale.ROOT
 import static java.util.Optional.ofNullable
@@ -99,7 +99,7 @@ GenerationAggregator createPropType(parent, clazz, aggregate) {
         writer.write('const definition = {\n')
         clazz.declaredFields.findAll { !it.isAnnotationPresent(JsonbTransient.class) }.sort { it.name }.each {
             def type = it.genericType
-            def name = ofNullable(it.getAnnotation(javax.json.bind.annotation.JsonbProperty.class))
+            def name = ofNullable(it.getAnnotation(jakarta.json.bind.annotation.JsonbProperty.class))
                 .map { t -> t.value() }.orElse(it.name)
             if (ParameterizedType.class.isInstance(it.genericType)) {
                 if (Collection.class.isAssignableFrom(type.rawType)) {

@@ -21,15 +21,16 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.apache.johnzon.jsonschema.regex.JavaRegex;
-import org.apache.johnzon.jsonschema.spi.builtin.PatternValidation;
+import org.talend.sdk.component.form.internal.validation.jsonschema.regex.JavaRegex;
+import org.talend.sdk.component.form.internal.validation.jsonschema.spi.builtin.PatternValidation;
 import org.talend.sdk.component.form.internal.validation.spi.ext.EnumValidationWithDefaultValue;
 import org.talend.sdk.component.form.internal.validation.spi.ext.MaximumValidation;
 import org.talend.sdk.component.form.internal.validation.spi.ext.MinimumValidation;
 import org.talend.sdk.component.form.internal.validation.spi.ext.RequiredValidation;
 import org.talend.sdk.component.form.internal.validation.spi.ext.TypeValidation;
 
-public class JsonSchemaValidatorFactoryExt extends org.apache.johnzon.jsonschema.JsonSchemaValidatorFactory {
+public class JsonSchemaValidatorFactoryExt
+        extends org.talend.sdk.component.form.internal.validation.jsonschema.JsonSchemaValidatorFactory {
 
     private final AtomicReference<Function<String, Predicate<CharSequence>>> reFactory =
             new AtomicReference<>(this::newRegexFactory);
@@ -39,14 +40,15 @@ public class JsonSchemaValidatorFactoryExt extends org.apache.johnzon.jsonschema
     }
 
     @Override
-    public List<org.apache.johnzon.jsonschema.spi.ValidationExtension> createDefaultValidations() {
+    public List<org.talend.sdk.component.form.internal.validation.jsonschema.spi.ValidationExtension>
+            createDefaultValidations() {
         List validations = super.createDefaultValidations()
                 .stream()
-                .filter(v -> !(v instanceof org.apache.johnzon.jsonschema.spi.builtin.TypeValidation))
-                .filter(v -> !(v instanceof org.apache.johnzon.jsonschema.spi.builtin.EnumValidation))
-                .filter(v -> !(v instanceof org.apache.johnzon.jsonschema.spi.builtin.MinimumValidation))
-                .filter(v -> !(v instanceof org.apache.johnzon.jsonschema.spi.builtin.MaximumValidation))
-                .filter(v -> !(v instanceof org.apache.johnzon.jsonschema.spi.builtin.RequiredValidation))
+                .filter(v -> !(v instanceof org.talend.sdk.component.form.internal.validation.jsonschema.spi.builtin.TypeValidation))
+                .filter(v -> !(v instanceof org.talend.sdk.component.form.internal.validation.jsonschema.spi.builtin.EnumValidation))
+                .filter(v -> !(v instanceof org.talend.sdk.component.form.internal.validation.jsonschema.spi.builtin.MinimumValidation))
+                .filter(v -> !(v instanceof org.talend.sdk.component.form.internal.validation.jsonschema.spi.builtin.MaximumValidation))
+                .filter(v -> !(v instanceof org.talend.sdk.component.form.internal.validation.jsonschema.spi.builtin.RequiredValidation))
                 .filter(v -> !(v instanceof PatternValidation))
                 .collect(Collectors.toList());
         validations.add(new TypeValidation());

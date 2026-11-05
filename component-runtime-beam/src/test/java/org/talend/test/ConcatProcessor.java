@@ -17,8 +17,8 @@ package org.talend.test;
 
 import java.io.Serializable;
 
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
+import jakarta.json.JsonBuilderFactory;
+import jakarta.json.JsonObject;
 
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
