@@ -19,6 +19,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -105,6 +106,18 @@ class ProcessorImplTest {
         assertEquals("Root", copy.rootName());
         assertEquals("Test", copy.name());
         assertEquals("Plugin", copy.plugin());
+    }
+
+    @Test
+    void convertNonRecordInputWithDefaultJsonb() {
+        final BeanProcessor delegate = new BeanProcessor();
+        final Processor processor = new ProcessorImpl("Root", "Test", "Plugin", emptyMap(), delegate);
+        processor.start();
+        processor.beforeGroup();
+        processor.onNext(name -> singletonMap("data", 7), NO_OUTPUT);
+        processor.afterGroup(null);
+        processor.stop();
+        assertEquals(7, delegate.received.getData());
     }
 
     private void assertLifecycle(final Base delegate) {
@@ -195,6 +208,22 @@ class ProcessorImplTest {
         public void onNext(final Sample sample) {
             stack.add("next{" + sample.data + "}");
         }
+    }
+
+    public static class BeanProcessor extends Base {
+
+        private Bean received;
+
+        @ElementListener
+        public void onNext(final Bean bean) {
+            received = bean;
+        }
+    }
+
+    @Data
+    public static class Bean {
+
+        private int data;
     }
 
     @Data

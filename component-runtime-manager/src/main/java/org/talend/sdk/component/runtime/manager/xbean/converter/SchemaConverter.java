@@ -26,7 +26,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonNumber;
@@ -42,6 +41,7 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.manager.service.record.RecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
+import org.talend.sdk.component.runtime.record.SharedJsonProviders;
 
 public class SchemaConverter extends AbstractConverter {
 
@@ -54,6 +54,8 @@ public class SchemaConverter extends AbstractConverter {
     public static final String ENTRIES = "entries";
 
     private final RecordBuilderFactory factory;
+
+    private final JsonProvider json = SharedJsonProviders.jsonProvider();
 
     public SchemaConverter() {
         super(Schema.class);
@@ -76,7 +78,7 @@ public class SchemaConverter extends AbstractConverter {
     @Override
     public Object toObjectImpl(final String s) {
         if (!s.isEmpty()) {
-            try (final JsonReader reader = JsonProvider.provider().createReader(new StringReader(s))) {
+            try (final JsonReader reader = json.createReader(new StringReader(s))) {
                 return toSchema(reader.readObject());
             }
         }
@@ -192,7 +194,7 @@ public class SchemaConverter extends AbstractConverter {
         if (schema == null) {
             return null;
         }
-        final JsonObjectBuilder builder = Json.createObjectBuilder();
+        final JsonObjectBuilder builder = json.createObjectBuilder();
         builder.add(TYPE, schema.getType().name());
         if (schema.getType() == Schema.Type.RECORD) {
             this.addEntries(builder, ENTRIES, schema.getAllEntries());
@@ -220,14 +222,14 @@ public class SchemaConverter extends AbstractConverter {
         if (entries == null) {
             return;
         }
-        final JsonArrayBuilder jsonEntries = Json.createArrayBuilder();
+        final JsonArrayBuilder jsonEntries = json.createArrayBuilder();
         objectBuilder.add(name, jsonEntries);
         entries.map(this::entryToJson)
                 .forEach(jsonEntries::add);
     }
 
     private JsonObjectBuilder entryToJson(final Schema.Entry entry) {
-        final JsonObjectBuilder entryBuilder = Json.createObjectBuilder();
+        final JsonObjectBuilder entryBuilder = json.createObjectBuilder();
         entryBuilder.add("name", entry.getName());
         entryBuilder.add(TYPE, entry.getType().name());
         entryBuilder.add("nullable", entry.isNullable());
@@ -267,7 +269,7 @@ public class SchemaConverter extends AbstractConverter {
         if (properties == null || properties.isEmpty()) {
             return;
         }
-        final JsonObjectBuilder jsonProps = Json.createObjectBuilder();
+        final JsonObjectBuilder jsonProps = json.createObjectBuilder();
         properties.entrySet()
                 .forEach(
                         (Map.Entry<String, String> e) -> jsonProps.add(e.getKey(), e.getValue()));
@@ -279,16 +281,16 @@ public class SchemaConverter extends AbstractConverter {
             return JsonValue.NULL;
         }
         if (object instanceof Integer casted) {
-            return Json.createValue(casted);
+            return json.createValue(casted);
         }
         if (object instanceof Long casted) {
-            return Json.createValue(casted);
+            return json.createValue(casted);
         }
         if (object instanceof BigInteger casted) {
-            return Json.createValue(casted);
+            return json.createValue(casted);
         }
         if (object instanceof BigDecimal casted) {
-            return Json.createValue(casted);
+            return json.createValue(casted);
         }
         if (object instanceof Boolean) {
             if (object == Boolean.TRUE) {
@@ -297,17 +299,17 @@ public class SchemaConverter extends AbstractConverter {
             return JsonValue.FALSE;
         }
         if (object instanceof String casted) {
-            return Json.createValue(casted);
+            return json.createValue(casted);
         }
         // Floating-point fallback: Float/Double via doubleValue().
         if (object instanceof Double || object instanceof Float) {
-            return Json.createValue(((Number) object).doubleValue());
+            return json.createValue(((Number) object).doubleValue());
         }
         // Integral fallback for remaining Number types (Short, Byte, AtomicInteger, AtomicLong, ...).
         // Must stay after BigInteger/BigDecimal to preserve their precision, and uses longValue()
         // to avoid both precision loss and unwanted decimal representation (e.g. 7 -> 7.0).
         if (object instanceof Number casted) {
-            return Json.createValue(casted.longValue());
+            return json.createValue(casted.longValue());
         }
 
         return null;
