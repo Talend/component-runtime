@@ -15,7 +15,7 @@
     <meta name="description" content="Get an overview of the main steps to code the logic of your custom Talend Componit Kit components">
     <meta name="keywords" content="create, code, class, logic, layout, configuration, dev, overview, api">
     <meta name="generator" content="Antora 3.0.3">
-<meta name="date" content="2026-11-04T10:16:27.799Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<meta name="date" content="2026-11-05T01:54:48.386Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
@@ -458,6 +458,9 @@
   </li>
   <li data-depth="2">
     <a class="menu-link" href="ref-junit-environments.html">Provided JUnit testing environments</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-jvm-properties.html">JVM properties</a>
   </li>
   <li data-depth="2">
     <a class="menu-link" href="ref-rest-resources.html">Component Server HTTP API reference</a>
@@ -5159,14 +5162,14 @@ For more clarity in the formulas below, parameter names have been replaced with 
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-The feature is disabled by default, to use the checkpoint, you need to add a system property <strong><code>talend.checkpoint.enable</code></strong>  in the runtime jvm like this:
+The feature is disabled by default, to use the checkpoint, you need to add a system property <strong><code>talend.checkpoint.enabled</code></strong>  in the runtime jvm like this:
 </td>
 </tr>
 </table>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">-Dtalend.checkpoint.enable=true</code></pre>
+<pre class="highlightjs highlight"><code class="language-none hljs">-Dtalend.checkpoint.enabled=true</code></pre>
 </div>
 </div>
 </div>
@@ -7732,6 +7735,65 @@ In such a case, exclusions win over inclusions.
 </tr>
 </table>
 </div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_classloader_jvm_properties"><a class="anchor" href="#_classloader_jvm_properties"></a>Classloader JVM properties</h3>
+<div class="paragraph">
+<p>By default, the classes and resources loaded by the <code>ComponentManager</code> container (the <em>shared</em> area) are limited to the framework API and a built-in list of packages and resources.
+Two JVM system properties let you extend this list, for example when a library must be shared between the application and the plugins instead of being loaded in each plugin classloader:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 37.5%;">
+<col style="width: 12.5%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Property</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.component.manager.classloader.container.classesAndPackages</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Comma-separated list</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Additional classes or packages loaded from the parent (container) classloader instead of the plugin classloader. A class is matched when its name <strong>starts with</strong> one of the listed values, so <code>com.acme.shared.</code> matches the whole package and its sub-packages. The values are added to the built-in defaults, they do not replace them.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.component.manager.classloader.container.parentResources</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Comma-separated list</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Additional resources resolved from the parent (container) classloader. A resource is matched when its path <strong>contains</strong> one of the listed values. The values are added to the built-in default (<code>/xmlMappings/</code>), they do not replace it.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">java \
+  -Dtalend.component.manager.classloader.container.classesAndPackages=com.acme.shared.,com.acme.api.Contract \
+  -Dtalend.component.manager.classloader.container.parentResources=/acme-mappings/ \
+  -jar my-application.jar</code></pre>
+</div>
+</div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-caution" title="Caution"></i>
+</td>
+<td class="content">
+Sharing classes with the container weakens the isolation between plugins: a shared class is loaded only once and a conflicting version in a plugin is ignored. Only list the classes or packages that really have to be shared.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The other properties read by the component manager are listed in <a href="ref-jvm-properties.html" class="xref page">JVM properties</a>.</p>
 </div>
 </div>
 <div class="sect2 relatedlinks">
