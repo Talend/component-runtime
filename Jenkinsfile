@@ -384,10 +384,13 @@ pipeline {
             // Maven documentation about maven_version:
             // https://docs.oracle.com/middleware/1212/core/MAVEN/maven_version.htm
             println "Edit version on dev branches, new version is ${finalVersion}"
-            sh """\
-                        #!/usr/bin/env bash
-                        mvn versions:set --define newVersion=${finalVersion}
-                        """.stripIndent()
+            withCredentials([githubPackagesCredentials, dockerCredentials]) {
+              sh """\
+                          #!/usr/bin/env bash
+                          mvn versions:set --define newVersion=${finalVersion} \
+                                           --settings .jenkins/settings.xml
+                          """.stripIndent()
+            }
           }
 
         }
@@ -452,7 +455,9 @@ pipeline {
       when { expression { params.ACTION != 'RELEASE' } }
       steps {
         withCredentials([ossrhCredentials,
-                         nexusCredentials]) {
+                         nexusCredentials,
+                         githubPackagesCredentials,
+                         dockerCredentials]) {
           sh """\
             #!/usr/bin/env bash
             set -xe
@@ -486,7 +491,7 @@ pipeline {
       steps {
         script {
           catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-            withCredentials([githubPackagesCredentials]) {
+            withCredentials([githubPackagesCredentials, dockerCredentials]) {
               sh """\
                 #!/usr/bin/env bash
                 set -xe
@@ -510,7 +515,7 @@ pipeline {
         expression { stdBranch_buildOnly }
       }
       steps {
-        withCredentials([nexusCredentials]) {
+        withCredentials([nexusCredentials, githubPackagesCredentials, dockerCredentials]) {
           sh """\
             #!/usr/bin/env bash
             set -xe
@@ -541,7 +546,9 @@ pipeline {
             timeout(time: 60, unit: 'MINUTES') {
               withCredentials([ossrhCredentials,
                                gpgCredentials,
-                               nexusCredentials]) {
+                               nexusCredentials,
+                               githubPackagesCredentials,
+                               dockerCredentials]) {
                 sh """\
                   #!/usr/bin/env bash
                   set -xe
@@ -619,11 +626,13 @@ pipeline {
             }
 
             // Build and push specific image
-            sh """
-                bash .jenkins/scripts/docker_build.sh \
-                  ${finalVersion}${buildTimestamp} \
-                  ${images_options}
-              """
+            withCredentials([githubPackagesCredentials, dockerCredentials]) {
+              sh """
+                  bash .jenkins/scripts/docker_build.sh \
+                    ${finalVersion}${buildTimestamp} \
+                    ${images_options}
+                """
+            }
           }
 
         }
@@ -636,7 +645,7 @@ pipeline {
         }
       }
       steps {
-        withCredentials([ossrhCredentials, gitCredentials]) {
+        withCredentials([ossrhCredentials, gitCredentials, githubPackagesCredentials, dockerCredentials]) {
           sh """\
             #!/usr/bin/env bash 
             set -xe                       
@@ -659,7 +668,9 @@ pipeline {
       }
       steps {
         withCredentials([ossrhCredentials,
-                         nexusCredentials]) {
+                         nexusCredentials,
+                         githubPackagesCredentials,
+                         dockerCredentials]) {
           catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
             sh """
                            bash .jenkins/scripts/mvn_dependency_updates_report.sh
@@ -697,8 +708,10 @@ pipeline {
       steps {
         script {
           withCredentials([nexusCredentials,
+                           githubPackagesCredentials,
                            sonarToken,
-                           gitCredentials]) {
+                           gitCredentials,
+                           dockerCredentials]) {
 
             SonarController.runSonar(branch_name,
                                      env.CHANGE_TARGET,
@@ -719,7 +732,7 @@ pipeline {
       }
       steps {
         script {
-          withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials, nexusCredentials]) {
+          withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials, nexusCredentials, githubPackagesCredentials]) {
             configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
               sh """
                             bash .jenkins/scripts/release_legacy.sh $branch_name $finalVersion $extraBuildParams

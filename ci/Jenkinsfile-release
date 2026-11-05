@@ -411,6 +411,7 @@ pipeline {
     stage('Maven release prepare') {
       steps {
         withCredentials([nexusCredentials,
+                         githubPackagesCredentials,
                          ossrhCredentials,
                          gpgCredentials]) {
           script {
@@ -453,6 +454,7 @@ pipeline {
       }
       steps {
         withCredentials([nexusCredentials,
+                         githubPackagesCredentials,
                          ossrhCredentials,
                          jetbrainsCredentials,
                          jiraCredentials,
@@ -494,6 +496,7 @@ pipeline {
       steps {
         withCredentials([gitCredentials,
                          nexusCredentials,
+                         githubPackagesCredentials,
                          ossrhCredentials,
                          dockerCredentials]) {
           script {
@@ -512,7 +515,9 @@ pipeline {
       steps {
         withCredentials([gitCredentials,
                          nexusCredentials,
-                         ossrhCredentials]) {
+                         githubPackagesCredentials,
+                         ossrhCredentials,
+                         dockerCredentials]) {
           script {
             echo "Prepare next iteration on $branchName"
             // Under DRY_RUN, the final git push is simulated with "--dry-run" (see script).
@@ -531,6 +536,7 @@ pipeline {
       steps {
         withCredentials([gitCredentials,
                          nexusCredentials,
+                         githubPackagesCredentials,
                          ossrhCredentials]) {
           script {
             echo "Creating a new branch named $maintenanceBranch with version $maintenanceVersion"

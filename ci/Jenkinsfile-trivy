@@ -15,6 +15,10 @@
  */
 
 // Credentials
+final def githubPackagesCredentials = usernamePassword(
+    credentialsId: 'github-packages-ci-runner-connectors-pat',
+    usernameVariable: 'GITHUB_PACKAGES_LOGIN',
+    passwordVariable: 'GITHUB_PACKAGES_TOKEN')
 final def nexusCredentials = usernamePassword(
     credentialsId: 'nexus-artifact-zl-credentials',
     usernameVariable: 'NEXUS_USER',
@@ -94,7 +98,7 @@ pipeline {
 
     stage('Build Project') {
       steps {
-        withCredentials([nexusCredentials]) {
+        withCredentials([nexusCredentials, githubPackagesCredentials]) {
           script {
             sh 'bash .jenkins/scripts/trivy_build_tck.sh'
           }

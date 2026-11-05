@@ -24,6 +24,7 @@
       <username>${env.JETBRAINS_USER}</username>
       <password>${env.JETBRAINS_PASS}</password>
     </server>
+    <!-- QTDI-3642: Nexus pull credentials disabled to verify GitHub Packages, restore if needed
     <server>
       <id>TalendOpenSourceRelease</id>
       <username>${env.NEXUS_USER}</username>
@@ -56,6 +57,7 @@
         <timeout>30000</timeout>
       </configuration>
     </server>
+    -->
     <server>
       <id>github_package_snapshots</id>
       <username>${env.GITHUB_PACKAGES_LOGIN}</username>
@@ -97,11 +99,13 @@
     </server>
   </servers>
 
+  <!-- QTDI-3641: Maven Central goes through the internal Artifactory cache (the Nexus central proxy ends on 2026-11-23);
+       the artifactory.datapwn.com server above takes its credentials from the artifactory-datapwn-credentials binding -->
   <mirrors>
     <mirror>
-      <id>maven_central_proxy</id>
-      <name>Maven Central Proxy</name>
-      <url>https://artifacts-zl.talend.com/nexus/content/repositories/central/</url>
+      <id>artifactory.datapwn.com</id>
+      <name>Internal Artifactory Maven Central cache</name>
+      <url>https://artifactory.datapwn.com/artifactory/maven-central-remote</url>
       <mirrorOf>central</mirrorOf>
     </mirror>
   </mirrors>

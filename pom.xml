@@ -961,6 +961,7 @@
       <name>Central Portal Snapshots</name>
       <url>https://central.sonatype.com/repository/maven-snapshots/</url>
     </repository>
+    <!-- QTDI-3642: Nexus pull disabled to verify GitHub Packages, restore if needed
     <repository>
       <releases>
         <enabled>true</enabled>
@@ -971,6 +972,18 @@
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </repository>
+    -->
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>github_package_releases</id>
+      <url>https://maven.pkg.github.com/Talend/global-artifacts</url>
+    </repository>
+    <!-- QTDI-3642: Nexus pull disabled to verify GitHub Packages, restore if needed
     <repository>
       <releases>
         <enabled>false</enabled>
@@ -981,6 +994,7 @@
       <id>TalendOpenSourceSnapshot</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
     </repository>
+    -->
   </repositories>
   <pluginRepositories>
     <pluginRepository>
@@ -994,6 +1008,7 @@
       <name>Central Portal Snapshots</name>
       <url>https://central.sonatype.com/repository/maven-snapshots/</url>
     </pluginRepository>
+    <!-- QTDI-3642: Nexus pull disabled to verify GitHub Packages, restore if needed
     <pluginRepository>
       <releases>
         <enabled>true</enabled>
@@ -1003,6 +1018,17 @@
       </snapshots>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
+    </pluginRepository>
+    -->
+    <pluginRepository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>github_package_releases</id>
+      <url>https://maven.pkg.github.com/Talend/global-artifacts</url>
     </pluginRepository>
     <pluginRepository>
       <releases>
