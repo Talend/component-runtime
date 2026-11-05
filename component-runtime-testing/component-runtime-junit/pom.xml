@@ -179,8 +179,8 @@
               <justification>org.junit.jupiter.api.extension.TestInstantiationAwareExtension has been removed by junit5, not by our code</justification>
             </difference>
             <difference>
-              <!-- QTDI-3497 (experimental, jakarta-only spike): javax.json.bind.Jsonb/javax.json.spi.JsonProvider/
-                   javax.json.JsonBuilderFactory constructor parameters are intentionally renamed to their jakarta
+              <!-- QTDI-3497: the javax.json.bind.Jsonb/javax.json.spi.JsonProvider/
+                   javax.json.JsonBuilderFactory constructor parameters were intentionally renamed to their jakarta
                    equivalents, this is a breaking change for connectors compiled against the javax line.
                    Clirr's 7005 (argument type changed) groups all parameter changes on the same method into a
                    single deferred match, so "to" must be the whole new method signature, not a single type. -->

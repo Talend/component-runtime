@@ -40,6 +40,7 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.WebTarget;
 
 import org.talend.sdk.component.form.api.Client;
+import org.talend.sdk.component.form.internal.jaxrs.JAXRSClient;
 
 import lombok.experimental.Delegate;
 
@@ -76,7 +77,7 @@ public class LazyClient implements Client<Object> {
                     final jakarta.ws.rs.client.Client jaxrsClient =
                             ClientBuilder.newBuilder().property("executorService", executorService).build();
                     webTarget = jaxrsClient.target(baseValue);
-                    client = new JakartaJAXRSClient<>(jaxrsClient, baseValue, true);
+                    client = new JAXRSClient<>(jaxrsClient, baseValue, true);
                 }
             }
         }

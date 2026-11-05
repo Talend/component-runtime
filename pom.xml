@@ -209,12 +209,6 @@
 
     <logback.version>1.5.19</logback.version>
     <reload4j.version>1.2.19</reload4j.version>
-    <geronimo-jcdi.version>1.1</geronimo-jcdi.version>
-    <geronimo-atinject.version>1.1</geronimo-atinject.version>
-    <geronimo-annotation.version>1.2</geronimo-annotation.version>
-    <geronimo-interceptor.version>1.1</geronimo-interceptor.version>
-    <geronimo-jsonb.version>1.2</geronimo-jsonb.version>
-    <geronimo-json.version>1.3</geronimo-json.version>
     <batik.version>1.17</batik.version>
     <commons-cli.version>1.4</commons-cli.version>
     <commons-codec.version>1.19.0</commons-codec.version>
@@ -223,7 +217,6 @@
     <commons-lang3.version>3.18.0</commons-lang3.version>
     <commons-logging.version>1.2</commons-logging.version>
     <commons-text.version>1.14.0</commons-text.version>
-    <geronimo-jaxrs.version>1.1</geronimo-jaxrs.version>
     <asciidoctorj.version>2.5.2</asciidoctorj.version>
     <asciidoctorj-pdf.version>1.6.0</asciidoctorj-pdf.version>
     <!-- microprofile-config-api is bumped to the Jakarta EE 9+ (MicroProfile Config 3.x) line, only consumed by
@@ -437,21 +430,6 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-text</artifactId>
         <version>${commons-text.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-annotation_1.3_spec</artifactId>
-        <version>${geronimo-annotation.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-json_1.1_spec</artifactId>
-        <version>${geronimo-json.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jsonb_1.0_spec</artifactId>
-        <version>${geronimo-jsonb.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>

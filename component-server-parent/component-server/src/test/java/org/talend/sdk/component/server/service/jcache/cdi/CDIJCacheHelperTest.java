@@ -176,6 +176,16 @@ class CDIJCacheHelperTest {
     }
 
     @Test
+    void findMetaToleratesNullTarget() throws Exception {
+        final Method method = Target.class.getDeclaredMethod("load", String.class);
+        final InvocationContext ic = mockInvocationContext(method, null);
+
+        final CDIJCacheHelper.MethodMeta meta = helper.findMeta(ic);
+
+        assertEquals("resultCache", meta.getCacheResultCacheName());
+    }
+
+    @Test
     void isIncludedReturnsFalseWhenNoInOrOutClassesAreConfigured() {
         assertFalse(helper.isIncluded(IllegalStateException.class, new Class<?>[0], new Class<?>[0]));
     }

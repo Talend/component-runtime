@@ -58,6 +58,7 @@ import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.cache.annotation.CacheDefaults;
 import javax.cache.annotation.CacheKey;
@@ -90,7 +91,7 @@ public class CDIJCacheHelper {
 
     private final CacheKeyGeneratorImpl defaultCacheKeyGenerator = new CacheKeyGeneratorImpl();
 
-    private final Collection<CreationalContext<?>> toRelease = new ArrayList<>();
+    private final Collection<CreationalContext<?>> toRelease = new CopyOnWriteArrayList<>();
 
     private final ConcurrentMap<MethodKey, MethodMeta> methods = new ConcurrentHashMap<>();
 
@@ -241,7 +242,7 @@ public class CDIJCacheHelper {
     }
 
     private CacheDefaults findDefaults(final Class<?> targetType, final Method method) {
-        if (Proxy.isProxyClass(targetType)) { // target doesnt hold annotations
+        if (targetType != null && Proxy.isProxyClass(targetType)) { // target doesnt hold annotations
             final Class<?> api = method.getDeclaringClass();
             for (final Class<?> type : targetType.getInterfaces()) {
                 if (!api.isAssignableFrom(type)) {

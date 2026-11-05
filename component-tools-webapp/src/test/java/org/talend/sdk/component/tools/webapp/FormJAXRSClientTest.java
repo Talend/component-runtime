@@ -35,8 +35,9 @@ import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.form.internal.jaxrs.JAXRSClient;
 
-class JakartaJAXRSClientTest {
+class FormJAXRSClientTest {
 
     private HttpServer server;
 
@@ -94,7 +95,7 @@ class JakartaJAXRSClientTest {
         final Map<String, Object> params = new LinkedHashMap<>();
         params.put("aString", "value");
         params.put("aNumber", 42);
-        try (final JakartaJAXRSClient<Void> client = new JakartaJAXRSClient<>(baseUrl())) {
+        try (final JAXRSClient<Void> client = new JAXRSClient<>(baseUrl())) {
             final Map<String, Object> result =
                     client.action("myFamily", "myType", "myAction", "en", params, null)
                             .toCompletableFuture()
@@ -119,7 +120,7 @@ class JakartaJAXRSClientTest {
     void closeDelegatesToUnderlyingClientOnlyWhenOwned() {
         try (final jakarta.ws.rs.client.Client delegate = jakarta.ws.rs.client.ClientBuilder.newClient()) {
             // closeClient=false: this instance does not own the delegate, close() must be a no-op on it
-            final JakartaJAXRSClient<Void> nonOwning = new JakartaJAXRSClient<>(delegate, baseUrl(), false);
+            final JAXRSClient<Void> nonOwning = new JAXRSClient<>(delegate, baseUrl(), false);
             nonOwning.close();
             // the delegate is still usable after a non-owning close()
             assertNull(probeDelegateClosed(delegate));

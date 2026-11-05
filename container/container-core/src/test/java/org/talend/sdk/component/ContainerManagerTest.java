@@ -178,6 +178,12 @@ class ContainerManagerTest {
         // Edge cases: paths with multiple separators
         assertTrue(FRAMEWORK_JAR_PATTERN.matcher("foo/bar/baz/component-spi-2.0.0.jar").matches());
         assertTrue(FRAMEWORK_JAR_PATTERN.matcher("foo\\bar\\baz\\container-core-1.0.0.jar").matches());
+        // jakarta APIs are framework jars, the legacy javax geronimo specs are not anymore
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("lib/jakarta.json-api-2.1.3.jar").matches());
+        assertTrue(FRAMEWORK_JAR_PATTERN.matcher("lib/jakarta.annotation-api-2.1.1.jar").matches());
+        assertFalse(FRAMEWORK_JAR_PATTERN.matcher("lib/geronimo-annotation_1.3_spec-1.2.jar").matches());
+        assertFalse(FRAMEWORK_JAR_PATTERN.matcher("lib/geronimo-json_1.1_spec-1.3.jar").matches());
+        assertFalse(FRAMEWORK_JAR_PATTERN.matcher("lib/geronimo-jsonb_1.0_spec-1.2.jar").matches());
         // Should NOT match non-framework jars
         assertFalse(FRAMEWORK_JAR_PATTERN.matcher("/usr/lib/my-custom-component-1.0.0.jar").matches());
         assertFalse(FRAMEWORK_JAR_PATTERN.matcher("C:\\libs\\other-library-2.0.jar").matches());

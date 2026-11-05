@@ -56,7 +56,8 @@ class DefaultServiceProviderTest {
 
     @Test
     void jsonpProvider() {
-        assertInstanceOf(PreComputedJsonpProvider.class, lookup(provider(JsonbProvider.provider()), JsonProvider.class));
+        assertInstanceOf(PreComputedJsonpProvider.class,
+                lookup(provider(JsonbProvider.provider()), JsonProvider.class));
     }
 
     @Test

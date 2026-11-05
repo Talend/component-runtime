@@ -117,7 +117,7 @@ public class CacheResultInterceptor implements Serializable {
             // interceptor must observe and always rethrow whatever ic.proceed() throws, of any type, in
             // order to decide cache-eviction/exception-caching behavior - it can never narrow to a specific
             // exception type since it wraps an arbitrary intercepted method. Ported unchanged from upstream
-            // geronimo-jcache-simple, which used the same javax.interceptor pattern.
+            // geronimo-jcache-simple (same interceptor pattern, javax.interceptor there).
             cacheThrowableIfIncluded(t, cacheKey, context, cacheResolverFactory, cacheResult);
             throw t;
         }

@@ -51,10 +51,12 @@ class JsonSchemaValidatorFactoryExtRulesTest {
     static Stream<Arguments> cases() {
         return Stream
                 .of(of("enum valid", field("{\"type\":\"string\",\"enum\":[\"x\",\"y\"]}"), "{\"a\":\"x\"}", 0),
-                        of("enum other value is tolerated", field("{\"type\":\"string\",\"enum\":[\"x\",\"y\"]}"), "{\"a\":\"z\"}", 0),
+                        of("enum other value is tolerated", field("{\"type\":\"string\",\"enum\":[\"x\",\"y\"]}"),
+                                "{\"a\":\"z\"}", 0),
                         of("enum null value", field("{\"type\":\"string\",\"enum\":[\"x\",\"y\"]}"), "{\"a\":null}", 1),
                         of("enum missing value", field("{\"type\":\"string\",\"enum\":[\"x\",\"y\"]}"), "{}", 1),
-                        of("enum default is valid", field("{\"type\":\"string\",\"enum\":[\"x\"],\"default\":\"x\"}"), "{}", 0),
+                        of("enum default is valid", field("{\"type\":\"string\",\"enum\":[\"x\"],\"default\":\"x\"}"),
+                                "{}", 0),
                         of("enum not an array", field("{\"type\":\"string\",\"enum\":\"x\"}"), "{}", 0),
                         of("type string ok", field("{\"type\":\"string\"}"), "{\"a\":\"s\"}", 0),
                         of("type string ko", field("{\"type\":\"string\"}"), "{\"a\":1}", 1),
@@ -75,7 +77,8 @@ class JsonSchemaValidatorFactoryExtRulesTest {
                         of("maximum ok", field("{\"type\":\"number\",\"maximum\":5}"), "{\"a\":3}", 0),
                         of("pattern ko", field("{\"type\":\"string\",\"pattern\":\"^a.*\"}"), "{\"a\":\"b\"}", 1),
                         of("pattern ok", field("{\"type\":\"string\",\"pattern\":\"^a.*\"}"), "{\"a\":\"ab\"}", 0),
-                        of("pattern not valid in javascript", field("{\"type\":\"string\",\"pattern\":\"(?<=a)b\\\\p{Alpha}\"}"),
+                        of("pattern not valid in javascript",
+                                field("{\"type\":\"string\",\"pattern\":\"(?<=a)b\\\\p{Alpha}\"}"),
                                 "{\"a\":\"b\"}", 1));
     }
 

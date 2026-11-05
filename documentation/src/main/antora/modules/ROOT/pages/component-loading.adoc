@@ -73,7 +73,7 @@ $ unzip -p target/mycomponent-1.0.0-SNAPSHOT.jar TALEND-INF/dependencies.txt
 
 The following files have been resolved:
    org.talend.sdk.component:component-api:jar:1.0.0-SNAPSHOT:provided
-   org.apache.geronimo.specs:geronimo-annotation_1.3_spec:jar:1.0:provided
+   jakarta.annotation:jakarta.annotation-api:jar:2.1.1:provided
    org.superbiz:awesome-project:jar:1.2.3:compile
    junit:junit:jar:4.12:test
    org.hamcrest:hamcrest-core:jar:1.3:test
@@ -82,7 +82,7 @@ The following files have been resolved:
 
 What is important to see is the scope related to the artifacts:
 
-- The APIs (*component-api* and *geronimo-annotation_1.3_spec*) are `provided` because you can consider them to be there when executing (they come with the framework).
+- The APIs (*component-api* and *jakarta.annotation-api*) are `provided` because you can consider them to be there when executing (they come with the framework).
 - Your specific dependencies (`awesome-project` in the example above) are marked as `compile`: they are included as needed dependencies by the framework (note that using `runtime` works too).
 - the other dependencies are ignored. For example, `test` dependencies.
 

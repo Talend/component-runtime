@@ -22,9 +22,9 @@ client.register(org.apache.johnzon.jaxrs.jsonb.jaxrs.JsonbJaxrsProvider.class);
 `JsonbJaxrsProvider` ships **inside** the `org.apache.johnzon:johnzon-jsonb` jar — no separate
 `johnzon-jaxrs` artifact is needed. If the class is imported directly (rather than relying on it
 arriving transitively, e.g. via `component-server`), add an explicit `johnzon-jsonb` dependency to
-this module's `pom.xml` rather than depending on a transitive path that could silently break.
+the declaring module's `pom.xml` (form-core declares it `provided`, this module provides it at runtime) rather than depending on a transitive path that could silently break.
 
-This was found while adding test coverage for `JakartaJAXRSClient#action` (previously untested) —
+This was found while adding test coverage for `JAXRSClient#action` (form-core, now the only JAX-RS client implementation; exercised from this module's `FormJAXRSClientTest`, which has a CXF client on its classpath) (previously untested) —
 the bug was real and pre-existing, not introduced by the test itself; reproduced first via the
 `ProcessingException` failing without the fix, then confirmed green after registering the provider.
 

@@ -64,7 +64,8 @@ class FrontCacheKeyGeneratorTest {
     private static CacheKeyInvocationContext<java.lang.annotation.Annotation> context(final Object value) {
         final CacheInvocationParameter parameter = mock(CacheInvocationParameter.class);
         when(parameter.getValue()).thenReturn(value);
-        final CacheKeyInvocationContext<java.lang.annotation.Annotation> context = mock(CacheKeyInvocationContext.class);
+        final CacheKeyInvocationContext<java.lang.annotation.Annotation> context =
+                mock(CacheKeyInvocationContext.class);
         when(context.getKeyParameters()).thenReturn(new CacheInvocationParameter[] { parameter });
         return context;
     }

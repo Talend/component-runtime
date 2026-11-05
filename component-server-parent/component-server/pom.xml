@@ -42,22 +42,6 @@
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-manager</artifactId>
       <version>${project.version}</version>
-      <!-- geronimo-json_1.1_spec/geronimo-jsonb_1.0_spec (transitively pulled in on the javax line) are
-           excluded here since component-server supplies its own javax.json/javax.json.bind implementations
-           (org.glassfish:javax.json, org.eclipse:yasson, declared below) instead - see the dependencyManagement
-           comment in the root pom (QTDI-3358 notes). geronimo-annotation_1.3_spec (javax.annotation.PostConstruct/
-           PreDestroy) is NOT excluded: component-runtime-manager's own bytecode (out of scope for the jakarta
-           migration) genuinely needs it at runtime, and nothing else on this module's classpath provides it. -->
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.geronimo.specs</groupId>
-          <artifactId>geronimo-json_1.1_spec</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.geronimo.specs</groupId>
-          <artifactId>geronimo-jsonb_1.0_spec</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <!-- extends runtime manager with design time data -->
     <dependency>
