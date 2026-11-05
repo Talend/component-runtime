@@ -386,7 +386,7 @@ pipeline {
             println "Edit version on dev branches, new version is ${finalVersion}"
             sh """\
                         #!/usr/bin/env bash
-                        mvn versions:set --define newVersion=${finalVersion}
+                        mvn versions:set --define newVersion=${finalVersion} --settings .jenkins/settings.xml
                         """.stripIndent()
           }
 
