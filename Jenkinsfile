@@ -515,7 +515,7 @@ pipeline {
         expression { stdBranch_buildOnly }
       }
       steps {
-        withCredentials([nexusCredentials, dockerCredentials]) {
+        withCredentials([nexusCredentials, githubPackagesCredentials, dockerCredentials]) {
           sh """\
             #!/usr/bin/env bash
             set -xe
