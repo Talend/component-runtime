@@ -7,7 +7,7 @@ You will find:
  - The ".jenkins" folder with jenkins files and scripts
 
 ## Execution in Jenkins (QTDI-3757)
-Since the API Tester `/license` endpoint change (QAPI-3138), the API tests can no longer be launched from the CI.
+Since the API Tester `/license` endpoint change (QAPI-3138), the API tests currently fail in the CI.
 To avoid blocking the pull requests, the `TCOMP-api-test` Jenkins job skips them by default:
  - On the `master` branch, the API tests always run.
  - On any other branch (pull requests included), they are skipped unless the job parameter `RUN_API_TESTS` is ticked.
