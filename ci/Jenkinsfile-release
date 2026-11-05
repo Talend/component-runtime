@@ -516,7 +516,8 @@ pipeline {
         withCredentials([gitCredentials,
                          nexusCredentials,
                          githubPackagesCredentials,
-                         ossrhCredentials]) {
+                         ossrhCredentials,
+                         dockerCredentials]) {
           script {
             echo "Prepare next iteration on $branchName"
             // Under DRY_RUN, the final git push is simulated with "--dry-run" (see script).
