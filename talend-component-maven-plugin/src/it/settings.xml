@@ -26,6 +26,16 @@
       <password>${env.NEXUS_PASS}</password>
     </server>
   </servers>
+
+  <mirrors>
+    <mirror>
+      <id>maven_central_proxy</id>
+      <name>Maven Central Proxy</name>
+      <url>https://artifacts-zl.talend.com/nexus/content/repositories/central/</url>
+      <mirrorOf>central</mirrorOf>
+    </mirror>
+  </mirrors>
+
   <profiles>
     <profile>
       <id>it-repo</id>
