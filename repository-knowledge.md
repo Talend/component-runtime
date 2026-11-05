@@ -195,3 +195,9 @@ consumers simultaneously; no per-module edit is ever needed for a CXF version bu
 ## Coding rules delta
 
 No known repo-specific exceptions to the shared [coding-rules.md](https://github.com/Talend/di-ai-commons/blob/main/knowledge/rules/coding-rules.md).
+
+---
+
+## CI: TCOMP-api-test
+
+[2026-11-05 | QTDI-3757] The `QA/TCOMP-api-test/pr-head` check comes from the Jenkins multibranch job `TCOMP-api-test`, which runs `talend-component-maven-plugin/src/it/web/.jenkins/Jenkinsfile` (API Tester tenant via `apitester-run.sh`). It is independent of the Maven build and invoker ITs, so failures there (e.g. the QAPI-3138 `/license` change) are fixed in the Jenkinsfile, not in Maven. API tests now run only on master or with `RUN_API_TESTS=true`.
