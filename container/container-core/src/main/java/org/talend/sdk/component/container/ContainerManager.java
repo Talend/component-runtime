@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2026 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -62,6 +62,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import lombok.NoArgsConstructor;
 import org.talend.sdk.component.api.service.dependency.ClassLoaderDefinition;
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.dependencies.Resolver;
@@ -122,8 +123,8 @@ public class ContainerManager implements Lifecycle {
     private final List<String> runtimeClasspath = new ArrayList<>();
 
     public ContainerManager(final DependenciesResolutionConfiguration dependenciesResolutionConfiguration,
-            final ClassLoaderConfiguration classLoaderConfiguration, final Consumer<Container> containerInitializer,
-            final Level logInfoLevelMapping) {
+                            final ClassLoaderConfiguration classLoaderConfiguration, final Consumer<Container> containerInitializer,
+                            final Level logInfoLevelMapping) {
         this.logInfoLevelMapping = logInfoLevelMapping;
         this.containerInitializer = containerInitializer;
         this.resolver = dependenciesResolutionConfiguration.getResolver();
@@ -143,7 +144,7 @@ public class ContainerManager implements Lifecycle {
                 classLoaderConfiguration.isSupportsResourceDependencies(), nestedPluginMappingResource);
         if (classLoaderConfiguration.isSupportsResourceDependencies()) {
             try (final InputStream mappingStream =
-                    classLoaderConfiguration.getParent().getResourceAsStream(nestedPluginMappingResource)) {
+                         classLoaderConfiguration.getParent().getResourceAsStream(nestedPluginMappingResource)) {
                 if (mappingStream != null) {
                     if (log.isDebugEnabled()) {
                         final URL plug = classLoaderConfiguration.getParent().getResource(nestedPluginMappingResource);
@@ -234,9 +235,9 @@ public class ContainerManager implements Lifecycle {
     }
 
     /**
-     * @param id the container id (how to find it back from the manager).
+     * @param id     the container id (how to find it back from the manager).
      * @param module the module "reference", can be a nested resource
-     * (MAVEN-INF/repository) or direct file path or m2 related path.
+     *               (MAVEN-INF/repository) or direct file path or m2 related path.
      * @return the newly created container.
      */
     public ContainerBuilder builder(final String id, final String module) {
@@ -416,7 +417,7 @@ public class ContainerManager implements Lifecycle {
                     .stream()
                     .flatMap(it -> {
                         try (final BufferedReader reader =
-                                new BufferedReader(new InputStreamReader(it.openStream()))) {
+                                     new BufferedReader(new InputStreamReader(it.openStream()))) {
                             // tolist to materialize it before closing the resource
                             return reader.lines().collect(toList()).stream();
                         } catch (final IOException e) {
@@ -675,12 +676,14 @@ public class ContainerManager implements Lifecycle {
         }
     }
 
+    @NoArgsConstructor(access = PRIVATE)
     static final class LegacyPluginIds {
 
         private static final String LEGACY_PLUGIN_IDS_RESOURCE = "TALEND-INF/legacy-plugin-ids.properties";
 
         private static final String M2_FILE_NAME = "legacy-plugin-ids.properties";
 
+        // org.talend.sdk.component.runtime.manager.service.MavenRepositoryResolver.TALEND_COMPONENT_MANAGER_M2_REPOSITORY
         private static final String M2_REPOSITORY_PROPERTY = "talend.component.manager.m2.repository";
 
         // Lowercase artifact names (GitHub Packages) mapped to the historical plugin ids, which must not change.
@@ -698,17 +701,7 @@ public class ContainerManager implements Lifecycle {
             }
 
             // plugins (ex: the extensions jar) are not on this classpath, so the m2 root can ship the file too
-            final String m2 = System.getProperty(M2_REPOSITORY_PROPERTY);
-            if (m2 != null && !m2.isBlank()) {
-                final Path file = Paths.get(m2).resolve(M2_FILE_NAME);
-                if (Files.isRegularFile(file)) {
-                    try {
-                        sources.add(file.toUri().toURL());
-                    } catch (final IOException e) {
-                        log.warn("Can't read {}: {}", file, e.getMessage());
-                    }
-                }
-            }
+            loadSourceFromSystemProperty().ifPresent(sources::add);
 
             if (sources.isEmpty()) {
                 log.info("[LegacyPluginIds] no {} found, no legacy mapping", M2_FILE_NAME);
@@ -739,6 +732,25 @@ public class ContainerManager implements Lifecycle {
 
             log.info("[LegacyPluginIds] {} entries loaded from {} source(s)", values.size(), sources.size());
             return values;
+        }
+
+        private static Optional<URL> loadSourceFromSystemProperty() {
+            final String m2 = System.getProperty(M2_REPOSITORY_PROPERTY);
+            if (m2 == null || m2.isBlank()) {
+                return Optional.empty();
+            }
+
+            final Path file = Paths.get(m2).resolve(M2_FILE_NAME);
+            if (!Files.isRegularFile(file)) {
+                return Optional.empty();
+            }
+
+            try {
+                return Optional.of(file.toUri().toURL());
+            } catch (final IOException e) {
+                log.warn("Can't read {}: {}", file, e.getMessage());
+                return Optional.empty();
+            }
         }
     }
 }
