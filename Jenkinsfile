@@ -705,6 +705,11 @@ pipeline {
           // /home/jenkins/.m2 is not writable (only .m2/repository is mounted), so Trivy gets a private HOME outside the scanned workspace.
           sh """\
             mkdir -p /tmp/trivy-home/.m2
+            # keep everything else of the real HOME (asdf, bashenv, caches...) visible, only .m2 differs
+            for entry in /home/jenkins/.[!.]* /home/jenkins/*; do
+              name=\$(basename "\$entry")
+              [ "\$name" = ".m2" ] || ln -sfn "\$entry" "/tmp/trivy-home/\$name"
+            done
             cp .jenkins/settings.xml /tmp/trivy-home/.m2/settings.xml
             ln -sfn /home/jenkins/.m2/repository /tmp/trivy-home/.m2/repository
             """.stripIndent()
