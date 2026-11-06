@@ -20,9 +20,9 @@ urls:
   redirect_facility: static
 content:
   sources:
+  # current checkout, read from the worktree (uncommitted changes and freshly generated partials included)
   - url: ../../../..
-    branches:
-      - master
+    branches: HEAD
     start_path: documentation/src/main/antora
 ui:
   bundle:
