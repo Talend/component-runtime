@@ -28,5 +28,15 @@ public class ErrorPayload {
 
     private ErrorDictionary code;
 
+    /**
+     * Optional refinement of {@link #code}. For a schema discovery failure it is the name of the
+     * {@code DiscoverSchemaException.HandleErrorWith} strategy requested by the component, null otherwise.
+     */
+    private String subCode;
+
     private String description;
+
+    public ErrorPayload(final ErrorDictionary code, final String description) {
+        this(code, null, description);
+    }
 }
