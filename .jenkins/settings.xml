@@ -24,40 +24,6 @@
       <username>${env.JETBRAINS_USER}</username>
       <password>${env.JETBRAINS_PASS}</password>
     </server>
-    <!-- QTDI-3642: Nexus pull credentials disabled to verify GitHub Packages, restore if needed
-    <server>
-      <id>TalendOpenSourceRelease</id>
-      <username>${env.NEXUS_USER}</username>
-      <password>${env.NEXUS_PASS}</password>
-      <configuration>
-        <timeout>30000</timeout>
-      </configuration>
-    </server>
-    <server>
-      <id>TalendOpenSourceSnapshot</id>
-      <username>${env.NEXUS_USER}</username>
-      <password>${env.NEXUS_PASS}</password>
-      <configuration>
-        <timeout>30000</timeout>
-      </configuration>
-    </server>
-    <server>
-      <id>talend.oss.snapshots</id>
-      <username>${env.NEXUS_USER}</username>
-      <password>${env.NEXUS_PASS}</password>
-      <configuration>
-        <timeout>30000</timeout>
-      </configuration>
-    </server>
-    <server>
-      <id>talend.oss.releases</id>
-      <username>${env.NEXUS_USER}</username>
-      <password>${env.NEXUS_PASS}</password>
-      <configuration>
-        <timeout>30000</timeout>
-      </configuration>
-    </server>
-    -->
     <server>
       <id>github_package_snapshots</id>
       <username>${env.GITHUB_PACKAGES_LOGIN}</username>
