@@ -684,6 +684,8 @@ public class ContainerManager implements Lifecycle {
         private static final String M2_REPOSITORY_PROPERTY = "talend.component.manager.m2.repository";
 
         // Lowercase artifact names (GitHub Packages) mapped to the historical plugin ids, which must not change.
+        // Constraint: loaded once at class initialization (buildAutoIdFromName is on a hot path), so the
+        // talend.component.manager.m2.repository system property must be set before ContainerManager is first used.
         private static final Map<String, String> VALUES =
                 loadLegacyPluginIds(ContainerManager.class.getClassLoader());
 

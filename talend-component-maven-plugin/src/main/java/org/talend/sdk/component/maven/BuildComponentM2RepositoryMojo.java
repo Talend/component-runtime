@@ -219,9 +219,18 @@ public class BuildComponentM2RepositoryMojo extends ComponentDependenciesBase {
         }
         legacy.stringPropertyNames().forEach(name -> {
             final String gav = components.getProperty(name);
-            if (gav != null) {
-                components.setProperty(legacy.getProperty(name), gav);
+            if (gav == null) {
+                return;
             }
+            final String legacyId = legacy.getProperty(name);
+            final String existing = components.getProperty(legacyId);
+            if (existing != null && !existing.equals(gav)) {
+                getLog()
+                        .warn("Legacy plugin id '" + legacyId + "' of '" + name + "' is already registered for '"
+                                + existing + "', it is not overwritten");
+                return;
+            }
+            components.setProperty(legacyId, gav);
         });
     }
 
