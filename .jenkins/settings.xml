@@ -15,11 +15,6 @@
       <password>${env.GITHUB_TOKEN}</password>
     </server>
     <server>
-      <id>jira</id>
-      <username>${env.JIRA_USER}</username>
-      <password>${env.JIRA_PASS}</password>
-    </server>
-    <server>
       <id>jetbrains</id>
       <username>${env.JETBRAINS_USER}</username>
       <password>${env.JETBRAINS_PASS}</password>
