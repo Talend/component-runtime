@@ -305,14 +305,17 @@ public class ComponentManagerService {
                             throw new IllegalArgumentException(e);
                         }
                     }
-                    properties
-                            .stringPropertyNames()
-                            .stream()
-                            .map(properties::getProperty)
-                            .distinct() // legacy plugin ids register the same GAV under several keys
+                    distinctGavs(properties)
                             .filter(gav -> !coords.contains(gav))
                             .forEach(this::deploy);
                 });
+    }
+
+    // legacy plugin ids register the same GAV under several keys, it must be deployed only once
+    static Stream<String> distinctGavs(final Properties registry) {
+        return registry.stringPropertyNames().stream()
+                .map(registry::getProperty)
+                .distinct();
     }
 
     public String deploy(final String pluginGAV) {
