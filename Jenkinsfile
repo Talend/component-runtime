@@ -700,9 +700,18 @@ pipeline {
         expression { params.ACTION == 'STANDARD' && params.TRIVY_SCAN == true }
       }
       steps {
+        withCredentials([dockerCredentials]) {
+          // Trivy reads ~/.m2/settings.xml to resolve Maven dependencies: use the mirror instead of Maven Central (429)
+          sh """\
+            mkdir -p ~/.m2
+            cp .jenkins/settings.xml ~/.m2/settings.xml
+            """.stripIndent()
+          script {
+            trivyTools.generateTrivyReport('output/trivy-results.json',
+                                           'output/trivy-results.html')
+          }
+        }
         script {
-          trivyTools.generateTrivyReport('output/trivy-results.json',
-                                         'output/trivy-results.html')
           publishHtmlReportTools.publishHtmlReport('output/trivy-results.html',
                                                    'CVE Trivy Vulnerability Report')
         }
