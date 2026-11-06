@@ -701,14 +701,18 @@ pipeline {
       }
       steps {
         withCredentials([dockerCredentials]) {
-          // Trivy reads ~/.m2/settings.xml to resolve Maven dependencies: use the mirror instead of Maven Central (429)
+          // Trivy reads $HOME/.m2/settings.xml to resolve Maven dependencies: use the mirror instead of Maven Central (429).
+          // /home/jenkins/.m2 is not writable (only .m2/repository is mounted), so Trivy gets a private HOME outside the scanned workspace.
           sh """\
-            mkdir -p ~/.m2
-            cp .jenkins/settings.xml ~/.m2/settings.xml
+            mkdir -p /tmp/trivy-home/.m2
+            cp .jenkins/settings.xml /tmp/trivy-home/.m2/settings.xml
+            ln -sfn /home/jenkins/.m2/repository /tmp/trivy-home/.m2/repository
             """.stripIndent()
-          script {
-            trivyTools.generateTrivyReport('output/trivy-results.json',
-                                           'output/trivy-results.html')
+          withEnv(["HOME=/tmp/trivy-home"]) {
+            script {
+              trivyTools.generateTrivyReport('output/trivy-results.json',
+                                             'output/trivy-results.html')
+            }
           }
         }
         script {
