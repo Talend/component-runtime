@@ -295,7 +295,7 @@ public class ContainerManager implements Lifecycle {
     public static String buildAutoIdFromName(final String module) {
         final String id = deriveIdFromName(module);
         final String resolved = LegacyPluginIds.VALUES.getOrDefault(id, id);
-        log.info("[buildAutoIdFromName] module '{}': derived id '{}', resolved id '{}', legacy mapping applied: {}",
+        log.debug("[buildAutoIdFromName] module '{}': derived id '{}', resolved id '{}', legacy mapping applied: {}",
                 module, id, resolved, !id.equals(resolved));
         return resolved;
     }
