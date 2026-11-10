@@ -228,6 +228,29 @@ consumers simultaneously; no per-module edit is ever needed for a CXF version bu
 
 ---
 
+## CI — Jenkins jobs
+
+Jenkins instance `jenkins-connectors`. Jobs are registered in flux (Job DSL); the Jenkinsfiles live here. Cross-repo pipeline map, triggers, pods and known CI problems: `get_knowledge("topics/ci-product-pipelines.md")`; stage and parameter detail: `get_knowledge("topics/ci-product-pipelines-jenkinsfiles.md")`; job meaning when a build is red: `get_knowledge("topics/ci-job-catalog-build-release.md")`, `get_knowledge("topics/ci-triage-known-issues.md")`.
+
+| Flux job | Branches | Jenkinsfile | Notes |
+| --- | --- | --- | --- |
+| `component-runtime/build` | all branches and PRs | `Jenkinsfile` | Build, Sonar, deploys (GitHub Packages, Nexus, Sonatype), Docker, Trivy. Cron `0 0 * * *` on `master` only (set in the Jenkinsfile). No longer used for releases |
+| `component-runtime/release` | `maintenance/*`, `master`, `main` | `ci/Jenkinsfile-release` | Started by hand with `ACTION` = `GA` (only on `master`) or `MAINTENANCE` (only on `maintenance/...`); try `DRY_RUN=true` first. Debug copy: `__TESTS__/jenkins-debug/component-runtime/release` |
+| `component-runtime/trivy-scan` | `master` | `ci/Jenkinsfile-trivy` | Flux cron, Sun–Fri 01:30 |
+| `component-runtime/TCOMP-api-test` | all branches and PRs | `talend-component-maven-plugin/src/it/web/.jenkins/Jenkinsfile` | Check `QA/TCOMP-api-test/pr-head`; see § CI: TCOMP-api-test |
+| `component-runtime/tck-jetbrains-plugin` | branches of `component-runtime-intellij-plugin` | `ci/Jenkinsfile-jetbrains-build` (in that repo) | Not this repo's checkout; listed because the flux job sits in the same folder |
+
+- Default branch `master`; maintenance branches `maintenance/*`. A dev branch deployed with `VERSION_QUALIFIER=DEFAULT` must be named `user/JIRA-1234-Description`, or the build fails.
+- Library pins are hand-maintained in each Jenkinsfile (here both `lib("connectors-lib@1.2.0")` — the old 1.x code — and `lib("tqa-e2e-tests-tool@2.6.13-ttp2")`, `@v2.4.2-ttp2` in the release Jenkinsfile); publishing a library release updates nothing here. `tqa-e2e-tests-tool` is frozen at `3.1.0-ttp2`; its code continues as `connectors-lib@2.0.0` and later (`tdi-jenkins-shared-libraries`, QTTP-385) → `get_knowledge("topics/ci-shared-libraries.md")`.
+
+_Verified: QTDI-3623, 2026-11-09 against `component-runtime@c697eafca78`_
+
 ## Coding rules delta
 
 No known repo-specific exceptions to the shared [coding-rules.md](https://github.com/Talend/di-ai-commons/blob/main/knowledge/rules/coding-rules.md).
+
+---
+
+## CI: TCOMP-api-test
+
+[2026-11-05 | QTDI-3757] The `QA/TCOMP-api-test/pr-head` check comes from the Jenkins multibranch job `TCOMP-api-test`, which runs `talend-component-maven-plugin/src/it/web/.jenkins/Jenkinsfile` (API Tester tenant via `apitester-run.sh`). It is independent of the Maven build and invoker ITs, so failures there (e.g. the QAPI-3138 `/license` change) are fixed in the Jenkinsfile, not in Maven. API tests now run only on master or with `RUN_API_TESTS=true`.

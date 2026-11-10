@@ -380,10 +380,9 @@ pipeline {
             println "Edit version on dev branches, new version is ${finalVersion}"
             withCredentials([githubPackagesCredentials, dockerCredentials]) {
               sh """\
-                          #!/usr/bin/env bash
-                          mvn versions:set --define newVersion=${finalVersion} \
-                                           --settings .jenkins/settings.xml
-                          """.stripIndent()
+                        #!/usr/bin/env bash
+                        mvn versions:set --define newVersion=${finalVersion} --settings .jenkins/settings.xml
+                        """.stripIndent()
             }
           }
 
