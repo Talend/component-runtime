@@ -980,7 +980,7 @@
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
-      <id>github_package_releases</id>
+      <id>github_packages</id>
       <url>https://maven.pkg.github.com/Talend/global-artifacts</url>
     </repository>
     <!-- QTDI-3642: Nexus pull disabled to verify GitHub Packages, restore if needed
@@ -1027,7 +1027,7 @@
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
-      <id>github_package_releases</id>
+      <id>github_packages</id>
       <url>https://maven.pkg.github.com/Talend/global-artifacts</url>
     </pluginRepository>
     <pluginRepository>

@@ -38,7 +38,7 @@ main() {
   mvn clean deploy \
     --file "component-studio/pom.xml" \
     --define arguments="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip" \
-    --define altDeploymentRepository=github_package_releases::default::https://maven.pkg.github.com/Talend/global-artifacts \
+    --define altDeploymentRepository=github_packages::default::https://maven.pkg.github.com/Talend/global-artifacts \
     --fail-at-end \
     --settings .jenkins/settings.xml \
     --activate-profiles ${release_profiles} \

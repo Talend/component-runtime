@@ -26,7 +26,7 @@
       <password>${env.NEXUS_PASS}</password>
     </server>
     <server>
-      <id>github_package_releases</id>
+      <id>github_packages</id>
       <username>${env.GITHUB_PACKAGES_LOGIN}</username>
       <password>${env.GITHUB_PACKAGES_TOKEN}</password>
     </server>

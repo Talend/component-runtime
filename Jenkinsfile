@@ -493,7 +493,7 @@ pipeline {
                 set -xe
                 mvn deploy ${nexusDeployOptions} \
                             --fail-at-end \
-                            -DaltDeploymentRepository=github_package_snapshots::default::https://maven.pkg.github.com/Talend/global-artifacts \
+                            -DaltDeploymentRepository=github_packages::default::https://maven.pkg.github.com/Talend/global-artifacts \
                             ${extraBuildParams} \
                             --settings .jenkins/settings.xml
                 """.stripIndent()
