@@ -18,14 +18,15 @@ package org.talend.sdk.component.runtime.manager.reflect.visibility;
 import static java.util.Collections.emptyMap;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
-import static javax.json.stream.JsonCollectors.toJsonArray;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
@@ -137,6 +138,15 @@ public class PayloadMapper {
         } else {
             parameterVisitor.onParameter(meta, JsonValue.NULL);
         }
+    }
+
+    // JsonCollectors.toJsonArray() would resolve a JsonProvider through ServiceLoader on each call
+    private Collector<JsonValue, JsonArrayBuilder, JsonArray> toJsonArray() {
+        return Collector
+                .of(jsonp::createArrayBuilder, (builder, value) -> builder.add(value), (left, right) -> {
+                    right.build().forEach(left::add);
+                    return left;
+                }, JsonArrayBuilder::build);
     }
 
     private boolean isVisible(final ParameterMeta meta) {
