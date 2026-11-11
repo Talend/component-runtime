@@ -109,6 +109,11 @@ pipeline {
     stage('Security Scan with Trivy') {
       steps {
         script {
+          // Trivy's pom resolver ignores MAVEN_ARGS/-s and only reads ~/.m2/settings.xml (Nexus mirror)
+          sh '''
+            mkdir -p "${HOME}/.m2"
+            cp "${WORKSPACE}/.jenkins/settings.xml" "${HOME}/.m2/settings.xml"
+          '''
           trivyTools.generateTrivyReport("output/trivy-results.json",
                                          "output/trivy-results.html")
           publishHtmlReportTools.publishHtmlReport("output/trivy-results.html", "CVE Trivy Vulnerability Report")

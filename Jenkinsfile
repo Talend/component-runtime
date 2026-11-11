@@ -743,27 +743,16 @@ pipeline {
         expression { params.ACTION == 'STANDARD' && params.TRIVY_SCAN == true }
       }
       steps {
-        withCredentials([dockerCredentials, githubPackagesCredentials]) {
-          // Trivy reads $HOME/.m2/settings.xml to resolve Maven dependencies: use the mirror instead of Maven Central (429).
-          // /home/jenkins/.m2 is not writable (only .m2/repository is mounted), so Trivy gets a private HOME outside the scanned workspace.
-          sh '''
-            mkdir -p /tmp/trivy-home/.m2
-            # keep everything else of the real HOME (asdf, bashenv, caches...) visible, only .m2 differs
-            for entry in /home/jenkins/.[!.]* /home/jenkins/*; do
-              name=$(basename "$entry")
-              [ "$name" = ".m2" ] || ln -sfn "$entry" "/tmp/trivy-home/$name"
-            done
-            cp .jenkins/settings.xml /tmp/trivy-home/.m2/settings.xml
-            ln -sfn /home/jenkins/.m2/repository /tmp/trivy-home/.m2/repository
-          '''.stripIndent()
-          withEnv(["HOME=/tmp/trivy-home"]) {
-            script {
-              trivyTools.generateTrivyReport('output/trivy-results.json',
-                                             'output/trivy-results.html')
-            }
-          }
-        }
         script {
+          withCredentials([dockerCredentials, githubPackagesCredentials]) {
+            // Trivy's pom resolver ignores MAVEN_ARGS/-s and only reads ~/.m2/settings.xml (Artifactory mirror, credentials from the env)
+            sh '''
+              mkdir -p "${HOME}/.m2"
+              cp "${WORKSPACE}/.jenkins/settings.xml" "${HOME}/.m2/settings.xml"
+            '''
+            trivyTools.generateTrivyReport('output/trivy-results.json',
+                                           'output/trivy-results.html')
+          }
           publishHtmlReportTools.publishHtmlReport('output/trivy-results.html',
                                                    'CVE Trivy Vulnerability Report')
         }
