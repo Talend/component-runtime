@@ -238,7 +238,6 @@ Jenkins instance `jenkins-connectors`. Jobs are registered in flux (Job DSL); th
 | `component-runtime/release` | `maintenance/*`, `master`, `main` | `ci/Jenkinsfile-release` | Started by hand with `ACTION` = `GA` (only on `master`) or `MAINTENANCE` (only on `maintenance/...`); try `DRY_RUN=true` first. Debug copy: `__TESTS__/jenkins-debug/component-runtime/release` |
 | `component-runtime/trivy-scan` | `master` | `ci/Jenkinsfile-trivy` | Flux cron, Sun–Fri 01:30 |
 | `component-runtime/TCOMP-api-test` | all branches and PRs | `talend-component-maven-plugin/src/it/web/.jenkins/Jenkinsfile` | Check `QA/TCOMP-api-test/pr-head`; see § CI: TCOMP-api-test |
-| `component-runtime/tck-jetbrains-plugin` | branches of `component-runtime-intellij-plugin` | `ci/Jenkinsfile-jetbrains-build` (in that repo) | Not this repo's checkout; listed because the flux job sits in the same folder |
 
 - Default branch `master`; maintenance branches `maintenance/*`. A dev branch deployed with `VERSION_QUALIFIER=DEFAULT` must be named `user/JIRA-1234-Description`, or the build fails.
 - Library pins are hand-maintained in each Jenkinsfile (here both `lib("connectors-lib@1.2.0")` — the old 1.x code — and `lib("tqa-e2e-tests-tool@2.6.13-ttp2")`, `@v2.4.2-ttp2` in the release Jenkinsfile); publishing a library release updates nothing here. `tqa-e2e-tests-tool` is frozen at `3.1.0-ttp2`; its code continues as `connectors-lib@2.0.0` and later (`tdi-jenkins-shared-libraries`, QTTP-385) → `get_knowledge("topics/ci-shared-libraries.md")`.
