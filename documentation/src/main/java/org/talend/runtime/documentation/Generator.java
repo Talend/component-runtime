@@ -15,7 +15,6 @@
  */
 package org.talend.runtime.documentation;
 
-import static java.lang.Math.min;
 import static java.util.Collections.emptyMap;
 import static java.util.Comparator.comparing;
 import static java.util.Locale.ENGLISH;
@@ -23,24 +22,16 @@ import static java.util.Objects.requireNonNull;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static lombok.AccessLevel.PRIVATE;
 import static org.apache.ziplock.JarLocation.jarLocation;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.StringReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -53,14 +44,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -71,10 +58,8 @@ import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -90,14 +75,8 @@ import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 import javax.json.bind.config.PropertyOrderStrategy;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.text.WordUtils;
-import org.apache.johnzon.jaxrs.jsonb.jaxrs.JsonbJaxrsProvider;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.FileArchive;
 import org.apache.xbean.finder.archive.JarArchive;
@@ -151,14 +130,14 @@ public class Generator {
     private static final Pattern SNAPSHOT = Pattern.compile("(-SNAPSHOT|M\\d+-SNAPSHOT)");
 
     public static void main(final String[] args) {
-        if (Boolean.parseBoolean(args[7]) || Boolean.getBoolean(System.getenv("TRAVIS"))) {
+        if (Boolean.parseBoolean(args[5]) || Boolean.getBoolean(System.getenv("TRAVIS"))) {
             log.info("Skipping doc generation as requested");
             return;
         }
 
         final File generatedDir = new File(args[0], "_partials");
         generatedDir.mkdirs();
-        final String version = SNAPSHOT.matcher(args[3]).replaceAll("");
+        final String version = SNAPSHOT.matcher(args[1]).replaceAll("");
 
         try (final Tasks tasks = new Tasks()) {
             tasks.register(Asciidoctor.Factory::create).thenApply(adoc -> {
@@ -180,11 +159,11 @@ public class Generator {
             tasks.register(() -> generatedScanningExclusions(generatedDir));
             tasks.register(() -> generatedRemoteEngineCustomizerHelp(generatedDir));
 
-            final boolean offline = "offline=true".equals(args[4]);
+            final boolean offline = "offline=true".equals(args[2]);
             if (offline) {
-                log.info("System is offline, skipping jira changelog and github contributor generation");
+                log.info("System is offline, skipping github contributor generation");
             } else {
-                tasks.register(() -> generatedContributors(generatedDir, args[5], args[6]));
+                tasks.register(() -> generatedContributors(generatedDir, args[3], args[4]));
             }
         }
     }
@@ -442,224 +421,6 @@ public class Generator {
             writer.write(jsonb.toJson(contributors).getBytes(StandardCharsets.UTF_8));
             writer.write("</jsonArray>\n++++".getBytes(StandardCharsets.UTF_8));
         }
-    }
-
-    // to avoid to be very slow we just grab current version and extract other versions
-    // from the previous file
-    private static void generatedJira(final File generatedDir, final String username, final String password,
-            final String version) {
-        if (username == null || username.trim().isEmpty() || "skip".equals(username)) {
-            log.error("No JIRA credentials, will skip changelog generation");
-            return;
-        }
-
-        final String project = "TCOMP";
-        final String jiraBase = "https://jira.talendforge.org";
-
-        final File file = new File(generatedDir, "generated_changelog.adoc");
-        final Client client = ClientBuilder.newClient().register(new JsonbJaxrsProvider<>());
-        final String auth = "Basic "
-                + Base64.getEncoder().encodeToString((username + ':' + password).getBytes(StandardCharsets.UTF_8));
-
-        try {
-            final WebTarget restApi =
-                    client.target(jiraBase + "/rest/api/2").property("http.connection.timeout", 60000L);
-            final List<JiraVersion> versions = restApi
-                    .path("project/{project}/versions")
-                    .resolveTemplate("project", project)
-                    .request(APPLICATION_JSON_TYPE)
-                    .header("Authorization", auth)
-                    .get(new GenericType<List<JiraVersion>>() {
-                    });
-
-            final List<JiraVersion> jiraLoggedVersions = versions
-                    .stream()
-                    .filter(v -> (v.isReleased() || jiraVersionMatches(version, v.getName())))
-                    .toList();
-            if (jiraLoggedVersions.isEmpty()) {
-                try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
-                    stream.println("No version found.");
-                }
-                return;
-            }
-
-            final Map<String, String> changelogPerVersion = new HashMap<>();
-            try (final BufferedReader reader =
-                    new BufferedReader(new StringReader(String.join("\n", Files.readAllLines(file.toPath()))))) {
-                final StringBuilder builder = new StringBuilder();
-                String line;
-                String versionRead = null;
-                while ((line = reader.readLine()) != null) {
-                    if (builder.length() == 0 && line.trim().isEmpty()) {
-                        continue;
-                    }
-                    if (line.startsWith("== Version ")) {
-                        if (builder.length() != 0) {
-                            changelogPerVersion.put(versionRead, builder.toString());
-                            builder.setLength(0);
-                        }
-                        versionRead = line.substring("== Version ".length()).replace(" (dev)", "");
-                    }
-                    builder.append(line).append('\n');
-                }
-                if (builder.length() != 0) {
-                    changelogPerVersion.put(versionRead, builder.toString());
-                    builder.setLength(0);
-                }
-            } catch (final IOException e) {
-                throw new IllegalStateException(e);
-            }
-
-            final int maxVersionPerQuery = 10;
-            final BiFunction<String, Long, JiraIssues> searchFrom = (jql, startAt) -> restApi
-                    .path("search")
-                    .queryParam("jql", jql)
-                    .queryParam("startAt", startAt)
-                    .request(APPLICATION_JSON_TYPE)
-                    .header("Authorization", auth)
-                    .get(JiraIssues.class);
-            final BiFunction<String, JiraIssues, Stream<JiraIssues>> paginate =
-                    new BiFunction<String, JiraIssues, Stream<JiraIssues>>() {
-
-                        @Override
-                        public Stream<JiraIssues> apply(final String jql, final JiraIssues issues) {
-                            final long nextStartAt = issues.getStartAt() + issues.getMaxResults();
-                            final Stream<JiraIssues> fetched = Stream.of(issues);
-                            return issues.getTotal() > nextStartAt
-                                    ? Stream.concat(fetched, apply(jql, searchFrom.apply(jql, nextStartAt))).parallel()
-                                    : fetched;
-                        }
-                    };
-            final Set<String> includeStatus =
-                    Stream.of("closed", "resolved", "development done", "qa done", "done").collect(toSet());
-
-            final List<JiraVersion> queriedVersion = jiraLoggedVersions
-                    .stream()
-                    .filter(it -> !changelogPerVersion.containsKey(it.getName()) || version.equals(it.getName()))
-                    .toList();
-            final Map<String, TreeMap<String, List<JiraIssue>>> issues = IntStream
-                    .range(0, (queriedVersion.size() + maxVersionPerQuery - 1) / maxVersionPerQuery)
-                    .mapToObj(pageIdx -> queriedVersion
-                            .subList(pageIdx * maxVersionPerQuery,
-                                    min(maxVersionPerQuery * (pageIdx + 1), queriedVersion.size())))
-                    .map(pageVersions -> "project=" + project + " AND labels=\"changelog\""
-                            + pageVersions
-                                    .stream()
-                                    .map(v -> "fixVersion=" + v.getName())
-                                    .collect(joining(" OR ", " AND (", ")")))
-                    .flatMap(jql -> Stream
-                            .of(searchFrom.apply(jql, 0L))
-                            .flatMap(it -> paginate.apply(jql, it))
-                            .flatMap(i -> ofNullable(i.getIssues()).map(Collection::stream).orElseGet(Stream::empty))
-                            .filter(issue -> includeStatus
-                                    .contains(issue.getFields().getStatus().getName().toLowerCase(ENGLISH)))
-                            .flatMap(i -> i.getFields().getFixVersions().stream().map(v -> Pair.of(v, i))))
-                    .collect(groupingBy(pair -> pair.getKey().getName(), () -> new TreeMap<>(versionComparator()),
-                            groupingBy(pair -> pair.getValue().getFields().getIssuetype().getName(), TreeMap::new,
-                                    collectingAndThen(mapping(Pair::getValue, toList()), l -> {
-                                        l.sort(comparing(JiraIssue::getKey));
-                                        return l;
-                                    }))));
-            issues
-                    .forEach((name, issuesMap) -> changelogPerVersion
-                            .put(name, "\n\n== Version " + name + issuesMap
-                                    .entrySet()
-                                    .stream()
-                                    .collect((Supplier<StringBuilder>) StringBuilder::new,
-                                            (builder, issuesByType) -> builder
-                                                    .append("\n\n=== ")
-                                                    .append(issuesByType.getKey())
-                                                    .append("\n\n")
-                                                    .append(issuesByType
-                                                            .getValue()
-                                                            .stream()
-                                                            .collect((Supplier<StringBuilder>) StringBuilder::new,
-                                                                    // note: for now we don't use the
-                                                                    // description since
-                                                                    // it is not that useful
-                                                                    (a, i) -> a
-                                                                            .append("- link:")
-                                                                            .append(jiraBase)
-                                                                            .append("/browse/")
-                                                                            .append(i.getKey())
-                                                                            .append("[")
-                                                                            .append(i.getKey())
-                                                                            .append("^]")
-                                                                            .append(": ")
-                                                                            .append(i.getFields().getSummary().trim())
-                                                                            .append(" ")
-                                                                            .append(i.getFields()
-                                                                                    .getComponents()
-                                                                                    .stream()
-                                                                                    .map(c -> c.getName()
-                                                                                            .trim())
-                                                                                    .filter(c -> !"dependency-update"
-                                                                                            .equals(c))
-                                                                                    .map(n -> String.format(
-                                                                                            "link:search.html?query=%s[%s^,role='dockey']",
-                                                                                            n, n))
-                                                                                    .collect(joining(" ")))
-                                                                            .append("\n"),
-                                                                    StringBuilder::append))
-                                                    .append('\n'),
-                                            StringBuilder::append)));
-
-            final String changelog = changelogPerVersion.entrySet()
-                    .stream()
-                    .sorted((v1, v2) -> {
-                        if (v1.equals(v2)) {
-                            return 0;
-                        }
-                        final int[] parts1 = Stream.of(v1.getKey().replace(" (dev)", "").replace("M", ".").split("\\."))
-                                .mapToInt(Integer::parseInt)
-                                .toArray();
-                        final int[] parts2 = Stream.of(v2.getKey().replace(" (dev)", "").replace("M", ".").split("\\."))
-                                .mapToInt(Integer::parseInt)
-                                .toArray();
-                        for (int i = 0; i < parts1.length; i++) {
-                            if (parts2.length <= i) {
-                                return 1;
-                            }
-                            final int comp = parts2[i] - parts1[i];
-                            if (comp != 0) {
-                                return comp;
-                            }
-                        }
-                        return 0;
-                    })
-                    .map(Map.Entry::getValue)
-                    .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
-                    .toString();
-
-            try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
-                stream.println(changelog);
-            }
-        } finally {
-            client.close();
-        }
-    }
-
-    private static Comparator<String> versionComparator() {
-        return (o1, o2) -> {
-            final String[] parts1 = o1.split("\\.");
-            final String[] parts2 = o2.split("\\.");
-            for (int i = 0; i < Math.max(parts1.length, parts2.length); i++) {
-                try {
-                    final int major = (parts2.length > i ? Integer.parseInt(parts2[i]) : 0)
-                            - (parts1.length > i ? Integer.parseInt(parts1[i]) : 0);
-                    if (major != 0) {
-                        return major;
-                    }
-                } catch (final NumberFormatException nfe) {
-                    // no-op
-                }
-            }
-            return o2.compareTo(o1);
-        };
-    }
-
-    private static boolean jiraVersionMatches(final String ref, final String name) {
-        return ref.equals(name) || ref.equals(name + ".0");
     }
 
     private static void generatedServerConfiguration(final File generatedDir) {
@@ -1304,74 +1065,6 @@ public class Generator {
     }
 
     @Data
-    public static class JiraVersion {
-
-        private String id;
-
-        private String name;
-
-        private boolean released;
-
-        private boolean archived;
-
-        private long projectId;
-    }
-
-    @Data
-    public static class JiraIssues {
-
-        private long startAt;
-
-        private long maxResults;
-
-        private long total;
-
-        private Collection<JiraIssue> issues;
-    }
-
-    @Data
-    public static class IssueType {
-
-        private String name;
-    }
-
-    @Data
-    public static class JiraIssue {
-
-        private String id;
-
-        private String key;
-
-        private Fields fields;
-    }
-
-    @Data
-    public static class JiraComponent {
-
-        private String self;
-
-        private String id;
-
-        private String name;
-    }
-
-    @Data
-    public static class Fields {
-
-        private String summary;
-
-        private String description;
-
-        private IssueType issuetype;
-
-        private Status status;
-
-        private Collection<JiraVersion> fixVersions;
-
-        private Collection<JiraComponent> components;
-    }
-
-    @Data
     @AllArgsConstructor
     @NoArgsConstructor
     public static class DocumentationItem {
@@ -1385,12 +1078,6 @@ public class Generator {
         private String description;
 
         private String link;
-    }
-
-    @Data
-    public static class Status {
-
-        private String name;
     }
 
     @Data
