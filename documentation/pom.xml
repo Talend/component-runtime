@@ -906,6 +906,36 @@
       </build>
     </profile>
     <profile>
+      <id>doc-dev</id>
+      <!--
+        Fast local build of the documentation: only the current checkout is rendered (no released tags, no network
+        needed to fetch them), using src/main/antora/site-dev.yml instead of site.yml.
+        mvn install -pl documentation -Pdoc-dev
+        The default build (no profile) renders the current checkout AND the released versions (tags).
+      -->
+      <properties>
+        <antora.dev.site.mode>dev</antora.dev.site.mode>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.github.eirslett</groupId>
+            <artifactId>frontend-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>npm-build</id>
+                <phase>none</phase>
+              </execution>
+              <execution>
+                <id>npm-dev</id>
+                <phase>prepare-package</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
       <id>release</id>
       <properties>
         <talend.documentation.generation.skip>true</talend.documentation.generation.skip>
