@@ -20,11 +20,6 @@
       <password>${env.JIRA_PASS}</password>
     </server>
     <server>
-      <id>jetbrains</id>
-      <username>${env.JETBRAINS_USER}</username>
-      <password>${env.JETBRAINS_PASS}</password>
-    </server>
-    <server>
       <id>TalendOpenSourceRelease</id>
       <username>${env.NEXUS_USER}</username>
       <password>${env.NEXUS_PASS}</password>
