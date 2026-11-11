@@ -48,6 +48,13 @@ main() {
     --define generateBackupPoms=false \
     --define newVersion="${maintenanceVersion}"
 
+  printf "Regenerate antora.yml for %s\n" "${maintenanceVersion}"
+  mvn initialize process-sources \
+    --batch-mode \
+    --errors \
+    --projects documentation \
+    --settings .jenkins/settings.xml
+
   printf "Push maintenance branch\n"
   git commit -a -m "[jenkins-release] prepare for next development iteration ${maintenanceBranch}"
   git push "${pushDryRunParams[@]}" -u origin "${maintenanceBranch}"
