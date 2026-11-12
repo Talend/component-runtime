@@ -20,9 +20,9 @@ import static java.util.stream.Stream.of;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import jakarta.xml.bind.JAXBContext;
@@ -65,7 +65,7 @@ class JAXB {
 // indirection to make it optional
 class JAXBManager {
 
-    private volatile Map<Class<?>, JAXBContext> jaxbContexts = new HashMap<>();
+    private final Map<Class<?>, JAXBContext> jaxbContexts = new ConcurrentHashMap<>();
 
     void initJaxbContext(final Method method) {
         Stream

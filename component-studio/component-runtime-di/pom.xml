@@ -54,13 +54,6 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-mapper-asl</artifactId>
-      <version>${avro-jackson.version}</version>
-      <scope>test</scope>
-      <!-- rarely needed + don't deliver it by default since it brings a lot of CVE -->
-    </dependency>
-    <dependency>
       <groupId>org.dom4j</groupId>
       <artifactId>dom4j</artifactId>
       <version>${dom4j.version}</version>

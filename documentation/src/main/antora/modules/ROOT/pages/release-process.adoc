@@ -39,11 +39,6 @@ Add the required credentials to your Maven `settings.xml` file for the release. 
       <username>${env.TLND_JIRA_USER}</username>
       <password>${env.TLND_JIRA_PASS}</password>
     </server>
-    <server>
-      <id>jetbrains</id>
-      <username>${env.JETBRAINS_USER}</username>
-      <password>${env.JETBRAINS_PASS}</password>
-    </server>
     <!-- no more needed, was for component-kit.js (npm) and algolia indexation
     <server>
       <id>npm</id>
