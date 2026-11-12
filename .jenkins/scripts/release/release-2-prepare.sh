@@ -40,6 +40,20 @@ main() {
 
   printf ">> Maven prepare release %s (next-dev: %s; tag: %s)\n" "${releaseVersion}" "${nextVersion}" "${tagName}"
 
+  # The documentation module generates tracked files (antora.yml, package-lock.json, generated_*.adoc)
+  # from the project version. Build and commit them now, otherwise the tag keeps stale values and
+  # tags with the same antora version make the documentation site build fail (duplicate nav).
+  printf ">> Regenerate documentation files before tagging\n"
+  mvn clean install --batch-mode \
+                    --define skipTests \
+                    --define invoker.skip=true \
+                    --define checkstyle.skip \
+                    --define enforcer.skip=true \
+                    --define rat.skip \
+                    --settings .jenkins/settings.xml \
+                    "${extraBuildParams[@]}"
+  git commit -a -m "[jenkins-release] update generated documentation for ${releaseVersion}" || true
+
   local release_profiles="release,ossrh,gpg2"
 
   mvn release:prepare \
