@@ -23,6 +23,10 @@ final def nexusCredentials = usernamePassword(
     credentialsId: 'nexus-artifact-zl-credentials',
     usernameVariable: 'NEXUS_USER',
     passwordVariable: 'NEXUS_PASS')
+final def githubPackagesCredentials = usernamePassword(
+    credentialsId: 'github-packages-ci-runner-connectors-pat',
+    usernameVariable: 'GITHUB_PACKAGES_LOGIN',
+    passwordVariable: 'GITHUB_PACKAGES_TOKEN')
 final def jiraCredentials = usernamePassword(
     credentialsId: 'jira-credentials',
     usernameVariable: 'JIRA_USER',
@@ -462,6 +466,7 @@ pipeline {
       }
       steps {
         withCredentials([nexusCredentials,
+                         githubPackagesCredentials,
                          ossrhCredentials,
                          jiraCredentials,
                          gpgCredentials]) {
