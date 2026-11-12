@@ -119,4 +119,24 @@ class MvnDependencyListLocalRepositoryResolverTest {
                     "org/apache/tomee/javaee-api/7.0-1/javaee-api-7.0-1.jar"), toResolve);
         }
     }
+
+    @Test
+    void resolveWithDynamicDependenciesForLegacyPluginId(@TempDir final File temporaryFolder) throws Exception {
+        final File file = new File(temporaryFolder, UUID.randomUUID().toString() + ".jar");
+        try (final JarOutputStream jar = new JarOutputStream(new FileOutputStream(file))) {
+            jar.putNextEntry(new ZipEntry("TALEND-INF/dynamic-dependencies.properties"));
+            jar.write("cosmosDB=org.apache.tomee:ziplock:jar:8.0.14:runtime".getBytes(StandardCharsets.UTF_8));
+            jar.closeEntry();
+        }
+
+        try (final URLClassLoader tempLoader =
+                new URLClassLoader(new URL[] { file.toURI().toURL() }, getSystemClassLoader())) {
+            final List<String> toResolve =
+                    new MvnDependencyListLocalRepositoryResolver("TALEND-INF/dependencies.txt", d -> null)
+                            .resolve(tempLoader, "foo/bar/cosmos-db/1.0.0/cosmos-db-1.0.0.jar")
+                            .map(Artifact::toPath)
+                            .toList();
+            assertEquals(asList("org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar"), toResolve);
+        }
+    }
 }

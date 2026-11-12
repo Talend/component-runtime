@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
@@ -91,6 +92,13 @@ public class BuildComponentM2RepositoryMojo extends ComponentDependenciesBase {
     @Parameter(property = "talend-m2.registryBase")
     private File componentRegistryBase;
 
+    /**
+     * Optional properties file (artifactId=legacy plugin id), each legacy id is also registered as a key
+     * so that lookups by the historical plugin id still resolve.
+     */
+    @Parameter(property = "talend-m2.legacyPluginIds")
+    private File legacyPluginIds;
+
     private Path componentRegistryBasePath; // Can't get a Path directly from a @Parameter...
 
     @Parameter(property = "talend-m2.root",
@@ -141,6 +149,7 @@ public class BuildComponentM2RepositoryMojo extends ComponentDependenciesBase {
         }
 
         writeRegistry(getNewComponentRegistry(cars));
+        copyLegacyPluginIds();
         if (createDigestRegistry) {
             writeDigest(getDigests());
         }
@@ -188,8 +197,59 @@ public class BuildComponentM2RepositoryMojo extends ComponentDependenciesBase {
             }
         }
         cars.forEach(car -> components.put(car.getArtifactId(), computeCoordinates(car)));
+        addLegacyPluginIds(components);
 
         return components;
+    }
+
+    private void addLegacyPluginIds(final Properties components) {
+        if (legacyPluginIds == null) {
+            return;
+        }
+        if (!legacyPluginIds.isFile()) {
+            getLog().warn("Legacy plugin ids file " + legacyPluginIds + " not found, legacy ids are not registered");
+            return;
+        }
+
+        final Properties legacy = new Properties();
+        try (final InputStream source = new FileInputStream(legacyPluginIds)) {
+            legacy.load(source);
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
+        legacy.stringPropertyNames().forEach(name -> {
+            final String gav = components.getProperty(name);
+            if (gav == null) {
+                return;
+            }
+            final String legacyId = legacy.getProperty(name);
+            final String existing = components.getProperty(legacyId);
+            if (existing != null && !existing.equals(gav)) {
+                getLog()
+                        .warn("Legacy plugin id '" + legacyId + "' of '" + name + "' is already registered for '"
+                                + existing + "', it is not overwritten");
+                return;
+            }
+            components.setProperty(legacyId, gav);
+        });
+    }
+
+    // runtime containers read this file from the m2 root, the extension jar is not visible from their classpath
+    private void copyLegacyPluginIds() {
+        if (legacyPluginIds == null) {
+            return;
+        }
+        if (!legacyPluginIds.isFile()) {
+            getLog().warn("Legacy plugin ids file " + legacyPluginIds + " not found, legacy ids are not registered");
+            return;
+        }
+
+        try {
+            Files.copy(legacyPluginIds.toPath(), getRegistry().resolveSibling("legacy-plugin-ids.properties"),
+                    StandardCopyOption.REPLACE_EXISTING);
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private void writeProperties(final Properties content, final Path location) {
