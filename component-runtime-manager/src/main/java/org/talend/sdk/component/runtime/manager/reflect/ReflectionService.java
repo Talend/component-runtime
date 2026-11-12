@@ -64,7 +64,6 @@ import javax.json.JsonReader;
 import javax.json.JsonReaderFactory;
 import javax.json.JsonString;
 import javax.json.JsonValue;
-import javax.json.spi.JsonProvider;
 
 import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.apache.xbean.recipe.ObjectRecipe;
@@ -81,6 +80,7 @@ import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
 import org.talend.sdk.component.runtime.manager.reflect.visibility.PayloadMapper;
 import org.talend.sdk.component.runtime.manager.reflect.visibility.VisibilityService;
+import org.talend.sdk.component.runtime.record.SharedJsonProviders;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -896,7 +896,8 @@ public class ReflectionService {
     @RequiredArgsConstructor
     private static class PayloadValidator implements PayloadMapper.OnParameter {
 
-        private static final VisibilityService VISIBILITY_SERVICE = new VisibilityService(JsonProvider.provider());
+        private static final VisibilityService VISIBILITY_SERVICE =
+                new VisibilityService(SharedJsonProviders.jsonProvider());
 
         private static final Messages MESSAGES = new InternationalizationServiceFactory(Locale::getDefault)
                 .create(Messages.class, PayloadValidator.class.getClassLoader());

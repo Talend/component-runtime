@@ -44,17 +44,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 import javax.json.bind.annotation.JsonbTransient;
 import javax.json.bind.config.PropertyOrderStrategy;
-import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.OrderedMap;
 import org.talend.sdk.component.api.record.Record;
@@ -96,19 +94,44 @@ public final class RecordImpl implements Record {
 
     @Override // for debug purposes, don't use it for anything else
     public String toString() {
-        try (final Jsonb jsonb = JsonbBuilder
-                .create(new JsonbConfig()
-                        .withFormatting(true)
-                        .withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL)
-                        .setProperty("johnzon.cdi.activated", false))) {
+        try {
+            final Jsonb jsonb = toStringJsonb();
             return new RecordConverters()
                     .toType(new RecordConverters.MappingMetaRegistry(), this, JsonObject.class,
-                            () -> Json.createBuilderFactory(emptyMap()), JsonProvider::provider, () -> jsonb,
+                            () -> SharedJsonProviders.jsonProvider().createBuilderFactory(emptyMap()),
+                            SharedJsonProviders::jsonProvider, () -> jsonb,
                             () -> new RecordBuilderFactoryImpl("tostring"))
                     .toString();
         } catch (final Exception e) {
             return super.toString();
         }
+    }
+
+    // lazy and shared: building a Jsonb is expensive and toString can be called often (logs)
+    private static Jsonb toStringJsonb() {
+        Jsonb jsonb = ToStringJsonb.VALUE.get();
+        if (jsonb == null) {
+            synchronized (ToStringJsonb.class) {
+                jsonb = ToStringJsonb.VALUE.get();
+                if (jsonb == null) {
+                    jsonb = SharedJsonProviders
+                            .jsonbProvider()
+                            .create()
+                            .withConfig(new JsonbConfig()
+                                    .withFormatting(true)
+                                    .withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL)
+                                    .setProperty("johnzon.cdi.activated", false))
+                            .build();
+                    ToStringJsonb.VALUE.set(jsonb);
+                }
+            }
+        }
+        return jsonb;
+    }
+
+    private static final class ToStringJsonb {
+
+        private static final AtomicReference<Jsonb> VALUE = new AtomicReference<>();
     }
 
     @Override
