@@ -143,14 +143,14 @@ public class PayloadMapper {
     // JsonCollectors.toJsonArray() would resolve a JsonProvider through ServiceLoader on each call
     private Collector<JsonValue, JsonArrayBuilder, JsonArray> toJsonArray() {
         return Collector
-                .of(jsonp::createArrayBuilder, (builder, value) -> builder.add(value), (left, right) -> {
+                .of(jsonp::createArrayBuilder, JsonArrayBuilder::add, (left, right) -> {
                     right.build().forEach(left::add);
                     return left;
                 }, JsonArrayBuilder::build);
     }
 
     private boolean isVisible(final ParameterMeta meta) {
-        return globalPayload == null ? true : VISIBILITY_SERVICE.build(meta).isVisible(globalPayload);
+        return globalPayload == null || VISIBILITY_SERVICE.build(meta).isVisible(globalPayload);
     }
 
     private void onArray(final Collection<ParameterMeta> definitions, final ParameterMeta definition,
