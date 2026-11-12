@@ -189,6 +189,7 @@ class UiParameterEnricherTest {
                 put("tcomp::ui::structure::value", "__default__");
                 put("tcomp::ui::structure::type", "IN");
                 put("tcomp::ui::structure::discoverSchema", "guess");
+                put("tcomp::ui::structure::supportMetadata", "false");
             }
         }, enricher.onParameterAnnotation("testParam", String.class, new Structure() {
 
@@ -205,6 +206,11 @@ class UiParameterEnricherTest {
             @Override
             public String discoverSchema() {
                 return "guess";
+            }
+
+            @Override
+            public boolean supportMetadata() {
+                return false;
             }
 
             @Override
