@@ -17,8 +17,8 @@ package org.talend.sdk.component.documentation.sample.datastorevalidation.compon
 
 import java.io.Serializable;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Producer;

@@ -26,8 +26,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.json.JsonBuilderFactory;
+
 import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
@@ -415,6 +418,20 @@ class ParameterModelServiceTest {
                 assertTrue(nestedItem.getProposals().isEmpty());
             }
         }
+    }
+
+    @Test
+    void jakartaTypedParametersAreServices() throws NoSuchMethodException {
+        final List<ParameterMeta> params = service.buildParameterMetas(
+                ParameterModelServiceTest.class.getDeclaredMethod("withJakartaService", JsonBuilderFactory.class,
+                        String.class),
+                "def", context());
+        assertEquals(1, params.size());
+        assertEquals("name", params.get(0).getName());
+    }
+
+    static void withJakartaService(final JsonBuilderFactory factory, @Option("name") final String name) {
+        // no-op: only the signature is used
     }
 
     private BaseParameterEnricher.Context context() {

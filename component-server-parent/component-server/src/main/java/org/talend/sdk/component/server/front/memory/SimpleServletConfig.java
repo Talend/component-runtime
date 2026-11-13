@@ -19,8 +19,8 @@ import static java.util.Collections.emptyEnumeration;
 
 import java.util.Enumeration;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 
 import lombok.AllArgsConstructor;
 

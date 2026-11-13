@@ -29,8 +29,8 @@ import java.util.Iterator;
 import java.util.stream.StreamSupport;
 import java.util.zip.GZIPInputStream;
 
-import javax.json.Json;
-import javax.json.JsonObject;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 
 import org.apache.beam.sdk.coders.IterableCoder;
 import org.apache.beam.sdk.util.VarInt;

@@ -15,22 +15,22 @@
  */
 package org.talend.sdk.component.runtime.manager.reflect.visibility;
 
+import static jakarta.json.stream.JsonCollectors.toJsonArray;
 import static java.util.Collections.emptyMap;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
-import static javax.json.stream.JsonCollectors.toJsonArray;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import javax.json.JsonArray;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonValue;
-import javax.json.spi.JsonProvider;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonBuilderFactory;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonObjectBuilder;
+import jakarta.json.JsonValue;
+import jakarta.json.spi.JsonProvider;
 
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 

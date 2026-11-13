@@ -23,8 +23,8 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ValidationParameterEnricher;
 import org.talend.sdk.component.server.front.model.PropertyValidation;

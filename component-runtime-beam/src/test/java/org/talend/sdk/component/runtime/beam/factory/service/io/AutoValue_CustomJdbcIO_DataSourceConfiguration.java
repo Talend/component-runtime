@@ -15,8 +15,9 @@
  */
 package org.talend.sdk.component.runtime.beam.factory.service.io;
 
-import javax.annotation.Generated;
 import javax.sql.DataSource;
+
+import jakarta.annotation.Generated;
 
 @Generated("from_com.google.auto.value.processor.AutoValueProcessor")
 final class AutoValue_CustomJdbcIO_DataSourceConfiguration extends CustomJdbcIO.DataSourceConfiguration {

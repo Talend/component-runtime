@@ -15,7 +15,7 @@
  */
 package org.talend.sdk.component.runtime.beam.factory.service.io;
 
-import javax.annotation.Generated;
+import jakarta.annotation.Generated;
 
 import org.apache.beam.sdk.options.ValueProvider;
 

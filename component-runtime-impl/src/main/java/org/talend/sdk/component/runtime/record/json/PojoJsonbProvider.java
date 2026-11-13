@@ -17,7 +17,7 @@ package org.talend.sdk.component.runtime.record.json;
 
 import java.util.function.Supplier;
 
-import javax.json.bind.Jsonb;
+import jakarta.json.bind.Jsonb;
 
 @FunctionalInterface
 public interface PojoJsonbProvider extends Supplier<Jsonb> {

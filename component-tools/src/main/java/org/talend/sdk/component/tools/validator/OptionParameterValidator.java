@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.apache.xbean.finder.AnnotationFinder;
 import org.talend.sdk.component.api.configuration.Option;

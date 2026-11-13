@@ -27,11 +27,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonReaderFactory;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
+import jakarta.json.Json;
+import jakarta.json.JsonBuilderFactory;
+import jakarta.json.JsonReaderFactory;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;

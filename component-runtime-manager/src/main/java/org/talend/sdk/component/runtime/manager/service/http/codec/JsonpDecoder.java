@@ -18,7 +18,7 @@ package org.talend.sdk.component.runtime.manager.service.http.codec;
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.Type;
 
-import javax.json.bind.Jsonb;
+import jakarta.json.bind.Jsonb;
 
 import org.talend.sdk.component.api.service.http.Decoder;
 

@@ -21,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
-import javax.json.JsonBuilderFactory;
+import jakarta.json.JsonBuilderFactory;
 
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;

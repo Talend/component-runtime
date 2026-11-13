@@ -1,6 +1,6 @@
 package com.test.openapi.client;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 import org.talend.sdk.component.api.service.http.HttpClient;
 import org.talend.sdk.component.api.service.http.Path;

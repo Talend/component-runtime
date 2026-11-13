@@ -18,7 +18,7 @@ package org.talend.sdk.component.server.lang;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class MapCache {

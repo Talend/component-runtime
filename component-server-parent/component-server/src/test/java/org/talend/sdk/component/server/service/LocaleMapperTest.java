@@ -19,12 +19,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Locale;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
-import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
+import org.apache.meecrowave.junit5.MeecrowaveConfig;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 
-@MonoMeecrowaveConfig
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@MeecrowaveConfig(scanningExcludes = "smallrye-config")
 class LocaleMapperTest {
 
     @Inject

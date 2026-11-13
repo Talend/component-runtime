@@ -19,9 +19,9 @@ import static lombok.AccessLevel.PRIVATE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import javax.json.JsonValue;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
+import jakarta.json.JsonValue;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
 
 import lombok.NoArgsConstructor;
 

@@ -35,6 +35,7 @@
         <dependency>
             <groupId>org.apache.meecrowave</groupId>
             <artifactId>meecrowave-core</artifactId>
+            <version>${meecrowave.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.xbean</groupId>
@@ -70,8 +71,8 @@
             <artifactId>microprofile-config-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.geronimo.config</groupId>
-            <artifactId>geronimo-config-impl</artifactId>
+            <groupId>io.smallrye.config</groupId>
+            <artifactId>smallrye-config</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>

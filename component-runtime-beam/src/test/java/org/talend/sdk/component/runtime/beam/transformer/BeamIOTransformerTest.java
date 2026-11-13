@@ -36,10 +36,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReaderFactory;
-import javax.json.JsonWriterFactory;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonReaderFactory;
+import jakarta.json.JsonWriterFactory;
 
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.Coder;
@@ -187,9 +187,16 @@ class BeamIOTransformerTest {
                 final Predicate<String> parentPredicate = it -> SetValidator.class.getName().equals(it)
                         || !(it.startsWith(prefix) || it.startsWith(JdbcSource.class.getName()))
                         || Pojo.class.getName().equals(it);
+                // QTDI-3497 (experimental, jakarta-only spike): without this, jakarta.json.spi.JsonProvider's
+                // ServiceLoader lookup (triggered here under the plugin TCCL by BeamIOTransformer's advice, see
+                // JdbcSource.WorkAroundCoder.encode -> JsonpJsonObjectCoder.of) can't see johnzon's
+                // META-INF/services registration and falls back to jakarta.json-api's hardcoded default
+                // provider (org.eclipse.parsson.JsonProviderImpl), which isn't on the classpath. Mirrors
+                // ComponentManager#KNOWN_PARENT_RESOURCES.
+                final Predicate<String> resourcesFilter = name -> name.contains("META-INF/services/jakarta.json");
                 try (final ConfigurableClassLoader loader = new ConfigurableClassLoader("test",
                         new URL[] { jarLocation(BeamIOTransformerTest.class).toURI().toURL() }, originalLoader,
-                        parentPredicate, parentPredicate.negate(), new String[0], new String[0])) {
+                        parentPredicate, parentPredicate.negate(), new String[0], new String[0], resourcesFilter)) {
                     // thread.setContextClassLoader(loader); // don't set it, this is what we test!
                     final BeamIOTransformer transformer = new BeamIOTransformer();
                     loader.registerTransformer(transformer);

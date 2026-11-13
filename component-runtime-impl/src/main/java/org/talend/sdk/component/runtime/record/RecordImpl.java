@@ -47,14 +47,14 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.bind.JsonbConfig;
-import javax.json.bind.annotation.JsonbTransient;
-import javax.json.bind.config.PropertyOrderStrategy;
-import javax.json.spi.JsonProvider;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
+import jakarta.json.bind.JsonbConfig;
+import jakarta.json.bind.annotation.JsonbTransient;
+import jakarta.json.bind.config.PropertyOrderStrategy;
+import jakarta.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.OrderedMap;
 import org.talend.sdk.component.api.record.Record;

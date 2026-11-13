@@ -15,8 +15,8 @@
  */
 package org.talend.sdk.component.server.front.cxf;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;

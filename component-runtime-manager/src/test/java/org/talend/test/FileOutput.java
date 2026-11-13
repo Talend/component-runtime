@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import javax.annotation.PreDestroy;
-import javax.json.JsonObject;
+import jakarta.annotation.PreDestroy;
+import jakarta.json.JsonObject;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.layout.AutoLayout;
