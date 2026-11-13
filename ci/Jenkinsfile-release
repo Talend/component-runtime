@@ -27,10 +27,6 @@ final def githubPackagesCredentials = usernamePassword(
     credentialsId: 'github-packages-ci-runner-connectors-pat',
     usernameVariable: 'GITHUB_PACKAGES_LOGIN',
     passwordVariable: 'GITHUB_PACKAGES_TOKEN')
-final def jetbrainsCredentials = usernamePassword(
-    credentialsId: 'jetbrains-credentials',
-    usernameVariable: 'JETBRAINS_USER',
-    passwordVariable: 'JETBRAINS_PASS')
 final def jiraCredentials = usernamePassword(
     credentialsId: 'jira-credentials',
     usernameVariable: 'JIRA_USER',
@@ -299,7 +295,6 @@ pipeline {
         withCredentials([gitCredentials,
                          dockerCredentials,
                          ossrhCredentials,
-                         jetbrainsCredentials,
                          jiraCredentials,
                          gpgCredentials]) {
           script {
@@ -454,7 +449,6 @@ pipeline {
       steps {
         withCredentials([nexusCredentials,
                          ossrhCredentials,
-                         jetbrainsCredentials,
                          jiraCredentials,
                          gpgCredentials]) {
 

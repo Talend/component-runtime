@@ -25,10 +25,6 @@ final def ossrhCredentials = usernamePassword(
 final def nexusCredentials = usernamePassword(
     credentialsId: 'nexus-artifact-zl-credentials',
     usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')
-final def jetbrainsCredentials = usernamePassword(
-    credentialsId: 'jetbrains-credentials',
-    usernameVariable: 'JETBRAINS_USER',
-    passwordVariable: 'JETBRAINS_PASS')
 final def jiraCredentials = usernamePassword(
     credentialsId: 'jira-credentials',
     usernameVariable: 'JIRA_USER',
@@ -386,7 +382,7 @@ pipeline {
             println "Edit version on dev branches, new version is ${finalVersion}"
             sh """\
                         #!/usr/bin/env bash
-                        mvn versions:set --define newVersion=${finalVersion}
+                        mvn versions:set --define newVersion=${finalVersion} --settings .jenkins/settings.xml
                         """.stripIndent()
           }
 
@@ -429,7 +425,6 @@ pipeline {
         withCredentials([gitCredentials,
                          dockerCredentials,
                          ossrhCredentials,
-                         jetbrainsCredentials,
                          jiraCredentials,
                          gpgCredentials]) {
           script {
@@ -719,7 +714,7 @@ pipeline {
       }
       steps {
         script {
-          withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials, nexusCredentials]) {
+          withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jiraCredentials, gpgCredentials, nexusCredentials]) {
             configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
               sh """
                             bash .jenkins/scripts/release_legacy.sh $branch_name $finalVersion $extraBuildParams
@@ -735,6 +730,11 @@ pipeline {
       }
       steps {
         script {
+          // Trivy's pom resolver ignores MAVEN_ARGS/-s and only reads ~/.m2/settings.xml (Nexus mirror)
+          sh '''
+            mkdir -p "${HOME}/.m2"
+            cp "${WORKSPACE}/.jenkins/settings.xml" "${HOME}/.m2/settings.xml"
+          '''
           trivyTools.generateTrivyReport('output/trivy-results.json',
                                          'output/trivy-results.html')
           publishHtmlReportTools.publishHtmlReport('output/trivy-results.html',
