@@ -34,6 +34,26 @@ main() {
     --activate-profiles "$release_profiles" \
     "${extraBuildParams[@]}"
 
+  # Release artifacts are also published on the packages of this repository (QTDI-3791).
+  # Studio modules are released by release-3.1-perform-studio.sh. Non-blocking while Sonatype stays the reference.
+  (
+    cd target/checkout
+    mvn deploy \
+      --batch-mode \
+      --errors \
+      --define skipTests=true \
+      --define skipITs=true \
+      --define invoker.skip=true \
+      --define checkstyle.skip=true \
+      --define enforcer.skip=true \
+      --define rat.skip=true \
+      --define altDeploymentRepository=github_packages_release::default::https://maven.pkg.github.com/Talend/component-runtime \
+      --projects '!:component-studio,!:component-runtime-di' \
+      --fail-at-end \
+      --settings "${OLDPWD}/.jenkins/settings.xml" \
+      --activate-profiles "release-github-packages,gpg2" \
+      "${extraBuildParams[@]}"
+  ) || echo "WARN: GitHub Packages deploy failed (non-blocking)"
 }
 
 main "$@"

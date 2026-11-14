@@ -983,6 +983,17 @@
       <id>github_packages</id>
       <url>https://maven.pkg.github.com/Talend/global-artifacts</url>
     </repository>
+    <!-- QTDI-3791: release artifacts of Component Runtime are published on the packages of this repository -->
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>github_packages_release</id>
+      <url>https://maven.pkg.github.com/Talend/component-runtime</url>
+    </repository>
     <!-- QTDI-3642: Nexus pull disabled to verify GitHub Packages, restore if needed
     <repository>
       <releases>
@@ -1029,6 +1040,16 @@
       </snapshots>
       <id>github_packages</id>
       <url>https://maven.pkg.github.com/Talend/global-artifacts</url>
+    </pluginRepository>
+    <pluginRepository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>github_packages_release</id>
+      <url>https://maven.pkg.github.com/Talend/component-runtime</url>
     </pluginRepository>
     <pluginRepository>
       <releases>
@@ -1875,6 +1896,52 @@
               </excludeArtifacts>
             </configuration>
           </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <phase>verify</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>release-github-packages</id>
+      <!-- QTDI-3791: same artifacts as the release profile (sources, javadoc, signature) but without the
+           central-publishing extension, which would replace the deploy goal. Used with -DaltDeploymentRepository. -->
+      <build>
+        <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
