@@ -38,7 +38,6 @@ main() {
   mvn clean deploy \
     --file "component-studio/pom.xml" \
     --define arguments="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip" \
-    --define altDeploymentRepository=github_packages_release::default::https://maven.pkg.github.com/Talend/component-runtime \
     --settings .jenkins/settings.xml \
     --activate-profiles ${release_profiles} \
     "${extraBuildParams[@]}"

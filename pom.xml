@@ -135,7 +135,13 @@
     <url>https://github.com/${scm.repository}</url>
   </scm>
   <distributionManagement>
-    <!-- snapshots stay on the global-artifacts packages, releases go to the packages of this repository (release profile) -->
+    <!-- snapshots and qualified versions go on the global-artifacts packages, releases on the packages of this repository.
+         The packages of both can be read through the github_packages repository declared below. -->
+    <repository>
+      <id>github_packages</id>
+      <name>GitHub Packages component-runtime</name>
+      <url>https://maven.pkg.github.com/Talend/component-runtime</url>
+    </repository>
     <snapshotRepository>
       <id>github_packages</id>
       <name>GitHub Packages global-artifacts</name>
@@ -949,18 +955,6 @@
   </dependencies>
 
   <repositories>
-    <!-- QTDI-3642: Nexus pull disabled to verify GitHub Packages, restore if needed
-    <repository>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>TalendOpenSourceRelease</id>
-      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
-    </repository>
-    -->
     <repository>
       <releases>
         <enabled>true</enabled>
@@ -971,43 +965,8 @@
       <id>github_packages</id>
       <url>https://maven.pkg.github.com/Talend/global-artifacts</url>
     </repository>
-    <!-- QTDI-3791: release artifacts of Component Runtime are published on the packages of this repository -->
-    <repository>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>github_packages_release</id>
-      <url>https://maven.pkg.github.com/Talend/component-runtime</url>
-    </repository>
-    <!-- QTDI-3642: Nexus pull disabled to verify GitHub Packages, restore if needed
-    <repository>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <id>TalendOpenSourceSnapshot</id>
-      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
-    </repository>
-    -->
   </repositories>
   <pluginRepositories>
-    <!-- QTDI-3642: Nexus pull disabled to verify GitHub Packages, restore if needed
-    <pluginRepository>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>TalendOpenSourceRelease</id>
-      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
-    </pluginRepository>
-    -->
     <pluginRepository>
       <releases>
         <enabled>true</enabled>
@@ -1017,16 +976,6 @@
       </snapshots>
       <id>github_packages</id>
       <url>https://maven.pkg.github.com/Talend/global-artifacts</url>
-    </pluginRepository>
-    <pluginRepository>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>github_packages_release</id>
-      <url>https://maven.pkg.github.com/Talend/component-runtime</url>
     </pluginRepository>
     <pluginRepository>
       <releases>
@@ -1820,19 +1769,6 @@
 
   <profiles>
     <profile>
-      <id>private_repository</id>
-      <!--
-        This profile is used by the CI or for development branch deployment.
-        Its overwrite the snapshotRepository with a private one.
-      -->
-      <distributionManagement>
-        <snapshotRepository>
-          <id>talend.snapshots</id>
-          <url>https://artifacts-zl.talend.com/nexus/content/repositories/snapshots</url>
-        </snapshotRepository>
-      </distributionManagement>
-    </profile>
-    <profile>
       <id>gpg2</id>
       <build>
         <plugins>
@@ -1845,13 +1781,6 @@
     </profile>
     <profile>
       <id>release</id>
-      <distributionManagement>
-        <repository>
-          <id>github_packages_release</id>
-          <name>GitHub Packages component-runtime</name>
-          <url>https://maven.pkg.github.com/Talend/component-runtime</url>
-        </repository>
-      </distributionManagement>
       <build>
         <plugins>
           <plugin>

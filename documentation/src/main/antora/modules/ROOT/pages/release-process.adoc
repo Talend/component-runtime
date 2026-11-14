@@ -25,7 +25,7 @@ Add the required credentials to your Maven `settings.xml` file for the release. 
             https://maven.apache.org/xsd/settings-1.0.0.xsd">
   <servers>
     <server>
-      <id>github_packages_release</id>
+      <id>github_packages</id>
       <username>${env.GITHUB_PACKAGES_LOGIN}</username>
       <password>${env.GITHUB_PACKAGES_TOKEN}</password>
     </server>

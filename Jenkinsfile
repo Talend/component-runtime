@@ -18,9 +18,6 @@ import java.time.LocalDateTime
 import java.util.regex.Matcher
 
 // Credentials
-final def nexusCredentials = usernamePassword(
-    credentialsId: 'nexus-artifact-zl-credentials',
-    usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')
 final def jiraCredentials = usernamePassword(
     credentialsId: 'jira-credentials',
     usernameVariable: 'JIRA_USER',
@@ -76,7 +73,7 @@ Boolean devBranch_dockerPush = false
 
 
 String skipOptions = "-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
-String nexusDeployOptions = "$skipOptions --activate-profiles private_repository -Denforcer.skip=true"
+String deployOptions = "$skipOptions -Denforcer.skip=true"
 
 
 pipeline {
@@ -148,7 +145,7 @@ pipeline {
         description: '''
             Force MAVEN deploy stage for development branches. No effect on master and maintenance.
             INFO: master/maintenance branch deploys artefacts on GitHub Packages
-                  dev branches deploy artefacts on <artifacts-zl.talend.com>''')
+                  dev branches deploy qualified artefacts on GitHub Packages (global-artifacts)''')
     booleanParam(
         name: 'DOCKER_PUSH',
         defaultValue: false,
@@ -242,8 +239,7 @@ pipeline {
             so you can test Jenkins pipeline changes (e.g. the Maven deploy stages) end to end from a dev branch.
             WARNING: the resulting artifact uses the exact same (unqualified) SNAPSHOT
             version as master. If this build deploys, it WILL OVERWRITE the artifacts
-            currently published by the master branch build on the internal Nexus
-            and GitHub Packages repositories. If you do it, be sure that your branch is up to date with master.
+            currently published by the master branch build on the GitHub Packages repository. If you do it, be sure that your branch is up to date with master.
             Only to test Jenkins job evolution, never for real development work.''')
   }
 
@@ -419,8 +415,7 @@ pipeline {
     stage('Maven validate to install') {
       when { expression { params.ACTION != 'RELEASE' } }
       steps {
-        withCredentials([nexusCredentials,
-                         githubPackagesCredentials,
+        withCredentials([githubPackagesCredentials,
                          dockerCredentials]) {
           sh """\
             #!/usr/bin/env bash
@@ -447,8 +442,7 @@ pipeline {
       }
     }
     stage('Maven deploy - GitHub Packages') {
-      // Temporary extra copy of what goes to Nexus (Nexus license ends Nov 2026, QTDI-3640).
-      // Non-blocking: failures only make the build UNSTABLE.
+      // Snapshots and qualified versions go on the global-artifacts packages (distributionManagement of the root pom)
       when {
         anyOf {
           expression { stdBranch_buildOnly }
@@ -456,44 +450,17 @@ pipeline {
         }
       }
       steps {
-        script {
-          catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-            withCredentials([githubPackagesCredentials, dockerCredentials]) {
-              sh """\
-                #!/usr/bin/env bash
-                set -xe
-                mvn deploy ${nexusDeployOptions} \
-                            --fail-at-end \
-                            -DaltDeploymentRepository=github_packages::default::https://maven.pkg.github.com/Talend/global-artifacts \
-                            ${extraBuildParams} \
-                            --settings .jenkins/settings.xml
-                """.stripIndent()
-            }
-          }
-        }
-        script {
-          JenkinsStatusController.jobDescriptionAppend("Maven artefact deployed as ${finalVersion} on [GitHub Packages](https://github.com/orgs/Talend/packages)  ")
-        }
-      }
-    }
-    stage('Maven deploy - Nexus') {
-      // Deploy to internal Nexus on master/maintenance builds (and dev branches with MAVEN_DEPLOY, qualified version) so that
-      // connectors-se Jenkins agents can resolve SNAPSHOT dependencies as soon as possible.
-      when {
-        anyOf {
-          expression { stdBranch_buildOnly }
-          expression { devBranch_mavenDeploy }
-        }
-      }
-      steps {
-        withCredentials([nexusCredentials, githubPackagesCredentials, dockerCredentials]) {
+        withCredentials([githubPackagesCredentials, dockerCredentials]) {
           sh """\
             #!/usr/bin/env bash
             set -xe
-            mvn deploy ${nexusDeployOptions} \
+            mvn deploy ${deployOptions} \
                         ${extraBuildParams} \
                         --settings .jenkins/settings.xml
             """.stripIndent()
+        }
+        script {
+          JenkinsStatusController.jobDescriptionAppend("Maven artefact deployed as ${finalVersion} on [GitHub Packages](https://github.com/orgs/Talend/packages)  ")
         }
       }
     }
@@ -506,52 +473,50 @@ pipeline {
       }
       steps {
         script {
-          configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
 
-            String images_options = ''
-            if (isStdBranch) {
-              // Build and push all images
-              JenkinsStatusController.jobDescriptionAppend("Docker images deployed: component-server, component-starter-server and remote-engine-customizer  ")
+          String images_options = ''
+          if (isStdBranch) {
+            // Build and push all images
+            JenkinsStatusController.jobDescriptionAppend("Docker images deployed: component-server, component-starter-server and remote-engine-customizer  ")
+          } else {
+            String image_list
+            if (params.DOCKER_CHOICE == 'All') {
+              images_options = 'false'
             } else {
-              String image_list
-              if (params.DOCKER_CHOICE == 'All') {
-                images_options = 'false'
-              } else {
-                images_options = 'false ' + params.DOCKER_CHOICE
-              }
+              images_options = 'false ' + params.DOCKER_CHOICE
+            }
 
-              if (params.DOCKER_CHOICE == 'All') {
-                JenkinsStatusController.jobDescriptionAppend("All docker images deployed  ")
+            if (params.DOCKER_CHOICE == 'All') {
+              JenkinsStatusController.jobDescriptionAppend("All docker images deployed  ")
 
-                JenkinsStatusController.jobDescriptionAppend("As ${finalVersion}${buildTimestamp} on " +
-                                                                 "[artifactory.datapwn.com]" +
-                                                                 "($artifactoryAddr/$artifactoryPath)  ")
-                JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath" +
-                                                                 "/component-server:${finalVersion}${buildTimestamp}  ")
-                JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath" +
-                                                                 "/component-starter-server:${finalVersion}${buildTimestamp}  ")
-                JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath" +
-                                                                 "/remote-engine-customize:${finalVersion}${buildTimestamp}  ")
+              JenkinsStatusController.jobDescriptionAppend("As ${finalVersion}${buildTimestamp} on " +
+                                                               "[artifactory.datapwn.com]" +
+                                                               "($artifactoryAddr/$artifactoryPath)  ")
+              JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath" +
+                                                               "/component-server:${finalVersion}${buildTimestamp}  ")
+              JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath" +
+                                                               "/component-starter-server:${finalVersion}${buildTimestamp}  ")
+              JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath" +
+                                                               "/remote-engine-customize:${finalVersion}${buildTimestamp}  ")
 
-              } else {
-                JenkinsStatusController.jobDescriptionAppend("Docker images deployed: $params.DOCKER_CHOICE  ")
-                JenkinsStatusController.jobDescriptionAppend("As ${finalVersion}${buildTimestamp} on " +
-                                                                 "[artifactory.datapwn.com]($artifactoryAddr/$artifactoryPath)  ")
-                JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath/$params.DOCKER_CHOICE:" +
-                                                                 "${finalVersion}${buildTimestamp}  ")
-
-              }
+            } else {
+              JenkinsStatusController.jobDescriptionAppend("Docker images deployed: $params.DOCKER_CHOICE  ")
+              JenkinsStatusController.jobDescriptionAppend("As ${finalVersion}${buildTimestamp} on " +
+                                                               "[artifactory.datapwn.com]($artifactoryAddr/$artifactoryPath)  ")
+              JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath/$params.DOCKER_CHOICE:" +
+                                                               "${finalVersion}${buildTimestamp}  ")
 
             }
 
-            // Build and push specific image
-            withCredentials([githubPackagesCredentials, dockerCredentials]) {
-              sh """
-                  bash .jenkins/scripts/docker_build.sh \
-                    ${finalVersion}${buildTimestamp} \
-                    ${images_options}
-                """
-            }
+          }
+
+          // Build and push specific image
+          withCredentials([githubPackagesCredentials, dockerCredentials]) {
+            sh """
+                bash .jenkins/scripts/docker_build.sh \
+                  ${finalVersion}${buildTimestamp} \
+                  ${images_options}
+              """
           }
 
         }
@@ -586,8 +551,7 @@ pipeline {
         }
       }
       steps {
-        withCredentials([nexusCredentials,
-                         githubPackagesCredentials,
+        withCredentials([githubPackagesCredentials,
                          dockerCredentials]) {
           catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
             sh """
@@ -625,8 +589,7 @@ pipeline {
       }
       steps {
         script {
-          withCredentials([nexusCredentials,
-                           githubPackagesCredentials,
+          withCredentials([githubPackagesCredentials,
                            sonarToken,
                            gitCredentials,
                            dockerCredentials]) {
@@ -650,12 +613,10 @@ pipeline {
       }
       steps {
         script {
-          withCredentials([gitCredentials, dockerCredentials, jiraCredentials, gpgCredentials, nexusCredentials, githubPackagesCredentials]) {
-            configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
-              sh """
-                            bash .jenkins/scripts/release_legacy.sh $branch_name $finalVersion $extraBuildParams
-                            """
-            }
+          withCredentials([gitCredentials, dockerCredentials, jiraCredentials, gpgCredentials, githubPackagesCredentials]) {
+            sh """
+                          bash .jenkins/scripts/release_legacy.sh $branch_name $finalVersion $extraBuildParams
+                          """
           }
         }
       }

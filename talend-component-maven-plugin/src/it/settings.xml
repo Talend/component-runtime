@@ -16,27 +16,22 @@
 <settings>
   <servers>
     <server>
-      <id>TalendOpenSourceRelease</id>
-      <username>${env.NEXUS_USER}</username>
-      <password>${env.NEXUS_PASS}</password>
-    </server>
-    <server>
-      <id>TalendOpenSourceSnapshot</id>
-      <username>${env.NEXUS_USER}</username>
-      <password>${env.NEXUS_PASS}</password>
-    </server>
-    <server>
       <id>github_packages</id>
       <username>${env.GITHUB_PACKAGES_LOGIN}</username>
       <password>${env.GITHUB_PACKAGES_TOKEN}</password>
+    </server>
+    <server>
+      <id>artifactory.datapwn.com</id>
+      <username>${env.DOCKER_USER}</username>
+      <password>${env.DOCKER_PASS}</password>
     </server>
   </servers>
 
   <mirrors>
     <mirror>
-      <id>maven_central_proxy</id>
-      <name>Maven Central Proxy</name>
-      <url>https://artifacts-zl.talend.com/nexus/content/repositories/central/</url>
+      <id>artifactory.datapwn.com</id>
+      <name>Internal Artifactory Maven Central cache</name>
+      <url>https://artifactory.datapwn.com/artifactory/maven-central-remote</url>
       <mirrorOf>central</mirrorOf>
     </mirror>
   </mirrors>
