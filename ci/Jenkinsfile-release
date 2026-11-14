@@ -15,10 +15,6 @@
  */
 
 // Credentials
-final def ossrhCredentials = usernamePassword(
-    credentialsId: 'ossrh-credentials',
-    usernameVariable: 'OSSRH_USER',
-    passwordVariable: 'OSSRH_PASS')
 final def nexusCredentials = usernamePassword(
     credentialsId: 'nexus-artifact-zl-credentials',
     usernameVariable: 'NEXUS_USER',
@@ -152,14 +148,6 @@ pipeline {
                         EXPERT USER ONLY: to solve specials case eg: release ok but it fails for the Studio modules.  
                         ''')
     booleanParam(
-        name: 'NO_STAGING',
-        defaultValue: false,
-        description: '''Activate the no-staging profile.  
-                        Execute the release, but at the end of the release:perform step, 
-                        the artifacts are not publish on the NEXUS.  
-                        EXPERT USER ONLY: to solve specials case eg: release ok but failure during docker publish.  
-                        ''')
-    booleanParam(
         name: 'NO_DOCKER',
         defaultValue: false,
         description: '''Skip the docker stage.  
@@ -244,7 +232,6 @@ pipeline {
         script {
           println "Create assemblyExtraBuildParams from user provided parameters and job option"
           extraBuildParams = assemblyExtraBuildParams(params.FAKE_RELEASE as Boolean,
-                                                      params.NO_STAGING as Boolean,
                                                       params.DRY_RUN as Boolean)
         }
 
@@ -294,7 +281,6 @@ pipeline {
       steps {
         withCredentials([gitCredentials,
                          dockerCredentials,
-                         ossrhCredentials,
                          jiraCredentials,
                          gpgCredentials]) {
           script {
@@ -406,7 +392,6 @@ pipeline {
     stage('Maven release prepare') {
       steps {
         withCredentials([githubPackagesCredentials,
-                         ossrhCredentials,
                          gpgCredentials]) {
           script {
             echo "Maven prepare release $releaseVersion (next-dev: $nextVersion; tag: $tagName)"
@@ -448,7 +433,6 @@ pipeline {
       }
       steps {
         withCredentials([githubPackagesCredentials,
-                         ossrhCredentials,
                          jiraCredentials,
                          gpgCredentials]) {
 
@@ -465,9 +449,7 @@ pipeline {
         expression { params.RELEASE_STUDIO_MODULES && !params.DRY_RUN }
       }
       steps {
-        withCredentials([nexusCredentials,
-                         githubPackagesCredentials,
-                         ossrhCredentials,
+        withCredentials([githubPackagesCredentials,
                          jiraCredentials,
                          gpgCredentials]) {
 
@@ -488,7 +470,6 @@ pipeline {
       steps {
         withCredentials([gitCredentials,
                          githubPackagesCredentials,
-                         ossrhCredentials,
                          dockerCredentials]) {
           script {
             echo "Docker image creation from branch $branchName with tag: $tagName on version $releaseVersion"
@@ -506,7 +487,6 @@ pipeline {
       steps {
         withCredentials([gitCredentials,
                          githubPackagesCredentials,
-                         ossrhCredentials,
                          dockerCredentials]) {
           script {
             echo "Prepare next iteration on $branchName"
@@ -525,8 +505,7 @@ pipeline {
       }
       steps {
         withCredentials([gitCredentials,
-                         githubPackagesCredentials,
-                         ossrhCredentials]) {
+                         githubPackagesCredentials]) {
           script {
             echo "Creating a new branch named $maintenanceBranch with version $maintenanceVersion"
             // Under DRY_RUN, the final git push is simulated with "--dry-run" (see script).
@@ -562,12 +541,11 @@ pipeline {
  * Assembly all needed items to put inside extraBuildParams
  *
  * @param Boolean fakeRelease
- * @param Boolean noStaging
  * @param Boolean dryRun
  *
  * @return extraBuildParams as a string ready for mvn cmd
  */
-private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean noStaging, Boolean dryRun) {
+private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean dryRun) {
   String extraBuildParams
 
   println 'Processing extraBuildParams'
@@ -581,11 +559,6 @@ private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean noStaging, 
   if (fakeRelease || dryRun) {
     // Overwrite the git repository, in order not to write in "talend/component-runtime"
     buildParamsAsArray.add("--define scm.repository=$params.FAKE_REPOSITORY")
-  }
-
-  // Manage no-staging parameter
-  if (noStaging || dryRun) {
-    buildParamsAsArray.add("--activate-profiles no-staging")
   }
 
   println 'Construct final params content'

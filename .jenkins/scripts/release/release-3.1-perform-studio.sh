@@ -34,19 +34,11 @@ main() {
   # set the release version in the pom.xml
   mvn versions:set -DnewVersion="${releaseVersion}"
 
-  # Extra copy to the GitHub Packages of this repository (Nexus replacement, QTDI-3640/QTDI-3791), non-blocking
+  # Studio artifacts are published on the packages of this repository (QTDI-3791)
   mvn clean deploy \
     --file "component-studio/pom.xml" \
     --define arguments="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip" \
     --define altDeploymentRepository=github_packages_release::default::https://maven.pkg.github.com/Talend/component-runtime \
-    --fail-at-end \
-    --settings .jenkins/settings.xml \
-    --activate-profiles ${release_profiles} \
-    "${extraBuildParams[@]}" || echo "WARN: GitHub Packages deploy failed (non-blocking)"
-
-  mvn clean deploy \
-    --file "component-studio/pom.xml" \
-    --define arguments="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip" \
     --settings .jenkins/settings.xml \
     --activate-profiles ${release_profiles} \
     "${extraBuildParams[@]}"

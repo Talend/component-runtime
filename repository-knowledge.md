@@ -160,26 +160,13 @@ regular dependencies, not plugins); `UiSpecGeneratorMojoTest` covers the isolati
 
 ## CI / Jenkinsfile patterns
 
-### Dual Maven deploy — Sonatype + internal Nexus
+### Maven deploy targets (no more Sonatype, QTDI-3791)
 
-When a stage must publish SNAPSHOTs to **both** `central.sonatype.com` (Sonatype OSS) and `artifacts-zl.talend.com` (internal Nexus), **two separate `mvn deploy` invocations are required**:
-
-- The first call uses `-Possrh -Psnapshot` (existing Sonatype deploy, unchanged).
-- The second call uses `-Pprivate_repository` — but this profile **overrides `snapshotRepository`**, so combining both profiles in a single call silently suppresses the Sonatype publish and only deploys to Nexus.
-
-```groovy
-// Sonatype deploy (existing — unchanged)
-mvn ... -Possrh -Psnapshot deploy
-
-// Internal Nexus deploy (new — runs after Sonatype)
-withCredentials([usernamePassword(credentialsId: 'nexusCredentials', ...)]) {
-    mvn ... --activate-profiles private_repository deploy
-}
-```
-
-If the first deploy fails, the second is never triggered — correct behavior.
-
-_Discovered: QTDI-3123, 2026-07-10_
+Sonatype/Maven Central publishing was removed. Snapshots go to the `global-artifacts` GitHub Packages
+(`github_packages`, plus the internal Nexus with `-Pprivate_repository` until it ends), releases go to the
+packages of this repository (`github_packages_release`, set by the `release` profile; studio modules are
+deployed by `release-3.1-perform-studio.sh` with `altDeploymentRepository`). The `release` profile also attaches
+sources/javadoc and signs the artifacts (`gpg2` + the `gpg-keyring` settings profile).
 
 ### `stdBranch_buildOnly` — master/maintenance build guard
 

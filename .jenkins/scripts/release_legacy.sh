@@ -64,7 +64,7 @@ main() {
     --define releaseVersion="${release}" \
     --define developmentVersion="${dev_version}" \
     --define arguments="-DskipTests -DskipITs -Dinvoker.skip=true" \
-    --activate-profiles ossrh,release,gpg2 \
+    --activate-profiles gpg-keyring,release,gpg2 \
     ${extraBuildParams} \
     --settings .jenkins/settings.xml
   echo ">> Maven perform release $release"
@@ -72,7 +72,7 @@ main() {
     --batch-mode \
     --errors \
     --define arguments="-DskipTests -DskipITs -Dinvoker.skip=true" \
-    --activate-profiles ossrh,release,gpg2 \
+    --activate-profiles gpg-keyring,release,gpg2 \
     ${extraBuildParams} \
     --settings .jenkins/settings.xml
   ###

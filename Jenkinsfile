@@ -18,10 +18,6 @@ import java.time.LocalDateTime
 import java.util.regex.Matcher
 
 // Credentials
-final def ossrhCredentials = usernamePassword(
-    credentialsId: 'ossrh-credentials',
-    usernameVariable: 'OSSRH_USER',
-    passwordVariable: 'OSSRH_PASS')
 final def nexusCredentials = usernamePassword(
     credentialsId: 'nexus-artifact-zl-credentials',
     usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')
@@ -80,7 +76,6 @@ Boolean devBranch_dockerPush = false
 
 
 String skipOptions = "-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
-String deployOptions = "$skipOptions -Possrh -Prelease -Pgpg2 -Denforcer.skip=true"
 String nexusDeployOptions = "$skipOptions --activate-profiles private_repository -Denforcer.skip=true"
 
 
@@ -152,7 +147,7 @@ pipeline {
         defaultValue: false,
         description: '''
             Force MAVEN deploy stage for development branches. No effect on master and maintenance.
-            INFO: master/maintenance branch deploys artefacts on <oss.sonatype.org>
+            INFO: master/maintenance branch deploys artefacts on GitHub Packages
                   dev branches deploy artefacts on <artifacts-zl.talend.com>''')
     booleanParam(
         name: 'DOCKER_PUSH',
@@ -247,16 +242,9 @@ pipeline {
             so you can test Jenkins pipeline changes (e.g. the Maven deploy stages) end to end from a dev branch.
             WARNING: the resulting artifact uses the exact same (unqualified) SNAPSHOT
             version as master. If this build deploys, it WILL OVERWRITE the artifacts
-            currently published by the master branch build on both the internal Nexus
-            and Sonatype/OSSRH repositories. If you do it, be sure that your branch is up to date with master.
+            currently published by the master branch build on the internal Nexus
+            and GitHub Packages repositories. If you do it, be sure that your branch is up to date with master.
             Only to test Jenkins job evolution, never for real development work.''')
-    booleanParam(
-        name: 'NO_SONATYPE',
-        defaultValue: false,
-        description: '''
-            DEBUG ONLY - skips the Sonatype/OSSRH deploy stage entirely, whatever the branch.
-            Use this to test the pipeline faster when the slow/unreliable Sonatype deploy
-            is not what you want to validate (e.g. only testing the internal Nexus deploy stage).''')
   }
 
   stages {
@@ -298,16 +286,6 @@ pipeline {
 
           // NO_QUALIFIER forces the same (unqualified) version as master, see param warning
           needQualify = (devBranch_mavenDeploy || devBranch_dockerPush) && !params.NO_QUALIFIER
-
-          if (needQualify) {
-            // Qualified version have to be released on talend_repository
-            // Overwrite the deployOptions
-            deployOptions = nexusDeployOptions
-          }
-
-          // hack to overwrite the skip of studio modules that we can't deploy in release mode into Sonatype repo
-          // assume that we don't use this Jenkinsfile for release anymore
-          deployOptions = deployOptions.replace("-Prelease", "-Psnapshot")
 
           // By default the doc is skipped for standards branches
           Boolean skip_documentation = !(params.FORCE_DOC || isStdBranch)
@@ -420,7 +398,6 @@ pipeline {
       steps {
         withCredentials([gitCredentials,
                          dockerCredentials,
-                         ossrhCredentials,
                          jiraCredentials,
                          gpgCredentials]) {
           script {
@@ -442,8 +419,7 @@ pipeline {
     stage('Maven validate to install') {
       when { expression { params.ACTION != 'RELEASE' } }
       steps {
-        withCredentials([ossrhCredentials,
-                         nexusCredentials,
+        withCredentials([nexusCredentials,
                          githubPackagesCredentials,
                          dockerCredentials]) {
           sh """\
@@ -472,7 +448,7 @@ pipeline {
     }
     stage('Maven deploy - GitHub Packages') {
       // Temporary extra copy of what goes to Nexus (Nexus license ends Nov 2026, QTDI-3640).
-      // Sonatype-only deploys are not concerned. Non-blocking: failures only make the build UNSTABLE.
+      // Non-blocking: failures only make the build UNSTABLE.
       when {
         anyOf {
           expression { stdBranch_buildOnly }
@@ -495,13 +471,14 @@ pipeline {
             }
           }
         }
+        script {
+          JenkinsStatusController.jobDescriptionAppend("Maven artefact deployed as ${finalVersion} on [GitHub Packages](https://github.com/orgs/Talend/packages)  ")
+        }
       }
     }
     stage('Maven deploy - Nexus') {
-      // Deploy to internal Nexus first on master/maintenance builds so that
-      // connectors-se Jenkins agents (which cannot reach central.sonatype.com)
-      // can resolve SNAPSHOT dependencies as soon as possible, independent of
-      // whether the Sonatype deploy stage below is slow or times out.
+      // Deploy to internal Nexus on master/maintenance builds so that
+      // connectors-se Jenkins agents can resolve SNAPSHOT dependencies as soon as possible.
       when {
         expression { stdBranch_buildOnly }
       }
@@ -514,58 +491,6 @@ pipeline {
                         ${extraBuildParams} \
                         --settings .jenkins/settings.xml
             """.stripIndent()
-        }
-      }
-    }
-    stage('Maven deploy - Sonatype') {
-      // Sonatype/OSSRH deploy has a history of being slow/unreliable and can
-      // otherwise consume the whole pipeline timeout; bound it to its own
-      // timeout and degrade to UNSTABLE instead of failing the build outright
-      // (the Nexus deploy stage above already unblocks downstream consumers).
-      when {
-        allOf {
-          expression { !params.NO_SONATYPE }
-          anyOf {
-            expression { stdBranch_buildOnly }
-            expression { devBranch_mavenDeploy }
-          }
-        }
-      }
-      steps {
-        script {
-          catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-            timeout(time: 60, unit: 'MINUTES') {
-              withCredentials([ossrhCredentials,
-                               gpgCredentials,
-                               nexusCredentials,
-                               githubPackagesCredentials,
-                               dockerCredentials]) {
-                sh """\
-                  #!/usr/bin/env bash
-                  set -xe
-                  bash mvn deploy $deployOptions \
-                                  $extraBuildParams \
-                                  --settings .jenkins/settings.xml
-                  """.stripIndent()
-              }
-            }
-          }
-        }
-        // Add description to job
-        script {
-          def repo
-          String nexusSnapshotUrl = 'https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/org/talend/sdk/component'
-          if (devBranch_mavenDeploy) {
-            repo = ['artifacts-zl.talend.com', nexusSnapshotUrl]
-          } else {
-            repo = ['oss.sonatype.org',
-                    'https://central.sonatype.com/repository/maven-snapshots/org/talend/sdk/component/']
-          }
-
-          JenkinsStatusController.jobDescriptionAppend("Maven artefact deployed as ${finalVersion} on [${repo[0]}](${repo[1]})  ")
-          if (stdBranch_buildOnly) {
-            JenkinsStatusController.jobDescriptionAppend("Maven artefact also deployed as ${finalVersion} on [artifacts-zl.talend.com](${nexusSnapshotUrl})  ")
-          }
         }
       }
     }
@@ -636,7 +561,7 @@ pipeline {
         }
       }
       steps {
-        withCredentials([ossrhCredentials, gitCredentials, githubPackagesCredentials, dockerCredentials]) {
+        withCredentials([gitCredentials, githubPackagesCredentials, dockerCredentials]) {
           sh """\
             #!/usr/bin/env bash 
             set -xe                       
@@ -658,8 +583,7 @@ pipeline {
         }
       }
       steps {
-        withCredentials([ossrhCredentials,
-                         nexusCredentials,
+        withCredentials([nexusCredentials,
                          githubPackagesCredentials,
                          dockerCredentials]) {
           catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
@@ -723,7 +647,7 @@ pipeline {
       }
       steps {
         script {
-          withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jiraCredentials, gpgCredentials, nexusCredentials, githubPackagesCredentials]) {
+          withCredentials([gitCredentials, dockerCredentials, jiraCredentials, gpgCredentials, nexusCredentials, githubPackagesCredentials]) {
             configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
               sh """
                             bash .jenkins/scripts/release_legacy.sh $branch_name $finalVersion $extraBuildParams
