@@ -405,8 +405,7 @@ pipeline {
 
     stage('Maven release prepare') {
       steps {
-        withCredentials([nexusCredentials,
-                         githubPackagesCredentials,
+        withCredentials([githubPackagesCredentials,
                          ossrhCredentials,
                          gpgCredentials]) {
           script {
@@ -448,8 +447,7 @@ pipeline {
         expression { !params.DRY_RUN }
       }
       steps {
-        withCredentials([nexusCredentials,
-                         githubPackagesCredentials,
+        withCredentials([githubPackagesCredentials,
                          ossrhCredentials,
                          jiraCredentials,
                          gpgCredentials]) {
@@ -489,7 +487,6 @@ pipeline {
       }
       steps {
         withCredentials([gitCredentials,
-                         nexusCredentials,
                          githubPackagesCredentials,
                          ossrhCredentials,
                          dockerCredentials]) {
@@ -508,7 +505,6 @@ pipeline {
     stage('Prepare next iteration') {
       steps {
         withCredentials([gitCredentials,
-                         nexusCredentials,
                          githubPackagesCredentials,
                          ossrhCredentials,
                          dockerCredentials]) {
@@ -529,7 +525,6 @@ pipeline {
       }
       steps {
         withCredentials([gitCredentials,
-                         nexusCredentials,
                          githubPackagesCredentials,
                          ossrhCredentials]) {
           script {
