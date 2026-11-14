@@ -24,8 +24,10 @@ main() {
 
   printf ">> Maven perform release"
 
-  local release_profiles="release,ossrh,gpg2"
+  local release_profiles="release,gpg-keyring,gpg2"
 
+  # Release artifacts are published on the packages of this repository (QTDI-3791), see the release profile.
+  # Studio modules are released by release-3.1-perform-studio.sh (their deploy is skipped by the release profile).
   mvn release:perform \
     --batch-mode \
     --errors \
@@ -33,7 +35,6 @@ main() {
     --settings .jenkins/settings.xml \
     --activate-profiles "$release_profiles" \
     "${extraBuildParams[@]}"
-
 }
 
 main "$@"

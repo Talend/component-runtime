@@ -40,7 +40,7 @@ main() {
 
   printf ">> Maven prepare release %s (next-dev: %s; tag: %s)\n" "${releaseVersion}" "${nextVersion}" "${tagName}"
 
-  local release_profiles="release,ossrh,gpg2"
+  local release_profiles="release,gpg-keyring,gpg2"
 
   mvn release:prepare \
     --batch-mode \

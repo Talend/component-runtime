@@ -160,26 +160,15 @@ regular dependencies, not plugins); `UiSpecGeneratorMojoTest` covers the isolati
 
 ## CI / Jenkinsfile patterns
 
-### Dual Maven deploy — Sonatype + internal Nexus
+### Maven deploy targets (no more Sonatype, QTDI-3791)
 
-When a stage must publish SNAPSHOTs to **both** `central.sonatype.com` (Sonatype OSS) and `artifacts-zl.talend.com` (internal Nexus), **two separate `mvn deploy` invocations are required**:
-
-- The first call uses `-Possrh -Psnapshot` (existing Sonatype deploy, unchanged).
-- The second call uses `-Pprivate_repository` — but this profile **overrides `snapshotRepository`**, so combining both profiles in a single call silently suppresses the Sonatype publish and only deploys to Nexus.
-
-```groovy
-// Sonatype deploy (existing — unchanged)
-mvn ... -Possrh -Psnapshot deploy
-
-// Internal Nexus deploy (new — runs after Sonatype)
-withCredentials([usernamePassword(credentialsId: 'nexusCredentials', ...)]) {
-    mvn ... --activate-profiles private_repository deploy
-}
-```
-
-If the first deploy fails, the second is never triggered — correct behavior.
-
-_Discovered: QTDI-3123, 2026-07-10_
+Sonatype/Maven Central and the internal Nexus are no longer used. The root `distributionManagement` uses the
+single server id `github_packages`: snapshots/qualified versions go to the `global-artifacts` GitHub Packages
+(`<snapshotRepository>`), release versions go to the packages of this repository (`<repository>`). Maven picks
+the target from the version, so no profile is needed. The studio modules are deployed by
+`release-3.1-perform-studio.sh` (`release-zl` profile); `release:perform` skips them through the `release`
+profile of `component-studio/pom.xml`. The `release` profile also attaches sources/javadoc and signs the
+artifacts (`gpg2` + the `gpg-keyring` settings profile).
 
 ### `stdBranch_buildOnly` — master/maintenance build guard
 
@@ -190,12 +179,6 @@ if (stdBranch_buildOnly) {
     // runs on master/maintenance only
 }
 ```
-
-_Discovered: QTDI-3123, 2026-07-10_
-
-### Nexus credentials — `nexusCredentials`
-
-`.jenkins/settings.xml` already has a `talend.snapshots` server entry. The credentials binding ID is `nexusCredentials`, which injects `NEXUS_USERNAME` and `NEXUS_PASSWORD`. **No `settings.xml` edits are needed** when adding a new deploy step targeting the internal Nexus — only add the `withCredentials` block in `Jenkinsfile`.
 
 _Discovered: QTDI-3123, 2026-07-10_
 
@@ -234,7 +217,7 @@ Jenkins instance `jenkins-connectors`. Jobs are registered in flux (Job DSL); th
 
 | Flux job | Branches | Jenkinsfile | Notes |
 | --- | --- | --- | --- |
-| `component-runtime/build` | all branches and PRs | `Jenkinsfile` | Build, Sonar, deploys (GitHub Packages, Nexus, Sonatype), Docker, Trivy. Cron `0 0 * * *` on `master` only (set in the Jenkinsfile). No longer used for releases |
+| `component-runtime/build` | all branches and PRs | `Jenkinsfile` | Build, Sonar, deploy (GitHub Packages), Docker, Trivy. Cron `0 0 * * *` on `master` only (set in the Jenkinsfile). No longer used for releases |
 | `component-runtime/release` | `maintenance/*`, `master`, `main` | `ci/Jenkinsfile-release` | Started by hand with `ACTION` = `GA` (only on `master`) or `MAINTENANCE` (only on `maintenance/...`); try `DRY_RUN=true` first. Debug copy: `__TESTS__/jenkins-debug/component-runtime/release` |
 | `component-runtime/trivy-scan` | `master` | `ci/Jenkinsfile-trivy` | Flux cron, Sun–Fri 01:30 |
 | `component-runtime/TCOMP-api-test` | all branches and PRs | `talend-component-maven-plugin/src/it/web/.jenkins/Jenkinsfile` | Check `QA/TCOMP-api-test/pr-head`; see § CI: TCOMP-api-test |

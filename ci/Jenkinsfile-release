@@ -15,14 +15,6 @@
  */
 
 // Credentials
-final def ossrhCredentials = usernamePassword(
-    credentialsId: 'ossrh-credentials',
-    usernameVariable: 'OSSRH_USER',
-    passwordVariable: 'OSSRH_PASS')
-final def nexusCredentials = usernamePassword(
-    credentialsId: 'nexus-artifact-zl-credentials',
-    usernameVariable: 'NEXUS_USER',
-    passwordVariable: 'NEXUS_PASS')
 final def githubPackagesCredentials = usernamePassword(
     credentialsId: 'github-packages-ci-runner-connectors-pat',
     usernameVariable: 'GITHUB_PACKAGES_LOGIN',
@@ -155,8 +147,7 @@ pipeline {
         name: 'NO_STAGING',
         defaultValue: false,
         description: '''Activate the no-staging profile.  
-                        Execute the release, but at the end of the release:perform step, 
-                        the artifacts are not publish on the NEXUS.  
+                        Execute the release, but the artifacts are not published on the GitHub Packages (maven.deploy.skip).  
                         EXPERT USER ONLY: to solve specials case eg: release ok but failure during docker publish.  
                         ''')
     booleanParam(
@@ -294,7 +285,6 @@ pipeline {
       steps {
         withCredentials([gitCredentials,
                          dockerCredentials,
-                         ossrhCredentials,
                          jiraCredentials,
                          gpgCredentials]) {
           script {
@@ -405,8 +395,7 @@ pipeline {
 
     stage('Maven release prepare') {
       steps {
-        withCredentials([nexusCredentials,
-                         ossrhCredentials,
+        withCredentials([githubPackagesCredentials,
                          gpgCredentials]) {
           script {
             echo "Maven prepare release $releaseVersion (next-dev: $nextVersion; tag: $tagName)"
@@ -447,8 +436,7 @@ pipeline {
         expression { !params.DRY_RUN }
       }
       steps {
-        withCredentials([nexusCredentials,
-                         ossrhCredentials,
+        withCredentials([githubPackagesCredentials,
                          jiraCredentials,
                          gpgCredentials]) {
 
@@ -465,9 +453,7 @@ pipeline {
         expression { params.RELEASE_STUDIO_MODULES && !params.DRY_RUN }
       }
       steps {
-        withCredentials([nexusCredentials,
-                         githubPackagesCredentials,
-                         ossrhCredentials,
+        withCredentials([githubPackagesCredentials,
                          jiraCredentials,
                          gpgCredentials]) {
 
@@ -487,8 +473,7 @@ pipeline {
       }
       steps {
         withCredentials([gitCredentials,
-                         nexusCredentials,
-                         ossrhCredentials,
+                         githubPackagesCredentials,
                          dockerCredentials]) {
           script {
             echo "Docker image creation from branch $branchName with tag: $tagName on version $releaseVersion"
@@ -505,8 +490,8 @@ pipeline {
     stage('Prepare next iteration') {
       steps {
         withCredentials([gitCredentials,
-                         nexusCredentials,
-                         ossrhCredentials]) {
+                         githubPackagesCredentials,
+                         dockerCredentials]) {
           script {
             echo "Prepare next iteration on $branchName"
             // Under DRY_RUN, the final git push is simulated with "--dry-run" (see script).
@@ -524,8 +509,7 @@ pipeline {
       }
       steps {
         withCredentials([gitCredentials,
-                         nexusCredentials,
-                         ossrhCredentials]) {
+                         githubPackagesCredentials]) {
           script {
             echo "Creating a new branch named $maintenanceBranch with version $maintenanceVersion"
             // Under DRY_RUN, the final git push is simulated with "--dry-run" (see script).

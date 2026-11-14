@@ -91,14 +91,15 @@
 
   <profiles>
     <profile>
+      <id>release</id>
+      <!-- the studio modules are released apart (release-zl, release-3.1-perform-studio.sh), not by release:perform -->
+      <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+      </properties>
+    </profile>
+    <profile>
       <id>release-zl</id>
-      <!-- temporary workaround we will publish Studio related artifacts inside private repo -->
-      <distributionManagement>
-        <repository>
-          <id>talend_nexus_deployment</id>
-          <url>https://artifacts-zl.talend.com/nexus/content/repositories/releases/</url>
-        </repository>
-      </distributionManagement>
+      <!-- Studio related artifacts are published on the packages of this repository (root distributionManagement) -->
       <build>
         <plugins>
           <plugin>

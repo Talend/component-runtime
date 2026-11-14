@@ -15,10 +15,14 @@
  */
 
 // Credentials
-final def nexusCredentials = usernamePassword(
-    credentialsId: 'nexus-artifact-zl-credentials',
-    usernameVariable: 'NEXUS_USER',
-    passwordVariable: 'NEXUS_PASSWORD')
+final def githubPackagesCredentials = usernamePassword(
+    credentialsId: 'github-packages-ci-runner-connectors-pat',
+    usernameVariable: 'GITHUB_PACKAGES_LOGIN',
+    passwordVariable: 'GITHUB_PACKAGES_TOKEN')
+final def dockerCredentials = usernamePassword(
+    credentialsId: 'artifactory-datapwn-credentials',
+    usernameVariable: 'DOCKER_USER',
+    passwordVariable: 'DOCKER_PASS')
 
 final String repository = 'component-runtime'
 
@@ -94,7 +98,7 @@ pipeline {
 
     stage('Build Project') {
       steps {
-        withCredentials([nexusCredentials]) {
+        withCredentials([dockerCredentials, githubPackagesCredentials]) {
           script {
             sh 'bash .jenkins/scripts/trivy_build_tck.sh'
           }
@@ -105,7 +109,7 @@ pipeline {
     stage('Security Scan with Trivy') {
       steps {
         script {
-          // Trivy's pom resolver ignores MAVEN_ARGS/-s and only reads ~/.m2/settings.xml (Nexus mirror)
+          // Trivy's pom resolver ignores MAVEN_ARGS/-s and only reads ~/.m2/settings.xml (Artifactory mirror)
           sh '''
             mkdir -p "${HOME}/.m2"
             cp "${WORKSPACE}/.jenkins/settings.xml" "${HOME}/.m2/settings.xml"
