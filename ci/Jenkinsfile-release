@@ -148,6 +148,13 @@ pipeline {
                         EXPERT USER ONLY: to solve specials case eg: release ok but it fails for the Studio modules.  
                         ''')
     booleanParam(
+        name: 'NO_STAGING',
+        defaultValue: false,
+        description: '''Activate the no-staging profile.  
+                        Execute the release, but the artifacts are not published on the GitHub Packages (maven.deploy.skip).  
+                        EXPERT USER ONLY: to solve specials case eg: release ok but failure during docker publish.  
+                        ''')
+    booleanParam(
         name: 'NO_DOCKER',
         defaultValue: false,
         description: '''Skip the docker stage.  
@@ -232,6 +239,7 @@ pipeline {
         script {
           println "Create assemblyExtraBuildParams from user provided parameters and job option"
           extraBuildParams = assemblyExtraBuildParams(params.FAKE_RELEASE as Boolean,
+                                                      params.NO_STAGING as Boolean,
                                                       params.DRY_RUN as Boolean)
         }
 
@@ -541,11 +549,12 @@ pipeline {
  * Assembly all needed items to put inside extraBuildParams
  *
  * @param Boolean fakeRelease
+ * @param Boolean noStaging
  * @param Boolean dryRun
  *
  * @return extraBuildParams as a string ready for mvn cmd
  */
-private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean dryRun) {
+private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean noStaging, Boolean dryRun) {
   String extraBuildParams
 
   println 'Processing extraBuildParams'
@@ -559,6 +568,11 @@ private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean dryRun) {
   if (fakeRelease || dryRun) {
     // Overwrite the git repository, in order not to write in "talend/component-runtime"
     buildParamsAsArray.add("--define scm.repository=$params.FAKE_REPOSITORY")
+  }
+
+  // Manage no-staging parameter
+  if (noStaging || dryRun) {
+    buildParamsAsArray.add("--activate-profiles no-staging")
   }
 
   println 'Construct final params content'

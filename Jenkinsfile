@@ -477,10 +477,13 @@ pipeline {
       }
     }
     stage('Maven deploy - Nexus') {
-      // Deploy to internal Nexus on master/maintenance builds so that
+      // Deploy to internal Nexus on master/maintenance builds (and dev branches with MAVEN_DEPLOY, qualified version) so that
       // connectors-se Jenkins agents can resolve SNAPSHOT dependencies as soon as possible.
       when {
-        expression { stdBranch_buildOnly }
+        anyOf {
+          expression { stdBranch_buildOnly }
+          expression { devBranch_mavenDeploy }
+        }
       }
       steps {
         withCredentials([nexusCredentials, githubPackagesCredentials, dockerCredentials]) {

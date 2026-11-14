@@ -25,9 +25,9 @@ Add the required credentials to your Maven `settings.xml` file for the release. 
             https://maven.apache.org/xsd/settings-1.0.0.xsd">
   <servers>
     <server>
-      <id>ossrh</id>
-      <username>${env.OSSRH_USER}</username>
-      <password>${env.OSSRH_PASS}</password>
+      <id>github_packages_release</id>
+      <username>${env.GITHUB_PACKAGES_LOGIN}</username>
+      <password>${env.GITHUB_PACKAGES_TOKEN}</password>
     </server>
     <server>
       <id>github</id>
@@ -75,8 +75,7 @@ Add the required credentials to your Maven `settings.xml` file for the release. 
 
 NOTE: All the environment variables should be either set in your environment or hardcoded inline. It is highly recommended to use Maven encryption: https://maven.apache.org/guides/mini/guide-encryption.html.
 
-1. The OSSH variables are your Sonatype OSS repository credentials with the permissions to deploy on org.talend.
-If you don't have them already, you can ask for them at https://issues.sonatype.org/projects/OSSRH using your Talend address.
+1. The GITHUB_PACKAGES variables are the credentials of a GitHub account (token with `write:packages`) allowed to publish the packages of the `Talend/component-runtime` repository. Releases are no more published on Sonatype/Maven Central.
 2. The GitHub variables are your GitHub account credentials. they are mainly used to update the documentation.
 3. The JIRA variables are your Talend account credentials with read permissions on https://jira.talendforge.org/projects/TCOMP/.
 4. The Blackduck configuration is used for security scans.

@@ -1895,6 +1895,13 @@
       </build>
     </profile>
     <profile>
+      <id>no-staging</id>
+      <!-- release without publishing anything (also applied to the forked release:perform build) -->
+      <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+      </properties>
+    </profile>
+    <profile>
       <id>java8</id>
       <activation>
         <jdk>1.8</jdk>

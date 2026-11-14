@@ -27,11 +27,11 @@ main() {
   local release_profiles="release,gpg-keyring,gpg2"
 
   # Release artifacts are published on the packages of this repository (QTDI-3791), see the release profile.
-  # Studio modules are released by release-3.1-perform-studio.sh and component-runtime-di is not deployable (system scope).
+  # Studio modules are released by release-3.1-perform-studio.sh (their deploy is skipped by the release profile).
   mvn release:perform \
     --batch-mode \
     --errors \
-    --define arguments="-DskipTests -DskipITs -Dinvoker.skip=true -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip --projects !:component-studio,!:component-runtime-di --fail-at-end" \
+    --define arguments="-DskipTests -DskipITs -Dinvoker.skip=true -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip" \
     --settings .jenkins/settings.xml \
     --activate-profiles "$release_profiles" \
     "${extraBuildParams[@]}"
