@@ -226,6 +226,20 @@ _Discovered: QTDI-3656, 2026-10-27_
 `images/component-starter-server-image`, `reporting`) — bumping it in one place remediates all
 consumers simultaneously; no per-module edit is ever needed for a CXF version bump/CVE fix.
 
+### Handling npm CVEs (frontend modules)
+
+[2026-11-16 | QTDI-3718] Procedure for the Dependabot npm alerts (frontends of `component-tools-webapp`,
+`component-starter-server`, `documentation`, `component-tools`):
+
+1. Edit the dependency versions in `src/main/frontend/package-template.json` when it exists (Maven copies it over
+   `package.json` at `initialize`); otherwise edit `package.json` directly.
+2. Run a local `mvn package` on the module: it regenerates `package.json` and `package-lock.json`.
+3. In the module's frontend folder, run `npm audit` to check the CVEs are fixed. Never run `npm audit fix`.
+4. Pin versions with the caret operator (`^x.y.z`) in general.
+5. Zephyr: create a test cycle named `<ISSUE> - <issue summary>` (e.g. `QTDI-3430 - [TCK] NPM Security updates 1.26.10`),
+   linked to the Jira issue, containing the npm non-regression test cases: `QTDI-T6889` (starter-toolkit generated
+   project build), `QTDI-T13588` (web tester), `QTDI-T13591` (CVEs vs Jenkins trivy scan).
+
 ---
 
 ## CI — Jenkins jobs
