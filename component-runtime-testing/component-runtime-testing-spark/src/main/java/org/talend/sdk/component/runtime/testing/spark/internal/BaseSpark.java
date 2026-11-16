@@ -268,10 +268,12 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
                     .listFiles((dir, name) -> name.startsWith(prefix) && !name.equals(prefix + log4j2Version + ".jar"));
             if (staleJars != null) {
                 for (final File jar : staleJars) {
-                    LOGGER.info("Removing stale log4j2 jar: " + jar.getName());
-                    if (!jar.delete() && jar.exists()) {
+                    LOGGER.info("Removing stale log4j2 jar: {}", jar.getName());
+                    try {
+                        Files.delete(jar.toPath());
+                    } catch (final IOException e) {
                         final String message = "Could not remove stale log4j2 jar: " + jar.getAbsolutePath();
-                        LOGGER.error(message);
+                        LOGGER.error(message, e);
                         fail(message);
                     }
                 }
