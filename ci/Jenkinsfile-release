@@ -138,12 +138,6 @@ pipeline {
                 text-align: center; font-size: 35px !important; font-weight : bold; """)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     booleanParam(
-        name: 'RELEASE_STUDIO_MODULES',
-        defaultValue: true,
-        description: '''Activate release of studio modules.  
-                        EXPERT USER ONLY: to solve specials case eg: release ok but it fails for the Studio modules.  
-                        ''')
-    booleanParam(
         name: 'NO_STAGING',
         defaultValue: false,
         description: '''Activate the no-staging profile.  
@@ -170,7 +164,7 @@ pipeline {
                         CONSEQUENCES:
                         - `release:prepare` runs with `-DdryRun=true`: poms are rewritten and validated locally only.
                         - Nothing is committed, tagged or pushed to git (real repo or fork).
-                        - The perform and studio modules stages are skipped (they need a real, tagged
+                        - The perform stage is skipped (it needs a real, tagged
                         `release:prepare` output to run against).
                         - The docker, next iteration and maintenance branch stages still run, but in mock
                         mode: the docker image is only built to a local tar (never pushed), and every
@@ -443,25 +437,6 @@ pipeline {
           script {
             echo "Perform release"
             sh "bash .jenkins/scripts/release/release-3-perform.sh $extraBuildParams"
-          }
-        }
-      }
-    }
-
-    stage('Release studio modules') {
-      when {
-        expression { params.RELEASE_STUDIO_MODULES && !params.DRY_RUN }
-      }
-      steps {
-        withCredentials([githubPackagesCredentials,
-                         jiraCredentials,
-                         gpgCredentials]) {
-
-          script {
-            echo "Perform release"
-            sh "bash .jenkins/scripts/release/release-3.1-perform-studio.sh $releaseVersion \
-                                                                            $nextVersion \
-                                                                            $extraBuildParams"
           }
         }
       }

@@ -165,9 +165,8 @@ regular dependencies, not plugins); `UiSpecGeneratorMojoTest` covers the isolati
 Sonatype/Maven Central and the internal Nexus are no longer used. The root `distributionManagement` uses the
 single server id `github_packages`: snapshots/qualified versions go to the `global-artifacts` GitHub Packages
 (`<snapshotRepository>`), release versions go to the packages of this repository (`<repository>`). Maven picks
-the target from the version, so no profile is needed. The studio modules are deployed by
-`release-3.1-perform-studio.sh` (`release-zl` profile); `release:perform` skips them through the `release`
-profile of `component-studio/pom.xml`. The `release` profile also attaches sources/javadoc and signs the
+the target from the version, so no profile is needed. The studio modules are released like
+any other module (no `system` scope restriction anymore). The `release` profile also attaches sources/javadoc and signs the
 artifacts (`gpg2` + the `gpg-keyring` settings profile).
 
 ### `stdBranch_buildOnly` — master/maintenance build guard
