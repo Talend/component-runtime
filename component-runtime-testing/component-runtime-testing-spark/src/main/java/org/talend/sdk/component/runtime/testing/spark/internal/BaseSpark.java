@@ -262,6 +262,21 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
                 });
 
         // Remove old/incompatible SLF4J bindings from Spark dependencies
+        // and the log4j2 jars brought by Spark when they do not match the version added above
+        Stream.of("log4j-api-", "log4j-core-", "log4j-slf4j-impl-").forEach(prefix -> {
+            final File[] staleJars = libFolder
+                    .listFiles((dir, name) -> name.startsWith(prefix) && !name.equals(prefix + log4j2Version + ".jar"));
+            if (staleJars != null) {
+                for (final File jar : staleJars) {
+                    LOGGER.info("Removing stale log4j2 jar: " + jar.getName());
+                    if (!jar.delete() && jar.exists()) {
+                        final String message = "Could not remove stale log4j2 jar: " + jar.getAbsolutePath();
+                        LOGGER.error(message);
+                        fail(message);
+                    }
+                }
+            }
+        });
         Stream.of("slf4j-log4j12", "log4j-1.2", "jul-to-slf4j", "log4j-slf4j2-impl")
                 .forEach(pattern -> {
                     final File[] conflictingJars = libFolder.listFiles((dir, name) -> name.contains(pattern));
