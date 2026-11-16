@@ -52,6 +52,12 @@
             <version>@it-component-version@</version>
             <classifier>component</classifier>
             <type>car</type>
+            <exclusions>
+              <exclusion>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+              </exclusion>
+            </exclusions>
           </dependency>
           <!-- shadows the CXF/servlet version used by the embedded server if the generator runs in the plugin classloader -->
           <dependency>

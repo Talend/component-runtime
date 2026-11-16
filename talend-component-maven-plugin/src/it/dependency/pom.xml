@@ -75,6 +75,12 @@
             <version>@it-component-version@</version>
             <classifier>component</classifier>
             <type>car</type>
+            <exclusions>
+              <exclusion>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+              </exclusion>
+            </exclusions>
           </dependency>
           <dependency>
             <groupId>org.talend.components</groupId>
