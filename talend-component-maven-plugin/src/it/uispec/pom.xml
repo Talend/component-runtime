@@ -52,6 +52,7 @@
             <version>@it-component-version@</version>
             <classifier>component</classifier>
             <type>car</type>
+            <!-- TODO QTDI-3642: once Talend/connectors#91 is released, move the IT component to a jdbc version whose pom uses hikari-cp, then remove this HikariCP exclusion. -->
             <exclusions>
               <exclusion>
                 <groupId>com.zaxxer</groupId>
