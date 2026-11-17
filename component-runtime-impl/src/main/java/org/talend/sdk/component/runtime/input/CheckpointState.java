@@ -15,11 +15,11 @@
  */
 package org.talend.sdk.component.runtime.input;
 
-import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.annotation.JsonbProperty;
-import javax.json.bind.spi.JsonbProvider;
+
+import org.talend.sdk.component.runtime.record.SharedJsonProviders;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,7 +32,7 @@ public class CheckpointState {
 
     public static final String VERSION_KEY = "__version";
 
-    private static final Jsonb JSONB = JsonbProvider.provider().create().build();
+    private static final Jsonb JSONB = SharedJsonProviders.jsonbProvider().create().build();
 
     @JsonbProperty(VERSION_KEY)
     private int version;
@@ -40,10 +40,13 @@ public class CheckpointState {
     private Object state;
 
     public JsonObject toJson() {
-        return Json.createObjectBuilder()
-                .add(CHECKPOINT_KEY, Json.createObjectBuilder(JSONB.fromJson(JSONB.toJson(state), JsonObject.class))
-                        .add(VERSION_KEY, version)
-                        .build())
+        return SharedJsonProviders.jsonProvider()
+                .createObjectBuilder()
+                .add(CHECKPOINT_KEY,
+                        SharedJsonProviders.jsonProvider()
+                                .createObjectBuilder(JSONB.fromJson(JSONB.toJson(state), JsonObject.class))
+                                .add(VERSION_KEY, version)
+                                .build())
                 .build();
     }
 }

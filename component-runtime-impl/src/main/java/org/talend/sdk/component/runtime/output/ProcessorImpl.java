@@ -42,10 +42,8 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 import javax.json.bind.config.BinaryDataStrategy;
 import javax.json.spi.JsonProvider;
@@ -62,6 +60,7 @@ import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.LifecycleImpl;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.record.RecordConverters;
+import org.talend.sdk.component.runtime.record.SharedJsonProviders;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
 
@@ -202,7 +201,11 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
                 jsonb = ContainerFinder.Instance.get().find(plugin()).findService(Jsonb.class);
             }
             if (jsonb == null) { // for tests mainly
-                jsonb = JsonbBuilder.create(new JsonbConfig().withBinaryDataStrategy(BinaryDataStrategy.BASE_64));
+                jsonb = SharedJsonProviders
+                        .jsonbProvider()
+                        .create()
+                        .withConfig(new JsonbConfig().withBinaryDataStrategy(BinaryDataStrategy.BASE_64))
+                        .build();
             }
         }
         return jsonb;
@@ -235,7 +238,7 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
                         ContainerFinder.Instance.get().find(plugin()).findService(JsonBuilderFactory.class);
             }
             if (jsonBuilderFactory == null) {
-                jsonBuilderFactory = Json.createBuilderFactory(emptyMap());
+                jsonBuilderFactory = SharedJsonProviders.jsonProvider().createBuilderFactory(emptyMap());
             }
         }
         return jsonBuilderFactory;

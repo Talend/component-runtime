@@ -183,6 +183,7 @@ import org.talend.sdk.component.runtime.manager.xbean.NestedJarArchive;
 import org.talend.sdk.component.runtime.manager.xbean.registry.EnrichedPropertyEditorRegistry;
 import org.talend.sdk.component.runtime.output.ProcessorImpl;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
+import org.talend.sdk.component.runtime.record.SharedJsonProviders;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
 import org.talend.sdk.component.runtime.standalone.DriverRunnerImpl;
 import org.talend.sdk.component.runtime.visitor.ModelListener;
@@ -545,7 +546,8 @@ public class ComponentManager implements AutoCloseable {
         try {
             return new org.apache.johnzon.jsonb.JohnzonProvider();
         } catch (final RuntimeException re) {
-            return JsonbProvider.provider();
+            log.debug("Johnzon JSON-B provider not usable, using the shared one", re);
+            return SharedJsonProviders.jsonbProvider();
         }
     }
 
@@ -553,7 +555,8 @@ public class ComponentManager implements AutoCloseable {
         try {
             return new org.apache.johnzon.core.JsonProviderImpl();
         } catch (final RuntimeException re) {
-            return JsonProvider.provider();
+            log.debug("Johnzon JSON-P provider not usable, using the shared one", re);
+            return SharedJsonProviders.jsonProvider();
         }
     }
 

@@ -250,6 +250,12 @@ No known repo-specific exceptions to the shared [coding-rules.md](https://github
 
 ---
 
+## JSON-P / JSON-B providers
+
+[2026-10-12 | QTDI-3029] Never initialize a global/shared singleton (JSON-P/JSON-B providers, ServiceLoader-based services) via a TCCL lookup from code that can first run inside an isolated container. Resolve it with the framework classloader as TCCL during init (see `SharedJsonProviders`), otherwise the first caller binds the singleton to that container's implementation.
+
+[2026-10-12 | QTDI-3029] `JsonProvider.provider()`, `JsonbProvider.provider()`, `Json.create*` and `JsonbBuilder.create()` create a new ServiceLoader on every call and cause thread locks under heavy parallel load. In framework-internal code without container context, use `SharedJsonProviders` instead.
+
 ## CI: TCOMP-api-test
 
 [2026-11-05 | QTDI-3757] The `QA/TCOMP-api-test/pr-head` check comes from the Jenkins multibranch job `TCOMP-api-test`, which runs `talend-component-maven-plugin/src/it/web/.jenkins/Jenkinsfile` (API Tester tenant via `apitester-run.sh`). It is independent of the Maven build and invoker ITs, so failures there (e.g. the QAPI-3138 `/license` change) are fixed in the Jenkinsfile, not in Maven. API tests now run only on master or with `RUN_API_TESTS=true`.
