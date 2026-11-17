@@ -42,7 +42,8 @@ main() {
   git checkout "${branchName}"
 
   # "|| true" is here to avoid blocking the jenkins pipeline in case of failure
-  mvn clean install --define skipTests \
+  mvn clean install --settings .jenkins/settings.xml \
+                    --define skipTests \
                     --define invoker.skip=true \
                     --define checkstyle.skip \
                     --define enforcer.skip=true \
