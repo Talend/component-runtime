@@ -11,7 +11,7 @@
     <title>Talend Component Kit Release Process :: Talend Component Kit Developer Reference Guide</title>
     <link rel="canonical" href="https://talend.github.io/component-runtime/main/latest/release-process.html">
     <meta name="generator" content="Antora 3.0.3">
-<meta name="date" content="2026-11-17T01:53:10.181Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<meta name="date" content="2026-11-17T11:41:27.172Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
@@ -532,9 +532,9 @@ Install GPG and import an existing key or generate a new one using <code>gpg --g
             https://maven.apache.org/xsd/settings-1.0.0.xsd"&gt;
   &lt;servers&gt;
     &lt;server&gt;
-      &lt;id&gt;ossrh&lt;/id&gt;
-      &lt;username&gt;${env.OSSRH_USER}&lt;/username&gt;
-      &lt;password&gt;${env.OSSRH_PASS}&lt;/password&gt;
+      &lt;id&gt;github_packages&lt;/id&gt;
+      &lt;username&gt;${env.GITHUB_PACKAGES_LOGIN}&lt;/username&gt;
+      &lt;password&gt;${env.GITHUB_PACKAGES_TOKEN}&lt;/password&gt;
     &lt;/server&gt;
     &lt;server&gt;
       &lt;id&gt;github&lt;/id&gt;
@@ -595,8 +595,7 @@ All the environment variables should be either set in your environment or hardco
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>The OSSH variables are your Sonatype OSS repository credentials with the permissions to deploy on org.talend.
-If you don&#8217;t have them already, you can ask for them at <a href="https://issues.sonatype.org/projects/OSSRH" class="bare">issues.sonatype.org/projects/OSSRH</a> using your Talend address.</p>
+<p>The GITHUB_PACKAGES variables are the credentials of a GitHub account (token with <code>write:packages</code>) allowed to publish the packages of the <code>Talend/component-runtime</code> repository. Releases are no more published on Sonatype/Maven Central.</p>
 </li>
 <li>
 <p>The GitHub variables are your GitHub account credentials. they are mainly used to update the documentation.</p>
