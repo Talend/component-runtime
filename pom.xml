@@ -135,11 +135,17 @@
     <url>https://github.com/${scm.repository}</url>
   </scm>
   <distributionManagement>
-    <!-- looks like release and snapshot plugins are handled by sonatype plugin from the box -->
+    <!-- snapshots and qualified versions go on the global-artifacts packages, releases on the packages of this repository.
+         The packages of both can be read through the github_packages repository declared below. -->
+    <repository>
+      <id>github_packages</id>
+      <name>GitHub Packages component-runtime</name>
+      <url>https://maven.pkg.github.com/Talend/component-runtime</url>
+    </repository>
     <snapshotRepository>
-      <id>central.portal</id>
-      <name>Central Portal Snapshots</name>
-      <url>https://central.sonatype.com/repository/maven-snapshots</url>
+      <id>github_packages</id>
+      <name>GitHub Packages global-artifacts</name>
+      <url>https://maven.pkg.github.com/Talend/global-artifacts</url>
     </snapshotRepository>
   </distributionManagement>
 
@@ -236,7 +242,6 @@
     <apache-rat-plugin.version>0.16.1</apache-rat-plugin.version>
     <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
 
-    <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
     <clirr-plugin.version>2.8</clirr-plugin.version>
     <common-maven-plugin.version>1.0.7</common-maven-plugin.version>
     <download-plugin.version>2.0.0</download-plugin.version>
@@ -952,57 +957,25 @@
   <repositories>
     <repository>
       <releases>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
       </releases>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
-      <id>central.portal</id>
-      <name>Central Portal Snapshots</name>
-      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-    </repository>
-    <repository>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>TalendOpenSourceRelease</id>
-      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
-    </repository>
-    <repository>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <id>TalendOpenSourceSnapshot</id>
-      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
+      <id>github_packages</id>
+      <url>https://maven.pkg.github.com/Talend/global-artifacts</url>
     </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
       <releases>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
       </releases>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
-      <id>central.portal</id>
-      <name>Central Portal Snapshots</name>
-      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-    </pluginRepository>
-    <pluginRepository>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>TalendOpenSourceRelease</id>
-      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
+      <id>github_packages</id>
+      <url>https://maven.pkg.github.com/Talend/global-artifacts</url>
     </pluginRepository>
     <pluginRepository>
       <releases>
@@ -1350,11 +1323,6 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-gpg-plugin</artifactId>
           <version>${gpg-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.sonatype.central</groupId>
-          <artifactId>central-publishing-maven-plugin</artifactId>
-          <version>${central-publishing-maven-plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>com.github.eirslett</groupId>
@@ -1801,19 +1769,6 @@
 
   <profiles>
     <profile>
-      <id>private_repository</id>
-      <!--
-        This profile is used by the CI or for development branch deployment.
-        Its overwrite the snapshotRepository with a private one.
-      -->
-      <distributionManagement>
-        <snapshotRepository>
-          <id>talend.snapshots</id>
-          <url>https://artifacts-zl.talend.com/nexus/content/repositories/snapshots</url>
-        </snapshotRepository>
-      </distributionManagement>
-    </profile>
-    <profile>
       <id>gpg2</id>
       <build>
         <plugins>
@@ -1828,81 +1783,6 @@
       <id>release</id>
       <build>
         <plugins>
-          <plugin>
-            <groupId>org.sonatype.central</groupId>
-            <artifactId>central-publishing-maven-plugin</artifactId>
-            <extensions>true</extensions>
-            <configuration>
-              <publishingServerId>central.portal</publishingServerId>
-              <centralBaseUrl>https://central.sonatype.com</centralBaseUrl>
-              <failOnBuildFailure>true</failOnBuildFailure>
-              <!--                                                              -->
-              <!-- If "skipPublishing" worked per-artifact, we could use it.    -->
-              <!-- <skipPublishing>${artifact.deploy.disabled}</skipPublishing> -->
-              <!--                                                              -->
-              <!-- The entire "excludeArtifacts" configuration below could be   -->
-              <!-- removed if the behavior of "skipPublishing" changes in a     -->
-              <!-- future version of the plugin.                                -->
-              <excludeArtifacts>
-                <artifact>component-studio</artifact>
-                <artifact>component-runtime-di</artifact>
-              </excludeArtifacts>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-sources</id>
-                <goals>
-                  <goal>jar-no-fork</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-                <phase>verify</phase>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>snapshot</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.sonatype.central</groupId>
-            <artifactId>central-publishing-maven-plugin</artifactId>
-            <extensions>true</extensions>
-            <configuration>
-              <publishingServerId>central.portal</publishingServerId>
-              <centralBaseUrl>https://central.sonatype.com</centralBaseUrl>
-              <failOnBuildFailure>true</failOnBuildFailure>
-            </configuration>
-          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
@@ -1945,23 +1825,10 @@
     </profile>
     <profile>
       <id>no-staging</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.sonatype.central</groupId>
-            <artifactId>central-publishing-maven-plugin</artifactId>
-            <extensions>true</extensions>
-            <configuration>
-              <!-- Without publishingServerId, the plugin defaults to server id "central" which is not
-                   declared in .jenkins/settings.xml, causing a NullPointerException when this profile
-                   is the only one activating the plugin's extensions (e.g. the standalone studio
-                   modules release, activated only with "release-zl" + "no-staging"). -->
-              <publishingServerId>central.portal</publishingServerId>
-              <skipPublishing>true</skipPublishing>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
+      <!-- release without publishing anything (also applied to the forked release:perform build) -->
+      <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+      </properties>
     </profile>
     <profile>
       <id>java8</id>
