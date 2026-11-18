@@ -701,14 +701,14 @@ class AvroRecordTest {
                 .type(micros)
                 .noDefault()
                 .endRecord();
-        final GenericData.Record record = new GenericData.Record(schema);
-        record.put("millis", instant);
-        record.put("micros", instant);
+        final GenericData.Record avroGeneric = new GenericData.Record(schema);
+        avroGeneric.put("millis", instant);
+        avroGeneric.put("micros", instant);
 
-        final AvroRecord avroRecord = new AvroRecord(record);
+        final AvroRecord avroRecord = new AvroRecord(avroGeneric);
 
-        assertEquals(instant.toEpochMilli(), record.get("millis"));
-        assertEquals(1_714_979_289_123_456L, record.get("micros"));
+        assertEquals(instant.toEpochMilli(), avroGeneric.get("millis"));
+        assertEquals(1_714_979_289_123_456L, avroGeneric.get("micros"));
         assertEquals(instant.toEpochMilli(), avroRecord.getDateTime("millis").toInstant().toEpochMilli());
     }
 

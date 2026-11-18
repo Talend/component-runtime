@@ -19,13 +19,13 @@ import org.apache.maven.lifecycle.internal.LifecycleDependencyResolver
 import org.apache.maven.model.Dependency
 import org.apache.maven.project.MavenProject
 
-def createDependenciesDescriptor = { rootDependency, output ->
+def createDependenciesDescriptor = { rootDependencies, output ->
     def dependenciesResolver = session.container.lookup(LifecycleDependencyResolver)
 
     def tmpProject = new MavenProject(artifactId: 'temp', groupId: 'temp', version: 'temp', packaging: 'pom')
     tmpProject.artifact = new DefaultArtifact(project.groupId, project.artifactId, project.version, 'compile',
             'pom', null, new DefaultArtifactHandler())
-    tmpProject.dependencies = [rootDependency] as List
+    tmpProject.dependencies = rootDependencies as List
     tmpProject.remoteArtifactRepositories = project.remoteArtifactRepositories
 
     def scopes = ['compile', 'runtime']
@@ -39,9 +39,14 @@ def createDependenciesDescriptor = { rootDependency, output ->
     out.close()
 }
 
+def avroExtension = { new Dependency(
+        groupId: 'org.apache.beam', artifactId: 'beam-sdks-java-extensions-avro', version: project.properties['beam.version'], scope: 'compile') }
+
 ['beam-runners-direct-java', 'beam-runners-spark-3'].each { artifactId ->
-    createDependenciesDescriptor(new Dependency(
+    // the avro extension is not brought transitively by all runners (spark only), AvroCoder is needed by component-runtime-beam
+    createDependenciesDescriptor([new Dependency(
             groupId: 'org.apache.beam', artifactId: artifactId, version: project.properties['beam.version'], scope: 'compile'),
+            avroExtension()],
             new File(project.build.outputDirectory, "TALEND-INF/beam-runner_${artifactId}.dependencies"))
 }
 
