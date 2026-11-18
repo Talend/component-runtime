@@ -28,4 +28,12 @@ class IndicesTest {
         assertTrue(Indices.BEAM_SDKS_JAVA_CORE.getClasses().anyMatch("org.apache.beam.sdk.coders"::equals));
         assertFalse(Indices.BEAM_SDKS_JAVA_CORE.getClasses().anyMatch("org.talend.Foo"::equals));
     }
+
+    @Test
+    void avroExtensionIsIndexed() {
+        assertTrue(Indices.BEAM_SDKS_JAVA_EXTENSIONS_AVRO.isAvailable());
+        assertTrue(Indices.BEAM_SDKS_JAVA_EXTENSIONS_AVRO
+                .getClasses()
+                .anyMatch("org.apache.beam.sdk.extensions.avro.coders"::equals));
+    }
 }
