@@ -62,7 +62,13 @@ public abstract class BeamEnvironment extends ClassLoaderEnvironment {
 
     @Override
     protected MavenDependency[] rootDependencies() {
-        return new MavenDependency[] { getRunnerDependency(), getComponentRuntimeBeamDependency() };
+        return new MavenDependency[] { getRunnerDependency(), getAvroExtensionDependency(),
+                getComponentRuntimeBeamDependency() };
+    }
+
+    // AvroCoder is no more in beam-sdks-java-core and only the spark runner brings the extension transitively
+    protected MavenDependency getAvroExtensionDependency() {
+        return createDependency("org.apache.beam:beam-sdks-java-extensions-avro:jar:" + beamVersion, RUNTIME, false);
     }
 
     protected MavenDependency getRunnerDependency() {

@@ -683,6 +683,36 @@ class AvroRecordTest {
     }
 
     @Test
+    void instantTimestampsAreNormalizedToEpoch() {
+        final Instant instant = Instant.parse("2024-05-06T07:08:09.123456Z");
+        final org.apache.avro.Schema millis = LogicalTypes
+                .timestampMillis()
+                .addToSchema(org.apache.avro.Schema.create(Type.LONG));
+        final org.apache.avro.Schema micros = LogicalTypes
+                .timestampMicros()
+                .addToSchema(org.apache.avro.Schema.create(Type.LONG));
+        final org.apache.avro.Schema schema = org.apache.avro.SchemaBuilder
+                .record("instants")
+                .fields()
+                .name("millis")
+                .type(millis)
+                .noDefault()
+                .name("micros")
+                .type(micros)
+                .noDefault()
+                .endRecord();
+        final GenericData.Record record = new GenericData.Record(schema);
+        record.put("millis", instant);
+        record.put("micros", instant);
+
+        final AvroRecord avroRecord = new AvroRecord(record);
+
+        assertEquals(instant.toEpochMilli(), record.get("millis"));
+        assertEquals(1_714_979_289_123_456L, record.get("micros"));
+        assertEquals(instant.toEpochMilli(), avroRecord.getDateTime("millis").toInstant().toEpochMilli());
+    }
+
+    @Test
     void pipelineDecimalFieldsWithAvroRecord() throws Exception {
         final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply(null);
 
