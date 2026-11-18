@@ -959,13 +959,6 @@
       <releases>
         <enabled>true</enabled>
       </releases>
-      <id>oss.releases</id>
-      <url>https://oss.sonatype.org/content/repositories/releases</url>
-    </repository>
-    <repository>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
@@ -974,13 +967,6 @@
     </repository>
   </repositories>
   <pluginRepositories>
-    <pluginRepository>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <id>oss.releases</id>
-      <url>https://oss.sonatype.org/content/repositories/releases</url>
-    </pluginRepository>
     <pluginRepository>
       <releases>
         <enabled>true</enabled>
