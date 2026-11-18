@@ -70,6 +70,22 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
                 .filter(f -> delegate.get(f.pos()) instanceof org.joda.time.DateTime)
                 .forEach(f -> delegate
                         .put(f.pos(), ((org.joda.time.DateTime) delegate.get(f.pos())).getMillis()));
+        // Beam avro extension coder decodes timestamp logical types as java.time.Instant, avro generic data can't hash
+        // it
+        delegate
+                .getSchema()
+                .getFields()
+                .stream()
+                .filter(f -> delegate.get(f.pos()) instanceof Instant)
+                .forEach(f -> delegate.put(f.pos(), instantToLong(f.schema(), (Instant) delegate.get(f.pos()))));
+    }
+
+    private static long instantToLong(final org.apache.avro.Schema fieldSchema, final Instant instant) {
+        final org.apache.avro.LogicalType logicalType = unwrapUnion(fieldSchema).getLogicalType();
+        if (logicalType instanceof LogicalTypes.TimestampMicros) {
+            return instant.getEpochSecond() * 1_000_000L + instant.getNano() / 1_000L;
+        }
+        return instant.toEpochMilli();
     }
 
     public AvroRecord(final Record record) {

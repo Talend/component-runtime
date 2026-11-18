@@ -32,7 +32,6 @@ import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 
-import org.apache.beam.sdk.annotations.Experimental;
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.transforms.PTransform;
@@ -97,7 +96,6 @@ public class JdbcSource extends PTransform<PBegin, PCollection<JsonObject>> {
 
         @Override
         @Deprecated
-        @Experimental(Experimental.Kind.CODER_CONTEXT)
         public void encode(final JsonObject value, final OutputStream outStream, final Context context)
                 throws IOException {
             delegate().encode(value, outStream, context);
@@ -110,7 +108,6 @@ public class JdbcSource extends PTransform<PBegin, PCollection<JsonObject>> {
 
         @Override
         @Deprecated
-        @Experimental(Experimental.Kind.CODER_CONTEXT)
         public JsonObject decode(final InputStream inStream, final Context context) throws IOException {
             return delegate().decode(inStream, context);
         }
@@ -147,7 +144,6 @@ public class JdbcSource extends PTransform<PBegin, PCollection<JsonObject>> {
         }
 
         @Override
-        @Experimental(Experimental.Kind.CODER_TYPE_ENCODING)
         public TypeDescriptor<JsonObject> getEncodedTypeDescriptor() {
             return delegate().getEncodedTypeDescriptor();
         }

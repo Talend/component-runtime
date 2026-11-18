@@ -25,7 +25,7 @@ class IndicesTest {
     @Test
     void sanityCheck() {
         assertTrue(Indices.BEAM_SDKS_JAVA_CORE.isAvailable());
-        assertTrue(Indices.BEAM_SDKS_JAVA_CORE.getClasses().anyMatch("avro.shaded.com.google.common.base"::equals));
+        assertTrue(Indices.BEAM_SDKS_JAVA_CORE.getClasses().anyMatch("org.apache.beam.sdk.coders"::equals));
         assertFalse(Indices.BEAM_SDKS_JAVA_CORE.getClasses().anyMatch("org.talend.Foo"::equals));
     }
 }
