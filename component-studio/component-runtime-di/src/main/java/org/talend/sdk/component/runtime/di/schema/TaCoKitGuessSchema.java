@@ -44,7 +44,6 @@ import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
 
 import org.talend.sdk.component.api.exception.ComponentException;
 import org.talend.sdk.component.api.exception.DiscoverSchemaException;
@@ -69,6 +68,7 @@ import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.output.OutputBranches;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
+import org.talend.sdk.component.runtime.record.SharedJsonProviders;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -164,7 +164,7 @@ public class TaCoKitGuessSchema {
     private DiscoverSchemaException handleException(final Exception e) throws Exception {
         log.error(ERROR_THROUGH_ACTION, e);
         final DiscoverSchemaException discoverSchemaException = transformException(e);
-        try (final Jsonb jsonb = JsonbBuilder.create()) {
+        try (final Jsonb jsonb = SharedJsonProviders.jsonbProvider().create().build()) {
             jsonb.toJson(discoverSchemaException, out);
         }
 
@@ -567,7 +567,7 @@ public class TaCoKitGuessSchema {
 
     public synchronized void close() {
         if (!columns.isEmpty()) {
-            try (final Jsonb jsonb = JsonbBuilder.create()) {
+            try (final Jsonb jsonb = SharedJsonProviders.jsonbProvider().create().build()) {
                 jsonb.toJson(columns.values(), out);
             } catch (final Exception e) {
                 throw new IllegalStateException(e);

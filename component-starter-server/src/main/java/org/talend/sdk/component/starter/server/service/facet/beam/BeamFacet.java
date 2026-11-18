@@ -211,9 +211,7 @@ public class BeamFacet implements FacetGenerator {
                         new Dependency("org.hamcrest", "hamcrest-all", "1.3", "test"),
                         new Dependency("org.apache.beam", "beam-runners-direct-java", versions.getBeam(), "test"),
                         // for avro
-                        new Dependency("org.codehaus.jackson", "jackson-core-asl", versions.getAvroJackson(), "test"),
-                        new Dependency("org.codehaus.jackson", "jackson-mapper-asl", versions.getAvroJackson(),
-                                "test"));
+                        new Dependency("org.codehaus.jackson", "jackson-core-asl", versions.getAvroJackson(), "test"));
     }
 
     @Override

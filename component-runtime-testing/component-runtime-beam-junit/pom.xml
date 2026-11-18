@@ -57,13 +57,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-mapper-asl</artifactId>
-      <version>${avro-jackson.version}</version>
-      <scope>test</scope>
-      <!-- skip CVE since this is an utility and it depends more on avro version -->
-    </dependency>
-    <dependency>
       <groupId>org.jboss.shrinkwrap.resolver</groupId>
       <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
       <scope>test</scope>

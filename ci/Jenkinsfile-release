@@ -15,22 +15,10 @@
  */
 
 // Credentials
-final def ossrhCredentials = usernamePassword(
-    credentialsId: 'ossrh-credentials',
-    usernameVariable: 'OSSRH_USER',
-    passwordVariable: 'OSSRH_PASS')
-final def nexusCredentials = usernamePassword(
-    credentialsId: 'nexus-artifact-zl-credentials',
-    usernameVariable: 'NEXUS_USER',
-    passwordVariable: 'NEXUS_PASS')
 final def githubPackagesCredentials = usernamePassword(
     credentialsId: 'github-packages-ci-runner-connectors-pat',
     usernameVariable: 'GITHUB_PACKAGES_LOGIN',
     passwordVariable: 'GITHUB_PACKAGES_TOKEN')
-final def jetbrainsCredentials = usernamePassword(
-    credentialsId: 'jetbrains-credentials',
-    usernameVariable: 'JETBRAINS_USER',
-    passwordVariable: 'JETBRAINS_PASS')
 final def jiraCredentials = usernamePassword(
     credentialsId: 'jira-credentials',
     usernameVariable: 'JIRA_USER',
@@ -150,17 +138,10 @@ pipeline {
                 text-align: center; font-size: 35px !important; font-weight : bold; """)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     booleanParam(
-        name: 'RELEASE_STUDIO_MODULES',
-        defaultValue: true,
-        description: '''Activate release of studio modules.  
-                        EXPERT USER ONLY: to solve specials case eg: release ok but it fails for the Studio modules.  
-                        ''')
-    booleanParam(
         name: 'NO_STAGING',
         defaultValue: false,
         description: '''Activate the no-staging profile.  
-                        Execute the release, but at the end of the release:perform step, 
-                        the artifacts are not publish on the NEXUS.  
+                        Execute the release, but the artifacts are not published on the GitHub Packages (maven.deploy.skip).  
                         EXPERT USER ONLY: to solve specials case eg: release ok but failure during docker publish.  
                         ''')
     booleanParam(
@@ -183,7 +164,7 @@ pipeline {
                         CONSEQUENCES:
                         - `release:prepare` runs with `-DdryRun=true`: poms are rewritten and validated locally only.
                         - Nothing is committed, tagged or pushed to git (real repo or fork).
-                        - The perform and studio modules stages are skipped (they need a real, tagged
+                        - The perform stage is skipped (it needs a real, tagged
                         `release:prepare` output to run against).
                         - The docker, next iteration and maintenance branch stages still run, but in mock
                         mode: the docker image is only built to a local tar (never pushed), and every
@@ -298,8 +279,6 @@ pipeline {
       steps {
         withCredentials([gitCredentials,
                          dockerCredentials,
-                         ossrhCredentials,
-                         jetbrainsCredentials,
                          jiraCredentials,
                          gpgCredentials]) {
           script {
@@ -410,8 +389,7 @@ pipeline {
 
     stage('Maven release prepare') {
       steps {
-        withCredentials([nexusCredentials,
-                         ossrhCredentials,
+        withCredentials([githubPackagesCredentials,
                          gpgCredentials]) {
           script {
             echo "Maven prepare release $releaseVersion (next-dev: $nextVersion; tag: $tagName)"
@@ -452,9 +430,7 @@ pipeline {
         expression { !params.DRY_RUN }
       }
       steps {
-        withCredentials([nexusCredentials,
-                         ossrhCredentials,
-                         jetbrainsCredentials,
+        withCredentials([githubPackagesCredentials,
                          jiraCredentials,
                          gpgCredentials]) {
 
@@ -466,35 +442,13 @@ pipeline {
       }
     }
 
-    stage('Release studio modules') {
-      when {
-        expression { params.RELEASE_STUDIO_MODULES && !params.DRY_RUN }
-      }
-      steps {
-        withCredentials([nexusCredentials,
-                         githubPackagesCredentials,
-                         ossrhCredentials,
-                         jiraCredentials,
-                         gpgCredentials]) {
-
-          script {
-            echo "Perform release"
-            sh "bash .jenkins/scripts/release/release-3.1-perform-studio.sh $releaseVersion \
-                                                                            $nextVersion \
-                                                                            $extraBuildParams"
-          }
-        }
-      }
-    }
-
     stage('Release Docker image') {
       when {
         expression { !params.NO_DOCKER }
       }
       steps {
         withCredentials([gitCredentials,
-                         nexusCredentials,
-                         ossrhCredentials,
+                         githubPackagesCredentials,
                          dockerCredentials]) {
           script {
             echo "Docker image creation from branch $branchName with tag: $tagName on version $releaseVersion"
@@ -511,8 +465,8 @@ pipeline {
     stage('Prepare next iteration') {
       steps {
         withCredentials([gitCredentials,
-                         nexusCredentials,
-                         ossrhCredentials]) {
+                         githubPackagesCredentials,
+                         dockerCredentials]) {
           script {
             echo "Prepare next iteration on $branchName"
             // Under DRY_RUN, the final git push is simulated with "--dry-run" (see script).
@@ -530,8 +484,7 @@ pipeline {
       }
       steps {
         withCredentials([gitCredentials,
-                         nexusCredentials,
-                         ossrhCredentials]) {
+                         githubPackagesCredentials]) {
           script {
             echo "Creating a new branch named $maintenanceBranch with version $maintenanceVersion"
             // Under DRY_RUN, the final git push is simulated with "--dry-run" (see script).

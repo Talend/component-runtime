@@ -28,6 +28,9 @@ spec:
       command: [ cat ]
       tty: true
       volumeMounts: [
+        # writable ~/.m2 so settings.xml can be copied for the Trivy scan
+        { name: jenkins-m2-temp,
+          mountPath: /home/jenkins/.m2 },
         { name: efs-jenkins-component-runtime-m2-rootless,
           mountPath: /home/jenkins/.m2/repository },
         { name: efs-jenkins-connectors-asdf-rootless,
@@ -46,6 +49,8 @@ spec:
         periodSeconds: 5
   ##
   volumes: # Persistent volumes stored under Amazon Elastic File System (efs) defined in flux
+    - name: jenkins-m2-temp
+      emptyDir: {}
     - name: efs-jenkins-component-runtime-m2-rootless
       persistentVolumeClaim:
         claimName: efs-jenkins-component-runtime-m2-rootless
