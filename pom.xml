@@ -135,8 +135,8 @@
     <url>https://github.com/${scm.repository}</url>
   </scm>
   <distributionManagement>
-    <!-- snapshots and qualified versions go on the global-artifacts packages, releases on the packages of this repository.
-         The packages of both can be read through the github_packages repository declared below. -->
+    <!-- QTDI-3872: releases, snapshots and qualified versions all go on the packages of this repository.
+         The github_packages repository declared below (global-artifacts) is only used to read dependencies. -->
     <repository>
       <id>github_packages</id>
       <name>GitHub Packages component-runtime</name>
@@ -144,8 +144,8 @@
     </repository>
     <snapshotRepository>
       <id>github_packages</id>
-      <name>GitHub Packages global-artifacts</name>
-      <url>https://maven.pkg.github.com/Talend/global-artifacts</url>
+      <name>GitHub Packages component-runtime</name>
+      <url>https://maven.pkg.github.com/Talend/component-runtime</url>
     </snapshotRepository>
   </distributionManagement>
 
