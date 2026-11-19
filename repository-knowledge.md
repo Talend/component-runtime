@@ -163,9 +163,11 @@ regular dependencies, not plugins); `UiSpecGeneratorMojoTest` covers the isolati
 ### Maven deploy targets (no more Sonatype, QTDI-3791)
 
 Sonatype/Maven Central and the internal Nexus are no longer used. The root `distributionManagement` uses the
-single server id `github_packages`: snapshots/qualified versions go to the `global-artifacts` GitHub Packages
-(`<snapshotRepository>`), release versions go to the packages of this repository (`<repository>`). Maven picks
-the target from the version, so no profile is needed. The studio modules are released like
+single server id `github_packages`: snapshots/qualified versions (`<snapshotRepository>`) and release versions
+(`<repository>`) all go to the GitHub Packages of this repository (`Talend/component-runtime`, QTDI-3872).
+Maven picks the section from the version, so no profile is needed. `global-artifacts` is only used to read
+dependencies (`<repositories>`); consumers of component-runtime snapshots/qualified versions must declare
+`https://maven.pkg.github.com/Talend/component-runtime` as a repository. The studio modules are released like
 any other module (no `system` scope restriction anymore). The `release` profile also attaches sources/javadoc and signs the
 artifacts (`gpg2` + the `gpg-keyring` settings profile).
 
