@@ -145,7 +145,7 @@ pipeline {
         description: '''
             Force MAVEN deploy stage for development branches. No effect on master and maintenance.
             INFO: master/maintenance branch deploys artefacts on GitHub Packages
-                  dev branches deploy qualified artefacts on GitHub Packages (global-artifacts)''')
+                  dev branches deploy qualified artefacts on GitHub Packages (component-runtime)''')
     booleanParam(
         name: 'DOCKER_PUSH',
         defaultValue: false,
@@ -442,7 +442,7 @@ pipeline {
       }
     }
     stage('Maven deploy - GitHub Packages') {
-      // Snapshots and qualified versions go on the global-artifacts packages (distributionManagement of the root pom)
+      // Snapshots and qualified versions go on the component-runtime packages (distributionManagement of the root pom)
       when {
         anyOf {
           expression { stdBranch_buildOnly }
@@ -460,7 +460,7 @@ pipeline {
             """.stripIndent()
         }
         script {
-          JenkinsStatusController.jobDescriptionAppend("Maven artefact deployed as ${finalVersion} on [GitHub Packages](https://github.com/orgs/Talend/packages)  ")
+          JenkinsStatusController.jobDescriptionAppend("Maven artefact deployed as ${finalVersion} on [GitHub Packages](https://github.com/Talend/component-runtime/packages)  ")
         }
       }
     }
