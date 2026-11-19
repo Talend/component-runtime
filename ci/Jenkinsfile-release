@@ -390,6 +390,7 @@ pipeline {
     stage('Maven release prepare') {
       steps {
         withCredentials([githubPackagesCredentials,
+                         dockerCredentials,
                          gpgCredentials]) {
           script {
             echo "Maven prepare release $releaseVersion (next-dev: $nextVersion; tag: $tagName)"
@@ -431,6 +432,7 @@ pipeline {
       }
       steps {
         withCredentials([githubPackagesCredentials,
+                         dockerCredentials,
                          jiraCredentials,
                          gpgCredentials]) {
 
@@ -484,7 +486,8 @@ pipeline {
       }
       steps {
         withCredentials([gitCredentials,
-                         githubPackagesCredentials]) {
+                         githubPackagesCredentials,
+                         dockerCredentials]) {
           script {
             echo "Creating a new branch named $maintenanceBranch with version $maintenanceVersion"
             // Under DRY_RUN, the final git push is simulated with "--dry-run" (see script).
