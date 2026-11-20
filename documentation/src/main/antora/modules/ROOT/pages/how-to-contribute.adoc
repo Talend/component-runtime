@@ -15,6 +15,25 @@ There are two ways to suggest modifications or new content. Both of the options 
 
 * Fork the https://github.com/talend/component-runtime[Runtime] repository of the *Talend Component Kit* project and edit .adoc files located under `documentation\src\main\antora\modules\ROOT\pages`. Make sure to follow the guidelines outlined in the current document, especially for large modifications or new content, to make sure it can properly be rendered. When done, create a pull request that will be assessed by the team in charge of the project.
 
+== Building the documentation locally
+
+The documentation is built by the `documentation` Maven module. Both modes below render the current state of the branch you have checked out, including uncommitted changes and the pages generated from the source code.
+
+* Full site, with the released versions of the version dropdown (the released versions are fetched from GitHub, so the network is required):
++
+[source,bash]
+----
+mvn clean install -pl documentation
+----
+* Fast build of the current version only, without the released versions:
++
+[source,bash]
+----
+mvn clean install -pl documentation -Pdoc-dev
+----
+
+If the other modules of the repository are not installed in your local Maven repository yet, add `-am` to the command. The site is generated in `documentation/target/documentation-<version>`.
+
 == General organization guidelines
 
 The documentation is made of:
