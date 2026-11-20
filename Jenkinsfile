@@ -195,7 +195,7 @@ pipeline {
     booleanParam(
         name: 'FORCE_DEPS_REPORT',
         defaultValue: false,
-        description: 'Force dependencies report stage for branches.')
+        description: 'Force the dependencies report stage. The stage is skipped by default.')
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     separator(name: "EXPERT_CONFIG",
@@ -545,10 +545,7 @@ pipeline {
     }
     stage('Deps report') {
       when {
-        anyOf {
-          expression { params.ACTION != 'RELEASE' && branch_name == 'master' }
-          expression { params.FORCE_DEPS_REPORT == true }
-        }
+        expression { params.FORCE_DEPS_REPORT == true }
       }
       steps {
         withCredentials([githubPackagesCredentials,
