@@ -216,6 +216,19 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
         }), false, exception);
     }
 
+    static void removeStaleLog4j2Jars(final File libFolder, final String log4j2Version) throws IOException {
+        for (final String prefix : asList("log4j-api-", "log4j-core-", "log4j-slf4j-impl-")) {
+            final File[] staleJars = libFolder
+                    .listFiles((dir, name) -> name.startsWith(prefix) && !name.equals(prefix + log4j2Version + ".jar"));
+            if (staleJars != null) {
+                for (final File jar : staleJars) {
+                    LOGGER.info("Removing stale log4j2 jar: {}", jar.getName());
+                    Files.delete(jar.toPath());
+                }
+            }
+        }
+    }
+
     private File buildSparkHome(final Version version) {
         final File sparkHome = new File(getRoot(), "spark/");
         Stream.of(version.libFolder(), "conf").map(n -> new File(sparkHome, n)).forEach(File::mkdirs);
@@ -262,6 +275,14 @@ public abstract class BaseSpark<T extends BaseSpark<?>> {
                 });
 
         // Remove old/incompatible SLF4J bindings from Spark dependencies
+        // and the log4j2 jars brought by Spark when they do not match the version added above
+        try {
+            removeStaleLog4j2Jars(libFolder, log4j2Version);
+        } catch (final IOException e) {
+            final String message = "Could not remove stale log4j2 jar: " + e.getMessage();
+            LOGGER.error(message, e);
+            fail(message);
+        }
         Stream.of("slf4j-log4j12", "log4j-1.2", "jul-to-slf4j", "log4j-slf4j2-impl")
                 .forEach(pattern -> {
                     final File[] conflictingJars = libFolder.listFiles((dir, name) -> name.contains(pattern));
