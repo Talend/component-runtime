@@ -23,6 +23,9 @@ import java.util.Properties;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.exception.ComponentException;
+import org.talend.sdk.component.api.exception.ComponentException.ErrorOrigin;
+import org.talend.sdk.component.api.exception.DiscoverSchemaException;
+import org.talend.sdk.component.api.exception.DiscoverSchemaException.HandleErrorWith;
 import org.talend.sdk.component.api.service.Action;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.completion.SuggestionValues;
@@ -56,16 +59,34 @@ public class CustomService implements Serializable {
 
     @Action("unknownException")
     public Map<String, String> generateUnknownException(final LocalConfiguration configuration) {
-        throw new ComponentException(ComponentException.ErrorOrigin.UNKNOWN, "unknown exception");
+        throw new ComponentException(ErrorOrigin.UNKNOWN, "unknown exception");
     }
 
     @Action("userException")
     public Map<String, String> generateUserException(final LocalConfiguration configuration) {
-        throw new ComponentException(ComponentException.ErrorOrigin.USER, "user exception");
+        throw new ComponentException(ErrorOrigin.USER, "user exception");
     }
 
     @Action("backendException")
     public Map<String, String> generateBackendException(final LocalConfiguration configuration) {
-        throw new ComponentException(ComponentException.ErrorOrigin.BACKEND, "backend exception");
+        throw new ComponentException(ErrorOrigin.BACKEND, "backend exception");
+    }
+
+    @Action("discoverSchemaExceptionRETRY")
+    public Map<String, String> generateDiscoverSchemaExceptionRetry(final LocalConfiguration configuration) {
+        throw new DiscoverSchemaException(
+                new ComponentException(ErrorOrigin.USER, "schema not found"), HandleErrorWith.RETRY);
+    }
+
+    @Action("discoverSchemaExceptionEXECUTE_MOCK_JOB")
+    public Map<String, String> generateDiscoverSchemaExceptionMock(final LocalConfiguration configuration) {
+        throw new DiscoverSchemaException(
+                new ComponentException(ErrorOrigin.USER, "schema not found"), HandleErrorWith.EXECUTE_MOCK_JOB);
+    }
+
+    @Action("discoverSchemaExceptionEXECUTE_LIFECYCLE")
+    public Map<String, String> generateDiscoverSchemaExceptionLifecycle(final LocalConfiguration configuration) {
+        throw new DiscoverSchemaException(
+                new ComponentException(ErrorOrigin.USER, "schema not found"), HandleErrorWith.EXECUTE_LIFECYCLE);
     }
 }

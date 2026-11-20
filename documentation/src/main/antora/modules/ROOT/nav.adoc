@@ -76,6 +76,7 @@
 ** xref:ref-configuration-types.adoc[Component data configuration types]
 ** xref:ref-constraints.adoc[Component field constraints and validations]
 ** xref:ref-junit-environments.adoc[Provided JUnit testing environments]
+** xref:ref-jvm-properties.adoc[JVM properties]
 ** xref:ref-rest-resources.adoc[Component Server HTTP API reference]
 ** xref:ref-scanning-exclusions.adoc[Scanning exclusions]
 ** xref:ref-server-configuration.adoc[Server configuration]

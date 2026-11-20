@@ -32,13 +32,11 @@ import java.util.OptionalLong;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.bind.JsonbConfig;
-import javax.json.bind.spi.JsonbProvider;
 import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
@@ -47,6 +45,7 @@ import org.talend.sdk.component.api.service.record.RecordService;
 import org.talend.sdk.component.api.service.record.RecordVisitor;
 import org.talend.sdk.component.runtime.manager.service.DefaultServiceProvider;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
+import org.talend.sdk.component.runtime.record.SharedJsonProviders;
 import org.talend.sdk.component.singer.java.Singer;
 
 import lombok.RequiredArgsConstructor;
@@ -58,13 +57,18 @@ public class RecordJsonMapper implements Function<Record, JsonObject> {
 
     private final Singer singer;
 
-    private final RecordService service = (RecordService) new DefaultServiceProvider(null, JsonProvider.provider(),
-            Json.createGeneratorFactory(emptyMap()),
-            Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
-            Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
-            JsonbProvider.provider(), null, null, emptyList(), t -> new RecordBuilderFactoryImpl("kitap"), null)
-            .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
-                    RecordService.class, null, null);
+    private final RecordService service = createRecordService();
+
+    private static RecordService createRecordService() {
+        final JsonProvider json = SharedJsonProviders.jsonProvider();
+        return (RecordService) new DefaultServiceProvider(null, json, json.createGeneratorFactory(emptyMap()),
+                json.createReaderFactory(emptyMap()), json.createBuilderFactory(emptyMap()),
+                json.createParserFactory(emptyMap()), json.createWriterFactory(emptyMap()), new JsonbConfig(),
+                SharedJsonProviders.jsonbProvider(), null, null, emptyList(),
+                t -> new RecordBuilderFactoryImpl("kitap"), null)
+                .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
+                        RecordService.class, null, null);
+    }
 
     @Override
     public JsonObject apply(final Record record) {

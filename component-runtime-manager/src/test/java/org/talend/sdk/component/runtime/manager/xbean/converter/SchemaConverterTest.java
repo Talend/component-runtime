@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.manager.xbean.converter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
@@ -105,5 +106,21 @@ class SchemaConverterTest {
                 (JsonNumber) defaultValueOf(Schema.Type.LONG, new AtomicLong(big));
         assertTrue(fromAtomicLong.isIntegral(), "AtomicLong must serialize as integral");
         assertEquals(big, fromAtomicLong.longValue());
+    }
+
+    @Test
+    void toObjectRoundTrip() {
+        final Schema schema = factory
+                .newSchemaBuilder(Schema.Type.RECORD)
+                .withEntry(factory.newEntryBuilder().withName("field").withType(Schema.Type.STRING).build())
+                .build();
+        final Object read = converter.toObjectImpl(converter.toJson(schema).toString());
+        assertEquals(Schema.Type.RECORD, ((Schema) read).getType());
+        assertEquals("field", ((Schema) read).getEntries().get(0).getName());
+    }
+
+    @Test
+    void toObjectEmptyString() {
+        assertNull(converter.toObjectImpl(""));
     }
 }
