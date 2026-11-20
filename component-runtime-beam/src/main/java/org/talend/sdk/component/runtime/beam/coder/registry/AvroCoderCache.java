@@ -22,7 +22,7 @@ import java.util.Map;
 
 import org.apache.avro.Schema;
 import org.apache.avro.generic.IndexedRecord;
-import org.apache.beam.sdk.coders.AvroCoder;
+import org.apache.beam.sdk.extensions.avro.coders.AvroCoder;
 
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

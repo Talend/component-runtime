@@ -347,6 +347,12 @@
                   <outputDirectory>${sample.beam.location}/deps</outputDirectory>
                 </artifact>
                 <artifact>
+                  <groupId>org.apache.beam</groupId>
+                  <artifactId>beam-sdks-java-extensions-avro</artifactId>
+                  <type>jar</type>
+                  <outputDirectory>${sample.beam.location}/deps</outputDirectory>
+                </artifact>
+                <artifact>
                   <groupId>org.apache.avro</groupId>
                   <artifactId>avro</artifactId>
                   <version>${avro.version}</version>
@@ -464,6 +470,7 @@
               </classpathDependencyExcludes>
               <additionalClasspathElements>
                 <additionalClasspathElement>${sample.beam.location}${file.separator}deps${file.separator}beam-sdks-java-core.jar,
+                  ${sample.beam.location}${file.separator}deps${file.separator}beam-sdks-java-extensions-avro.jar,
                   ${sample.beam.location}${file.separator}deps${file.separator}component-runtime-beam.jar,
                   ${sample.beam.location}${file.separator}deps${file.separator}jackson-core-asl.jar,
                   ${sample.beam.location}${file.separator}deps${file.separator}avro.jar</additionalClasspathElement>

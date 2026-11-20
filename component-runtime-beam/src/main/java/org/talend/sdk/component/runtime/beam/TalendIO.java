@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.beam;
 
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
-import static org.apache.beam.sdk.annotations.Experimental.Kind.SOURCE_SINK;
 
 import java.io.IOException;
 import java.util.List;
@@ -28,7 +27,6 @@ import java.util.stream.Stream;
 
 import javax.json.bind.Jsonb;
 
-import org.apache.beam.sdk.annotations.Experimental;
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.io.BoundedReadFromUnboundedSource;
 import org.apache.beam.sdk.io.BoundedSource;
@@ -64,7 +62,6 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Experimental(SOURCE_SINK)
 public final class TalendIO {
 
     public static Base<PBegin, PCollection<Record>, Mapper> read(final Mapper mapper) {

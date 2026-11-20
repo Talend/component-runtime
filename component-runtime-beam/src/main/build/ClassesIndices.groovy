@@ -84,6 +84,7 @@ excludedPackages = [
 simplifiedPackages = [
     'org.apache.beam.repackaged.',
     'org.apache.beam.sdk.coders.',
+    'org.apache.beam.sdk.extensions.avro.',
     'org.apache.beam.sdk.metrics.',
     'org.apache.beam.sdk.schemas.',
     'org.apache.beam.sdk.state.',
@@ -166,6 +167,7 @@ Dependency beamDep(artifactId) {
 }
 
 sdkClasses = doIndex(beamDep('beam-sdks-java-core'), [], simplifiedPackages, excludedPackages)
+doIndex(beamDep('beam-sdks-java-extensions-avro'), sdkClasses, simplifiedPackages, excludedPackages)
 doIndex(beamDep('beam-runners-direct-java'), sdkClasses, simplifiedPackages, excludedPackages)
 
 def sparkCore = new Dependency(groupId: 'org.apache.spark', artifactId: "spark-core_${project.properties['spark-scala.version']}", version: "${project.properties['spark.version']}", scope: 'compile')
