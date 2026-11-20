@@ -5,11 +5,6 @@
             https://maven.apache.org/xsd/settings-1.0.0.xsd">
   <servers>
     <server>
-      <id>central.portal</id>
-      <username>${env.OSSRH_USER}</username>
-      <password>${env.OSSRH_PASS}</password>
-    </server>
-    <server>
       <id>github</id>
       <username>${env.GITHUB_LOGIN}</username>
       <password>${env.GITHUB_TOKEN}</password>
@@ -20,70 +15,9 @@
       <password>${env.JIRA_PASS}</password>
     </server>
     <server>
-      <id>TalendOpenSourceRelease</id>
-      <username>${env.NEXUS_USER}</username>
-      <password>${env.NEXUS_PASS}</password>
-      <configuration>
-        <timeout>30000</timeout>
-      </configuration>
-    </server>
-    <server>
-      <id>TalendOpenSourceSnapshot</id>
-      <username>${env.NEXUS_USER}</username>
-      <password>${env.NEXUS_PASS}</password>
-      <configuration>
-        <timeout>30000</timeout>
-      </configuration>
-    </server>
-    <server>
-      <id>talend.oss.snapshots</id>
-      <username>${env.NEXUS_USER}</username>
-      <password>${env.NEXUS_PASS}</password>
-      <configuration>
-        <timeout>30000</timeout>
-      </configuration>
-    </server>
-    <server>
-      <id>talend.oss.releases</id>
-      <username>${env.NEXUS_USER}</username>
-      <password>${env.NEXUS_PASS}</password>
-      <configuration>
-        <timeout>30000</timeout>
-      </configuration>
-    </server>
-    <server>
-      <id>github_package_snapshots</id>
+      <id>github_packages</id>
       <username>${env.GITHUB_PACKAGES_LOGIN}</username>
       <password>${env.GITHUB_PACKAGES_TOKEN}</password>
-    </server>
-    <server>
-      <id>github_package_releases</id>
-      <username>${env.GITHUB_PACKAGES_LOGIN}</username>
-      <password>${env.GITHUB_PACKAGES_TOKEN}</password>
-    </server>
-    <server>
-      <id>talend.snapshots</id>
-      <username>${env.NEXUS_USER}</username>
-      <password>${env.NEXUS_PASS}</password>
-      <configuration>
-        <timeout>30000</timeout>
-      </configuration>
-    </server>
-    <server>
-      <id>talend.releases</id>
-      <username>${env.NEXUS_USER}</username>
-      <password>${env.NEXUS_PASS}</password>
-      <configuration>
-        <timeout>30000</timeout>
-      </configuration>
-    </server>
-    <server>
-      <id>talend_nexus_deployment</id>
-      <username>${env.NEXUS_USER}</username>
-      <password>${env.NEXUS_PASS}</password>
-      <configuration>
-        <timeout>30000</timeout>
-      </configuration>
     </server>
     <server>
       <id>artifactory.datapwn.com</id>
@@ -92,18 +26,20 @@
     </server>
   </servers>
 
+  <!-- QTDI-3641: Maven Central goes through the internal Artifactory cache;
+       the artifactory.datapwn.com server above takes its credentials from the artifactory-datapwn-credentials binding -->
   <mirrors>
     <mirror>
-      <id>maven_central_proxy</id>
-      <name>Maven Central Proxy</name>
-      <url>https://artifacts-zl.talend.com/nexus/content/repositories/central/</url>
+      <id>artifactory.datapwn.com</id>
+      <name>Internal Artifactory Maven Central cache</name>
+      <url>https://artifactory.datapwn.com/artifactory/maven-central-remote</url>
       <mirrorOf>central</mirrorOf>
     </mirror>
   </mirrors>
 
   <profiles>
     <profile>
-      <id>ossrh</id>
+      <id>gpg-keyring</id>
       <properties>
         <additionalparam>-Xdoclint:none</additionalparam>
         <gpg.executable>gpg</gpg.executable>
