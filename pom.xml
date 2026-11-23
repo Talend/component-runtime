@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
-  <version>1.2612.0-SNAPSHOT</version>
+  <version>1.2701.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Component Runtime</name>
@@ -135,8 +135,8 @@
     <url>https://github.com/${scm.repository}</url>
   </scm>
   <distributionManagement>
-    <!-- snapshots and qualified versions go on the global-artifacts packages, releases on the packages of this repository.
-         The packages of both can be read through the github_packages repository declared below. -->
+    <!-- QTDI-3872: releases, snapshots and qualified versions all go on the packages of this repository.
+         The github_packages repository declared below (global-artifacts) is only used to read dependencies. -->
     <repository>
       <id>github_packages</id>
       <name>GitHub Packages component-runtime</name>
@@ -144,8 +144,8 @@
     </repository>
     <snapshotRepository>
       <id>github_packages</id>
-      <name>GitHub Packages global-artifacts</name>
-      <url>https://maven.pkg.github.com/Talend/global-artifacts</url>
+      <name>GitHub Packages component-runtime</name>
+      <url>https://maven.pkg.github.com/Talend/component-runtime</url>
     </snapshotRepository>
   </distributionManagement>
 
@@ -243,6 +243,8 @@
     <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
 
     <clirr-plugin.version>2.8</clirr-plugin.version>
+    <!-- last released version used as the clirr baseline, to be updated after each release -->
+    <clirr.comparison.version>1.2612.0</clirr.comparison.version>
     <common-maven-plugin.version>1.0.7</common-maven-plugin.version>
     <download-plugin.version>2.0.0</download-plugin.version>
     <git-commit-id-maven-plugin.version>9.0.2</git-commit-id-maven-plugin.version>
@@ -1249,6 +1251,15 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-site-plugin</artifactId>
           <version>${maven-site-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>clirr-maven-plugin</artifactId>
+          <version>${clirr-plugin.version}</version>
+          <configuration>
+            <!-- avoid clirr picking a dev-branch snapshot (e.g. 1.2612.0-QTDI-xxxx-SNAPSHOT) cached locally as baseline -->
+            <comparisonVersion>${clirr.comparison.version}</comparisonVersion>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>

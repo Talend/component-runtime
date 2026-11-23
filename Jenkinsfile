@@ -145,7 +145,7 @@ pipeline {
         description: '''
             Force MAVEN deploy stage for development branches. No effect on master and maintenance.
             INFO: master/maintenance branch deploys artefacts on GitHub Packages
-                  dev branches deploy qualified artefacts on GitHub Packages (global-artifacts)''')
+                  dev branches deploy qualified artefacts on GitHub Packages (component-runtime)''')
     booleanParam(
         name: 'DOCKER_PUSH',
         defaultValue: false,
@@ -195,7 +195,7 @@ pipeline {
     booleanParam(
         name: 'FORCE_DEPS_REPORT',
         defaultValue: false,
-        description: 'Force dependencies report stage for branches.')
+        description: 'Force the dependencies report stage. The stage is skipped by default.')
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     separator(name: "EXPERT_CONFIG",
@@ -442,7 +442,7 @@ pipeline {
       }
     }
     stage('Maven deploy - GitHub Packages') {
-      // Snapshots and qualified versions go on the global-artifacts packages (distributionManagement of the root pom)
+      // Snapshots and qualified versions go on the component-runtime packages (distributionManagement of the root pom)
       when {
         anyOf {
           expression { stdBranch_buildOnly }
@@ -460,7 +460,7 @@ pipeline {
             """.stripIndent()
         }
         script {
-          JenkinsStatusController.jobDescriptionAppend("Maven artefact deployed as ${finalVersion} on [GitHub Packages](https://github.com/orgs/Talend/packages)  ")
+          JenkinsStatusController.jobDescriptionAppend("Maven artefact deployed as ${finalVersion} on [GitHub Packages](https://github.com/Talend/component-runtime/packages)  ")
         }
       }
     }
@@ -545,10 +545,7 @@ pipeline {
     }
     stage('Deps report') {
       when {
-        anyOf {
-          expression { params.ACTION != 'RELEASE' && branch_name == 'master' }
-          expression { params.FORCE_DEPS_REPORT == true }
-        }
+        expression { params.FORCE_DEPS_REPORT == true }
       }
       steps {
         withCredentials([githubPackagesCredentials,
