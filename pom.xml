@@ -243,6 +243,8 @@
     <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
 
     <clirr-plugin.version>2.8</clirr-plugin.version>
+    <!-- last released version used as the clirr baseline, to be updated after each release -->
+    <clirr.comparison.version>1.2612.0</clirr.comparison.version>
     <common-maven-plugin.version>1.0.7</common-maven-plugin.version>
     <download-plugin.version>2.0.0</download-plugin.version>
     <git-commit-id-maven-plugin.version>9.0.2</git-commit-id-maven-plugin.version>
@@ -1238,6 +1240,15 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-site-plugin</artifactId>
           <version>${maven-site-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>clirr-maven-plugin</artifactId>
+          <version>${clirr-plugin.version}</version>
+          <configuration>
+            <!-- avoid clirr picking a dev-branch snapshot (e.g. 1.2612.0-QTDI-xxxx-SNAPSHOT) cached locally as baseline -->
+            <comparisonVersion>${clirr.comparison.version}</comparisonVersion>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
