@@ -50,6 +50,14 @@ main() {
                     --define rat.skip \
                     "${extraBuildParams[@]}" || true
 
+  # The install above ignores failures, so check that the documentation module regenerated antora.yml.
+  # A version left identical to the release tag makes the documentation site build fail (duplicate nav).
+  local devVersion
+  devVersion="$(grep -m1 -oP '(?<=<version>)[^<]+' pom.xml || true)"
+  if ! grep -qE "^version: '${devVersion%%-*}'$" documentation/src/main/antora/antora.yml; then
+    printf "WARN: antora.yml version is not %s, the documentation build was probably skipped; fix it manually\n" "${devVersion%%-*}" >&2
+  fi
+
   printf "Push to github\n"
   # "|| true" is here to avoid blocking the jenkins pipeline when there is nothing to commit
   git commit -a -m "Updating doc for next iteration" || true
