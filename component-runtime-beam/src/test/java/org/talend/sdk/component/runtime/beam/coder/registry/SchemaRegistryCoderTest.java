@@ -29,6 +29,10 @@ import javax.json.JsonBuilderFactory;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
+import org.apache.avro.LogicalTypes;
+import org.apache.avro.SchemaBuilder;
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.IndexedRecord;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
@@ -126,5 +130,39 @@ class SchemaRegistryCoderTest {
         final Record decoded = SchemaRegistryCoder.of().decode(new ByteArrayInputStream(buffer.toByteArray()));
         final double actual = decoded.getArray(Record.class, "__default__").iterator().next().getDouble("len");
         assertEquals(2., actual);
+    }
+
+    @Test
+    void codecKeepsRawLogicalTypeValues() throws IOException {
+        final org.apache.avro.Schema avroSchema = SchemaBuilder
+                .record("dateTimeLogical")
+                .fields()
+                .name("date")
+                .type(LogicalTypes.date().addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.INT)))
+                .noDefault()
+                .name("time")
+                .type(LogicalTypes
+                        .timeMillis()
+                        .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.INT)))
+                .noDefault()
+                .name("datetime")
+                .type(LogicalTypes
+                        .timestampMillis()
+                        .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.LONG)))
+                .noDefault()
+                .endRecord();
+        final GenericData.Record avro = new GenericData.Record(avroSchema);
+        avro.put(0, 17498);
+        avro.put(1, 45862123);
+        avro.put(2, 1511873062123L);
+
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        SchemaRegistryCoder.of().encode(new AvroRecord(avro), buffer);
+
+        final Record decoded = SchemaRegistryCoder.of().decode(new ByteArrayInputStream(buffer.toByteArray()));
+        final IndexedRecord raw = ((Unwrappable) decoded).unwrap(IndexedRecord.class);
+        assertEquals(17498, raw.get(0));
+        assertEquals(45862123, raw.get(1));
+        assertEquals(1511873062123L, raw.get(2));
     }
 }

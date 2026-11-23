@@ -22,7 +22,13 @@ import java.util.Map;
 
 import org.apache.avro.Schema;
 import org.apache.avro.generic.IndexedRecord;
+import org.apache.avro.io.DatumReader;
+import org.apache.avro.io.DatumWriter;
+import org.apache.avro.reflect.ReflectData;
+import org.apache.avro.reflect.ReflectDatumReader;
+import org.apache.avro.reflect.ReflectDatumWriter;
 import org.apache.beam.sdk.extensions.avro.coders.AvroCoder;
+import org.apache.beam.sdk.extensions.avro.io.AvroDatumFactory;
 
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +36,31 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @NoArgsConstructor(access = PRIVATE)
 class AvroCoderCache {
+
+    /**
+     * Beam 2.61 registers java-time conversions by default, which turns date/time-millis fields into
+     * LocalDate/LocalTime
+     * and timestamps into Instant on decoding. Records are expected to keep Avro raw values (int/long) as with Beam
+     * 2.46, so no logical type conversion is registered.
+     */
+    private static class RawIndexedRecordDatumFactory extends AvroDatumFactory<IndexedRecord> {
+
+        private RawIndexedRecordDatumFactory() {
+            super(IndexedRecord.class);
+        }
+
+        @Override
+        public DatumReader<IndexedRecord> apply(final Schema writer, final Schema reader) {
+            return new ReflectDatumReader<>(writer, reader, new ReflectData(type.getClassLoader()));
+        }
+
+        @Override
+        public DatumWriter<IndexedRecord> apply(final Schema writer) {
+            return new ReflectDatumWriter<>(writer, new ReflectData(type.getClassLoader()));
+        }
+    }
+
+    private static final AvroDatumFactory<IndexedRecord> DATUM_FACTORY = new RawIndexedRecordDatumFactory();
 
     private static final Map<Schema, AvroCoder<IndexedRecord>> CACHED_CODERS =
             new LinkedHashMap<Schema, AvroCoder<IndexedRecord>>() {
@@ -46,7 +77,7 @@ class AvroCoderCache {
                     AvroCoder<IndexedRecord> coder = super.get(key);
                     if (coder == null) {
                         final Schema schema = (Schema) key;
-                        coder = AvroCoder.of(IndexedRecord.class, schema);
+                        coder = AvroCoder.of(DATUM_FACTORY, schema);
                         put(schema, coder);
                     }
                     return coder;
