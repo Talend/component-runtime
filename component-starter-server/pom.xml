@@ -462,16 +462,6 @@
                         </exclusions>
                     </dependency>
                 </dependencies>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.gmavenplus</groupId>
-                <artifactId>gmavenplus-plugin</artifactId>
-                <configuration>
-                    <allowSystemExits>true</allowSystemExits>
-                    <scripts>
-                        <script>${project.basedir}/src/build/GrabMavenWrapper.groovy</script>
-                    </scripts>
-                </configuration>
                 <executions>
                     <execution>
                         <id>grab-maven-wrapper</id>
