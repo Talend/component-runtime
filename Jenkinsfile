@@ -18,13 +18,6 @@ import java.time.LocalDateTime
 import java.util.regex.Matcher
 
 // Credentials
-final def ossrhCredentials = usernamePassword(
-    credentialsId: 'ossrh-credentials',
-    usernameVariable: 'OSSRH_USER',
-    passwordVariable: 'OSSRH_PASS')
-final def nexusCredentials = usernamePassword(
-    credentialsId: 'nexus-artifact-zl-credentials',
-    usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')
 final def jiraCredentials = usernamePassword(
     credentialsId: 'jira-credentials',
     usernameVariable: 'JIRA_USER',
@@ -33,6 +26,10 @@ final def gitCredentials = usernamePassword(
     credentialsId: 'github-credentials',
     usernameVariable: 'GITHUB_LOGIN',
     passwordVariable: 'GITHUB_TOKEN')
+final def githubPackagesCredentials = usernamePassword(
+    credentialsId: 'github-packages-ci-runner-connectors-pat',
+    usernameVariable: 'GITHUB_PACKAGES_LOGIN',
+    passwordVariable: 'GITHUB_PACKAGES_TOKEN')
 final def dockerCredentials = usernamePassword(
     credentialsId: 'artifactory-datapwn-credentials',
     usernameVariable: 'DOCKER_USER',
@@ -76,8 +73,7 @@ Boolean devBranch_dockerPush = false
 
 
 String skipOptions = "-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
-String deployOptions = "$skipOptions -Possrh -Prelease -Pgpg2 -Denforcer.skip=true"
-String nexusDeployOptions = "$skipOptions --activate-profiles private_repository -Denforcer.skip=true"
+String deployOptions = "$skipOptions -Denforcer.skip=true"
 
 
 pipeline {
@@ -148,8 +144,8 @@ pipeline {
         defaultValue: false,
         description: '''
             Force MAVEN deploy stage for development branches. No effect on master and maintenance.
-            INFO: master/maintenance branch deploys artefacts on <oss.sonatype.org>
-                  dev branches deploy artefacts on <artifacts-zl.talend.com>''')
+            INFO: master/maintenance branch deploys artefacts on GitHub Packages
+                  dev branches deploy qualified artefacts on GitHub Packages (component-runtime)''')
     booleanParam(
         name: 'DOCKER_PUSH',
         defaultValue: false,
@@ -199,7 +195,7 @@ pipeline {
     booleanParam(
         name: 'FORCE_DEPS_REPORT',
         defaultValue: false,
-        description: 'Force dependencies report stage for branches.')
+        description: 'Force the dependencies report stage. The stage is skipped by default.')
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     separator(name: "EXPERT_CONFIG",
@@ -243,16 +239,8 @@ pipeline {
             so you can test Jenkins pipeline changes (e.g. the Maven deploy stages) end to end from a dev branch.
             WARNING: the resulting artifact uses the exact same (unqualified) SNAPSHOT
             version as master. If this build deploys, it WILL OVERWRITE the artifacts
-            currently published by the master branch build on both the internal Nexus
-            and Sonatype/OSSRH repositories. If you do it, be sure that your branch is up to date with master.
+            currently published by the master branch build on the GitHub Packages repository. If you do it, be sure that your branch is up to date with master.
             Only to test Jenkins job evolution, never for real development work.''')
-    booleanParam(
-        name: 'NO_SONATYPE',
-        defaultValue: false,
-        description: '''
-            DEBUG ONLY - skips the Sonatype/OSSRH deploy stage entirely, whatever the branch.
-            Use this to test the pipeline faster when the slow/unreliable Sonatype deploy
-            is not what you want to validate (e.g. only testing the internal Nexus deploy stage).''')
   }
 
   stages {
@@ -294,16 +282,6 @@ pipeline {
 
           // NO_QUALIFIER forces the same (unqualified) version as master, see param warning
           needQualify = (devBranch_mavenDeploy || devBranch_dockerPush) && !params.NO_QUALIFIER
-
-          if (needQualify) {
-            // Qualified version have to be released on talend_repository
-            // Overwrite the deployOptions
-            deployOptions = nexusDeployOptions
-          }
-
-          // hack to overwrite the skip of studio modules that we can't deploy in release mode into Sonatype repo
-          // assume that we don't use this Jenkinsfile for release anymore
-          deployOptions = deployOptions.replace("-Prelease", "-Psnapshot")
 
           // By default the doc is skipped for standards branches
           Boolean skip_documentation = !(params.FORCE_DOC || isStdBranch)
@@ -370,10 +348,12 @@ pipeline {
             // Maven documentation about maven_version:
             // https://docs.oracle.com/middleware/1212/core/MAVEN/maven_version.htm
             println "Edit version on dev branches, new version is ${finalVersion}"
-            sh """\
+            withCredentials([githubPackagesCredentials, dockerCredentials]) {
+              sh """\
                         #!/usr/bin/env bash
                         mvn versions:set --define newVersion=${finalVersion} --settings .jenkins/settings.xml
                         """.stripIndent()
+            }
           }
 
         }
@@ -414,7 +394,6 @@ pipeline {
       steps {
         withCredentials([gitCredentials,
                          dockerCredentials,
-                         ossrhCredentials,
                          jiraCredentials,
                          gpgCredentials]) {
           script {
@@ -436,8 +415,8 @@ pipeline {
     stage('Maven validate to install') {
       when { expression { params.ACTION != 'RELEASE' } }
       steps {
-        withCredentials([ossrhCredentials,
-                         nexusCredentials]) {
+        withCredentials([githubPackagesCredentials,
+                         dockerCredentials]) {
           sh """\
             #!/usr/bin/env bash
             set -xe
@@ -462,73 +441,26 @@ pipeline {
         }
       }
     }
-    stage('Maven deploy - Nexus') {
-      // Deploy to internal Nexus first on master/maintenance builds so that
-      // connectors-se Jenkins agents (which cannot reach central.sonatype.com)
-      // can resolve SNAPSHOT dependencies as soon as possible, independent of
-      // whether the Sonatype deploy stage below is slow or times out.
+    stage('Maven deploy - GitHub Packages') {
+      // Snapshots and qualified versions go on the component-runtime packages (distributionManagement of the root pom)
       when {
-        expression { stdBranch_buildOnly }
+        anyOf {
+          expression { stdBranch_buildOnly }
+          expression { devBranch_mavenDeploy }
+        }
       }
       steps {
-        withCredentials([nexusCredentials]) {
+        withCredentials([githubPackagesCredentials, dockerCredentials]) {
           sh """\
             #!/usr/bin/env bash
             set -xe
-            mvn deploy ${nexusDeployOptions} \
+            mvn deploy ${deployOptions} \
                         ${extraBuildParams} \
                         --settings .jenkins/settings.xml
             """.stripIndent()
         }
-      }
-    }
-    stage('Maven deploy - Sonatype') {
-      // Sonatype/OSSRH deploy has a history of being slow/unreliable and can
-      // otherwise consume the whole pipeline timeout; bound it to its own
-      // timeout and degrade to UNSTABLE instead of failing the build outright
-      // (the Nexus deploy stage above already unblocks downstream consumers).
-      when {
-        allOf {
-          expression { !params.NO_SONATYPE }
-          anyOf {
-            expression { stdBranch_buildOnly }
-            expression { devBranch_mavenDeploy }
-          }
-        }
-      }
-      steps {
         script {
-          catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-            timeout(time: 60, unit: 'MINUTES') {
-              withCredentials([ossrhCredentials,
-                               gpgCredentials,
-                               nexusCredentials]) {
-                sh """\
-                  #!/usr/bin/env bash
-                  set -xe
-                  bash mvn deploy $deployOptions \
-                                  $extraBuildParams \
-                                  --settings .jenkins/settings.xml
-                  """.stripIndent()
-              }
-            }
-          }
-        }
-        // Add description to job
-        script {
-          def repo
-          String nexusSnapshotUrl = 'https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/org/talend/sdk/component'
-          if (devBranch_mavenDeploy) {
-            repo = ['artifacts-zl.talend.com', nexusSnapshotUrl]
-          } else {
-            repo = ['oss.sonatype.org',
-                    'https://central.sonatype.com/repository/maven-snapshots/org/talend/sdk/component/']
-          }
-
-          JenkinsStatusController.jobDescriptionAppend("Maven artefact deployed as ${finalVersion} on [${repo[0]}](${repo[1]})  ")
-          if (stdBranch_buildOnly) {
-            JenkinsStatusController.jobDescriptionAppend("Maven artefact also deployed as ${finalVersion} on [artifacts-zl.talend.com](${nexusSnapshotUrl})  ")
-          }
+          JenkinsStatusController.jobDescriptionAppend("Maven artefact deployed as ${finalVersion} on [GitHub Packages](https://github.com/Talend/component-runtime/packages)  ")
         }
       }
     }
@@ -541,45 +473,45 @@ pipeline {
       }
       steps {
         script {
-          configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
 
-            String images_options = ''
-            if (isStdBranch) {
-              // Build and push all images
-              JenkinsStatusController.jobDescriptionAppend("Docker images deployed: component-server, component-starter-server and remote-engine-customizer  ")
+          String images_options = ''
+          if (isStdBranch) {
+            // Build and push all images
+            JenkinsStatusController.jobDescriptionAppend("Docker images deployed: component-server, component-starter-server and remote-engine-customizer  ")
+          } else {
+            String image_list
+            if (params.DOCKER_CHOICE == 'All') {
+              images_options = 'false'
             } else {
-              String image_list
-              if (params.DOCKER_CHOICE == 'All') {
-                images_options = 'false'
-              } else {
-                images_options = 'false ' + params.DOCKER_CHOICE
-              }
+              images_options = 'false ' + params.DOCKER_CHOICE
+            }
 
-              if (params.DOCKER_CHOICE == 'All') {
-                JenkinsStatusController.jobDescriptionAppend("All docker images deployed  ")
+            if (params.DOCKER_CHOICE == 'All') {
+              JenkinsStatusController.jobDescriptionAppend("All docker images deployed  ")
 
-                JenkinsStatusController.jobDescriptionAppend("As ${finalVersion}${buildTimestamp} on " +
-                                                                 "[artifactory.datapwn.com]" +
-                                                                 "($artifactoryAddr/$artifactoryPath)  ")
-                JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath" +
-                                                                 "/component-server:${finalVersion}${buildTimestamp}  ")
-                JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath" +
-                                                                 "/component-starter-server:${finalVersion}${buildTimestamp}  ")
-                JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath" +
-                                                                 "/remote-engine-customize:${finalVersion}${buildTimestamp}  ")
+              JenkinsStatusController.jobDescriptionAppend("As ${finalVersion}${buildTimestamp} on " +
+                                                               "[artifactory.datapwn.com]" +
+                                                               "($artifactoryAddr/$artifactoryPath)  ")
+              JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath" +
+                                                               "/component-server:${finalVersion}${buildTimestamp}  ")
+              JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath" +
+                                                               "/component-starter-server:${finalVersion}${buildTimestamp}  ")
+              JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath" +
+                                                               "/remote-engine-customize:${finalVersion}${buildTimestamp}  ")
 
-              } else {
-                JenkinsStatusController.jobDescriptionAppend("Docker images deployed: $params.DOCKER_CHOICE  ")
-                JenkinsStatusController.jobDescriptionAppend("As ${finalVersion}${buildTimestamp} on " +
-                                                                 "[artifactory.datapwn.com]($artifactoryAddr/$artifactoryPath)  ")
-                JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath/$params.DOCKER_CHOICE:" +
-                                                                 "${finalVersion}${buildTimestamp}  ")
-
-              }
+            } else {
+              JenkinsStatusController.jobDescriptionAppend("Docker images deployed: $params.DOCKER_CHOICE  ")
+              JenkinsStatusController.jobDescriptionAppend("As ${finalVersion}${buildTimestamp} on " +
+                                                               "[artifactory.datapwn.com]($artifactoryAddr/$artifactoryPath)  ")
+              JenkinsStatusController.jobDescriptionAppend("docker pull $artifactoryAddr/$artifactoryPath/$params.DOCKER_CHOICE:" +
+                                                               "${finalVersion}${buildTimestamp}  ")
 
             }
 
-            // Build and push specific image
+          }
+
+          // Build and push specific image
+          withCredentials([githubPackagesCredentials, dockerCredentials]) {
             sh """
                 bash .jenkins/scripts/docker_build.sh \
                   ${finalVersion}${buildTimestamp} \
@@ -597,7 +529,7 @@ pipeline {
         }
       }
       steps {
-        withCredentials([ossrhCredentials, gitCredentials]) {
+        withCredentials([gitCredentials, githubPackagesCredentials, dockerCredentials]) {
           sh """\
             #!/usr/bin/env bash 
             set -xe                       
@@ -613,14 +545,11 @@ pipeline {
     }
     stage('Deps report') {
       when {
-        anyOf {
-          expression { params.ACTION != 'RELEASE' && branch_name == 'master' }
-          expression { params.FORCE_DEPS_REPORT == true }
-        }
+        expression { params.FORCE_DEPS_REPORT == true }
       }
       steps {
-        withCredentials([ossrhCredentials,
-                         nexusCredentials]) {
+        withCredentials([githubPackagesCredentials,
+                         dockerCredentials]) {
           catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
             sh """
                            bash .jenkins/scripts/mvn_dependency_updates_report.sh
@@ -657,9 +586,10 @@ pipeline {
       }
       steps {
         script {
-          withCredentials([nexusCredentials,
+          withCredentials([githubPackagesCredentials,
                            sonarToken,
-                           gitCredentials]) {
+                           gitCredentials,
+                           dockerCredentials]) {
 
             SonarController.runSonar(branch_name,
                                      env.CHANGE_TARGET,
@@ -680,12 +610,10 @@ pipeline {
       }
       steps {
         script {
-          withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jiraCredentials, gpgCredentials, nexusCredentials]) {
-            configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
-              sh """
-                            bash .jenkins/scripts/release_legacy.sh $branch_name $finalVersion $extraBuildParams
-                            """
-            }
+          withCredentials([gitCredentials, dockerCredentials, jiraCredentials, gpgCredentials, githubPackagesCredentials]) {
+            sh """
+                          bash .jenkins/scripts/release_legacy.sh $branch_name $finalVersion $extraBuildParams
+                          """
           }
         }
       }
@@ -695,27 +623,16 @@ pipeline {
         expression { params.ACTION == 'STANDARD' && params.TRIVY_SCAN == true }
       }
       steps {
-        withCredentials([dockerCredentials]) {
-          // Trivy reads $HOME/.m2/settings.xml to resolve Maven dependencies: use the mirror instead of Maven Central (429).
-          // /home/jenkins/.m2 is not writable (only .m2/repository is mounted), so Trivy gets a private HOME outside the scanned workspace.
-          sh """\
-            mkdir -p /tmp/trivy-home/.m2
-            # keep everything else of the real HOME (asdf, bashenv, caches...) visible, only .m2 differs
-            for entry in /home/jenkins/.[!.]* /home/jenkins/*; do
-              name=\$(basename "\$entry")
-              [ "\$name" = ".m2" ] || ln -sfn "\$entry" "/tmp/trivy-home/\$name"
-            done
-            cp .jenkins/settings.xml /tmp/trivy-home/.m2/settings.xml
-            ln -sfn /home/jenkins/.m2/repository /tmp/trivy-home/.m2/repository
-            """.stripIndent()
-          withEnv(["HOME=/tmp/trivy-home"]) {
-            script {
-              trivyTools.generateTrivyReport('output/trivy-results.json',
-                                             'output/trivy-results.html')
-            }
-          }
-        }
         script {
+          withCredentials([dockerCredentials, githubPackagesCredentials]) {
+            // Trivy's pom resolver ignores MAVEN_ARGS/-s and only reads ~/.m2/settings.xml (Artifactory mirror, credentials from the env)
+            sh '''
+              mkdir -p "${HOME}/.m2"
+              cp "${WORKSPACE}/.jenkins/settings.xml" "${HOME}/.m2/settings.xml"
+            '''
+            trivyTools.generateTrivyReport('output/trivy-results.json',
+                                           'output/trivy-results.html')
+          }
           publishHtmlReportTools.publishHtmlReport('output/trivy-results.html',
                                                    'CVE Trivy Vulnerability Report')
         }
