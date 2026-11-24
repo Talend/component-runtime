@@ -976,10 +976,30 @@
         <enabled>true</enabled>
       </snapshots>
       <id>github_packages</id>
+      <url>https://maven.pkg.github.com/Talend/component-runtime</url>
+    </repository>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>github_packages</id>
       <url>https://maven.pkg.github.com/Talend/global-artifacts</url>
     </repository>
   </repositories>
   <pluginRepositories>
+    <pluginRepository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>github_packages</id>
+      <url>https://maven.pkg.github.com/Talend/component-runtime</url>
+    </pluginRepository>
     <pluginRepository>
       <releases>
         <enabled>true</enabled>
