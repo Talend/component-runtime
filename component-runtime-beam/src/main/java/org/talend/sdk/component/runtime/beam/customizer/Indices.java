@@ -37,6 +37,13 @@ enum Indices {
             return true;
         }
     },
+    BEAM_SDKS_JAVA_EXTENSIONS_AVRO("TALEND-INF/classloader/indices/beam-sdks-java-extensions-avro") {
+
+        @Override
+        protected boolean isAvailable() {
+            return hasClass("org.apache.beam.sdk.extensions.avro.coders.AvroCoder");
+        }
+    },
     SPARK_CORE("TALEND-INF/classloader/indices/spark-core") {
 
         private volatile Boolean isThere;

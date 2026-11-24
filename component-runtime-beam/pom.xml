@@ -69,6 +69,11 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.apache.beam</groupId>
+      <artifactId>beam-sdks-java-extensions-avro</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.avro</groupId>
       <artifactId>avro</artifactId>
     </dependency>

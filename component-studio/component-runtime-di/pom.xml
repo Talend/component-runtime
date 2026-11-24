@@ -40,6 +40,12 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>org.apache.beam</groupId>
+      <artifactId>beam-sdks-java-extensions-avro</artifactId>
+      <scope>provided</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-beam</artifactId>
       <version>${project.version}</version>

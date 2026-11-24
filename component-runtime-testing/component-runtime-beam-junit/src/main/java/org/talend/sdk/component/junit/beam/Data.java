@@ -22,6 +22,7 @@ import static lombok.AccessLevel.PROTECTED;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -64,8 +65,11 @@ public class Data {
     }
 
     public static Create.Values<Record> of(final String plugin, final Iterable<Map<String, List<?>>> elems) {
+        // Beam reads the elements several times and some inputs (ex: join input factory) are single-pass iterables
+        final List<Map<String, List<?>>> snapshot = new ArrayList<>();
+        elems.forEach(snapshot::add);
         return Create.of(() -> {
-            final Iterator<Map<String, List<?>>> delegate = elems.iterator();
+            final Iterator<Map<String, List<?>>> delegate = snapshot.iterator();
             return new Iterator<Record>() {
 
                 private transient volatile RecordConverters converters;
