@@ -975,7 +975,7 @@
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
-      <id>github_packages</id>
+      <id>github_packages_componentruntime</id>
       <url>https://maven.pkg.github.com/Talend/component-runtime</url>
     </repository>
     <repository>
@@ -997,7 +997,7 @@
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
-      <id>github_packages</id>
+      <id>github_packages_componentruntime</id>
       <url>https://maven.pkg.github.com/Talend/component-runtime</url>
     </pluginRepository>
     <pluginRepository>
