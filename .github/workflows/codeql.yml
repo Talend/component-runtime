@@ -24,16 +24,35 @@ jobs:
           server-id: github_packages
           server-username: GH_PACKAGES_USERNAME
           server-password: GH_PACKAGES_TOKEN
+          cache: maven
 
       - uses: github/codeql-action/init@v4
         with:
           languages: java-kotlin
           build-mode: manual
 
+      # Only compile what CodeQL needs: no tests, quality checks, docs, docker images or front-end builds.
+      # Test classes are still compiled (sample modules consume test-jars).
       - name: Build
-        run: mvn --batch-mode clean package -DskipTests
+        run: >
+          mvn --batch-mode --no-transfer-progress clean package
+          -T 1C
+          -pl '!documentation,!images,!images/component-server-image,!images/component-starter-server-image,!reporting'
+          -DskipTests
+          -Dmaven.javadoc.skip=true
+          -Dspotless.check.skip=true
+          -Dformatter.skip=true
+          -Dcheckstyle.skip=true
+          -Drat.skip=true
+          -Denforcer.skip=true
+          -Dgpg.skip=true
+          -Dskip.npm=true
+          -Dcomponent.starter.front.build.skip=true
+          -Dmaven.artifact.threads=256
         env:
           GH_PACKAGES_USERNAME: ${{ vars.GH_PACKAGES_USERNAME }}
           GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
 
       - uses: github/codeql-action/analyze@v4
+        with:
+          threads: 0
