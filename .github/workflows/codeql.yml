@@ -33,6 +33,7 @@ jobs:
 
       # Only compile what CodeQL needs: no tests, quality checks, docs, docker images or front-end builds.
       # Test classes are still compiled (sample modules consume test-jars).
+      # Do not use -Dskip.npm: component-tools needs its npm install (asciidoctor.css) to build.
       - name: Build
         run: >
           mvn --batch-mode --no-transfer-progress clean package
@@ -46,7 +47,7 @@ jobs:
           -Drat.skip=true
           -Denforcer.skip=true
           -Dgpg.skip=true
-          -Dskip.npm=true
+          -Dcomponent.front.build.skip=true
           -Dcomponent.starter.front.build.skip=true
           -Dmaven.artifact.threads=256
         env:
