@@ -26,22 +26,31 @@ jobs:
           server-password: GH_PACKAGES_TOKEN
           cache: maven
 
+      - uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package-template.json', 'component-tools/src/main/frontend/package.json') }}
+          restore-keys: npm-${{ runner.os }}-
+
       - uses: github/codeql-action/init@v4
         with:
           languages: java-kotlin
           build-mode: manual
 
       # Only compile what CodeQL needs: no tests, quality checks, docs, docker images or front-end builds.
-      # Test classes are still compiled (sample modules consume test-jars).
+      # Tests are not compiled (testing-spark alone took ~5 min); the 4 loading-analysis modules
+      # that consume the test-jar of loading-dependencies-common are excluded accordingly.
       # Do not use -Dskip.npm: component-tools needs its npm install (asciidoctor.css) to build.
       - name: Build
         run: >
-          mvn --batch-mode --no-transfer-progress clean package
+          mvn --batch-mode --no-transfer-progress package
           -T 1C
-          -pl '!documentation,!images,!images/component-server-image,!images/component-starter-server-image,!reporting'
-          -DskipTests
+          -pl '!documentation,!images,!images/component-server-image,!images/component-starter-server-image,!reporting,!sample-parent/sample-features/loading-analysis/loading-dependencies-with-dataset,!sample-parent/sample-features/loading-analysis/loading-dependencies-with-datastore,!sample-parent/sample-features/loading-analysis/loading-dependencies-with-dynamicDependenciesConfiguration,!sample-parent/sample-features/loading-analysis/loading-dependencies-with-dataprepRunAnnotation'
+          -Dmaven.test.skip=true
+          -Djacoco.skip=true
           -Dmaven.javadoc.skip=true
           -Dspotless.check.skip=true
+          -Dspotless.apply.skip=true
           -Dformatter.skip=true
           -Dcheckstyle.skip=true
           -Drat.skip=true
