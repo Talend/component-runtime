@@ -28,6 +28,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -68,6 +69,15 @@ class ComponentManagerServiceTest {
     public static final List<String> PLUGINS_LIST = Arrays.asList("another-test-component", "collection-of-object",
             "component-with-user-jars", "file-component", "jdbc-component", "migration-component",
             "the-test-component");
+
+    @Test
+    void legacyIdsDoNotDuplicateGavs() {
+        final Properties registry = new Properties();
+        registry.setProperty("cosmos-db", "g:cosmos-db:1.0");
+        registry.setProperty("cosmosDB", "g:cosmos-db:1.0");
+        registry.setProperty("other", "g:other:1.0");
+        assertEquals(2, ComponentManagerService.distinctGavs(registry).count());
+    }
 
     @Test
     void deployExistingPlugin() {
