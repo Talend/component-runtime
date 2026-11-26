@@ -58,7 +58,10 @@ public interface ActionResource {
             description = "The action payload serialized in JSON.",
             content = @Content(mediaType = APPLICATION_JSON))
     @APIResponse(responseCode = "400",
-            description = "If the action is not set, payload will be an ErrorPayload with the code ACTION_MISSING.",
+            description = "If the action is not set, payload will be an ErrorPayload with the code ACTION_MISSING. "
+                    + "If a schema discovery action failed with a DiscoverSchemaException, payload will be an "
+                    + "ErrorPayload with the code ACTION_ERROR and a subCode holding the requested "
+                    + "HandleErrorWith strategy (EXCEPTION, RETRY, EXECUTE_MOCK_JOB or EXECUTE_LIFECYCLE).",
             content = @Content(mediaType = APPLICATION_JSON,
                     schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
     @APIResponse(responseCode = "404",

@@ -18,14 +18,15 @@ package org.talend.sdk.component.runtime.manager.reflect.visibility;
 import static java.util.Collections.emptyMap;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
-import static javax.json.stream.JsonCollectors.toJsonArray;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
@@ -33,6 +34,7 @@ import javax.json.JsonValue;
 import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
+import org.talend.sdk.component.runtime.record.SharedJsonProviders;
 
 import lombok.RequiredArgsConstructor;
 
@@ -40,9 +42,10 @@ import lombok.RequiredArgsConstructor;
 public class PayloadMapper {
 
     // we don't need the runtime one here
-    private final JsonProvider jsonp = JsonProvider.provider();
+    private final JsonProvider jsonp = SharedJsonProviders.jsonProvider();
 
-    private static final VisibilityService VISIBILITY_SERVICE = new VisibilityService(JsonProvider.provider());
+    private static final VisibilityService VISIBILITY_SERVICE =
+            new VisibilityService(SharedJsonProviders.jsonProvider());
 
     private final JsonBuilderFactory factory = jsonp.createBuilderFactory(emptyMap());
 
@@ -137,8 +140,17 @@ public class PayloadMapper {
         }
     }
 
+    // JsonCollectors.toJsonArray() would resolve a JsonProvider through ServiceLoader on each call
+    private Collector<JsonValue, JsonArrayBuilder, JsonArray> toJsonArray() {
+        return Collector
+                .of(jsonp::createArrayBuilder, JsonArrayBuilder::add, (left, right) -> {
+                    right.build().forEach(left::add);
+                    return left;
+                }, JsonArrayBuilder::build);
+    }
+
     private boolean isVisible(final ParameterMeta meta) {
-        return globalPayload == null ? true : VISIBILITY_SERVICE.build(meta).isVisible(globalPayload);
+        return globalPayload == null || VISIBILITY_SERVICE.build(meta).isVisible(globalPayload);
     }
 
     private void onArray(final Collection<ParameterMeta> definitions, final ParameterMeta definition,

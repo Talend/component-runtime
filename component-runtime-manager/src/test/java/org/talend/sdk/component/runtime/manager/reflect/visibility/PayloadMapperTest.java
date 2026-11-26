@@ -18,10 +18,14 @@ package org.talend.sdk.component.runtime.manager.reflect.visibility;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.json.JsonValue;
 
@@ -66,6 +70,33 @@ class PayloadMapperTest {
 
         final JsonValue value = extractorFactory.visitAndMap(params, payload);
         assertEquals("{\"ports\":[1,2]}", value.toString());
+    }
+
+    @Test
+    void concurrentArrayMapping() throws Exception {
+        final List<ParameterMeta> params = service
+                .buildParameterMetas(MethodsHolder.class.getMethod("collections", List.class, List.class, Map.class),
+                        "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        final Map<String, String> payload = new HashMap<>();
+        payload.put("ports[0]", "1");
+        payload.put("ports[1]", "2");
+
+        final int threads = 30;
+        final ExecutorService executor = Executors.newFixedThreadPool(threads);
+        try {
+            final List<Future<String>> results = new ArrayList<>();
+            for (int i = 0; i < threads * 10; i++) {
+                results
+                        .add(executor
+                                .submit(() -> new PayloadMapper((a, b) -> {
+                                }).visitAndMap(params, payload).toString()));
+            }
+            for (final Future<String> result : results) {
+                assertEquals("{\"ports\":[1,2]}", result.get());
+            }
+        } finally {
+            executor.shutdownNow();
+        }
     }
 
     @Test

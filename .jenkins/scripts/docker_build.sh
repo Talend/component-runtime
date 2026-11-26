@@ -50,12 +50,14 @@ dockerBuild() {
   mvn package "${_JIB_GOAL}" \
     --file "images/${_IMAGE}-image/pom.xml" \
     --define docker.talend.image.tag="${_TAG}" \
+    --settings .jenkins/settings.xml \
     $skip_for_docker_build
 
   if [[ ${_IS_LATEST} == 'true' ]]; then
     mvn package "${_JIB_GOAL}" \
     --file "images/${_IMAGE}-image/pom.xml" \
     --define docker.talend.image.tag=latest \
+    --settings .jenkins/settings.xml \
     $skip_for_docker_build
   fi
 }
