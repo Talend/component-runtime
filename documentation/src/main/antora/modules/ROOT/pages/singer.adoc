@@ -1,9 +1,15 @@
-= Singer Java
+= Singer Java (deprecated)
 :page-partial:
 :description: Write a custom singer tap/target in Java
 :keywords: singer, kitap, tap, target, stitch
 
 == singer-java
+
+[WARNING]
+====
+*Deprecated:* This feature is deprecated since `1.2701.0` and will be removed in a future release without replacement.
+Do not use it for new developments.
+====
 
 `singer-java` module provide a Java API to write a custom singer.
 
@@ -42,6 +48,12 @@ final JsonBuilderFactory builderFactory = Json.createBuilderFactory(emptyMap());
 ----
 
 == component-kitap
+
+[WARNING]
+====
+*Deprecated:* This feature is deprecated since `1.2701.0` and will be removed in a future release without replacement.
+Do not use it for new developments.
+====
 
 `component-kitap` is the name of the integration between `singer-java` and Talend Component Kit.
 It enables to run native Talend Component Kit components through a tap.

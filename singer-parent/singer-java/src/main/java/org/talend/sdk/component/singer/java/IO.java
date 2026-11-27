@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 @RequiredArgsConstructor
+@Deprecated(since = "1.2701.0", forRemoval = true)
 public class IO {
 
     private final InputStream stdin;

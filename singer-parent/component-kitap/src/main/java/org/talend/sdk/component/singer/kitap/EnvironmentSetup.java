@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
+@Deprecated(since = "1.2701.0", forRemoval = true)
 final class EnvironmentSetup {
 
     static void init() {

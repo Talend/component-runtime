@@ -30,6 +30,11 @@ import javax.json.JsonObject;
 
 import lombok.Getter;
 
+/**
+ * Singer is deprecated for removal; migrate away from the Singer/Stitch compatibility API.
+ *
+ */
+@Deprecated(since = "1.2701.0", forRemoval = true)
 public class Singer {
 
     @Getter

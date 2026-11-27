@@ -35,6 +35,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+@Deprecated(since = "1.2701.0", forRemoval = true)
 public class SingerArgs {
 
     @Getter

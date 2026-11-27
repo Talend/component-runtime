@@ -52,6 +52,11 @@ import org.talend.sdk.component.singer.java.SingerArgs;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Kitap is deprecated for removal; migrate away from the Singer/Stitch compatibility API.
+ *
+ */
+@Deprecated(since = "1.2701.0", forRemoval = true)
 public final class Kitap implements Runnable {
 
     private final SingerArgs args;
