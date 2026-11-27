@@ -17,6 +17,9 @@
 
 set -xe
 
+# shellcheck source=release-git-common.sh
+source "$(dirname "${BASH_SOURCE[0]}")/release-git-common.sh"
+
 # Parameters:
 # $1: release version
 # $2: tag name
@@ -39,16 +42,25 @@ main() {
   local tagName="${2?Missing actual project version}"
   local branchName="${3?Missing actual project version}"
 
-  local pushDryRunParams=()
+  # Branch and tag are pushed together, atomically: either the remote accepts both or none.
+  # Under DRY_RUN no tag exists (release:prepare ran with -DdryRun=true), so only the branch is named.
+  local pushParams=(--atomic)
+  local pushRefs=("${branchName}")
   if [[ "${DRY_RUN:-false}" == "true" ]]; then
     printf ">> DRY RUN: push to github will be simulated with --dry-run\n"
-    pushDryRunParams=(--dry-run)
+    pushParams+=(--dry-run)
+  else
+    pushRefs+=("${tagName}")
   fi
 
   printf ">> Docker image creation from branch %s with tag: %s on version %s\n" "$releaseVersion" "$tagName" "$branchName"
   printf "Reset repo\n"
   git reset --hard
-  git push "${pushDryRunParams[@]}" -u origin "${branchName}" --follow-tags
+
+  # Fail-closed (read-only, so also run under DRY_RUN): abort before any push if the remote branch
+  # cannot be fetched or moved during the release.
+  assert_remote_branch_not_ahead "${branchName}" || exit 1
+  git push "${pushParams[@]}" -u origin "${pushRefs[@]}"
 
   if [[ "${DRY_RUN:-false}" == "true" ]]; then
     printf ">> DRY RUN: skipping checkout of tag %s (nothing was tagged under DRY_RUN)\n" "${tagName}"
