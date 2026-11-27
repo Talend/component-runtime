@@ -41,6 +41,7 @@ import lombok.NoArgsConstructor;
  * Wrapper to {@link Kitap} which is able to launch a .car.
  */
 @NoArgsConstructor(access = PRIVATE)
+@Deprecated(since = "1.2701.0", forRemoval = true)
 public final class Carpates {
 
     public static void main(final String[] args) {

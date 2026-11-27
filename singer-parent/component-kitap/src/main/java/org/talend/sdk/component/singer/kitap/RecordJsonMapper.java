@@ -51,6 +51,7 @@ import org.talend.sdk.component.singer.java.Singer;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor // todo: simplify with recordconverters
+@Deprecated(since = "1.2701.0", forRemoval = true)
 public class RecordJsonMapper implements Function<Record, JsonObject> {
 
     private final JsonBuilderFactory jsonBuilderFactory;

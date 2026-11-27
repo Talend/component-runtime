@@ -33,6 +33,7 @@ import org.talend.sdk.component.api.record.Schema;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+@Deprecated(since = "1.2701.0", forRemoval = true)
 public class JsonSchemaGenerator implements Supplier<JsonObject> {
 
     private final Collection<Schema.Entry> properties;
